@@ -1,87 +1,274 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMBT Vault</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: white; }
-        .tab-content { display: none; }
-        .active { display: block; }
+        body { 
+            background-color: #0f172a; /* Dark theme */
+            color: #e2e8f0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar for tables */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="p-4">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-xl font-bold">EMBT Vault</h1>
-        <div id="admin-tag" class="hidden bg-red-500 text-xs px-2 py-1 rounded">ADMIN</div>
-    </div>
 
-    <div id="home" class="tab-content active">
-        <div class="bg-slate-800 p-6 rounded-2xl text-center border border-slate-700">
-            <p class="text-slate-400">Available Balance</p>
-            <h1 id="balance" class="text-4xl font-bold text-green-400">0.00 USDT</h1>
+    <header class="flex justify-between items-center mb-6 pt-2">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">
+                EV
+            </div>
+            <div>
+                <h1 class="text-lg font-bold leading-tight" id="header-username">Loading...</h1>
+                <span class="text-xs text-slate-400" id="header-id">ID: -----</span>
+            </div>
+        </div>
+        <div id="admin-badge" class="hidden bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1 rounded-full text-xs font-bold tracking-widest shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+            OWNER
+        </div>
+    </header>
+
+    <div id="tab-home" class="tab-content active">
+        <div class="glass-card p-6 text-center relative overflow-hidden mb-6">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            <p class="text-sm text-slate-400 uppercase tracking-wider mb-1">Available Balance</p>
+            <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300" id="user-balance">0.00 USDT</h2>
+            <button class="mt-4 bg-white/10 hover:bg-white/20 transition px-6 py-2 rounded-full text-sm font-semibold border border-white/10">
+                💳 Withdraw
+            </button>
+        </div>
+
+        <h3 class="text-lg font-bold mb-3">Daily Tasks</h3>
+        <div class="space-y-3">
+            <div class="glass-card p-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="text-2xl">📢</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Join Official Channel</h4>
+                        <p class="text-xs text-green-400">+0.50 USDT</p>
+                    </div>
+                </div>
+                <button class="bg-blue-600 hover:bg-blue-500 px-4 py-1.5 rounded-lg text-sm font-bold transition shadow-lg shadow-blue-600/30">Go</button>
+            </div>
         </div>
     </div>
 
-    <div id="support" class="tab-content">
-        <h2 class="text-lg font-bold mb-4">Contact Support</h2>
-        <textarea id="support-msg" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700" placeholder="Describe your issue..."></textarea>
-        <button onclick="sendTicket()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold">Send Ticket</button>
+    <div id="tab-support" class="tab-content">
+        <div class="glass-card p-5 mb-6">
+            <h2 class="text-xl font-bold mb-2">Help Center</h2>
+            <p class="text-xs text-slate-400 mb-4">Describe your issue and an admin will reply to your Telegram chat.</p>
+            
+            <textarea id="ticket-msg" rows="4" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 transition mb-3" placeholder="I have an issue with..."></textarea>
+            
+            <button onclick="submitTicket()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:opacity-90 transition">
+                📩 Send Message
+            </button>
+        </div>
     </div>
 
-    <div id="admin" class="tab-content">
-        <h2 class="text-lg font-bold mb-4 text-red-400">Owner Settings</h2>
-        <div id="user-list" class="space-y-2">
+    <div id="tab-admin" class="tab-content">
+        
+        <div class="glass-card p-5 mb-6 border-red-500/30 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-red-500/10 rounded-full blur-2xl"></div>
+            <h2 class="text-lg font-bold text-red-400 mb-4 flex items-center gap-2">
+                <span>⚙️</span> Bot Settings
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                    <label class="text-xs text-slate-400 block mb-1">Min Withdraw</label>
+                    <input type="number" id="set-min-withdraw" class="w-full bg-transparent text-lg font-bold focus:outline-none" value="1.0">
+                </div>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                    <label class="text-xs text-slate-400 block mb-1">Penalty Fee</label>
+                    <input type="number" id="set-penalty" class="w-full bg-transparent text-lg font-bold text-red-400 focus:outline-none" value="0.10">
+                </div>
             </div>
+            
+            <div class="space-y-3 mb-4">
+                <label class="flex justify-between items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                    <span class="text-sm font-bold">Withdrawals Active</span>
+                    <input type="checkbox" id="set-withdrawals" class="w-5 h-5 accent-blue-500" checked>
+                </label>
+                <label class="flex justify-between items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                    <span class="text-sm font-bold text-yellow-400">Maintenance Mode</span>
+                    <input type="checkbox" id="set-maintenance" class="w-5 h-5 accent-red-500">
+                </label>
+            </div>
+            
+            <button onclick="saveSettings()" class="w-full bg-red-600 py-2 rounded-lg font-bold text-sm shadow-lg shadow-red-600/20">
+                💾 Save Settings to Bot
+            </button>
+        </div>
+
+        <h3 class="text-md font-bold mb-3 text-blue-400">🎫 Pending Tickets</h3>
+        <div id="admin-tickets-list" class="space-y-3 mb-6 overflow-x-auto whitespace-nowrap pb-2">
+            <p class="text-sm text-slate-500 italic">No pending tickets.</p>
+        </div>
+
+        <div class="flex justify-between items-end mb-3">
+            <h3 class="text-md font-bold text-green-400">👥 User Database</h3>
+            <span class="text-xs text-slate-500" id="total-users-count">0 Users</span>
+        </div>
+        
+        <div class="glass-card overflow-hidden">
+            <div class="p-3 border-b border-slate-700">
+                <input type="text" placeholder="Search by User ID..." class="w-full bg-slate-900/80 p-2 rounded border border-slate-700 text-sm focus:border-blue-500 outline-none">
+            </div>
+            <div class="max-h-60 overflow-y-auto p-1" id="admin-user-list">
+                <p class="text-center text-sm text-slate-500 py-4">Loading users...</p>
+            </div>
+        </div>
     </div>
 
-    <nav class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-slate-800 flex justify-around p-4">
-        <button onclick="showTab('home')">🏠 Home</button>
-        <button onclick="showTab('support')">🎧 Help</button>
-        <button id="admin-btn" class="hidden" onclick="showTab('admin')">🔐 Admin</button>
+    <nav class="fixed bottom-0 left-0 w-full glass-card border-b-0 border-x-0 rounded-none rounded-t-2xl flex justify-around p-3 pb-safe z-50">
+        <button onclick="switchTab('home')" class="nav-btn active flex flex-col items-center gap-1 text-slate-400 hover:text-white transition w-16">
+            <span class="text-xl">🏠</span>
+            <span class="text-[10px] font-bold">Home</span>
+        </button>
+        <button onclick="switchTab('support')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-white transition w-16">
+            <span class="text-xl">🎧</span>
+            <span class="text-[10px] font-bold">Help</span>
+        </button>
+        <button id="nav-admin" onclick="switchTab('admin')" class="hidden nav-btn flex flex-col items-center gap-1 text-red-400 hover:text-red-300 transition w-16">
+            <span class="text-xl">🔐</span>
+            <span class="text-[10px] font-bold">Admin</span>
+        </button>
     </nav>
 
     <script>
         const tg = window.Telegram.WebApp;
-        const RENDER_URL = "https://embt-gateway.onrender.com"; // 🚩 CHANGE THIS
-        const ADMIN_ID = 7329000880;
+        tg.expand(); // Open full screen
+        tg.ready();
 
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-        }
+        // 🛑 IMPORTANT: REPLACE THIS WITH YOUR RENDER URL
+        const RENDER_URL = "https://embt-gateway.onrender.com"; 
+        
+        // 🛑 IMPORTANT: REPLACE WITH YOUR TELEGRAM ID
+        const OWNER_ID = 7329000880; 
 
-        async function init() {
-            const user = tg.initDataUnsafe.user;
-            
-            // 1. Show Admin stuff if it's you
-            if(user.id === ADMIN_ID) {
-                document.getElementById('admin-btn').classList.remove('hidden');
-                document.getElementById('admin-tag').classList.remove('hidden');
+        // Current User Data
+        const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; // Fallback for browser testing
+
+        // -- Initialization --
+        async function initApp() {
+            document.getElementById('header-username').innerText = user.first_name || user.username;
+            document.getElementById('header-id').innerText = `ID: ${user.id}`;
+
+            // Check if user is Admin
+            if (user.id === OWNER_ID) {
+                document.getElementById('admin-badge').classList.remove('hidden');
+                document.getElementById('nav-admin').classList.remove('hidden');
                 loadAdminData();
             }
 
-            // 2. Fetch User Balance
-            const res = await fetch(`${RENDER_URL}/api/user/${user.id}`);
-            const data = await res.json();
-            document.getElementById('balance').innerText = `${data.balance.toFixed(2)} USDT`;
+            // Fetch User Balance from Bot
+            try {
+                const res = await fetch(`${RENDER_URL}/api/user/${user.id}`);
+                const data = await res.json();
+                if(data.balance !== undefined) {
+                    document.getElementById('user-balance').innerText = `${data.balance.toFixed(2)} USDT`;
+                }
+            } catch (err) {
+                console.log("Waiting for backend connection...");
+            }
         }
 
-        async function sendTicket() {
-            const msg = document.getElementById('support-msg').value;
-            await fetch(`${RENDER_URL}/api/support/create`, {
+        // -- Tab Switching Logic --
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        // -- Support Ticket Logic --
+        async function submitTicket() {
+            const msg = document.getElementById('ticket-msg').value;
+            if(!msg) return tg.showAlert("Please enter a message.");
+            
+            try {
+                await fetch(`${RENDER_URL}/api/support/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: user.id, username: user.username, message: msg })
+                });
+                tg.showAlert("✅ Ticket sent! An admin will reply in the bot.");
+                document.getElementById('ticket-msg').value = '';
+                switchTab('home');
+            } catch (e) {
+                tg.showAlert("Error sending ticket. Check backend.");
+            }
+        }
+
+        // -- ADMIN: Load Data --
+        async function loadAdminData() {
+            try {
+                // Load Settings
+                const setRes = await fetch(`${RENDER_URL}/api/settings`);
+                const settings = await setRes.json();
+                if(settings) {
+                    document.getElementById('set-min-withdraw').value = settings.min_withdraw || 1.0;
+                    document.getElementById('set-withdrawals').checked = settings.withdrawals_enabled !== false;
+                }
+
+                // Load Users (Mocking HTML generation for now)
+                const usersRes = await fetch(`${RENDER_URL}/api/admin/users`);
+                const users = await usersRes.json();
+                let userHTML = '';
+                users.forEach(u => {
+                    userHTML += `
+                    <div class="flex justify-between items-center p-2 hover:bg-slate-800 rounded transition border-b border-slate-800/50 last:border-0">
+                        <div>
+                            <p class="text-sm font-bold">${u.username || 'NoName'}</p>
+                            <p class="text-[10px] text-slate-500">${u.user_id}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm text-green-400 font-mono">${(u.balance || 0).toFixed(2)}</span>
+                            <button class="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-xs">✏️</button>
+                            <button class="bg-red-900/50 hover:bg-red-800 text-red-400 px-2 py-1 rounded text-xs">Ban</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('admin-user-list').innerHTML = userHTML || '<p class="text-sm text-center p-4">No users found.</p>';
+                document.getElementById('total-users-count').innerText = `${users.length || 0} Users`;
+
+            } catch (e) {
+                console.log("Admin fetch error:", e);
+            }
+        }
+
+        // -- ADMIN: Save Settings --
+        async function saveSettings() {
+            const minW = parseFloat(document.getElementById('set-min-withdraw').value);
+            const withE = document.getElementById('set-withdrawals').checked;
+            const maint = document.getElementById('set-maintenance').checked;
+
+            await fetch(`${RENDER_URL}/api/settings/update`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    user_id: tg.initDataUnsafe.user.id,
-                    username: tg.initDataUnsafe.user.username,
-                    message: msg
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ min_withdraw: minW, withdrawals_enabled: withE, maintenance_mode: maint })
             });
-            alert("Ticket Sent!");
-            showTab('home');
+            tg.showAlert("⚙️ Settings saved instantly to bot!");
         }
 
-        init();
+        // Start App
+        initApp();
     </script>
 </body>
-    </html>
+                </html>
