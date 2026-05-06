@@ -1,28 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script> <!-- Required! -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); font-family: sans-serif; }
-        .balance-card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; text-align: center; }
+        body { background-color: #0f172a; color: white; }
+        .tab-content { display: none; }
+        .active { display: block; }
     </style>
 </head>
-<body>
-    <div class="balance-card">
-        <h2>Your Balance</h2>
-        <h1 id="user-balance">0.00 USDT</h1>
+<body class="p-4">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl font-bold">EMBT Vault</h1>
+        <div id="admin-tag" class="hidden bg-red-500 text-xs px-2 py-1 rounded">ADMIN</div>
     </div>
+
+    <div id="home" class="tab-content active">
+        <div class="bg-slate-800 p-6 rounded-2xl text-center border border-slate-700">
+            <p class="text-slate-400">Available Balance</p>
+            <h1 id="balance" class="text-4xl font-bold text-green-400">0.00 USDT</h1>
+        </div>
+    </div>
+
+    <div id="support" class="tab-content">
+        <h2 class="text-lg font-bold mb-4">Contact Support</h2>
+        <textarea id="support-msg" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700" placeholder="Describe your issue..."></textarea>
+        <button onclick="sendTicket()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold">Send Ticket</button>
+    </div>
+
+    <div id="admin" class="tab-content">
+        <h2 class="text-lg font-bold mb-4 text-red-400">Owner Settings</h2>
+        <div id="user-list" class="space-y-2">
+            </div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-slate-800 flex justify-around p-4">
+        <button onclick="showTab('home')">🏠 Home</button>
+        <button onclick="showTab('support')">🎧 Help</button>
+        <button id="admin-btn" class="hidden" onclick="showTab('admin')">🔐 Admin</button>
+    </nav>
+
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready(); // Tells Telegram the app is loaded
+        const RENDER_URL = "https://embt-gateway.onrender.com"; // 🚩 CHANGE THIS
+        const ADMIN_ID = 7329000880;
 
-        async function fetchData() {
-            const userId = tg.initDataUnsafe.user.id; // Gets ID from Telegram
-            const res = await fetch(`https://YOUR-RENDER-URL.com/api/user/${userId}`);
-            const data = await res.json();
-            document.getElementById('user-balance').innerText = data.balance + " USDT";
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
         }
-        fetchData();
+
+        async function init() {
+            const user = tg.initDataUnsafe.user;
+            
+            // 1. Show Admin stuff if it's you
+            if(user.id === ADMIN_ID) {
+                document.getElementById('admin-btn').classList.remove('hidden');
+                document.getElementById('admin-tag').classList.remove('hidden');
+                loadAdminData();
+            }
+
+            // 2. Fetch User Balance
+            const res = await fetch(`${RENDER_URL}/api/user/${user.id}`);
+            const data = await res.json();
+            document.getElementById('balance').innerText = `${data.balance.toFixed(2)} USDT`;
+        }
+
+        async function sendTicket() {
+            const msg = document.getElementById('support-msg').value;
+            await fetch(`${RENDER_URL}/api/support/create`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user_id: tg.initDataUnsafe.user.id,
+                    username: tg.initDataUnsafe.user.username,
+                    message: msg
+                })
+            });
+            alert("Ticket Sent!");
+            showTab('home');
+        }
+
+        init();
     </script>
 </body>
-</html>
+    </html>
