@@ -3,154 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMBT Vault</title>
+    <title>EMBT Vault | Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { 
-            background-color: #0f172a; /* Dark theme */
-            color: #e2e8f0; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-bottom: 80px; /* Space for bottom nav */
+        :root {
+            --neon-blue: #3b82f6;
+            --neon-green: #10b981;
+            --neon-purple: #8b5cf6;
         }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 100px;
         }
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+        }
+
+        /* Neon Glows */
+        .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
         
-        /* Custom Scrollbar for tables */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .nav-active {
+    color: white !important;
+    filter: drop-shadow(0 0 8px var(--neon-blue));
+}
+
+.nav-active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    width: 20px;
+    height: 4px;
+    background: var(--neon-blue);
+    border-radius: 10px;
+    box-shadow: 0 0 15px var(--neon-blue);
+    animation: glow-pulse 2s infinite;
+}
+
+@keyframes glow-pulse {
+    0% { opacity: 0.6; transform: scaleX(1); }
+    50% { opacity: 1; transform: scaleX(1.5); }
+    100% { opacity: 0.6; transform: scaleX(1); }
+        }
+
+        .tab-content { display: none; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-content.active { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Input Styling */
+        input, textarea {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.3s ease;
+        }
+        input:focus { border-color: var(--neon-blue) !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+        }
+        .btn-premium:active { transform: scale(0.96); }
     </style>
 </head>
-<body class="p-4">
+<body>
 
-    <header class="flex justify-between items-center mb-6 pt-2">
+    <div class="px-6 pt-6 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">
-                EV
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xl font-black shadow-lg shadow-blue-500/20" id="user-pfp">
+                E
             </div>
             <div>
-                <h1 class="text-lg font-bold leading-tight" id="header-username">Loading...</h1>
-                <span class="text-xs text-slate-400" id="header-id">ID: -----</span>
+                <h1 id="user-name" class="font-extrabold text-lg leading-tight">Loading...</h1>
+                <div class="flex items-center gap-1">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] text-slate-400 uppercase tracking-tighter">Verified Member</span>
+                </div>
             </div>
         </div>
-        <div id="admin-badge" class="hidden bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1 rounded-full text-xs font-bold tracking-widest shadow-[0_0_10px_rgba(239,68,68,0.2)]">
-            OWNER
+        <div id="admin-badge" class="hidden glass px-3 py-1 border-red-500/30 text-red-400 text-[10px] font-black uppercase tracking-widest">
+            Owner
         </div>
-    </header>
+    </div>
 
-    <div id="tab-home" class="tab-content active">
-        <div class="glass-card p-6 text-center relative overflow-hidden mb-6">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-            <p class="text-sm text-slate-400 uppercase tracking-wider mb-1">Available Balance</p>
-            <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300" id="user-balance">0.00 USDT</h2>
-            <button class="mt-4 bg-white/10 hover:bg-white/20 transition px-6 py-2 rounded-full text-sm font-semibold border border-white/10">
-                💳 Withdraw
-            </button>
+    <main class="p-6">
+
+        <div id="tab-home" class="tab-content active">
+            <div class="glass p-8 text-center glow-blue mb-8 relative overflow-hidden">
+                <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
+                <p class="text-xs text-slate-400 uppercase font-semibold tracking-[0.2em] mb-2">Vault Balance</p>
+                <h2 id="balance-main" class="text-5xl font-black tracking-tighter text-white mb-2">0.00</h2>
+                <p class="text-blue-400 font-bold text-sm">USDT</p>
+            </div>
+
+            <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Featured Tasks</h3>
+            <div id="task-list" class="space-y-4">
+                <div class="glass p-4 flex justify-between items-center group">
+                    <div class="glass p-4 flex justify-between items-center group relative overflow-hidden">
+    <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl shadow-inner">📢</div>
+        <div>
+            <h4 class="text-sm font-bold">Join Channel</h4>
+            <div class="flex items-center gap-1">
+                <span class="text-[10px] text-green-400 font-bold">+0.50 USDT</span>
+                <span class="text-[10px] text-slate-500">• 30s check</span>
+            </div>
         </div>
-
-        <h3 class="text-lg font-bold mb-3">Daily Tasks</h3>
-        <div class="space-y-3">
-            <div class="glass-card p-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="text-2xl">📢</div>
-                    <div>
-                        <h4 class="font-bold text-sm">Join Official Channel</h4>
-                        <p class="text-xs text-green-400">+0.50 USDT</p>
+    </div>
+    <button id="btn-task-1" onclick="startTask('https://t.me/yourchannel', '1', 0.50, 30)" class="btn-premium px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-blue-600/20">
+        Start
+    </button>
                     </div>
+
+        <div id="tab-friends" class="tab-content">
+            <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Your Team</h3>
+    <div id="friends-list" class="space-y-3">
+        <div class="glass p-4 flex justify-between items-center border-l-2 border-blue-500/50">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px]">👤</div>
+                <div>
+                    <p class="text-xs font-bold" id="friend-name">Waiting for friends...</p>
+                    <p class="text-[9px] text-slate-500">Joined via your link</p>
                 </div>
-                <button class="bg-blue-600 hover:bg-blue-500 px-4 py-1.5 rounded-lg text-sm font-bold transition shadow-lg shadow-blue-600/30">Go</button>
             </div>
+            <p class="text-xs font-bold text-green-400">+0.10 USDT</p>
         </div>
     </div>
 
-    <div id="tab-support" class="tab-content">
-        <div class="glass-card p-5 mb-6">
-            <h2 class="text-xl font-bold mb-2">Help Center</h2>
-            <p class="text-xs text-slate-400 mb-4">Describe your issue and an admin will reply to your Telegram chat.</p>
-            
-            <textarea id="ticket-msg" rows="4" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 transition mb-3" placeholder="I have an issue with..."></textarea>
-            
-            <button onclick="submitTicket()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:opacity-90 transition">
-                📩 Send Message
-            </button>
+        <div id="tab-wallet" class="tab-content">
+            <div class="glass p-6 mb-6 glow-green border-green-500/10">
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-1">Available for Payout</p>
+                <h2 id="balance-wallet" class="text-4xl font-black">0.00 <span class="text-lg text-slate-500">USDT</span></h2>
+            </div>
+
+            <div class="glass p-5">
+                <h3 class="text-sm font-bold mb-4">Withdrawal Request</h3>
+                <input id="with-amount" type="number" class="w-full rounded-xl p-4 text-sm mb-4" placeholder="Amount (min 1.0)">
+                <input id="with-address" type="text" class="w-full rounded-xl p-4 text-sm mb-6" placeholder="BEP20 Address (0x...)">
+                <button onclick="submitWithdraw()" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm">
+                    Submit Payout
+                </button>
+            </div>
         </div>
+
+        <div id="tab-admin" class="tab-content">
+            <div class="glass p-5 mb-6 border-red-500/20">
+    <div class="flex justify-between items-center">
+        <div>
+            <h4 class="text-xs font-bold">Maintenance Mode</h4>
+            <p class="text-[9px] text-slate-500">Lock app for users</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="set-maintenance" onchange="saveSettings()" class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+        </label>
     </div>
+            </div>
 
-    <div id="tab-admin" class="tab-content">
-        
-        <div class="glass-card p-5 mb-6 border-red-500/30 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 h-20 bg-red-500/10 rounded-full blur-2xl"></div>
-            <h2 class="text-lg font-bold text-red-400 mb-4 flex items-center gap-2">
-                <span>⚙️</span> Bot Settings
-            </h2>
             
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                    <label class="text-xs text-slate-400 block mb-1">Min Withdraw</label>
-                    <input type="number" id="set-min-withdraw" class="w-full bg-transparent text-lg font-bold focus:outline-none" value="1.0">
+            <div class="flex items-center gap-2 mb-6">
+                <div class="h-1 w-8 bg-red-500 rounded-full"></div>
+                <h2 class="text-sm font-black uppercase text-red-500 tracking-[0.3em]">Command Center</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="glass p-4 border-red-500/20">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Total Users</p>
+                    <p id="stat-users" class="text-2xl font-black">--</p>
                 </div>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                    <label class="text-xs text-slate-400 block mb-1">Penalty Fee</label>
-                    <input type="number" id="set-penalty" class="w-full bg-transparent text-lg font-bold text-red-400 focus:outline-none" value="0.10">
+                <div class="glass p-4 border-red-500/20">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Pending Payouts</p>
+                    <p id="stat-withdraws" class="text-2xl font-black text-yellow-500">--</p>
                 </div>
             </div>
-            
-            <div class="space-y-3 mb-4">
-                <label class="flex justify-between items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                    <span class="text-sm font-bold">Withdrawals Active</span>
-                    <input type="checkbox" id="set-withdrawals" class="w-5 h-5 accent-blue-500" checked>
-                </label>
-                <label class="flex justify-between items-center bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                    <span class="text-sm font-bold text-yellow-400">Maintenance Mode</span>
-                    <input type="checkbox" id="set-maintenance" class="w-5 h-5 accent-red-500">
-                </label>
-            </div>
-            
-            <button onclick="saveSettings()" class="w-full bg-red-600 py-2 rounded-lg font-bold text-sm shadow-lg shadow-red-600/20">
-                💾 Save Settings to Bot
-            </button>
-        </div>
 
-        <h3 class="text-md font-bold mb-3 text-blue-400">🎫 Pending Tickets</h3>
-        <div id="admin-tickets-list" class="space-y-3 mb-6 overflow-x-auto whitespace-nowrap pb-2">
-            <p class="text-sm text-slate-500 italic">No pending tickets.</p>
-        </div>
-
-        <div class="flex justify-between items-end mb-3">
-            <h3 class="text-md font-bold text-green-400">👥 User Database</h3>
-            <span class="text-xs text-slate-500" id="total-users-count">0 Users</span>
-        </div>
-        
-        <div class="glass-card overflow-hidden">
-            <div class="p-3 border-b border-slate-700">
-                <input type="text" placeholder="Search by User ID..." class="w-full bg-slate-900/80 p-2 rounded border border-slate-700 text-sm focus:border-blue-500 outline-none">
-            </div>
-            <div class="max-h-60 overflow-y-auto p-1" id="admin-user-list">
-                <p class="text-center text-sm text-slate-500 py-4">Loading users...</p>
+            <div class="glass p-5 mb-6">
+                <h3 class="text-sm font-bold mb-4">Pending Tickets</h3>
+                <div id="ticket-list" class="space-y-3">
+                    </div>
             </div>
         </div>
-    </div>
 
-    <nav class="fixed bottom-0 left-0 w-full glass-card border-b-0 border-x-0 rounded-none rounded-t-2xl flex justify-around p-3 pb-safe z-50">
-        <button onclick="switchTab('home')" class="nav-btn active flex flex-col items-center gap-1 text-slate-400 hover:text-white transition w-16">
-            <span class="text-xl">🏠</span>
-            <span class="text-[10px] font-bold">Home</span>
-        </button>
-        <button onclick="switchTab('support')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-white transition w-16">
-            <span class="text-xl">🎧</span>
-            <span class="text-[10px] font-bold">Help</span>
-        </button>
-        <button id="nav-admin" onclick="switchTab('admin')" class="hidden nav-btn flex flex-col items-center gap-1 text-red-400 hover:text-red-300 transition w-16">
-            <span class="text-xl">🔐</span>
-            <span class="text-[10px] font-bold">Admin</span>
-        </button>
+    </main>
+
+    <nav class="fixed bottom-6 left-6 right-6 h-20 glass flex justify-around items-center px-4 z-50 border-white/10 glow-blue">
+    
+    <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn nav-active flex flex-col items-center gap-1 transition-all duration-300">
+        <div class="text-2xl">⚡</div>
+        <span class="text-[9px] font-black uppercase tracking-widest">Vault</span>
+    </button>
+
+    <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
+        <div class="text-2xl">👥</div>
+        <span class="text-[9px] font-black uppercase tracking-widest">Friends</span>
+    </button>
+
+    <button id="nav-wallet" onclick="switchTab('wallet', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
+        <div class="text-2xl">💰</div>
+        <span class="text-[9px] font-black uppercase tracking-widest">Wallet</span>
+    </button>
+
+    <button id="nav-admin" onclick="switchTab('admin', this)" class="hidden nav-btn flex flex-col items-center gap-1 text-red-900/50 transition-all duration-300">
+        <div class="text-2xl">🔐</div>
+        <span class="text-[9px] font-black uppercase tracking-widest">Admin</span>
+    </button>
+    
     </nav>
 
     <script>
@@ -169,32 +244,176 @@
 
         // -- Initialization --
         async function initApp() {
-            document.getElementById('header-username').innerText = user.first_name || user.username;
-            document.getElementById('header-id').innerText = `ID: ${user.id}`;
+    document.getElementById('user-name').innerText = user.first_name || user.username;
+    document.getElementById('user-pfp').innerText = (user.first_name || "E")[0];
 
-            // Check if user is Admin
-            if (user.id === OWNER_ID) {
-                document.getElementById('admin-badge').classList.remove('hidden');
-                document.getElementById('nav-admin').classList.remove('hidden');
-                loadAdminData();
-            }
+    if (user.id === OWNER_ID) {
+        document.getElementById('admin-badge').classList.remove('hidden');
+        document.getElementById('nav-admin').classList.remove('hidden');
+    }
 
-            // Fetch User Balance from Bot
-            try {
-                const res = await fetch(`${RENDER_URL}/api/user/${user.id}`);
-                const data = await res.json();
-                if(data.balance !== undefined) {
-                    document.getElementById('user-balance').innerText = `${data.balance.toFixed(2)} USDT`;
-                }
-            } catch (err) {
-                console.log("Waiting for backend connection...");
-            }
+    try {
+        const res = await fetch(`${RENDER_URL}/api/user/${user.id}`);
+        const data = await res.json();
+        // Update BOTH balance displays
+        document.getElementById('balance-main').innerText = data.balance.toFixed(2);
+        document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
+    } catch (err) {
+        console.log("Syncing...");
+    }
         }
+        function shareReferral() {
+                const refLink = `https://t.me/your_bot_name?start=${user.id}`;
+                const text = "Join me on EMBT Vault and earn USDT! 💰";
+    
+               // This opens the Telegram share menu automatically
+              tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`);
+              }
+        
+        // Track tasks currently in progress
+let activeTasks = {};
+        
+async function startTask(url, taskId, reward, duration) {
+    // Open the link
+    tg.openLink(url);
+    
+    const btn = document.getElementById(`btn-task-${taskId}`);
+    btn.disabled = true;
+    activeTasks[taskId] = Date.now();
 
-        // -- Tab Switching Logic --
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
+    let secondsLeft = duration;
+    const interval = setInterval(() => {
+        secondsLeft--;
+        btn.innerText = `Verify (${secondsLeft}s)`;
+        
+        if (secondsLeft <= 0) {
+            clearInterval(interval);
+            btn.innerText = "Claim Reward";
+            btn.disabled = false;
+            btn.classList.remove('bg-blue-600');
+            btn.classList.add('bg-green-600');
+            // Change function to claim
+            btn.onclick = () => claimTask(taskId, reward);
+        }
+    }, 1000);
+}
+async function requestWithdraw() {
+    const amount = document.getElementById('with-amount').value;
+    const address = document.getElementById('with-address').value;
+
+    const res = await fetch(`${RENDER_URL}/api/withdraw/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id, amount, address, method: 'BEP20' })
+    });
+    const data = await res.json();
+    if(data.success) {
+        tg.showAlert("Request sent to Admin! 🚀");
+        initApp(); // Refresh balance
+    } else {
+        tg.showAlert(data.error);
+    }
+}
+// --- Share Referral ---
+function shareInvite() {
+    const botUsername = "YourBotName_bot"; // 🚩 CHANGE THIS
+    const refLink = `https://t.me/${botUsername}?start=${user.id}`;
+    const text = "💰 Join EMBT Vault and start earning USDT with me! It's free and easy.";
+    
+    // Telegram's native sharing method
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`;
+    tg.openTelegramLink(shareUrl);
+}
+
+// --- Copy Link ---
+function copyRefLink() {
+    const input = document.getElementById('ref-link-input');
+    input.select();
+    document.execCommand('copy');
+    
+    // Telegram native notification
+    tg.showScanQrPopup({ text: "Link Copied!" }); 
+    setTimeout(() => tg.closeScanQrPopup(), 1000);
+}
+
+// --- Load Friends Data ---
+async function loadReferrals() {
+    try {
+        const res = await fetch(`${RENDER_URL}/api/user/referrals/${user.id}`);
+        const data = await res.json();
+        
+        document.getElementById('ref-count').innerText = data.count;
+        document.getElementById('ref-link-input').value = `https://t.me/YourBotName_bot?start=${user.id}`;
+
+        let html = '';
+        if(data.friends.length > 0) {
+            data.friends.forEach(f => {
+                html += `
+                <div class="glass-card p-3 flex justify-between items-center border-l-2 border-blue-500">
+                    <div>
+                        <p class="text-xs font-bold">${f.name}</p>
+                        <p class="text-[9px] text-slate-500">${new Date(f.date).toLocaleDateString()}</p>
+                    </div>
+                    <p class="text-xs text-green-400 font-bold">+${f.bonus} USDT</p>
+                </div>`;
+            });
+            document.getElementById('friends-list').innerHTML = html;
+        }
+    } catch (e) {
+        console.log("Ref load error");
+    }
+        }
+// Admin function to load the list
+async function loadPendingWithdrawals() {
+    const res = await fetch(`${RENDER_URL}/api/admin/withdrawals`);
+    const list = await res.json();
+    let html = '';
+    list.forEach(w => {
+        html += `
+        <div class="glass-card p-4 border-l-4 border-yellow-500">
+            <p class="text-sm font-bold">${w.amount} USDT</p>
+            <p class="text-[10px] text-slate-400 mb-2 break-all">${w.address}</p>
+            <div class="flex gap-2">
+                <button onclick="payoutAction('${w._id}', 'approved')" class="bg-green-600 text-[10px] px-3 py-1 rounded">Approve</button>
+                <button onclick="payoutAction('${w._id}', 'rejected')" class="bg-red-600 text-[10px] px-3 py-1 rounded">Reject</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById('admin-withdraw-list').innerHTML = html || '<p class="text-xs text-slate-500">No pending payouts.</p>';
+        }        
+
+async function claimTask(taskId, reward) {
+    const btn = document.getElementById(`btn-task-${taskId}`);
+    btn.disabled = true;
+    btn.innerText = "Verifying...";
+
+    try {
+        const response = await fetch(`${RENDER_URL}/api/tasks/claim`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: user.id,
+                task_id: taskId,
+                reward: reward
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            tg.showScanQrPopup({ text: "Reward Claimed!" }); // Visual flair
+            btn.innerText = "✅ Completed";
+            btn.classList.replace('bg-green-600', 'bg-slate-700');
+            // Refresh balance
+            initApp(); 
+        } else {
+            tg.showAlert(result.error || "Verification failed.");
+            btn.disabled = false;
+        }
+    } catch (err) {
+        tg.showAlert("Server error. Try again later.");
+        btn.disabled = false;
+    }
         }
 
         // -- Support Ticket Logic --
@@ -216,42 +435,105 @@
             }
         }
 
-        // -- ADMIN: Load Data --
-        async function loadAdminData() {
-            try {
-                // Load Settings
-                const setRes = await fetch(`${RENDER_URL}/api/settings`);
-                const settings = await setRes.json();
-                if(settings) {
-                    document.getElementById('set-min-withdraw').value = settings.min_withdraw || 1.0;
-                    document.getElementById('set-withdrawals').checked = settings.withdrawals_enabled !== false;
-                }
+     function switchTab(tabId, btn) {
+    // 1. Hide all tab content
+    document.querySelectorAll('.tab-content').forEach(t => {
+        t.classList.remove('active');
+    });
 
-                // Load Users (Mocking HTML generation for now)
-                const usersRes = await fetch(`${RENDER_URL}/api/admin/users`);
-                const users = await usersRes.json();
-                let userHTML = '';
-                users.forEach(u => {
-                    userHTML += `
-                    <div class="flex justify-between items-center p-2 hover:bg-slate-800 rounded transition border-b border-slate-800/50 last:border-0">
-                        <div>
-                            <p class="text-sm font-bold">${u.username || 'NoName'}</p>
-                            <p class="text-[10px] text-slate-500">${u.user_id}</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm text-green-400 font-mono">${(u.balance || 0).toFixed(2)}</span>
-                            <button class="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-xs">✏️</button>
-                            <button class="bg-red-900/50 hover:bg-red-800 text-red-400 px-2 py-1 rounded text-xs">Ban</button>
-                        </div>
-                    </div>`;
-                });
-                document.getElementById('admin-user-list').innerHTML = userHTML || '<p class="text-sm text-center p-4">No users found.</p>';
-                document.getElementById('total-users-count').innerText = `${users.length || 0} Users`;
+    // 2. Remove active styling from all nav buttons
+    document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('nav-active');
+        b.classList.add('text-slate-500'); // Dim the non-active icons
+    });
 
-            } catch (e) {
-                console.log("Admin fetch error:", e);
+    // 3. Show the selected tab
+    document.getElementById('tab-' + tabId).classList.add('active');
+
+    // 4. Highlight the clicked button
+    btn.classList.add('nav-active');
+    btn.classList.remove('text-slate-500');
+    
+    // 5. Native Telegram Vibration (Haptic Feedback)
+    tg.HapticFeedback.selectionChanged();
+
+    // 6. Refresh data based on tab
+    if(tabId === 'admin') loadAdminData();
+    if(tabId === 'friends') loadReferralData();
+        }
+        
+        // --- LOAD REFERRAL DATA ---
+async function loadRefData() {
+    try {
+        const res = await fetch(`${RENDER_URL}/api/user/referrals/${user.id}`);
+        const data = await res.json();
+        
+        document.getElementById('ref-url').value = `https://t.me/YourBotName_bot?start=${user.id}`;
+        // You can update a 'friends list' div here similar to the previous version
+    } catch (e) {
+        console.error("Ref Load Failed");
+    }
+}
+
+// --- ADMIN: LOAD COMMAND CENTER STATS ---
+async function loadAdminData() {
+    try {
+        // Fetch User Count
+        const userRes = await fetch(`${RENDER_URL}/api/admin/users`);
+        const users = await userRes.json();
+        document.getElementById('stat-users').innerText = users.length;
+
+        // Fetch Pending Withdrawals
+        const withRes = await fetch(`${RENDER_URL}/api/admin/withdrawals`);
+        const withdrawals = await withRes.json();
+        document.getElementById('stat-withdraws').innerText = withdrawals.length;
+
+        // Populate Ticket List
+        const ticketRes = await fetch(`${RENDER_URL}/api/admin/tickets`);
+        const tickets = await ticketRes.json();
+        let ticketHTML = '';
+        tickets.forEach(t => {
+            ticketHTML += `
+                <div class="glass p-4 border-l-2 border-blue-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold">${t.username}</p>
+                        <p class="text-[10px] text-slate-400">${t.message}</p>
+                    </div>
+                    <button onclick="replyTicket('${t._id}')" class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-lg text-[10px] font-bold">Reply</button>
+                </div>`;
+        });
+        document.getElementById('ticket-list').innerHTML = ticketHTML || '<p class="text-[10px] text-slate-500 text-center">No active tickets.</p>';
+
+    } catch (e) {
+        console.error("Admin Load Failed");
+    }
+}
+
+// --- WITHDRAWAL SUBMISSION ---
+async function submitWithdraw() {
+    const amount = document.getElementById('with-amount').value;
+    const address = document.getElementById('with-address').value;
+
+    if(!amount || !address) return tg.showAlert("Please fill all fields");
+
+    tg.showConfirm("Are you sure you want to withdraw?", async (ok) => {
+        if(ok) {
+            const res = await fetch(`${RENDER_URL}/api/withdraw/request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: user.id, amount, address })
+            });
+            const data = await res.json();
+            if(data.success) {
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.showAlert("🚀 Request Sent! Wait for Admin approval.");
+                init(); // Refresh balance
+            } else {
+                tg.showAlert(data.error);
             }
         }
+    });
+}
 
         // -- ADMIN: Save Settings --
         async function saveSettings() {
