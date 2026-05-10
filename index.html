@@ -93,6 +93,12 @@
             text-shadow: 0 0 5px rgba(255,255,255,0.3);
         }
         .btn-premium:active { transform: scale(0.96); }
+        .fade-out {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.5s ease;
+    pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -126,28 +132,12 @@
         <div id="tab-home" class="tab-content active">
             <div class="glass p-8 text-center glow-blue mb-8 relative overflow-hidden">
                 <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
-                <p class="text-xs text-slate-400 uppercase font-semibold tracking-[0.2em] mb-2">Vault Balance</p>
+                <p class="text-xs text-slate-400 uppercase font-semibold tracking-[0.2em] mb-2">Balance🪙</p>
                 <h2 id="balance-main" class="text-5xl font-black tracking-tighter text-white mb-2">0.00</h2>
-                <p class="text-blue-400 font-bold text-sm">USDT</p>
+<p class="text-blue-400 font-bold text-sm">USDT</p>
             </div>
-
-            <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Featured Tasks</h3>
-            <div id="task-list" class="space-y-4">
-                <div class="glass p-4 flex justify-between items-center group">
-                    <div class="glass p-4 flex justify-between items-center group relative overflow-hidden">
-    <div class="flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl shadow-inner">📢</div>
-        <div>
-            <h4 class="text-sm font-bold">Join Channel</h4>
-            <div class="flex items-center gap-1">
-                <span class="text-[10px] text-green-400 font-bold">+0.50 USDT</span>
-                <span class="text-[10px] text-slate-500">• 30s check</span>
-            </div>
-        </div>
-    </div>
-    <button id="btn-task-1" onclick="startTask('https://t.me/yourchannel', '1', 0.50, 30)" class="btn-premium px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-blue-600/20">
-        Start
-    </button>
+<h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Featured Tasks</h3>
+<div id="task-list" class="space-y-4">
                     </div>
 
         <div id="tab-friends" class="tab-content">
@@ -297,15 +287,19 @@
     }
 
     try {
-        const res = await fetch(`${RENDER_URL}/api/user/${user.id}`);
-        const data = await res.json();
+        // Now using our secure wrapper and the new backend route
+        const data = await secureFetch('/api/secure/profile');
+        
+        if(data.error) throw new Error(data.error);
+
         // Update BOTH balance displays
         document.getElementById('balance-main').innerText = data.balance.toFixed(2);
         document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
     } catch (err) {
-        console.log("Syncing...");
-    }
+        console.error("Syncing Error:", err.message);
+        tg.showAlert("Failed to sync data securely.");
         }
+        
         function shareReferral() {
                 const refLink = `https://t.me/your_bot_name?start=${user.id}`;
                 const text = "Join me on EMBT Vault and earn USDT! 💰";
@@ -432,34 +426,34 @@ async function claimTask(taskId, reward) {
     btn.innerText = "Verifying...";
 
     try {
-        const response = await fetch(`${RENDER_URL}/api/tasks/claim`, {
+        // Using the secure wrapper
+        const result = await secureFetch('/api/secure/claim-task', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                user_id: user.id,
-                task_id: taskId,
-                reward: reward
-            })
+            body: JSON.stringify({ taskId: taskId })
         });
 
-        const result = await response.json();
-
-        if (result.success) {
-            tg.showScanQrPopup({ text: "Reward Claimed!" }); // Visual flair
-            btn.innerText = "✅ Completed";
-            btn.classList.replace('bg-green-600', 'bg-slate-700');
-            // Refresh balance
-            initApp(); 
-        } else {
+        // Inside claimTask, after result.success is true:
+if (result.success) {
+    tg.HapticFeedback.notificationOccurred('success');
+    
+    const card = document.getElementById(`task-card-${taskId}`);
+    if(card) {
+        card.classList.add('fade-out'); // Trigger the slide-out animation
+        setTimeout(() => {
+            loadAvailableTasks(); // Re-render the list after animation
+            initApp(); // Update global balance
+        }, 500);
+    }
+}     else {
             tg.showAlert(result.error || "Verification failed.");
             btn.disabled = false;
+            btn.innerText = "Claim Reward";
         }
     } catch (err) {
-        tg.showAlert("Server error. Try again later.");
+        tg.showAlert("Connection error. Check your internet.");
         btn.disabled = false;
     }
         }
-
         // -- Support Ticket Logic --
         async function submitTicket() {
             const msg = document.getElementById('ticket-msg').value;
@@ -520,38 +514,44 @@ async function loadRefData() {
 }
 
 // --- ADMIN: LOAD COMMAND CENTER STATS ---
+// --- ADMIN: LOAD COMMAND CENTER STATS ---
 async function loadAdminData() {
     try {
-        // Fetch User Count
-        const userRes = await fetch(`${RENDER_URL}/api/admin/users`);
-        const users = await userRes.json();
-        document.getElementById('stat-users').innerText = users.length;
+        const data = await secureFetch('/api/admin/stats');
+        
+        if (data.error) {
+            tg.showAlert("Access Denied: You are not the Admin.");
+            switchTab('home');
+            return;
+        }
 
-        // Fetch Pending Withdrawals
-        const withRes = await fetch(`${RENDER_URL}/api/admin/withdrawals`);
-        const withdrawals = await withRes.json();
-        document.getElementById('stat-withdraws').innerText = withdrawals.length;
-
-        // Populate Ticket List
-        const ticketRes = await fetch(`${RENDER_URL}/api/admin/tickets`);
-        const tickets = await ticketRes.json();
-        let ticketHTML = '';
-        tickets.forEach(t => {
-            ticketHTML += `
-                <div class="glass p-4 border-l-2 border-blue-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs font-bold">${t.username}</p>
-                        <p class="text-[10px] text-slate-400">${t.message}</p>
-                    </div>
-                    <button onclick="replyTicket('${t._id}')" class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-lg text-[10px] font-bold">Reply</button>
-                </div>`;
-        });
-        document.getElementById('ticket-list').innerHTML = ticketHTML || '<p class="text-[10px] text-slate-500 text-center">No active tickets.</p>';
+        document.getElementById('stat-users').innerText = data.users;
+        document.getElementById('stat-withdraws').innerText = data.pending;
+        document.getElementById('set-maintenance').checked = data.maintenance;
 
     } catch (e) {
-        console.error("Admin Load Failed");
+        console.error("Admin Load Failed", e);
     }
 }
+
+// --- ADMIN: TOGGLE MAINTENANCE ---
+async function saveSettings() {
+    const isMaint = document.getElementById('set-maintenance').checked;
+
+    try {
+        const res = await secureFetch('/api/admin/settings', {
+            method: 'POST',
+            body: JSON.stringify({ maintenance_mode: isMaint })
+        });
+        
+        if(res.success) {
+            tg.HapticFeedback.impactOccurred('medium');
+            tg.showConfirm(`Maintenance is now ${isMaint ? 'ON' : 'OFF'}. All users will be ${isMaint ? 'locked out' : 'granted access'}.`);
+        }
+    } catch (e) {
+        tg.showAlert("Failed to update settings.");
+    }
+        }
 
 // --- WITHDRAWAL SUBMISSION ---
 async function submitWithdraw() {
@@ -579,19 +579,7 @@ async function submitWithdraw() {
     });
 }
 
-        // -- ADMIN: Save Settings --
-        async function saveSettings() {
-            const minW = parseFloat(document.getElementById('set-min-withdraw').value);
-            const withE = document.getElementById('set-withdrawals').checked;
-            const maint = document.getElementById('set-maintenance').checked;
 
-            await fetch(`${RENDER_URL}/api/settings/update`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ min_withdraw: minW, withdrawals_enabled: withE, maintenance_mode: maint })
-            });
-            tg.showAlert("⚙️ Settings saved instantly to bot!");
-        }
         // Toggle the Three-Dot Menu
 function toggleUtilityMenu() {
     const menu = document.getElementById('utility-menu');
@@ -635,15 +623,58 @@ async function addNewTask() {
 
 // Admin: Run Sweep Function
 async function runSweep() {
-    tg.showConfirm("Run Global Sweep? This checks for users who left your groups.", async (ok) => {
+    tg.showConfirm("Run Global Sweep? This scans all users for channel departures.", async (ok) => {
         if(ok) {
-            const res = await fetch(`${RENDER_URL}/api/admin/run-sweep`, { method: 'POST' });
-            const data = await res.json();
-            tg.showAlert(`Sweep Finished! ${data.flagged || 0} users flagged.`);
+            tg.MainButton.setText("SWEEPING...").show();
+            const res = await secureFetch('/api/admin/run-sweep', { method: 'POST' });
+            tg.MainButton.hide();
+            tg.showAlert(`Sweep Finished! Found ${res.flagged || 0} rule breakers.`);
         }
     });
         }
+async function loadAvailableTasks() {
+    const taskContainer = document.getElementById('task-list');
+    taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Loading tasks...</p>';
 
+    try {
+        // 1. Get the user's profile to see what they already finished
+        const userData = await secureFetch('/api/secure/profile');
+        const completedIds = userData.completed_tasks || [];
+
+        // 2. Get all possible tasks from the server
+        const allTasks = await secureFetch('/api/admin/tasks'); // Or your public task route
+        
+        // 3. Filter: Only keep tasks NOT in the completedIds array
+        const availableTasks = allTasks.filter(task => !completedIds.includes(task.id));
+
+        if (availableTasks.length === 0) {
+            taskContainer.innerHTML = '<div class="py-10 text-center"><p class="text-2xl mb-2">🎉</p><p class="text-[10px] text-slate-500 uppercase font-black">All Tasks Completed</p></div>';
+            return;
+        }
+
+        taskContainer.innerHTML = ''; 
+        availableTasks.forEach(task => {
+            const taskHtml = `
+                <div id="task-card-${task.id}" class="glass p-4 flex justify-between items-center group relative overflow-hidden border-l-2 border-transparent hover:border-blue-500 transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">📢</div>
+                        <div>
+                            <h4 class="text-sm font-bold">${task.title}</h4>
+                            <span class="text-[10px] text-green-400 font-black">+${task.reward} USDT</span>
+                        </div>
+                    </div>
+                    <button id="btn-task-${task.id}" 
+                        onclick="startTask('${task.url}', '${task.id}', ${task.reward}, 30)" 
+                        class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                        Start
+                    </button>
+                </div>`;
+            taskContainer.insertAdjacentHTML('beforeend', taskHtml);
+        });
+    } catch (e) {
+        taskContainer.innerHTML = '<p class="text-red-400 text-[10px] text-center">SYNC ERROR</p>';
+    }
+        }
         // Start App
         initApp();
     </script>
