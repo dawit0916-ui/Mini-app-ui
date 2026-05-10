@@ -230,6 +230,15 @@
                 </div>
         </div>
     </div>
+    <div class="glass p-5 mb-6 border-purple-500/20">
+    <h3 class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Global Broadcast</h3>
+    <textarea id="broadcast-msg" rows="3" class="w-full p-3 rounded-xl text-xs glass mb-3" placeholder="Type your announcement here... (HTML allowed)"></textarea>
+    
+    <button id="btn-broadcast" onclick="sendBroadcast()" class="w-full bg-purple-600/20 text-purple-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-purple-500/30 transition-all active:scale-95">
+        🚀 Send to All Users
+    </button>
+    <p class="text-[8px] text-slate-500 mt-2 text-center">Tip: Use &lt;b&gt;text&lt;/b&gt; for bold</p>
+    </div>
 
     <div class="glass p-5">
         <div class="flex justify-between items-center mb-4">
@@ -751,6 +760,36 @@ async function deleteTask(id) {
     loadAdminTaskList();
     tg.showAlert("Task Removed");
 }
+            async function sendBroadcast() {
+    const msg = document.getElementById('broadcast-msg').value;
+    const btn = document.getElementById('btn-broadcast');
+
+    if (!msg) return tg.showAlert("Please enter a message first!");
+
+    tg.showConfirm(`Confirm: Send this to ALL users?`, async (ok) => {
+        if (ok) {
+            btn.disabled = true;
+            btn.innerText = "⌛ SENDING...";
+            
+            try {
+                const res = await secureFetch('/api/admin/broadcast', {
+                    method: 'POST',
+                    body: JSON.stringify({ message: msg })
+                });
+
+                if (res.success) {
+                    tg.showAlert(`✅ Broadcast started! Sending to ${res.total} users.`);
+                    document.getElementById('broadcast-msg').value = '';
+                }
+            } catch (e) {
+                tg.showAlert("Broadcast error. Check server logs.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🚀 Send to All Users";
+            }
+        }
+    });
+        }
 
 // --- ADMIN: PAYOUT ACTIONS ---
 async function payoutAction(requestId, action) {
