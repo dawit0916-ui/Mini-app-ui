@@ -121,11 +121,11 @@
     </div>
 
     <div id="utility-menu" class="hidden absolute top-20 right-6 w-48 glass shadow-2xl z-[100] border-white/10 overflow-hidden">
-        <div onclick="tg.showAlert('Feature coming soon: Task History')" class="p-4 text-[11px] font-bold border-b border-white/5 hover:bg-white/5 cursor-pointer">📜 Task History</div>
-        <div onclick="tg.showAlert('Support: @YourSupportUser')" class="p-4 text-[11px] font-bold border-b border-white/5 hover:bg-white/5 cursor-pointer">❓ Help & Support</div>
-        <div onclick="switchTab('home')" class="p-4 text-[11px] font-bold text-blue-400 hover:bg-white/5 cursor-pointer">➕ Add My Tasks</div>
-    </div>
-    </div>
+    <div onclick="switchTab('history'); toggleUtilityMenu()" class="p-4 text-[11px] font-bold border-b border-white/5 hover:bg-white/5 cursor-pointer">📜 Task History</div>
+    <div onclick="switchTab('support'); toggleUtilityMenu()" class="p-4 text-[11px] font-bold border-b border-white/5 hover:bg-white/5 cursor-pointer">❓ Help & Support</div>
+    <div onclick="switchTab('add-task'); toggleUtilityMenu()" class="p-4 text-[11px] font-bold text-blue-400 hover:bg-white/5 cursor-pointer">➕ Add My Tasks</div>
+</div>
+
 
     <main class="p-6">
 
@@ -250,6 +250,44 @@
         </div>
     </div>
                     </div>
+            <div id="tab-support" class="tab-content">
+    <div class="glass p-6 mb-6">
+        <h3 class="text-xl font-bold mb-2 text-blue-400">Help & Support</h3>
+        <p class="text-xs text-slate-400 mb-6">Send a message to our team. We usually reply within 24 hours.</p>
+        
+        <textarea id="support-msg" rows="5" class="w-full rounded-xl p-4 text-sm mb-4" placeholder="Describe your issue..."></textarea>
+        <button onclick="submitSupportTicket()" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm">
+            Send Message
+        </button>
+    </div>
+</div>
+
+<div id="tab-history" class="tab-content">
+    <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Completion History</h3>
+    <div id="history-list" class="space-y-3">
+        <p class="text-center text-xs text-slate-500 py-10">Fetching history...</p>
+    </div>
+</div>
+
+<div id="tab-add-task" class="tab-content">
+    <div class="glass p-6 mb-6 border-blue-500/30">
+        <h3 class="text-lg font-black mb-2">Promote Your Link</h3>
+        <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-6">Reach thousands of users</p>
+        
+        <div class="space-y-4">
+            <input id="user-task-title" type="text" class="w-full rounded-xl p-4 text-sm" placeholder="Task Name (e.g. Join my Group)">
+            <input id="user-task-link" type="text" class="w-full rounded-xl p-4 text-sm" placeholder="https://t.me/...">
+            <div class="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
+                <p class="text-[10px] text-blue-300 font-bold mb-1">Estimated Cost</p>
+                <p class="text-xl font-black">5.00 <span class="text-xs">USDT / 100 clicks</span></p>
+            </div>
+            <button onclick="tg.showAlert('Payment system integrating...')" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm">
+                Pay & Launch Task
+            </button>
+        </div>
+    </div>
+</div>
+
     </main>
 
     <nav class="fixed bottom-6 left-6 right-6 h-20 glass flex justify-around items-center px-4 z-50 border-white/10 glow-blue">
@@ -296,7 +334,7 @@ async function secureFetch(endpoint, options = {}) {
     
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': `tma ${initData}`, // Send it as an auth token
+        'x-telegram-init-data': `tma ${initData}`, // Send it as an auth token
         ...options.headers
     };
 
@@ -535,26 +573,44 @@ if (result.success) {
         t.classList.remove('active');
     });
 
-    // 2. Remove active styling from all nav buttons
+    // 2. Show the selected tab
+    const targetTab = document.getElementById('tab-' + tabId);
+    if(targetTab) targetTab.classList.add('active');
+
+    // 3. Handle Navigation Button Highlighting
     document.querySelectorAll('.nav-btn').forEach(b => {
         b.classList.remove('nav-active');
-        b.classList.add('text-slate-500'); // Dim the non-active icons
+        b.classList.add('text-slate-500');
     });
 
-    // 3. Show the selected tab
-    document.getElementById('tab-' + tabId).classList.add('active');
+    // Only highlight if the button was actually passed (from bottom nav)
+    if (btn) {
+        btn.classList.add('nav-active');
+        btn.classList.remove('text-slate-500');
+    }
 
-    // 4. Highlight the clicked button
-    btn.classList.add('nav-active');
-    btn.classList.remove('text-slate-500');
-    
-    // 5. Native Telegram Vibration (Haptic Feedback)
     tg.HapticFeedback.selectionChanged();
+    
+    // Load specific data for history
+    if(tabId === 'history') loadUserHistory();
+}
 
-    // 6. Refresh data based on tab
-    if(tabId === 'admin') loadAdminData();
-    if(tabId === 'friends') loadReferralData();
-        }
+// Example Support Ticket Function
+async function submitSupportTicket() {
+    const msg = document.getElementById('support-msg').value;
+    if(!msg) return tg.showAlert("Please enter a message.");
+    
+    const res = await secureFetch('/api/support/ticket', {
+        method: 'POST',
+        body: JSON.stringify({ message: msg })
+    });
+    
+    if(res.success) {
+        tg.showAlert("✅ Ticket sent! Check the bot for replies.");
+        switchTab('home', document.getElementById('nav-home'));
+    }
+}
+
         
         // --- LOAD REFERRAL DATA ---
 
@@ -588,11 +644,12 @@ async function submitWithdraw() {
 
     tg.showConfirm("Are you sure you want to withdraw?", async (ok) => {
         if(ok) {
-            const res = await fetch(`${RENDER_URL}/api/withdraw/request`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: user.id, amount, address })
-            });
+            // Inside submitWithdraw()
+const res = await secureFetch('/api/withdraw/request', {
+    method: 'POST',
+    body: JSON.stringify({ amount, address }) // user_id is extracted from the header on backend
+});
+
             const data = await res.json();
             if(data.success) {
                 tg.HapticFeedback.notificationOccurred('success');
