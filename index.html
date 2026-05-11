@@ -576,6 +576,7 @@ if (result.success) {
     // 2. Show the selected tab
     const targetTab = document.getElementById('tab-' + tabId);
     if(targetTab) targetTab.classList.add('active');
+         window.scrollTo(0,0);
 
     // 3. Handle Navigation Button Highlighting
     document.querySelectorAll('.nav-btn').forEach(b => {
@@ -667,14 +668,19 @@ const res = await secureFetch('/api/withdraw/request', {
 function toggleUtilityMenu() {
     const menu = document.getElementById('utility-menu');
     menu.classList.toggle('hidden');
+    tg.HapticFeedback.impactOccurred('light');
 }
 
-// Close menu if clicking outside (Good UX)
-window.onclick = function(event) {
-    if (!event.target.matches('.glass') && !event.target.matches('.w-10')) {
-        document.getElementById('utility-menu').classList.add('hidden');
+// Fixed: Only close if clicking outside the menu button AND the menu itself
+window.addEventListener('click', function(e) {
+    const menu = document.getElementById('utility-menu');
+    const menuBtn = document.querySelector('button[onclick="toggleUtilityMenu()"]');
+    
+    if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
+        menu.classList.add('hidden');
     }
-}
+});
+
 
 // Accordion Toggle Logic
 function toggleAccordion(id) {
@@ -842,6 +848,34 @@ async function loadAdminTaskList() {
         `);
     });
 }
+        async function loadUserHistory() {
+    const container = document.getElementById('history-list');
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-10">Loading history...</p>';
+    
+    try {
+        const data = await secureFetch('/api/secure/history');
+        if (!data.history || data.history.length === 0) {
+            container.innerHTML = '<p class="text-center text-xs text-slate-500 py-10">No tasks completed yet.</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        data.history.forEach(item => {
+            container.insertAdjacentHTML('beforeend', `
+                <div class="glass p-4 border-l-2 border-green-500/50 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold">${item.title}</p>
+                        <p class="text-[9px] text-slate-500">${new Date(item.date).toLocaleDateString()}</p>
+                    </div>
+                    <p class="text-xs font-black text-green-400">+${item.reward} USDT</p>
+                </div>
+            `);
+        });
+    } catch (e) {
+        container.innerHTML = '<p class="text-center text-red-500 text-[10px]">Failed to load history.</p>';
+    }
+}
+
 
 async function deleteTask(id) {
     if(!confirm("Delete this task?")) return;
