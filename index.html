@@ -304,34 +304,40 @@ async function secureFetch(endpoint, options = {}) {
     return response.json();
 }
 
-
-        // -- Initialization --
-        async function initApp() {
-    document.getElementById('user-name').innerText = user.first_name || user.username;
+// -- Initialization --
+async function initApp() {
+    // 1. Update UI IMMEDIATELY (Don't wait for server)
+    document.getElementById('user-name').innerText = user.first_name || user.username || "User";
     document.getElementById('user-pfp').innerText = (user.first_name || "E")[0];
 
+    // 2. Show Admin features if applicable
     if (user.id === OWNER_ID) {
         document.getElementById('admin-badge').classList.remove('hidden');
         document.getElementById('nav-admin').classList.remove('hidden');
     }
 
+    // 3. Start loading tasks and balance at the same time
+    loadAvailableTasks(); 
+
     try {
-        // Now using our secure wrapper and the new backend route
         const data = await secureFetch('/api/secure/profile');
         
         if(data.error) throw new Error(data.error);
 
-        // Update BOTH balance displays
+        // Update balance once server responds
         document.getElementById('balance-main').innerText = data.balance.toFixed(2);
         document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
     } catch (err) {
         console.error("Syncing Error:", err.message);
-        tg.showAlert("Failed to sync data securely.");
-        }
+        // Don't alert on startup, it's annoying for the user
+        console.log("Server is likely warming up...");
+    }
+}
+
+// Ensure the app starts
+
+
         
-        
-        // --- ADMIN: USER SEARCH & EDIT ---
-let currentEditingUserId = null;
 
 async function searchUser() {
     const searchId = document.getElementById('search-user-id').value;
