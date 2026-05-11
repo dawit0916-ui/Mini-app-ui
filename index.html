@@ -289,6 +289,21 @@
 
         // Current User Data
         const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; // Fallback for browser testing
+        // --- SECURE API WRAPPER ---
+// This automatically attaches the Telegram validation data to every request
+async function secureFetch(endpoint, options = {}) {
+    const initData = tg.initData || ''; // Gets the encrypted string from Telegram
+    
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `tma ${initData}`, // Send it as an auth token
+        ...options.headers
+    };
+
+    const response = await fetch(`${RENDER_URL}${endpoint}`, { ...options, headers });
+    return response.json();
+}
+
 
         // -- Initialization --
         async function initApp() {
@@ -314,14 +329,60 @@
         tg.showAlert("Failed to sync data securely.");
         }
         
-        function shareReferral() {
-                const refLink = `https://t.me/your_bot_name?start=${user.id}`;
-                const text = "Join me on EMBT Vault and earn USDT! 💰";
-    
-               // This opens the Telegram share menu automatically
-              tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`);
-              }
         
+        // --- ADMIN: USER SEARCH & EDIT ---
+let currentEditingUserId = null;
+
+async function searchUser() {
+    const searchId = document.getElementById('search-user-id').value;
+    if(!searchId) return tg.showAlert("Please enter a Telegram ID");
+
+    try {
+        const res = await secureFetch(`/api/admin/users/${searchId}`);
+        
+        if (res.error) {
+            tg.showAlert("User not found!");
+            document.getElementById('admin-user-editor').classList.add('hidden');
+            return;
+        }
+        
+        // Show the editor and populate data
+        currentEditingUserId = res.user.user_id;
+        document.getElementById('edit-user-balance').innerText = res.user.balance.toFixed(2);
+        document.getElementById('new-user-balance').value = res.user.balance;
+        document.getElementById('admin-user-editor').classList.remove('hidden');
+        tg.HapticFeedback.impactOccurred('light');
+
+    } catch (e) {
+        tg.showAlert("Search failed. Check connection.");
+    }
+}
+
+async function updateUserBalance() {
+    const newBalance = document.getElementById('new-user-balance').value;
+    if(!currentEditingUserId || newBalance === '') return;
+
+    try {
+        const res = await secureFetch('/api/admin/users/update', {
+            method: 'POST',
+            body: JSON.stringify({ 
+                userId: currentEditingUserId, 
+                balance: parseFloat(newBalance) 
+            })
+        });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            tg.showAlert("✅ User balance updated!");
+            document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(2);
+        } else {
+            tg.showAlert("Failed to update user.");
+        }
+    } catch (e) {
+        tg.showAlert("Update failed.");
+    }
+}
+
         // Track tasks currently in progress
 let activeTasks = {};
         
@@ -389,32 +450,7 @@ function copyRefLink() {
 }
 
 // --- Load Friends Data ---
-async function loadReferrals() {
-    try {
-        const res = await fetch(`${RENDER_URL}/api/user/referrals/${user.id}`);
-        const data = await res.json();
-        
-        document.getElementById('ref-count').innerText = data.count;
-        document.getElementById('ref-link-input').value = `https://t.me/YourBotName_bot?start=${user.id}`;
 
-        let html = '';
-        if(data.friends.length > 0) {
-            data.friends.forEach(f => {
-                html += `
-                <div class="glass-card p-3 flex justify-between items-center border-l-2 border-blue-500">
-                    <div>
-                        <p class="text-xs font-bold">${f.name}</p>
-                        <p class="text-[9px] text-slate-500">${new Date(f.date).toLocaleDateString()}</p>
-                    </div>
-                    <p class="text-xs text-green-400 font-bold">+${f.bonus} USDT</p>
-                </div>`;
-            });
-            document.getElementById('friends-list').innerHTML = html;
-        }
-    } catch (e) {
-        console.log("Ref load error");
-    }
-        }
 // Admin function to load the list
 async function loadPendingWithdrawals() {
     const res = await fetch(`${RENDER_URL}/api/admin/withdrawals`);
@@ -515,17 +551,7 @@ if (result.success) {
         }
         
         // --- LOAD REFERRAL DATA ---
-async function loadRefData() {
-    try {
-        const res = await fetch(`${RENDER_URL}/api/user/referrals/${user.id}`);
-        const data = await res.json();
-        
-        document.getElementById('ref-url').value = `https://t.me/YourBotName_bot?start=${user.id}`;
-        // You can update a 'friends list' div here similar to the previous version
-    } catch (e) {
-        console.error("Ref Load Failed");
-    }
-}
+
 
 
 // --- ADMIN: TOGGLE MAINTENANCE ---
@@ -565,7 +591,7 @@ async function submitWithdraw() {
             if(data.success) {
                 tg.HapticFeedback.notificationOccurred('success');
                 tg.showAlert("🚀 Request Sent! Wait for Admin approval.");
-                init(); // Refresh balance
+                initApp(); // Refresh balance
             } else {
                 tg.showAlert(data.error);
             }
