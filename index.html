@@ -570,7 +570,7 @@ if (result.success) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: user.id, username: user.username, message: msg })
                 });
-                tg.showAlert("✅ Ticket sent! An admin will reply in the bot.");
+                tg.showAlert("✅ Ticket sent! An admin will reply in short through the bot.");
                 document.getElementById('ticket-msg').value = '';
                 switchTab('home');
             } catch (e) {
