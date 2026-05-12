@@ -16,13 +16,13 @@
         }
 
         body {
-            background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-bottom: 100px;
-        }
+    background: linear-gradient(to bottom, #1e1b4b, #020617); /* Changed from radial to linear */
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 100px;
+}
 
         /* Glassmorphism Effect */
         .glass {
@@ -130,12 +130,13 @@
     <main class="p-6">
 
         <div id="tab-home" class="tab-content active">
-            <div class="glass p-8 text-center glow-blue mb-8 relative overflow-hidden">
-                <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
-                <p class="text-xs text-slate-400 uppercase font-semibold tracking-[0.2em] mb-2">Balance🪙</p>
-                <h2 id="balance-main" class="text-5xl font-black tracking-tighter text-white mb-2">0.00</h2>
-<p class="text-blue-400 font-bold text-sm">USDT</p>
-            </div>
+            <div class="glass p-8 text-center glow-blue mb-8 relative overflow-hidden w-full mx-auto">
+    <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
+    <p class="text-xs text-slate-400 uppercase font-semibold tracking-[0.2em] mb-2">Balance🪙</p>
+    <h2 id="balance-main" class="text-5xl font-black tracking-tighter text-white mb-2">0.00</h2>
+    <p class="text-blue-400 font-bold text-sm">USDT</p>
+</div>
+
 <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Featured Tasks</h3>
 <div id="task-list" class="space-y-4">
                     </div>
@@ -182,6 +183,32 @@
             <h4 id="stat-withdraws" class="text-2xl font-black text-yellow-500">0</h4>
         </div>
     </div>
+    <div class="glass p-5 mb-6">
+    <h3 class="text-[10px] font-black uppercase text-blue-400 mb-4 tracking-widest">User Editor</h3>
+    <div class="flex gap-2 mb-4">
+        <input id="search-user-id" type="number" class="flex-1 p-3 rounded-xl text-xs glass" placeholder="User Telegram ID">
+        <button onclick="searchUser()" class="bg-blue-600 px-4 rounded-xl text-xs font-bold">Search</button>
+    </div>
+    
+    <div id="admin-user-editor" class="hidden space-y-4 pt-4 border-t border-white/5">
+        <p class="text-xs">Current Balance: <span id="edit-user-balance" class="text-green-400 font-bold">0</span> USDT</p>
+        <input id="new-user-balance" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="New Balance">
+        <button onclick="updateUserBalance()" class="w-full bg-green-600/20 text-green-400 py-3 rounded-xl text-[10px] font-black uppercase border border-green-500/30">Apply Change</button>
+    </div>
+</div>
+<div class="glass p-5 mb-6 border-blue-500/20">
+    <h3 class="text-[10px] font-black uppercase text-blue-400 mb-4 tracking-widest">User Search & Edit</h3>
+    <div class="flex gap-2 mb-4">
+        <input id="search-user-id" type="number" class="flex-1 p-3 rounded-xl text-xs glass" placeholder="User Telegram ID">
+        <button onclick="searchUser()" class="bg-blue-600 px-4 rounded-xl text-xs font-bold">Search</button>
+    </div>
+    <div id="admin-user-editor" class="hidden space-y-4 pt-4 border-t border-white/5">
+        <p class="text-xs">Current: <span id="edit-user-balance" class="text-green-400 font-bold">0</span> USDT</p>
+        <input id="new-user-balance" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="Set New Balance">
+        <button onclick="updateUserBalance()" class="w-full bg-green-600 text-white py-3 rounded-xl text-[10px] font-black uppercase">Apply Change</button>
+    </div>
+</div>
+
 
     <div class="glass p-5 mb-6 border-white/5">
         <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">System Controls</h3>
@@ -454,23 +481,7 @@ async function startTask(url, taskId, reward, duration) {
         }
     }, 1000);
 }
-async function requestWithdraw() {
-    const amount = document.getElementById('with-amount').value;
-    const address = document.getElementById('with-address').value;
 
-    const res = await fetch(`${RENDER_URL}/api/withdraw/request`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user.id, amount, address, method: 'BEP20' })
-    });
-    const data = await res.json();
-    if(data.success) {
-        tg.showAlert("Request sent to Admin! 🚀");
-        initApp(); // Refresh balance
-    } else {
-        tg.showAlert(data.error);
-    }
-}
 // --- Share Referral ---
 function shareInvite() {
     const botUsername = "YourBotName_bot"; // 🚩 CHANGE THIS
@@ -514,7 +525,7 @@ async function loadPendingWithdrawals() {
     document.getElementById('admin-withdraw-list').innerHTML = html || '<p class="text-xs text-slate-500">No pending payouts.</p>';
         }        
 
-async function claimTask(taskId, reward) {
+async function claimTask(taskId) {
     const btn = document.getElementById(`btn-task-${taskId}`);
     btn.disabled = true;
     btn.innerText = "Verifying...";
@@ -720,7 +731,7 @@ async function runSweep() {
             tg.showAlert(`Sweep Finished! Found ${res.flagged || 0} rule breakers.`);
         }
     });
-        }
+        
 async function loadAvailableTasks() {
     const taskContainer = document.getElementById('task-list');
     taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Loading tasks...</p>';
@@ -762,8 +773,8 @@ async function loadAvailableTasks() {
         });
     } catch (e) {
         taskContainer.innerHTML = '<p class="text-red-400 text-[10px] text-center">SYNC ERROR</p>';
-    }
         }
+        
             async function loadReferralData() {
     const listContainer = document.getElementById('friends-list');
     listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500">Syncing team...</p>';
