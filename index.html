@@ -833,8 +833,7 @@ async function addNewTask() {
     } catch (e) {
         tg.showAlert("Failed to connect to server.");
     }
-
-        }
+}
 // Logic to dynamically add a new category option to the dropdown
 function updateCategoryDropdown(categoryName) {
     const dropdown = document.getElementById('new-task-category');
@@ -920,16 +919,14 @@ function filterTasks(category, btn) {
 }
 
 async function loadAvailableTasks() {
-    try{
-    const taskContainer = document.getElementById('task-list');
-    taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Syncing tasks...</p>';
-
     try {
+        const taskContainer = document.getElementById('task-list');
+        taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Syncing tasks...</p>';
+
         const userData = await secureFetch('/api/secure/profile');
         const completedIds = userData.completed_tasks || [];
         const allTasks = await secureFetch('/api/admin/tasks'); 
         
-        // Filter by completion AND Category
         const availableTasks = allTasks.filter(task => {
             const isCompleted = completedIds.includes(task.id);
             const matchesCategory = currentFilter === 'All' || task.category === currentFilter;
@@ -937,16 +934,16 @@ async function loadAvailableTasks() {
         });
 
         if (availableTasks.length === 0) {
-            taskContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-10 uppercase font-black">No tasks in this category</p>';
+            taskContainer.innerHTML = '<p class="text-center text-[10px] text-slate-400 py-10 uppercase font-black tracking-widest">No tasks available</p>';
             return;
         }
 
         taskContainer.innerHTML = ''; 
-                availableTasks.forEach(task => {
+        availableTasks.forEach(task => {
             const isManual = task.type === 'manual' || !task.url.includes('t.me');
             
             const taskHtml = `
-                <div id="task-card-${task.id}" class="glass group relative overflow-hidden transition-all mb-4">
+                <div id="task-card-${task.id}" class="glass mb-4">
                     <div class="p-4 flex justify-between items-center">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">
@@ -959,24 +956,24 @@ async function loadAvailableTasks() {
                         </div>
                         <button id="btn-task-${task.id}" 
                             onclick="${isManual ? `toggleProofSection('${task.id}', '${task.url}')` : `startTask('${task.url}', '${task.id}', ${task.reward}, 30)`}" 
-                            class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                            class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase">
                             ${isManual ? 'Submit' : 'Start'}
                         </button>
                     </div>
-                    
                     ${isManual ? `
                     <div id="proof-${task.id}" class="proof-section">
-                        <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-3">
-                            <p class="text-[9px] text-blue-400 uppercase font-black mb-1">How to complete:</p>
-                            <p class="text-[11px] text-slate-300">${task.description || 'Complete the task and submit proof below.'}</p>
-                        </div>
-                        <input id="input-proof-${task.id}" type="text" class="w-full p-3 rounded-xl text-xs mb-3" placeholder="Your proof here...">
-                        <button onclick="submitManualProof('${task.id}')" class="w-full bg-green-600 text-white py-2 rounded-lg text-[10px] font-black uppercase">Submit Proof</button>
+                        <input id="input-proof-${task.id}" type="text" class="w-full p-3 rounded-xl text-xs mb-3" placeholder="Username/Proof...">
+                        <button onclick="submitManualProof('${task.id}')" class="w-full bg-green-600 py-2 rounded-lg text-[10px] font-black uppercase">Send Proof</button>
                     </div>` : ''}
                 </div>`;
-
             taskContainer.insertAdjacentHTML('beforeend', taskHtml);
         });
+    } catch (e) {
+        console.error("Task Load Error:", e);
+        document.getElementById('task-list').innerHTML = '<p class="text-center text-xs text-red-400">Offline</p>';
+    }
+}
+
 
 
 // Helper to open manual proof area
@@ -1073,20 +1070,7 @@ async function loadAdminData() {
 }
 
 // --- ADMIN: MANAGE TASKS ---
-async function loadAdminTaskList() {
-    const list = await secureFetch('/api/admin/tasks');
-    const container = document.getElementById('admin-current-tasks');
-    container.innerHTML = '';
-    
-    list.forEach(t => {
-        container.insertAdjacentHTML('beforeend', `
-            <div class="flex justify-between items-center p-2 bg-white/5 rounded-lg">
-                <span class="text-[10px] font-medium">${t.title}</span>
-                <button onclick="deleteTask('${t.id}')" class="text-red-500 text-[10px] font-bold">Remove</button>
-            </div>
-        `);
-    });
-}
+
         async function loadUserHistory() {
     const container = document.getElementById('history-list');
     container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-10">Loading history...</p>';
