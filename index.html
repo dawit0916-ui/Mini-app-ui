@@ -168,7 +168,7 @@
 </div>
 
 
-    <main class="p-6 pt-24">
+    <main class="p-6 pt-32">
 
         <div id="tab-home" class="tab-content active">
             <div class="glass p-8 text-center glow-blue mb-8 relative overflow-hidden w-full mx-auto">
@@ -794,6 +794,7 @@ function toggleAccordion(id) {
 
 // Admin: Add Task Function
 async function addNewTask() {
+  try{
     const title = document.getElementById('new-task-title').value;
     const link = document.getElementById('new-task-link').value;
     const desc = document.getElementById('new-task-desc').value; // Captured here
@@ -961,7 +962,7 @@ async function loadAvailableTasks() {
                             class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
                             ${isManual ? 'Submit' : 'Start'}
                         </button>
-                    </div>`;
+                    </div>
                     
                     // Inside your loadAvailableTasks loop:
 ${isManual ? `
