@@ -854,6 +854,7 @@ async function runSweep() {
             tg.showAlert(`Sweep Finished! Found ${res.flagged || 0} rule breakers.`);
         }
     });
+        }
     async function loadPendingProofs() {
     const container = document.getElementById('admin-proof-list');
     container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
