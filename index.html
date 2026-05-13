@@ -41,6 +41,47 @@
     color: white !important;
     filter: drop-shadow(0 0 8px var(--neon-blue));
 }
+        /* Category Chip Styling */
+.category-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: none; /* Hide scrollbar for clean look */
+}
+.category-chip {
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    color: #94a3b8;
+}
+.category-chip.active {
+    background: var(--neon-blue);
+    color: white;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    border-color: transparent;
+}
+
+/* Proof Area Styling */
+.proof-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 20px 20px;
+}
+.proof-section.open {
+    max-height: 500px;
+    padding: 15px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 
 .nav-active::after {
     content: '';
@@ -135,6 +176,13 @@
     <p class="text-xs text-slate-400 uppercase font-semibold tracking-[0.2em] mb-2">Balance🪙</p>
     <h2 id="balance-main" class="text-5xl font-black tracking-tighter text-white mb-2">0.00</h2>
     <p class="text-blue-400 font-bold text-sm">USDT</p>
+</div>
+<!-- Place this inside <div id="tab-home">, above <div id="task-list"> -->
+<div class="category-container mb-4" id="category-bar">
+    <button onclick="filterTasks('All', this)" class="category-chip active">All</button>
+    <button onclick="filterTasks('Crypto', this)" class="category-chip">Crypto</button>
+    <button onclick="filterTasks('Airdrop', this)" class="category-chip">Airdrop</button>
+    <button onclick="filterTasks('Education', this)" class="category-chip">Education</button>
 </div>
 
 <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Featured Tasks</h3>
@@ -240,23 +288,56 @@
             </div>
         </div>
     </div>
-
-    <div class="glass mb-6 overflow-hidden">
-        <button onclick="toggleAccordion('admin-tasks')" class="w-full p-4 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-            📂 Task Management <span class="text-slate-500">⌄</span>
-        </button>
-        <div id="admin-tasks" class="hidden p-4 bg-black/20 border-t border-white/5 space-y-4">
-            <div class="space-y-2">
-                <input id="new-task-title" type="text" placeholder="Task Name (e.g. Join TG)" class="w-full p-3 rounded-xl text-xs">
-                <input id="new-task-link" type="text" placeholder="URL (t.me/...)" class="w-full p-3 rounded-xl text-xs">
-                <input id="new-task-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-full p-3 rounded-xl text-xs">
-                <button onclick="addNewTask()" class="w-full btn-premium py-3 rounded-xl text-xs font-bold">Deploy New Task</button>
-            </div>
-            <hr class="border-white/5">
-            <div id="admin-current-tasks" class="space-y-2">
-                </div>
-        </div>
+    <!-- Place this inside <div id="tab-admin">, near Task Management -->
+<div class="glass p-5 mb-6 border-blue-500/20">
+    <h3 class="text-[10px] font-black uppercase text-blue-400 mb-4 tracking-widest">Category Manager</h3>
+    <div class="flex gap-2">
+        <input id="new-category-name" type="text" class="flex-1 p-3 rounded-xl text-xs glass" placeholder="New Category (e.g. Trading)">
+        <button onclick="addNewCategory()" class="bg-blue-600 w-10 h-10 rounded-xl font-bold">+</button>
     </div>
+</div>
+
+<div class="glass p-5 mb-6 border-white/5">
+    <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">Deploy New Task</h3>
+    
+    <div class="space-y-3">
+        <input id="new-task-title" type="text" placeholder="Task Name (e.g. Follow on X)" class="w-full p-3 rounded-xl text-xs glass">
+        <input id="new-task-link" type="text" placeholder="URL (https://...)" class="w-full p-3 rounded-xl text-xs glass">
+
+        <!-- New Instructions Field -->
+        <textarea id="new-task-desc" rows="2" placeholder="Instructions (e.g. Follow, then enter your @username below)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
+
+        <div class="flex gap-2">
+            <select id="new-task-category" class="flex-1 p-3 rounded-xl text-xs glass text-slate-400">
+                <option value="Crypto">Crypto</option>
+                <option value="Airdrop">Airdrop</option>
+                <option value="Education">Education</option>
+            </select>
+            <input id="new-task-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-1/3 p-3 rounded-xl text-xs glass">
+        </div>
+
+        <div class="bg-white/5 p-3 rounded-xl">
+            <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Verification Method</p>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="verify-type" value="auto" checked class="accent-blue-500">
+                    <span class="text-[10px] font-bold">Auto (Telegram)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="verify-type" value="manual" class="accent-indigo-500">
+                    <span class="text-[10px] font-bold">Manual (Proof)</span>
+                </label>
+            </div>
+        </div>
+
+        <button onclick="addNewTask()" class="w-full btn-premium py-3 rounded-xl text-xs font-bold mt-2">
+            🚀 Launch Task
+        </button>
+    </div>
+</div>
+
+    
+
     <div class="glass p-5 mb-6 border-purple-500/20">
     <h3 class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Global Broadcast</h3>
     <textarea id="broadcast-msg" rows="3" class="w-full p-3 rounded-xl text-xs glass mb-3" placeholder="Type your announcement here... (HTML allowed)"></textarea>
@@ -276,6 +357,17 @@
             <p class="text-center text-[10px] text-slate-500 py-4">No pending requests</p>
         </div>
     </div>
+    <!-- Place this inside Tab Admin, below the Payout Queue -->
+<div class="glass p-5 border-indigo-500/20">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-[10px] font-black uppercase text-indigo-400 tracking-widest">Manual Proof Queue</h3>
+        <button onclick="loadPendingProofs()" class="text-[10px] text-blue-400 font-bold">Refresh</button>
+    </div>
+    <div id="admin-proof-list" class="space-y-3">
+        <p class="text-center text-[10px] text-slate-500 py-4">No proofs waiting for review</p>
+    </div>
+</div>
+
                     </div>
             <div id="tab-support" class="tab-content">
     <div class="glass p-6 mb-6">
@@ -704,22 +796,53 @@ function toggleAccordion(id) {
 async function addNewTask() {
     const title = document.getElementById('new-task-title').value;
     const link = document.getElementById('new-task-link').value;
+    const desc = document.getElementById('new-task-desc').value; // Captured here
     const reward = document.getElementById('new-task-reward').value;
+    const category = document.getElementById('new-task-category').value;
+    const type = document.querySelector('input[name="verify-type"]:checked').value;
 
-    if(!title || !link || !reward) return tg.showAlert("Please fill all fields!");
+    if (!title || !link || !reward) return tg.showAlert("Title, Link, and Reward are required!");
 
-    const res = await fetch(`${RENDER_URL}/api/admin/tasks/add`, {
+    const taskData = {
+        title,
+        url: link,
+        description: desc, // Sending description to DB
+        reward: parseFloat(reward),
+        category,
+        type
+    };
+
+    const res = await secureFetch('/api/admin/tasks/add', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, link, reward })
+        body: JSON.stringify(taskData)
     });
-    
-    if(res.ok) {
-        tg.showAlert("✅ Task added successfully!");
-        document.getElementById('new-task-title').value = '';
-        toggleAccordion('admin-add-task-form');
+
+    if (res.success) {
+        tg.HapticFeedback.notificationOccurred('success');
+        tg.showAlert("✅ Task Deployed!");
+        // Clear fields
+        ['new-task-title', 'new-task-link', 'new-task-desc', 'new-task-reward'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        loadAdminTaskList();
+    }
+        } else {
+            tg.showAlert("Error: " + res.error);
+        }
+    } catch (e) {
+        tg.showAlert("Failed to connect to server.");
     }
 }
+
+// Logic to dynamically add a new category option to the dropdown
+function updateCategoryDropdown(categoryName) {
+    const dropdown = document.getElementById('new-task-category');
+    const option = document.createElement('option');
+    option.value = categoryName;
+    option.text = categoryName;
+    dropdown.add(option);
+}
+
 
 // Admin: Run Sweep Function
 async function runSweep() {
@@ -731,49 +854,158 @@ async function runSweep() {
             tg.showAlert(`Sweep Finished! Found ${res.flagged || 0} rule breakers.`);
         }
     });
-        
-async function loadAvailableTasks() {
-    const taskContainer = document.getElementById('task-list');
-    taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Loading tasks...</p>';
+    async function loadPendingProofs() {
+    const container = document.getElementById('admin-proof-list');
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
 
     try {
-        // 1. Get the user's profile to see what they already finished
+        const proofs = await secureFetch('/api/admin/pending-proofs');
+        
+        if (proofs.length === 0) {
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Queue is empty!</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        proofs.forEach(p => {
+            container.insertAdjacentHTML('beforeend', `
+                <div class="glass p-4 border-l-2 border-indigo-500">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-[10px] font-bold text-slate-400">User: ${p.userId}</span>
+                        <span class="text-[10px] font-black text-green-400">+${p.reward} USDT</span>
+                    </div>
+                    <p class="text-xs font-bold mb-1">${p.taskTitle}</p>
+                    <div class="bg-black/30 p-2 rounded text-[11px] text-blue-300 break-all mb-3">
+                        Proof: ${p.proofValue}
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="processProof('${p.id}', 'approve')" class="flex-1 bg-green-600/20 text-green-400 py-2 rounded-lg text-[9px] font-black uppercase">Approve</button>
+                        <button onclick="processProof('${p.id}', 'reject')" class="flex-1 bg-red-600/20 text-red-400 py-2 rounded-lg text-[9px] font-black uppercase">Reject</button>
+                    </div>
+                </div>
+            `);
+        });
+    } catch (e) {
+        container.innerHTML = '<p class="text-red-500 text-[10px]">Error loading queue.</p>';
+    }
+}
+
+async function processProof(proofId, action) {
+    const res = await secureFetch('/api/admin/proof-action', {
+        method: 'POST',
+        body: JSON.stringify({ proofId, action })
+    });
+
+    if (res.success) {
+        tg.HapticFeedback.notificationOccurred('success');
+        loadPendingProofs(); // Refresh the list
+        loadAdminData();    // Refresh overall stats
+    } else {
+        tg.showAlert("Action failed: " + res.error);
+    }
+}
+
+        
+let currentFilter = 'All';
+
+function filterTasks(category, btn) {
+    currentFilter = category;
+    
+    // UI: Update active chip
+    document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    
+    loadAvailableTasks(); // Refresh list based on filter
+}
+
+async function loadAvailableTasks() {
+    const taskContainer = document.getElementById('task-list');
+    taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Syncing tasks...</p>';
+
+    try {
         const userData = await secureFetch('/api/secure/profile');
         const completedIds = userData.completed_tasks || [];
-
-        // 2. Get all possible tasks from the server
-        const allTasks = await secureFetch('/api/admin/tasks'); // Or your public task route
+        const allTasks = await secureFetch('/api/admin/tasks'); 
         
-        // 3. Filter: Only keep tasks NOT in the completedIds array
-        const availableTasks = allTasks.filter(task => !completedIds.includes(task.id));
+        // Filter by completion AND Category
+        const availableTasks = allTasks.filter(task => {
+            const isCompleted = completedIds.includes(task.id);
+            const matchesCategory = currentFilter === 'All' || task.category === currentFilter;
+            return !isCompleted && matchesCategory;
+        });
 
         if (availableTasks.length === 0) {
-            taskContainer.innerHTML = '<div class="py-10 text-center"><p class="text-2xl mb-2">🎉</p><p class="text-[10px] text-slate-500 uppercase font-black">All Tasks Completed</p></div>';
+            taskContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-10 uppercase font-black">No tasks in this category</p>';
             return;
         }
 
         taskContainer.innerHTML = ''; 
         availableTasks.forEach(task => {
+            // Check if task is Telegram (Auto) or Social (Manual)
+            const isManual = task.type === 'manual' || !task.url.includes('t.me');
+            
             const taskHtml = `
-                <div id="task-card-${task.id}" class="glass p-4 flex justify-between items-center group relative overflow-hidden border-l-2 border-transparent hover:border-blue-500 transition-all">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">📢</div>
-                        <div>
-                            <h4 class="text-sm font-bold">${task.title}</h4>
-                            <span class="text-[10px] text-green-400 font-black">+${task.reward} USDT</span>
+                <div id="task-card-${task.id}" class="glass group relative overflow-hidden transition-all">
+                    <div class="p-4 flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">
+                                ${isManual ? '🔗' : '📢'}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold">${task.title}</h4>
+                                <span class="text-[10px] text-green-400 font-black">+${task.reward} USDT</span>
+                            </div>
                         </div>
+                        <button id="btn-task-${task.id}" 
+                            onclick="${isManual ? `toggleProofSection('${task.id}', '${task.url}')` : `startTask('${task.url}', '${task.id}', ${task.reward}, 30)`}" 
+                            class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                            ${isManual ? 'Submit' : 'Start'}
+                        </button>
                     </div>
-                    <button id="btn-task-${task.id}" 
-                        onclick="startTask('${task.url}', '${task.id}', ${task.reward}, 30)" 
-                        class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
-                        Start
-                    </button>
-                </div>`;
+                    
+                    // Inside your loadAvailableTasks loop:
+${isManual ? `
+<div id="proof-${task.id}" class="proof-section">
+    <!-- Show the specific instructions from the Admin -->
+    <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-3">
+        <p class="text-[9px] text-blue-400 uppercase font-black mb-1">How to complete:</p>
+        <p class="text-[11px] text-slate-300">${task.description || 'Complete the task and submit proof below.'}</p>
+    </div>
+    
+    <input id="input-proof-${task.id}" type="text" class="w-full p-3 rounded-xl text-xs mb-3" placeholder="Your proof here...">
+    <button onclick="submitManualProof('${task.id}')" class="w-full bg-green-600 text-white py-2 rounded-lg text-[10px] font-black uppercase">Submit Proof</button>
+</div>` : ''}
+
             taskContainer.insertAdjacentHTML('beforeend', taskHtml);
         });
     } catch (e) {
-        taskContainer.innerHTML = '<p class="text-red-400 text-[10px] text-center">SYNC ERROR</p>';
-        }
+        taskContainer.innerHTML = '<p class="text-red-400 text-[10px] text-center">CONNECTION ERROR</p>';
+    }
+}
+
+// Helper to open manual proof area
+function toggleProofSection(taskId, url) {
+    tg.openLink(url); // Open the link first
+    const section = document.getElementById(`proof-${taskId}`);
+    section.classList.toggle('open');
+    tg.HapticFeedback.impactOccurred('light');
+}
+
+async function submitManualProof(taskId) {
+    const proof = document.getElementById(`input-proof-${taskId}`).value;
+    if(!proof) return tg.showAlert("Please enter your username/link as proof!");
+
+    const res = await secureFetch('/api/secure/submit-proof', {
+        method: 'POST',
+        body: JSON.stringify({ taskId, proof })
+    });
+
+    if(res.success) {
+        tg.showAlert("✅ Proof submitted! Admin will verify soon.");
+        loadAvailableTasks();
+    }
+}
+
         
             async function loadReferralData() {
     const listContainer = document.getElementById('friends-list');
