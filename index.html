@@ -168,7 +168,7 @@
 </div>
 
 
-    <main class="p-6">
+    <main class="p-6 pt-32">
 
         <div id="tab-home" class="tab-content active">
             <div class="glass p-8 text-center glow-blue mb-8 relative overflow-hidden w-full mx-auto">
@@ -834,7 +834,7 @@ async function addNewTask() {
         tg.showAlert("Failed to connect to server.");
     }
 
-
+        }
 // Logic to dynamically add a new category option to the dropdown
 function updateCategoryDropdown(categoryName) {
     const dropdown = document.getElementById('new-task-category');
@@ -920,6 +920,7 @@ function filterTasks(category, btn) {
 }
 
 async function loadAvailableTasks() {
+    try{
     const taskContainer = document.getElementById('task-list');
     taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Syncing tasks...</p>';
 
@@ -941,12 +942,11 @@ async function loadAvailableTasks() {
         }
 
         taskContainer.innerHTML = ''; 
-        availableTasks.forEach(task => {
-            // Check if task is Telegram (Auto) or Social (Manual)
+                availableTasks.forEach(task => {
             const isManual = task.type === 'manual' || !task.url.includes('t.me');
             
             const taskHtml = `
-                <div id="task-card-${task.id}" class="glass group relative overflow-hidden transition-all">
+                <div id="task-card-${task.id}" class="glass group relative overflow-hidden transition-all mb-4">
                     <div class="p-4 flex justify-between items-center">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">
@@ -964,26 +964,20 @@ async function loadAvailableTasks() {
                         </button>
                     </div>
                     
-                    // Inside your loadAvailableTasks loop:
-${isManual ? `
-<div id="proof-${task.id}" class="proof-section">
-    <!-- Show the specific instructions from the Admin -->
-    <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-3">
-        <p class="text-[9px] text-blue-400 uppercase font-black mb-1">How to complete:</p>
-        <p class="text-[11px] text-slate-300">${task.description || 'Complete the task and submit proof below.'}</p>
-    </div>
-    
-    <input id="input-proof-${task.id}" type="text" class="w-full p-3 rounded-xl text-xs mb-3" placeholder="Your proof here...">
-    <button onclick="submitManualProof('${task.id}')" class="w-full bg-green-600 text-white py-2 rounded-lg text-[10px] font-black uppercase">Submit Proof</button>
-</div>` : ''}
-            </div>`;
+                    ${isManual ? `
+                    <div id="proof-${task.id}" class="proof-section">
+                        <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-3">
+                            <p class="text-[9px] text-blue-400 uppercase font-black mb-1">How to complete:</p>
+                            <p class="text-[11px] text-slate-300">${task.description || 'Complete the task and submit proof below.'}</p>
+                        </div>
+                        <input id="input-proof-${task.id}" type="text" class="w-full p-3 rounded-xl text-xs mb-3" placeholder="Your proof here...">
+                        <button onclick="submitManualProof('${task.id}')" class="w-full bg-green-600 text-white py-2 rounded-lg text-[10px] font-black uppercase">Submit Proof</button>
+                    </div>` : ''}
+                </div>`;
 
             taskContainer.insertAdjacentHTML('beforeend', taskHtml);
         });
-    } catch (e) {
-        taskContainer.innerHTML = '<p class="text-red-400 text-[10px] text-center">CONNECTION ERROR</p>';
-    }
-}
+
 
 // Helper to open manual proof area
 function toggleProofSection(taskId, url) {
