@@ -704,9 +704,31 @@ async function secureFetch(endpoint, options = {}) {
         ...options.headers
     };
 
-    const response = await fetch(`${RENDER_URL}${endpoint}`, { ...options, headers });
-    return response.json();
-}
+    try {
+        const response = await fetch(`${RENDER_URL}${endpoint}`, { ...options, headers });
+        
+        // Check if the response is actually JSON before parsing
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            
+            // If the server returned a bad status code (400, 404, 500) but gave a JSON error message
+            if (!response.ok) {
+                return { success: false, error: data.error || `Server Error (${response.status})` };
+            }
+            return data;
+        } else {
+            // Handle cases where the server returns an HTML crash page or raw text
+            const rawText = await response.text();
+            console.error("Server returned non-JSON:", rawText);
+            return { success: false, error: `Server Error (${response.status}): Invalid response format.` };
+        }
+    } catch (networkError) {
+        // This catches total internet disconnects or CORS blocks
+        console.error("Fetch Execution Error:", networkError);
+        return { success: false, error: "Network connection failed or timed out." };
+    }
+        }
 
 // -- Initialization --
 async function initApp() {
