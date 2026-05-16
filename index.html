@@ -162,6 +162,60 @@ html, body {
     transition: all 0.5s ease;
     pointer-events: none;
         }
+        /* Notification Center Styles */
+#notification-center {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(100%);
+}
+#notification-center.active {
+    transform: translateY(0);
+}
+.notif-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.notif-card.unread {
+    border-left: 3px solid var(--neon-blue);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+/* Toast Popup Styling */
+#toast-container {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    right: 20px;
+    z-index: 1000;
+    pointer-events: none;
+}
+.toast {
+    animation: slideInTop 0.5s ease forwards;
+}
+@keyframes slideInTop {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 5.5s infinite;
+    border-radius: 12px;
+}
+
+.skeleton-text { height: 12px; width: 60%; margin-bottom: 8px; }
+.skeleton-btn { height: 32px; width: 80px; }
+.skeleton {
+    background-color: rgba(255, 255, 255, 0.05); /* Base color */
+    background-image: linear-gradient(90deg, rgba(255,255,255,0) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 75%);
+}
+
+
     </style>
 </head>
 <body>
@@ -178,10 +232,17 @@ html, body {
         </div>
     </div>
     
-    <div class="flex items-center gap-2">
-        <div id="admin-badge" class="hidden glass px-3 py-1 border-red-500/30 text-red-400 text-[10px] font-black uppercase tracking-widest">Owner</div>
-        <button onclick="toggleUtilityMenu()" class="w-10 h-10 glass flex items-center justify-center text-xl">⋮</button>
-    </div>
+  <div class="flex items-center gap-2">
+    <div id="admin-badge" class="hidden glass px-3 py-1 border-red-500/30 text-red-400 text-[10px] font-black uppercase tracking-widest">Owner</div>
+    
+    <button onclick="toggleNotificationCenter()" class="relative w-10 h-10 glass flex items-center justify-center text-lg transition-all active:scale-90">
+        🔔
+        <span id="unread-dot" class="hidden absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-[#1e1b4b]"></span>
+    </button>
+
+    <button onclick="toggleUtilityMenu()" class="w-10 h-10 glass flex items-center justify-center text-xl">⋮</button>
+</div>
+
     </div>
     <div id="utility-menu" class="hidden fixed top-20 right-6 w-48 glass shadow-2xl z-[110] border-white/10 overflow-hidden">
     <div onclick="switchTab('history'); toggleUtilityMenu()" class="p-4 text-[11px] font-bold border-b border-white/5 hover:bg-white/5 cursor-pointer">📜 Task History</div>
@@ -211,82 +272,32 @@ html, body {
                     </div>
 
 
-
-        <div id="tab-friends" class="tab-content">
-            <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Your Team</h3>
-    <div id="friends-list" class="space-y-3">
-        <div class="glass p-4 flex justify-between items-center border-l-2 border-blue-500/50">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px]">👤</div>
-                <div>
-                    <p class="text-xs font-bold" id="friend-name">Waiting for friends...</p>
-                    <p class="text-[9px] text-slate-500">Joined via your link</p>
-                </div>
-            </div>
-            <p class="text-xs font-bold text-green-400">+0.10 USDT</p>
-        </div>
-    </div>
-            <!-- Friends List Container -->
-<div id="friends-list" class="space-y-3 mt-4">
-    
-    <!-- Real-looking Friend Card -->
-    <div class="friend-card bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
+<div id="tab-friends" class="tab-content">
+    <div class="glass p-6 rounded-3xl border-white/5 text-center mb-6 relative overflow-hidden">
+        <h3 class="text-lg font-black uppercase tracking-tighter mb-1">Invite & Earn 10%</h3>
+        <p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-6">Commission starts after friend completes 5 tasks</p>
         
-        <!-- Header: Always Visible -->
-        <div onclick="toggleFriend(this)" class="p-4 flex items-center justify-between cursor-pointer active:bg-white/5">
-            <div class="flex items-center gap-4">
-                <!-- User Avatar/Initials Circle -->
-                <div class="relative">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-black font-bold text-lg shadow-lg">
-                        AS
-                    </div>
-                    <!-- Premium Badge (Only show if they are premium) -->
-                    <div class="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1 border-2 border-[#1a1a1a]">
-                        <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold text-sm">Alex Smith</h4>
-                    <div class="flex items-center gap-1 mt-1">
-                        <span class="text-[10px] text-gray-400 uppercase tracking-wider">Earned:</span>
-                        <span class="text-xs text-green-400 font-bold">+1,250 PTS</span>
-                    </div>
-                </div>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-white/5 p-3 rounded-2xl">
+                <p class="text-[8px] text-slate-500 uppercase font-black">Active Team</p>
+                <p id="total-invited" class="text-lg font-black">0</p>
             </div>
-
-            <!-- Chevron Indicator -->
-            <div class="chevron-icon transition-transform duration-300 text-gray-500">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"></path></svg>
+            <div class="bg-white/5 p-3 rounded-2xl">
+                <p class="text-[8px] text-slate-500 uppercase font-black">Available</p>
+                <p id="earned-points" class="text-lg font-black text-green-400">0.00</p>
             </div>
         </div>
 
-        <!-- Expanded Content: Hidden by default -->
-        <div class="expanded-details hidden border-t border-white/5 bg-black/40 p-4">
-            <div class="grid grid-cols-2 gap-3">
-                <!-- Stat 1 -->
-                <div class="bg-white/5 rounded-xl p-3 text-center">
-                    <p class="text-[10px] text-gray-500 mb-1">TASKS DONE</p>
-                    <p class="text-sm font-bold text-white">42</p>
-                </div>
-                <!-- Stat 2 -->
-                <div class="bg-white/5 rounded-xl p-3 text-center">
-                    <p class="text-[10px] text-gray-500 mb-1">YOUR Comm (10%)</p>
-                    <p class="text-sm font-bold text-blue-400">+125 PTS</p>
-                </div>
-            </div>
-            
-            <div class="mt-3 flex justify-between items-center px-1">
-                <span class="text-[10px] text-gray-600">Last Task: Just now</span>
-                <button class="text-[10px] text-yellow-500 font-bold uppercase tracking-widest">Poke Friend ⚡</button>
-            </div>
-        </div>
+        <button onclick="shareInvite()" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2">
+            🚀 Invite Friends
+        </button>
     </div>
-<button onclick="shareInvite()" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2">
-    <span>🚀</span> Share to Friends
-</button>
-                            </div>
+
+    <h3 class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Team Progress</h3>
+    <div id="friends-list" class="space-y-3">
         </div>
+</div>
+
         <div id="tab-wallet" class="tab-content">
             <div class="glass p-6 mb-6 glow-green border-green-500/10">
                 <p class="text-xs text-slate-400 uppercase tracking-widest mb-1">Available for Payout</p>
@@ -314,21 +325,98 @@ html, body {
             <h4 id="stat-withdraws" class="text-2xl font-black text-yellow-500">0</h4>
         </div>
     </div>
-    <div class="glass p-5 mb-6">
-    <h3 class="text-[10px] font-black uppercase text-blue-400 mb-4 tracking-widest">User Editor</h3>
-    <div class="flex gap-2 mb-4">
-        <input id="search-user-id" type="number" class="flex-1 p-3 rounded-xl text-xs glass" placeholder="User Telegram ID">
-        <button onclick="searchUser()" class="bg-blue-600 px-4 rounded-xl text-xs font-bold">Search</button>
+        <div id="admin-hub-grid" class="grid grid-cols-2 gap-3 mb-6">
+        <button onclick="switchAdminPanel('panel-task-manager')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-blue-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">📋</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Tasks</span>
+        </button>
+        <button onclick="switchAdminPanel('panel-broadcast')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-purple-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">📣</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Broadcast</span>
+        </button>
+        <button onclick="switchAdminPanel('panel-settings')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-slate-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">⚙️</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">System</span>
+        </button>
+        <button onclick="switchAdminPanel('panel-users')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">👥</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Users</span>
+        </button>
+        <button onclick="switchAdminPanel('panel-payouts')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-yellow-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">💰</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Payouts</span>
+        </button>
+        <button onclick="switchAdminPanel('panel-proofs')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-indigo-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">📥</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Proofs</span>
+        </button>
+        <button onclick="switchAdminPanel('panel-admins')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-red-500/20 hover:bg-white/5 active:scale-95 transition-all opacity-50">
+            <span class="text-2xl">👑</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Admins</span>
+        </button>
+        <button onclick="switchAdminPanel('panel-notifications')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-cyan-500/20 hover:bg-white/5 active:scale-95 transition-all opacity-50">
+            <span class="text-2xl">🔔</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Alerts</span>
+        </button>
     </div>
-    
-    <div id="admin-user-editor" class="hidden space-y-4 pt-4 border-t border-white/5">
-        <p class="text-xs">Current Balance: <span id="edit-user-balance" class="text-green-400 font-bold">0</span> USDT</p>
-        <input id="new-user-balance" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="New Balance"        <button onclick="updateUserBalance()" class="w-full bg-green-600/20 text-green-400 py-3 rounded-xl text-[10px] font-black uppercase border border-green-500/30"Apply Change</button>
+    <div id="panel-users" class="hidden space-y-6 pb-10">
+        <div class="flex items-center gap-3 mb-4">
+            <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-widest text-green-400">User Dashboard</h3>
+                <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Search, edit metrics, and ban users</p>
+            </div>
+        </div>
+
+        <div class="glass p-5 border-white/5">
+            <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-widest">User Search Engine</h3>
+            <div class="flex gap-2">
+                <input id="search-user-id" type="number" class="flex-1 p-3 rounded-xl text-xs glass" placeholder="Enter Telegram User ID...">
+                <button onclick="searchUser()" class="bg-blue-600 px-5 rounded-xl text-xs font-bold active:scale-95 transition-all">Search</button>
+            </div>
+            
+            <div id="admin-user-editor" class="hidden space-y-4 pt-5 mt-5 border-t border-white/10">
+                <div class="bg-black/20 p-4 rounded-xl space-y-2">
+                    <p class="text-[11px] text-slate-400">Editing User ID: <span id="edit-user-display-id" class="text-white font-bold"></span></p>
+                    <div class="flex justify-between text-xs">
+                        <span>Current Balance: <b id="edit-user-balance" class="text-green-400">0.00</b> USDT</span>
+                        <span>Current Points: <b id="edit-user-points" class="text-yellow-500">0.00</b> pts</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">New Balance (USDT)</p>
+                        <input id="new-user-balance" type="number" step="0.01" class="w-full p-3 rounded-xl text-xs glass" placeholder="0.00">
+                    </div>
+                    <div>
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">New Points Value</p>
+                        <input id="new-user-points" type="number" step="0.01" class="w-full p-3 rounded-xl text-xs glass" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button id="btn-ban-toggle" onclick="toggleUserBanStatus()" class="flex-1 bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider border border-red-500/30 active:scale-95 transition-all">
+                        Ban User
+                    </button>
+                    <button onclick="updateUserMetrics()" class="flex-1 bg-green-600 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="flex gap-2 mb-4 bg-black/20 p-1 rounded-xl border border-white/5">
+                <button id="btn-dir-all" onclick="filterUserDirectory('all')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-blue-600 text-white transition-all">All Users</button>
+                <button id="btn-dir-banned" onclick="filterUserDirectory('banned')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all">Banned</button>
+            </div>
+
+            <div id="admin-user-directory-list" class="space-y-3">
+                <p class="text-center text-[10px] text-slate-500 py-6">Select a directory view...</p>
+            </div>
+        </div>
     </div>
-</div>
-
-
-
 
     <div class="glass p-5 mb-6 border-white/5">
         <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">System Controls</h3>
@@ -355,60 +443,135 @@ html, body {
                         <p class="text-[9px] text-slate-500 mb-1 ml-1">Comm. %</p>
                         <input id="set-ref-percent" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="10">
                     </div>
+                    <div class="flex-1">
+    <p class="text-[9px] text-slate-500 mb-1 ml-1">Req. Tasks</p>
+    <input id="set-ref-threshold" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="5">
+</div>
+
                 </div>
                 <button onclick="saveRefSettings()" class="w-full bg-blue-600/20 text-blue-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/30">Update Referral Rules</button>
             </div>
         </div>
     </div>
-    <!-- Place this inside <div id="tab-admin">, near Task Management -->
-<div class="glass p-5 mb-6 border-blue-500/20">
-    <h3 class="text-[10px] font-black uppercase text-blue-400 mb-4 tracking-widest">Category Manager</h3>
-    <div class="flex gap-2">
-        <input id="new-category-name" type="text" class="flex-1 p-3 rounded-xl text-xs glass" placeholder="New Category (e.g. Trading)">
-        <button onclick="addNewCategory()" class="bg-blue-600 w-10 h-10 rounded-xl font-bold">+</button>
-    </div>
-</div>
-
-<div class="glass p-5 mb-6 border-white/5">
-    <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">Deploy New Task</h3>
-    
-    <div class="space-y-3">
-        <input id="new-task-title" type="text" placeholder="Task Name (e.g. Follow on X)" class="w-full p-3 rounded-xl text-xs glass">
-        <input id="new-task-link" type="text" placeholder="URL (https://...)" class="w-full p-3 rounded-xl text-xs glass">
-
-        <!-- New Instructions Field -->
-        <textarea id="new-task-desc" rows="2" placeholder="Instructions (e.g. Follow, then enter your @username below)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
-
-        <div class="flex gap-2">
-            <select id="new-task-category" class="flex-1 p-3 rounded-xl text-xs glass text-slate-400">
-                <option value="Crypto">Crypto</option>
-                <option value="Airdrop">Airdrop</option>
-                <option value="Education">Education</option>
-            </select>
-            <input id="new-task-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-1/3 p-3 rounded-xl text-xs glass">
-        </div>
-
-        <div class="bg-white/5 p-3 rounded-xl">
-            <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Verification Method</p>
-            <div class="flex gap-4">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="verify-type" value="auto" checked class="accent-blue-500">
-                    <span class="text-[10px] font-bold">Auto (Telegram)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="verify-type" value="manual" class="accent-indigo-500">
-                    <span class="text-[10px] font-bold">Manual (Proof)</span>
-                </label>
+    <div id="panel-task-manager" class="hidden space-y-6 pb-10">
+        <div class="flex items-center gap-3 mb-4">
+            <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-widest text-blue-400">Task Manager</h3>
+                <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Deploy and manage tasks</p>
             </div>
         </div>
 
-        <button onclick="addNewTask()" class="w-full btn-premium py-3 rounded-xl text-xs font-bold mt-2">
-            🚀 Launch Task
-        </button>
+        <div class="glass p-5 border-blue-500/20">
+            <h3 class="text-[10px] font-black uppercase text-blue-400 mb-4 tracking-widest">Category Manager</h3>
+            <div class="flex gap-2">
+                <input id="new-category-name" type="text" class="flex-1 p-3 rounded-xl text-xs glass" placeholder="New Category (e.g. Trading)">
+                <button onclick="addNewCategory()" class="bg-blue-600 w-10 h-10 rounded-xl font-bold">+</button>
+            </div>
+        </div>
+
+        <div class="glass p-5 border-white/5">
+            <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">Deploy New Task</h3>
+            
+            <div class="space-y-3">
+                <input id="new-task-title" type="text" placeholder="Task Name (e.g. Follow on X)" class="w-full p-3 rounded-xl text-xs glass">
+                <input id="new-task-link" type="text" placeholder="URL (https://...)" class="w-full p-3 rounded-xl text-xs glass">
+                <textarea id="new-task-desc" rows="2" placeholder="Instructions (e.g. Follow, then enter your @username below)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
+                
+                <div class="space-y-1">
+    <p class="text-[8px] text-slate-500 uppercase font-black ml-1">Task Icon (Optional)</p>
+    <div class="relative flex items-center justify-center w-full p-4 border border-dashed border-white/20 rounded-xl bg-black/20 hover:bg-white/5 transition-all">
+        <input id="new-task-image-file" type="file" accept="image/*" onchange="previewUploadedImage(this)" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+        <div class="text-center flex items-center gap-3" id="upload-placeholder">
+            <span class="text-xl">🖼️</span>
+            <span class="text-xs font-bold text-slate-400" id="upload-text">Upload Image File</span>
+        </div>
+        <img id="new-task-image-preview" src="" class="hidden w-10 h-10 rounded-xl object-cover border border-white/10 ml-auto">
+    </div>
+</div>
+                <div class="flex gap-2">
+                    <select id="new-task-category" class="flex-1 p-3 rounded-xl text-xs glass text-slate-400">
+                        <option value="Crypto">Crypto</option>
+                        <option value="Airdrop">Airdrop</option>
+                        <option value="Education">Education</option>
+                    </select>
+                    <input id="new-task-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-1/3 p-3 rounded-xl text-xs glass">
+                </div>
+
+                <div class="bg-white/5 p-3 rounded-xl">
+                    <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Verification Method</p>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="verify-type" value="auto" checked class="accent-blue-500">
+                            <span class="text-[10px] font-bold">Auto (Telegram)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="verify-type" value="manual" class="accent-indigo-500">
+                            <span class="text-[10px] font-bold">Manual (Proof)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button onclick="addNewTask()" class="w-full btn-premium py-3 rounded-xl text-xs font-bold mt-2">
+                    🚀 Launch Task
+                </button>
+            </div>
+        </div>
+        
+        <div class="glass p-5 border-white/5">
+            <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">Active Tasks</h3>
+            <div id="admin-active-tasks-list" class="space-y-3">
+                <p class="text-center text-[10px] text-slate-500 py-4">Loading tasks...</p>
+            </div>
+        </div>
+    </div>
+<div id="panel-notifications" class="hidden space-y-6 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-cyan-400">Alerts & Targeting</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Send targeted mini-app system or personal inbox alerts</p>
+        </div>
+    </div>
+
+    <div class="glass p-5 border-cyan-500/20">
+        <h3 class="text-[10px] font-black uppercase text-cyan-400 mb-4 tracking-widest">Create Targeted Notification</h3>
+        
+        <div class="space-y-3">
+            <input id="notif-title" type="text" placeholder="Notification Title..." class="w-full p-3 rounded-xl text-xs glass">
+            <textarea id="notif-msg" rows="3" placeholder="Message content details here... (HTML supported)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
+            
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Tab Destination</p>
+                    <select id="notif-type-select" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
+                        <option value="system">System Tab</option>
+                        <option value="personal">Personal Tab</option>
+                    </select>
+                </div>
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Target Group</p>
+                    <select id="notif-target-select" onchange="toggleTargetIdField()" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
+                        <option value="all">All Users (Global)</option>
+                        <option value="new_members">New Members Only</option>
+                        <option value="all_members">All Verified Members</option>
+                        <option value="specific_member">Specific Member ID</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="notif-user-id-container" class="hidden">
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Target Telegram User ID</p>
+                <input id="notif-target-userid" type="number" placeholder="Enter Telegram User ID..." class="w-full p-3 rounded-xl text-xs glass">
+            </div>
+
+            <button id="btn-send-notif" onclick="dispatchAdminNotification()" class="w-full bg-cyan-600/20 text-cyan-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-cyan-500/30 transition-all active:scale-95 mt-2">
+                📢 Dispatch Notification
+            </button>
+        </div>
     </div>
 </div>
 
-    
 
     <div class="glass p-5 mb-6 border-purple-500/20">
     <h3 class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Global Broadcast</h3>
@@ -480,6 +643,20 @@ html, body {
 </div>
 
 </main>
+<div id="toast-container"></div>
+
+<div id="notification-center" class="fixed inset-0 z-[150] glass hidden flex-col">
+    <div class="p-6 pt-12 flex justify-between items-center border-b border-white/10">
+        <h2 class="text-xl font-black uppercase tracking-widest">Inbox</h2>
+        <button onclick="toggleNotificationCenter()" class="text-slate-400 font-bold">❌</button>
+    </div>
+    <div class="flex p-4 gap-2">
+        <button onclick="switchNotifTab('personal')" id="btn-notif-personal" class="flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-blue-600 text-white">Personal</button>
+        <button onclick="switchNotifTab('system')" id="btn-notif-system" class="flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-white/5 text-slate-400">System</button>
+    </div>
+    <div id="notif-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+</div>
+
         <nav class="fixed bottom-0 left-0 right-0 h-20 glass flex justify-around items-center px-4 z-[100] border-t border-white/10 glow-blue rounded-none">
     <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn nav-active flex flex-col items-center gap-1 transition-all duration-300">
         <div class="text-2xl">⚡</div>
@@ -516,9 +693,8 @@ html, body {
 
         // Current User Data
         const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; 
-        let currentEditingUserId = null; // Add this line// Fallback for browser testing
-        // --- SECURE API WRAPPER ---
-// This automatically attaches the Telegram validation data to every request
+        let currentEditingUserId = null;
+        let tasksRequired = 5
 async function secureFetch(endpoint, options = {}) {
     const initData = tg.initData || ''; // Gets the encrypted string from Telegram
     
@@ -543,10 +719,14 @@ async function initApp() {
     if (user.id === OWNER_ID) {
         document.getElementById('admin-badge').classList.remove('hidden');
         document.getElementById('nav-admin').classList.remove('hidden');
+         // Enable targeted admin panels opacity representation adjustments removal rule elements
+        const alertsBtn = document.querySelector('button[onclick="switchAdminPanel(\'panel-notifications\')"]');
+        if(alertsBtn) alertsBtn.classList.remove('opacity-50');
     }
 
-    // 3. Start loading tasks and balance at the same time
+
     loadAvailableTasks(); 
+    await syncUserInbox();
 
     try {
         const data = await secureFetch('/api/secure/profile');
@@ -561,86 +741,33 @@ async function initApp() {
         // Don't alert on startup, it's annoying for the user
         console.log("Server is likely warming up...");
     }
-}
-
-// Ensure the app starts
-function loadAdminTaskList() {
-    console.log("Admin list refresh triggered");
-    // You can implement the actual logic here later
-}
-        function loadFriendsUI() {
-    const listContainer = document.getElementById('friends-list-content');
-    listContainer.innerHTML = ''; // Clear existing
-
-    mockFriends.forEach(friend => {
-        // Choose gradient based on Premium status
-        const avatarGradient = friend.isPremium 
-            ? "from-purple-500 to-blue-600" 
-            : "from-yellow-400 to-orange-500";
-
-        const cardHTML = `
-            <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl mb-3 overflow-hidden">
-                <div onclick="toggleFriendCard(this)" class="p-4 flex items-center justify-between cursor-pointer active:bg-white/5 transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-11 h-11 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-black font-bold shadow-inner">
-                            ${friend.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <div>
-                            <h4 class="text-white font-bold text-sm">${friend.name}</h4>
-                            <p class="text-[10px] text-green-400 font-medium">Comm: +${friend.points} PTS</p>
-                        </div>
-                    </div>
-                    <div class="chevron transition-transform duration-300 text-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"></path></svg>
-                    </div>
-                </div>
-
-                <!-- Hidden Details Section -->
-                <div class="details hidden border-t border-white/5 bg-black/30 p-4">
-                    <div class="flex justify-between gap-3">
-                        <div class="flex-1 bg-white/5 p-2 rounded-xl text-center">
-                            <span class="block text-[9px] text-gray-500 uppercase">Tasks</span>
-                            <span class="text-sm font-bold text-white">${friend.tasks}</span>
-                        </div>
-                        <div class="flex-1 bg-white/5 p-2 rounded-xl text-center">
-                            <span class="block text-[9px] text-gray-500 uppercase">Status</span>
-                            <span class="text-sm font-bold ${friend.isPremium ? 'text-purple-400' : 'text-gray-400'}">
-                                ${friend.isPremium ? 'Premium' : 'Standard'}
-                            </span>
-                        </div>
-                        <div class="flex-1 bg-white/5 p-2 rounded-xl text-center">
-                            <span class="block text-[9px] text-gray-500 uppercase">Active</span>
-                            <span class="text-sm font-bold text-gray-300">${friend.lastActive}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        listContainer.innerHTML += cardHTML;
-    });
-                                }
-
-function toggleFriendCard(header) {
-    const card = header.parentElement;
-    const details = card.querySelector('.details');
-    const chevron = card.querySelector('.chevron');
+// Enable Native Pull-to-Refresh
+tg.onEvent('reloadVertical', function() {
+    tg.HapticFeedback.impactOccurred('medium');
     
-    const isOpening = details.classList.contains('hidden');
+    // Refresh only the current tab's data
+    const activeTab = document.querySelector('.tab-content.active').id.replace('tab-', '');
     
-    // Close others for a clean look (optional)
-    document.querySelectorAll('.details').forEach(d => d.classList.add('hidden'));
-    document.querySelectorAll('.chevron').forEach(c => c.style.transform = 'rotate(0deg)');
-
-    if (isOpening) {
-        details.classList.remove('hidden');
-        chevron.style.transform = 'rotate(90deg)';
-        if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.HapticFeedback.selectionChanged();
-        }
-    }
+    if (activeTab === 'home') loadAvailableTasks();
+    if (activeTab === 'friends') loadReferralData();
+    if (activeTab === 'history') loadUserHistory();
+    
+    // Optional: Sync user profile/balance again
+    cachedUserProfile = null; 
+    initApp();
+});
 }
-        
 
+async function loadAdminTaskList() {
+    const res = await secureFetch('/api/admin/tasks');
+    const container = document.getElementById('admin-withdraw-list'); // Or create a specific task-manager-list div
+    // Logic to map tasks with a 'Delete' button goes here
+}
+
+let currentEditingUserData = null; // Cache active user model locally
+let userDirectoryFilter = 'all';
+
+// 1. Enhanced Search Engine Action
 async function searchUser() {
     const searchId = document.getElementById('search-user-id').value;
     if(!searchId) return tg.showAlert("Please enter a Telegram ID");
@@ -648,48 +775,164 @@ async function searchUser() {
     try {
         const res = await secureFetch(`/api/admin/users/${searchId}`);
         
-        if (res.error) {
-            tg.showAlert("User not found!");
+        if (res.error || !res.user) {
+            tg.showAlert("User record not found!");
             document.getElementById('admin-user-editor').classList.add('hidden');
             return;
         }
         
-        // Show the editor and populate data
+        // Cache data payload locally
+        currentEditingUserData = res.user;
         currentEditingUserId = res.user.user_id;
+
+        // Sync editor fields 
+        document.getElementById('edit-user-display-id').innerText = res.user.user_id;
         document.getElementById('edit-user-balance').innerText = res.user.balance.toFixed(2);
+        document.getElementById('edit-user-points').innerText = (res.user.points || 0).toFixed(2);
+        
         document.getElementById('new-user-balance').value = res.user.balance;
+        document.getElementById('new-user-points').value = res.user.points || 0;
+
+        // Set state of Ban Button dynamically
+        const banBtn = document.getElementById('btn-ban-toggle');
+        if(res.user.is_banned) {
+            banBtn.innerText = "🛑 Unban User";
+            banBtn.className = "flex-1 bg-yellow-600/20 text-yellow-400 py-3 rounded-xl text-[10px] font-black uppercase border border-yellow-500/30 active:scale-95 transition-all";
+        } else {
+            banBtn.innerText = "🚨 Ban User";
+            banBtn.className = "flex-1 bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase border border-red-500/30 active:scale-95 transition-all";
+        }
+
         document.getElementById('admin-user-editor').classList.remove('hidden');
         tg.HapticFeedback.impactOccurred('light');
 
     } catch (e) {
-        tg.showAlert("Search failed. Check connection.");
+        tg.showAlert("Search engine error.");
     }
 }
 
-async function updateUserBalance() {
+// 2. Multi-Metric Updates (Balance and Points)
+async function updateUserMetrics() {
     const newBalance = document.getElementById('new-user-balance').value;
-    if(!currentEditingUserId || newBalance === '') return;
+    const newPoints = document.getElementById('new-user-points').value;
+    if(!currentEditingUserId || newBalance === '' || newPoints === '') return;
 
     try {
         const res = await secureFetch('/api/admin/users/update', {
             method: 'POST',
             body: JSON.stringify({ 
                 userId: currentEditingUserId, 
-                balance: parseFloat(newBalance) 
+                balance: parseFloat(newBalance),
+                points: parseFloat(newPoints)
             })
         });
 
         if (res.success) {
             tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert("✅ User balance updated!");
+            tg.showAlert("✅ User metrics synchronized!");
             document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(2);
+            document.getElementById('edit-user-points').innerText = parseFloat(newPoints).toFixed(2);
+            loadUserDirectory(); // Refresh list implicitly
         } else {
-            tg.showAlert("Failed to update user.");
+            tg.showAlert("Failed to update profile values.");
         }
     } catch (e) {
-        tg.showAlert("Update failed.");
+        tg.showAlert("Network communications failed.");
     }
 }
+
+// 3. Toggle Ban State Engine Action
+async function toggleUserBanStatus() {
+    if(!currentEditingUserId || !currentEditingUserData) return;
+    
+    const targetState = !currentEditingUserData.is_banned;
+    const actionLabel = targetState ? "BAN" : "UNBAN";
+
+    tg.showConfirm(`Are you sure you want to ${actionLabel} this user?`, async (confirmed) => {
+        if(!confirmed) return;
+
+        try {
+            const res = await secureFetch('/api/admin/users/ban', {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    userId: currentEditingUserId,
+                    banned: targetState
+                })
+            });
+
+            if(res.success) {
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.showAlert(`User successfully ${targetState ? 'banned' : 'unbanned'}!`);
+                searchUser(); // Refresh data to load current layout state
+            } else {
+                tg.showAlert("Action denied by server.");
+            }
+        } catch(e) {
+            tg.showAlert("Failed to run ban assignment command.");
+        }
+    });
+}
+
+// 4. Directory Views Manager
+function filterUserDirectory(filterType) {
+    userDirectoryFilter = filterType;
+    
+    const allBtn = document.getElementById('btn-dir-all');
+    const banBtn = document.getElementById('btn-dir-banned');
+
+    if(filterType === 'all') {
+        allBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-blue-600 text-white transition-all";
+        banBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all";
+    } else {
+        allBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all";
+        banBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white transition-all";
+    }
+    
+    loadUserDirectory();
+}
+
+async function loadUserDirectory() {
+    const listContainer = document.getElementById('admin-user-directory-list');
+    listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Syncing database records...</p>';
+
+    try {
+        const users = await secureFetch(`/api/admin/users/list?filter=${userDirectoryFilter}`);
+        
+        if (!users || users.length === 0) {
+            listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6 uppercase font-bold tracking-wider">No users found inside this view</p>';
+            return;
+        }
+
+        listContainer.innerHTML = users.map(u => `
+            <div onclick="document.getElementById('search-user-id').value='${u.user_id}'; searchUser();" class="glass p-3 flex justify-between items-center border-l-2 ${u.is_banned ? 'border-red-500 bg-red-500/5' : 'border-slate-500/40'} active:scale-[0.99] transition-all cursor-pointer">
+                <div>
+                    <p class="text-xs font-bold text-white">ID: ${u.user_id}</p>
+                    <p class="text-[9px] font-bold text-slate-400">${u.username ? '@'+u.username : 'No Username'}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-green-400">${u.balance.toFixed(2)} USDT</p>
+                    <p class="text-[8px] font-bold text-yellow-500">${(u.points || 0).toFixed(0)} pts</p>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        listContainer.innerHTML = '<p class="text-center text-[10px] text-red-400">Directory loading error.</p>';
+    }
+}
+
+function getEmptyStateHTML(icon, title, subtitle) {
+    return `
+        <div class="flex flex-col items-center justify-center py-20 opacity-40">
+            <div class="text-5xl mb-4">${icon}</div>
+            <h4 class="text-sm font-black uppercase tracking-widest text-white">${title}</h4>
+            <p class="text-[10px] font-bold text-slate-500 mt-1">${subtitle}</p>
+        </div>
+    `;
+}
+
+
+
 
         // Track tasks currently in progress
 let activeTasks = {};
@@ -741,59 +984,6 @@ function copyRefLink() {
     setTimeout(() => tg.closeScanQrPopup(), 1000);
 }
 
-// --- Load Friends Data ---
-function loadFriendsUI() {
-    const listContainer = document.getElementById('friends-list-content');
-    listContainer.innerHTML = ''; // Clear existing
-
-    mockFriends.forEach(friend => {
-        // Choose gradient based on Premium status
-        const avatarGradient = friend.isPremium 
-            ? "from-purple-500 to-blue-600" 
-            : "from-yellow-400 to-orange-500";
-
-        const cardHTML = `
-            <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl mb-3 overflow-hidden">
-                <div onclick="toggleFriendCard(this)" class="p-4 flex items-center justify-between cursor-pointer active:bg-white/5 transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-11 h-11 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-black font-bold shadow-inner">
-                            ${friend.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <div>
-                            <h4 class="text-white font-bold text-sm">${friend.name}</h4>
-                            <p class="text-[10px] text-green-400 font-medium">Comm: +${friend.points} PTS</p>
-                        </div>
-                    </div>
-                    <div class="chevron transition-transform duration-300 text-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"></path></svg>
-                    </div>
-                </div>
-
-                <!-- Hidden Details Section -->
-                <div class="details hidden border-t border-white/5 bg-black/30 p-4">
-                    <div class="flex justify-between gap-3">
-                        <div class="flex-1 bg-white/5 p-2 rounded-xl text-center">
-                            <span class="block text-[9px] text-gray-500 uppercase">Tasks</span>
-                            <span class="text-sm font-bold text-white">${friend.tasks}</span>
-                        </div>
-                        <div class="flex-1 bg-white/5 p-2 rounded-xl text-center">
-                            <span class="block text-[9px] text-gray-500 uppercase">Status</span>
-                            <span class="text-sm font-bold ${friend.isPremium ? 'text-purple-400' : 'text-gray-400'}">
-                                ${friend.isPremium ? 'Premium' : 'Standard'}
-                            </span>
-                        </div>
-                        <div class="flex-1 bg-white/5 p-2 rounded-xl text-center">
-                            <span class="block text-[9px] text-gray-500 uppercase">Active</span>
-                            <span class="text-sm font-bold text-gray-300">${friend.lastActive}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        listContainer.innerHTML += cardHTML;
-    });
-        }
-// Admin function to load the list
 async function loadPendingWithdrawals() {
     const res = await fetch(`${RENDER_URL}/api/admin/withdrawals`);
     const list = await res.json();
@@ -867,24 +1057,17 @@ if (result.success) {
             }
         }
 
-     function switchTab(tabId, btn) {
-    // 1. Hide all tab content
-    document.querySelectorAll('.tab-content').forEach(t => {
-        t.classList.remove('active');
-    });
-
-    // 2. Show the selected tab
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     const targetTab = document.getElementById('tab-' + tabId);
     if(targetTab) targetTab.classList.add('active');
-         window.scrollTo(0,0);
+    window.scrollTo(0,0);
 
-    // 3. Handle Navigation Button Highlighting
     document.querySelectorAll('.nav-btn').forEach(b => {
         b.classList.remove('nav-active');
         b.classList.add('text-slate-500');
     });
 
-    // Only highlight if the button was actually passed (from bottom nav)
     if (btn) {
         btn.classList.add('nav-active');
         btn.classList.remove('text-slate-500');
@@ -892,9 +1075,44 @@ if (result.success) {
 
     tg.HapticFeedback.selectionChanged();
     
-    // Load specific data for history
+    // --- ADD THESE TRIGGERS ---
     if(tabId === 'history') loadUserHistory();
+    if(tabId === 'friends') loadReferralData(); // Loads friends when tab opens
+    if(tabId === 'admin') loadAdminData();      // Loads admin stats when tab opens
 }
+// --- ADMIN HUB NAVIGATION ---
+function switchAdminPanel(panelId) {
+    const panels = [
+        'panel-task-manager', 'panel-broadcast', 'panel-settings', 
+        'panel-users', 'panel-payouts', 'panel-proofs', 
+        'panel-admins', 'panel-notifications'
+    ];
+    
+    if (panelId === 'hub') {
+        document.getElementById('admin-hub-grid').classList.remove('hidden');
+        panels.forEach(p => {
+            const el = document.getElementById(p);
+            if(el) el.classList.add('hidden');
+        });
+    } else {
+        document.getElementById('admin-hub-grid').classList.add('hidden');
+        panels.forEach(p => {
+            const el = document.getElementById(p);
+            if(el) {
+                if (p === panelId) {
+                    el.classList.remove('hidden');
+                    // Add this hook right here:
+                    if (panelId === 'panel-users') loadUserDirectory();
+                } else {
+                    el.classList.add('hidden');
+                }
+            }
+        });
+    }
+    window.scrollTo(0, 0);
+    tg.HapticFeedback.selectionChanged();
+}
+
 
 // Example Support Ticket Function
 async function submitSupportTicket() {
@@ -912,12 +1130,6 @@ async function submitSupportTicket() {
     }
 }
 
-        
-        // --- LOAD REFERRAL DATA ---
-
-
-
-// --- ADMIN: TOGGLE MAINTENANCE ---
 async function saveSettings() {
     const isMaint = document.getElementById('set-maintenance').checked;
 
@@ -934,9 +1146,7 @@ async function saveSettings() {
     } catch (e) {
         tg.showAlert("Failed to update settings.");
     }
-        }
-
-// --- WITHDRAWAL SUBMISSION ---
+}
 async function submitWithdraw() {
     const amount = document.getElementById('with-amount').value;
     const address = document.getElementById('with-address').value;
@@ -962,8 +1172,6 @@ async function submitWithdraw() {
     });
 }
 
-
-        // Toggle the Three-Dot Menu
 function toggleUtilityMenu() {
     const menu = document.getElementById('utility-menu');
     menu.classList.toggle('hidden');
@@ -993,7 +1201,12 @@ async function addNewTask() {
   try{
     const title = document.getElementById('new-task-title').value;
     const link = document.getElementById('new-task-link').value;
-    const desc = document.getElementById('new-task-desc').value; // Captured here
+    const desc = document.getElementById('new-task-desc').value;
+    
+    // <-- GRABS INSTANT IMAGE BASE64 DATA AS STRING
+    const previewEl = document.getElementById('new-task-image-preview');
+    const imageString = previewEl.getAttribute('data-base64') || ""; 
+    
     const reward = document.getElementById('new-task-reward').value;
     const category = document.getElementById('new-task-category').value;
     const type = document.querySelector('input[name="verify-type"]:checked').value;
@@ -1003,7 +1216,8 @@ async function addNewTask() {
     const taskData = {
         title,
         url: link,
-        description: desc, // Sending description to DB
+        description: desc,
+        image: imageString, // <-- SEND DATA PACKET DIRECTLY TO DATABASE
         reward: parseFloat(reward),
         category,
         type
@@ -1017,10 +1231,20 @@ async function addNewTask() {
     if (res.success) {
         tg.HapticFeedback.notificationOccurred('success');
         tg.showAlert("✅ Task Deployed!");
-        // Clear fields
+        
+        // Clear basic fields
         ['new-task-title', 'new-task-link', 'new-task-desc', 'new-task-reward'].forEach(id => {
             document.getElementById(id).value = '';
         });
+        
+        // <-- RESET THE FILE UPLOADER COMPONENT COMPLETELY
+        document.getElementById('new-task-image-file').value = '';
+        previewEl.removeAttribute('data-base64');
+        previewEl.src = '';
+        previewEl.classList.add('hidden');
+        document.getElementById('upload-text').innerText = "Upload Image File";
+        document.getElementById('upload-text').className = "text-xs font-bold text-slate-400";
+        
         loadAdminTaskList();
     
         } else {
@@ -1030,6 +1254,7 @@ async function addNewTask() {
         tg.showAlert("Failed to connect to server.");
     }
 }
+
 // Logic to dynamically add a new category option to the dropdown
 function updateCategoryDropdown(categoryName) {
     const dropdown = document.getElementById('new-task-category');
@@ -1114,13 +1339,50 @@ function filterTasks(category, btn) {
     
     loadAvailableTasks(); // Refresh list based on filter
 }
+// Converts file to Base64 data string instantly on select
+function previewUploadedImage(input) {
+    const file = input.files[0];
+    const textSpan = document.getElementById('upload-text');
+    const previewImg = document.getElementById('new-task-image-preview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Save the data string straight into the preview element's custom attribute
+            previewImg.setAttribute('data-base64', e.target.result);
+            previewImg.src = e.target.result;
+            previewImg.classList.remove('hidden');
+            
+            // Shorten filename text for neatness
+            textSpan.innerText = file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name;
+            textSpan.className = "text-xs font-bold text-green-400";
+            tg.HapticFeedback.impactOccurred('light');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
 
 // Step 1: Create a global variable at the top of your script to store profile data
 let cachedUserProfile = null;
 
 async function loadAvailableTasks() {
     const taskContainer = document.getElementById('task-list');
-    taskContainer.innerHTML = '<p class="text-center text-xs text-slate-500">Syncing tasks...</p>';
+    
+    // Skeleton Placeholder
+    taskContainer.innerHTML = Array(3).fill(0).map(() => `
+        <div class="glass mb-4 p-4 flex justify-between items-center opacity-50">
+            <div class="flex items-center gap-4 w-full">
+                <div class="w-10 h-10 skeleton"></div>
+                <div class="flex-1">
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text" style="width:30%"></div>
+                </div>
+            </div>
+            <div class="skeleton skeleton-btn"></div>
+        </div>
+    `).join('');
+
 
     try {
         // Fetch profile only if we don't have it, or fetch it once per refresh
@@ -1152,9 +1414,14 @@ async function loadAvailableTasks() {
                 <div id="task-card-${task.id}" class="glass mb-4">
                     <div class="p-4 flex justify-between items-center">
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">
-                                ${isManual ? '🔗' : '📢'}
-                            </div>
+                                                       ${task.image ? `
+                                <img src="${task.image}" class="w-10 h-10 rounded-xl object-cover border border-white/10" onerror="this.style.display='none'">
+                            ` : `
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">
+                                    ${isManual ? '🔗' : '📢'}
+                                </div>
+                            `}
+
                             <div>
                                 <h4 class="text-sm font-bold">${task.title}</h4>
                                 <span class="text-[10px] text-green-400 font-black">+${task.reward} USDT</span>
@@ -1180,9 +1447,6 @@ async function loadAvailableTasks() {
     }
 }
 
-
-
-
 // Helper to open manual proof area
 function toggleProofSection(taskId, url) {
     tg.openLink(url); // Open the link first
@@ -1206,47 +1470,7 @@ async function submitManualProof(taskId) {
     }
 }
 
-        
-            async function loadReferralData() {
-    const listContainer = document.getElementById('friends-list');
-    listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500">Syncing team...</p>';
-
-    try {
-        const data = await secureFetch('/api/secure/referrals');
-        
-        if (data.friends.length === 0) {
-            listContainer.innerHTML = '<p class="text-center text-xs text-slate-500 py-10">No friends invited yet.</p>';
-            return;
-        }
-
-        listContainer.innerHTML = '';
-        data.friends.forEach(f => {
-            const progress = Math.min((f.tasks_done / 3) * 100, 100);
-            const statusColor = f.tasks_done >= 3 ? 'text-green-400' : 'text-yellow-500';
-            
-            const html = `
-                <div class="glass p-4 mb-3 border-l-2 ${f.tasks_done >= 3 ? 'border-green-500' : 'border-yellow-500/50'}">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">${f.name[0]}</div>
-                            <div>
-                                <p class="text-xs font-bold">${f.name}</p>
-                                <p class="text-[9px] ${statusColor} font-black uppercase">${f.tasks_done}/3 Tasks Done</p>
-                            </div>
-                        </div>
-                        <p class="text-xs font-black">+${f.commission_earned.toFixed(4)} <span class="text-[8px] text-slate-500">USDT</span></p>
-                    </div>
-                    <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500 transition-all duration-500" style="width: ${progress}%"></div>
-                    </div>
-                </div>`;
-            listContainer.insertAdjacentHTML('beforeend', html);
-        });
-    } catch (e) {
-        listContainer.innerHTML = '<p class="text-red-500 text-[10px]">Error loading friends.</p>';
-    }
-        }
-            async function saveRefSettings() {
+async function saveRefSettings() {
     const bonus = document.getElementById('set-ref-bonus').value;
     const percent = document.getElementById('set-ref-percent').value;
 
@@ -1284,11 +1508,12 @@ async function loadAdminData() {
     
     try {
         const data = await secureFetch('/api/secure/history');
+              
         if (!data.history || data.history.length === 0) {
-            container.innerHTML = '<p class="text-center text-xs text-slate-500 py-10">No tasks completed yet.</p>';
-            return;
-        }
-        
+    container.innerHTML = getEmptyStateHTML('🏜️', 'No History', 'Complete tasks to fill your vault');
+    return;
+}
+
         container.innerHTML = '';
         data.history.forEach(item => {
             container.insertAdjacentHTML('beforeend', `
@@ -1313,7 +1538,7 @@ async function deleteTask(id) {
     loadAdminTaskList();
     tg.showAlert("Task Removed");
 }
-            async function sendBroadcast() {
+async function sendBroadcast() {
     const msg = document.getElementById('broadcast-msg').value;
     const btn = document.getElementById('btn-broadcast');
 
@@ -1356,6 +1581,206 @@ async function payoutAction(requestId, action) {
         loadAdminData(); // Refresh stats and list
     }
     }
+    // --- NOTIFICATION SYSTEM LOGIC ---
+let notifications = [
+    { type: 'system', title: 'System Active', msg: 'Welcome to the premium vault.', read: true, date: new Date() }
+];
+let currentNotifTab = 'personal';
+
+function toggleNotificationCenter() {
+    const el = document.getElementById('notification-center');
+    const dot = document.getElementById('unread-dot');
+    
+    el.classList.toggle('hidden');
+    el.classList.toggle('active');
+    
+    if (el.classList.contains('active')) {
+        dot.classList.add('hidden'); // Hide red dot when opened
+        renderNotifications();
+    }
+}
+
+
+function switchNotifTab(tab) {
+    currentNotifTab = tab;
+    document.getElementById('btn-notif-personal').className = tab === 'personal' ? 'flex-1 py-2 rounded-xl text-[10px] font-black bg-blue-600 text-white' : 'flex-1 py-2 rounded-xl text-[10px] font-black bg-white/5 text-slate-400';
+    document.getElementById('btn-notif-system').className = tab === 'system' ? 'flex-1 py-2 rounded-xl text-[10px] font-black bg-blue-600 text-white' : 'flex-1 py-2 rounded-xl text-[10px] font-black bg-white/5 text-slate-400';
+    renderNotifications();
+}
+
+function pushNotification(title, msg, type = 'system') {
+    // Add to list
+    notifications.unshift({ type, title, msg, read: false, date: new Date() });
+    document.getElementById('unread-dot').classList.remove('hidden');
+    
+    // Create Toast
+    const toast = document.createElement('div');
+    toast.className = `toast glass p-4 rounded-2xl border-l-4 ${type === 'system' ? 'border-blue-500' : 'border-green-500'} mb-2 shadow-2xl`;
+    toast.innerHTML = `<h5 class="text-[10px] font-black uppercase">${title}</h5><p class="text-xs text-slate-300">${msg}</p>`;
+    document.getElementById('toast-container').appendChild(toast);
+    
+    setTimeout(() => toast.remove(), 4000);
+}
+function renderNotifications() {
+    const list = document.getElementById('notif-list');
+    
+    // 1. Filter the notifications based on the active tab
+    const filtered = notifications.filter(n => n.type === currentNotifTab);
+
+    // 2. Generate the HTML for the cards
+    const cardsHTML = filtered.map(n => `
+        <div class="notif-card p-4 rounded-2xl ${!n.read ? 'unread' : ''}">
+            <div class="flex justify-between items-start mb-1">
+                <h4 class="text-xs font-bold text-white">${n.title}</h4>
+                <span class="text-[8px] text-slate-500 font-medium">
+                    ${new Date(n.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">${n.msg}</p>
+        </div>
+    `).join('');
+
+    // 3. Set the HTML: Use the cards, or show the Empty State if cardsHTML is empty
+    list.innerHTML = cardsHTML || getEmptyStateHTML('📩', 'Inbox Clear', 'No new messages for you');
+    // Mark all visible notifications as read after 2 seconds
+setTimeout(() => {
+    notifications.forEach(n => {
+        if(n.type === currentNotifTab) n.read = true;
+    });
+    // Optional: Only re-render if you want the blue bars to disappear while they watch
+    // renderNotifications(); 
+}, 2000);
+
+}
+
+
+// --- UPDATED REFERRAL LOGIC (REPLACE YOUR OLD loadReferralData) ---
+async function loadReferralData() {
+    const listContainer = document.getElementById('friends-list');
+    try {
+        const data = await secureFetch('/api/secure/referrals');
+        const tasksRequired = 5; // Match your admin setting
+        
+        let activeTotal = 0;
+        let commTotal = 0;
+
+        listContainer.innerHTML = data.friends.map(f => {
+            const isReady = f.tasks_done >= tasksRequired;
+            const progress = (f.tasks_done / tasksRequired) * 100;
+            
+            if(isReady) {
+                activeTotal++;
+                commTotal += f.commission_earned;
+            }
+
+            return `
+                <div class="glass p-4 mb-3 border-l-2 ${isReady ? 'border-blue-500' : 'border-yellow-500/30'}">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">${f.name[0]}</div>
+                            <div>
+                                <p class="text-xs font-bold">${f.name}</p>
+                                <p class="text-[8px] font-black uppercase ${isReady ? 'text-blue-400' : 'text-yellow-500'}">${isReady ? 'Active' : 'Pending Verification'}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs font-black">${isReady ? '+' + f.commission_earned.toFixed(2) : 'Locked'}</p>
+                    </div>
+                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 transition-all duration-700" style="width: ${progress}%"></div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        document.getElementById('total-invited').innerText = activeTotal;
+        document.getElementById('earned-points').innerText = commTotal.toFixed(2);
+
+    } catch (e) {
+        listContainer.innerHTML = '<p class="text-red-500 text-[10px]">Error syncing team.</p>';
+    }
+}
+// Dynamically show or hide specific user id configuration row
+function toggleTargetIdField() {
+    const targetType = document.getElementById('notif-target-select').value;
+    const idContainer = document.getElementById('notif-user-id-container');
+    
+    if (targetType === 'specific_member') {
+        idContainer.classList.remove('hidden');
+    } else {
+        idContainer.classList.add('hidden');
+    }
+}
+
+// Post administrative structural distribution options to database endpoint
+async function dispatchAdminNotification() {
+    const title = document.getElementById('notif-title').value;
+    const message = document.getElementById('notif-msg').value;
+    const type = document.getElementById('notif-type-select').value;
+    const targetType = document.getElementById('notif-target-select').value;
+    const targetUserId = document.getElementById('notif-target-userid').value;
+
+    if (!title || !message) return tg.showAlert("Please complete Title and Message text elements!");
+    if (targetType === 'specific_member' && !targetUserId) return tg.showAlert("Please specify a Target User ID!");
+
+    const payload = { title, message, type, targetType, targetUserId };
+
+    const btn = document.getElementById('btn-send-notif');
+    btn.disabled = true;
+    btn.innerText = "PROCESSING DISPATCH...";
+
+    try {
+        const res = await secureFetch('/api/admin/notifications/send', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            tg.showAlert("✅ Targeted system notification deployed successfully!");
+            
+            // Clear input states
+            document.getElementById('notif-title').value = '';
+            document.getElementById('notif-msg').value = '';
+            document.getElementById('notif-target-userid').value = '';
+            document.getElementById('notif-target-select').value = 'all';
+            toggleTargetIdField();
+        } else {
+            tg.showAlert("Error dispatching alert: " + res.error);
+        }
+    } catch(e) {
+        tg.showAlert("Failed to contact targeted microservices routing gateway.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "📢 Dispatch Notification";
+    }
+}
+
+// Modify existing client notification execution engine to fetch real server elements
+async function syncUserInbox() {
+    try {
+        const remoteAlerts = await secureFetch('/api/secure/notifications');
+        if (remoteAlerts && Array.isArray(remoteAlerts)) {
+            // Map remote payloads directly over internal client configurations array structure
+            notifications = remoteAlerts.map(srvNotif => ({
+                type: srvNotif.type,
+                title: srvNotif.title,
+                msg: srvNotif.message,
+                read: srvNotif.isRead || false,
+                date: srvNotif.createdAt
+            }));
+            
+            // Verify unread states to reveal system indicator badge dot automatically
+            const hasUnread = notifications.some(n => !n.read);
+            if (hasUnread) {
+                document.getElementById('unread-dot').classList.remove('hidden');
+            } else {
+                document.getElementById('unread-dot').classList.add('hidden');
+            }
+        }
+    } catch (e) {
+        console.log("Failed to sync application user data notifications records from gateway backend.");
+    }
+}
+
         // Start App
         initApp();
     </script>
