@@ -28,9 +28,6 @@
     will-change: transform, opacity;
     transform: translateZ(0);
 }
-
-
-
         /* Glassmorphism Effect */
         .glass {
             background: rgba(30, 41, 59, 0.4);
@@ -39,11 +36,9 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 24px;
         }
-
         /* Neon Glows */
         .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
         .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
-        
         .nav-active {
     color: white !important;
     filter: drop-shadow(0 0 8px var(--neon-blue));
@@ -73,7 +68,6 @@
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
     border-color: transparent;
 }
-
 /* Proof Area Styling */
 .proof-section {
     max-height: 0;
@@ -88,8 +82,6 @@
     margin-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
-
-
 .nav-active::after {
     content: '';
     position: absolute;
@@ -107,8 +99,7 @@ html, body {
     overflow-y: auto;
     height: 100%;
     -webkit-overflow-scrolling: touch;
-}
-
+        }
 /* Ensure the utility menu (three dots) stays on top of the fixed header */
 #utility-menu {
     position: fixed;
@@ -116,16 +107,13 @@ html, body {
     right: 24px;
     z-index: 110;
 }
-
         /* Utility Dropdown Animation */
 #utility-menu.hidden { display: none; }
 #utility-menu { animation: fadeIn 0.2s ease-out; }
-
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 /* Sweep Button Styling */
 .sweep-active { border-color: #f97316 !important; color: #fb923c; }
 @keyframes glow-pulse {
@@ -133,7 +121,6 @@ html, body {
     50% { opacity: 1; transform: scaleX(1.5); }
     100% { opacity: 0.6; transform: scaleX(1); }
         }
-
         .tab-content { display: none; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .tab-content.active { display: block; }
 
@@ -141,7 +128,6 @@ html, body {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         /* Custom Input Styling */
         input, textarea {
             background: rgba(15, 23, 42, 0.6) !important;
@@ -178,7 +164,6 @@ html, body {
     border-left: 3px solid var(--neon-blue);
     background: rgba(59, 130, 246, 0.05);
 }
-
 /* Toast Popup Styling */
 #toast-container {
     position: fixed;
@@ -199,21 +184,16 @@ html, body {
 @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
-}
-
+        }
 .skeleton {
     background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
     background-size: 200% 100%;
+    background-color: rgba(255, 255, 255, 0.05); /* Base color */
     animation: shimmer 5.5s infinite;
     border-radius: 12px;
 }
-
 .skeleton-text { height: 12px; width: 60%; margin-bottom: 8px; }
 .skeleton-btn { height: 32px; width: 80px; }
-.skeleton {
-    background-color: rgba(255, 255, 255, 0.05); /* Base color */
-    background-image: linear-gradient(90deg, rgba(255,255,255,0) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 75%);
-}
 
 
     </style>
@@ -274,8 +254,8 @@ html, body {
 
 <div id="tab-friends" class="tab-content">
     <div class="glass p-6 rounded-3xl border-white/5 text-center mb-6 relative overflow-hidden">
-        <h3 class="text-lg font-black uppercase tracking-tighter mb-1">Invite & Earn 10%</h3>
-        <p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-6">Commission starts after friend completes 5 tasks</p>
+        <h3 class="text-lg font-black uppercase tracking-tighter mb-1">Invite & Earn Commission % </h3>
+        <p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-6">Commission starts after friend completes required tasks</p>
         
         <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="bg-white/5 p-3 rounded-2xl">
@@ -572,7 +552,7 @@ html, body {
     </div>
 </div>
 
-
+<div id="panel-broadcast" class="hidden space-y-6 pb-10">
     <div class="glass p-5 mb-6 border-purple-500/20">
     <h3 class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Global Broadcast</h3>
     <textarea id="broadcast-msg" rows="3" class="w-full p-3 rounded-xl text-xs glass mb-3" placeholder="Type your announcement here... (HTML allowed)"></textarea>
@@ -582,6 +562,7 @@ html, body {
     </button>
     <p class="text-[8px] text-slate-500 mt-2 text-center">Tip: Use &lt;b&gt;text&lt;/b&gt; for bold</p>
     </div>
+</div>
 
     <div class="glass p-5">
         <div class="flex justify-between items-center mb-4">
@@ -694,7 +675,7 @@ html, body {
         // Current User Data
         const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; 
         let currentEditingUserId = null;
-        let tasksRequired = 5
+        let tasksRequired = 5;
 async function secureFetch(endpoint, options = {}) {
     const initData = tg.initData || ''; // Gets the encrypted string from Telegram
     
@@ -758,6 +739,18 @@ async function initApp() {
         // Update balance once server responds
         document.getElementById('balance-main').innerText = data.balance.toFixed(2);
         document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
+        // Change this inside initApp()
+if (data && typeof data.balance === 'number') {
+    document.getElementById('balance-main').innerText = data.balance.toFixed(2);
+    document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
+} else if (data && data.success && data.profile) {
+    // If your backend nests profile info inside a parent property
+    document.getElementById('balance-main').innerText = data.profile.balance.toFixed(2);
+    document.getElementById('balance-wallet').innerText = data.profile.balance.toFixed(2);
+} else {
+    console.warn("Profile structure unexpected:", data);
+}
+
     } catch (err) {
         console.error("Syncing Error:", err.message);
         // Don't alert on startup, it's annoying for the user
@@ -781,10 +774,30 @@ tg.onEvent('reloadVertical', function() {
 }
 
 async function loadAdminTaskList() {
-    const res = await secureFetch('/api/admin/tasks');
-    const container = document.getElementById('admin-withdraw-list'); // Or create a specific task-manager-list div
-    // Logic to map tasks with a 'Delete' button goes here
-}
+    const container = document.getElementById('admin-active-tasks-list');
+    if(!container) return;
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading active tasks...</p>';
+
+    try {
+        const tasks = await secureFetch('/api/admin/tasks');
+        if (!tasks || tasks.length === 0) {
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No tasks deployed.</p>';
+            return;
+        }
+
+        container.innerHTML = tasks.map(t => `
+            <div class="bg-white/5 p-3 rounded-xl flex justify-between items-center border border-white/5">
+                <div>
+                    <p class="text-xs font-bold text-white">${t.title}</p>
+                    <p class="text-[9px] text-slate-400">${t.category} | ${t.reward} USDT</p>
+                </div>
+                <button onclick="deleteTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-lg text-[9px] font-bold uppercase">Delete</button>
+            </div>
+        `).join('');
+    } catch (e) {
+        container.innerHTML = '<p class="text-center text-[10px] text-red-400">Error rendering active tasks.</p>';
+    }
+        }
 
 let currentEditingUserData = null; // Cache active user model locally
 let userDirectoryFilter = 'all';
@@ -1002,27 +1015,60 @@ function copyRefLink() {
     document.execCommand('copy');
     
     // Telegram native notification
-    tg.showScanQrPopup({ text: "Link Copied!" }); 
-    setTimeout(() => tg.closeScanQrPopup(), 1000);
-}
+    navigator.clipboard.writeText(input.value);
+    pushNotification("System Alert", "Referral link copied to clipboard successfully!", "system");
+        }
+ async function addNewCategory() {
+    const input = document.getElementById('new-category-name');
+    const name = input.value.trim();
+    if(!name) return tg.showAlert("Please provide a category title name.");
+    
+    // Send it to your backend if you want it persistent, 
+    // or push it right directly into the DOM dropdown picker element layout:
+    updateCategoryDropdown(name);
+    
+    // Also build a new filter chip dynamically for the main task navigation bar layout
+    const catBar = document.getElementById('category-bar');
+    if(catBar) {
+        catBar.insertAdjacentHTML('beforeend', `
+            <button onclick="filterTasks('${name}', this)" class="category-chip">${name}</button>
+        `);
+    }
+    
+    input.value = '';
+    tg.showAlert(`✅ Category "${name}" added to dashboard views!`);
+    }
 
 async function loadPendingWithdrawals() {
-    const res = await fetch(`${RENDER_URL}/api/admin/withdrawals`);
-    const list = await res.json();
-    let html = '';
-    list.forEach(w => {
-        html += `
-        <div class="glass-card p-4 border-l-4 border-yellow-500">
-            <p class="text-sm font-bold">${w.amount} USDT</p>
-            <p class="text-[10px] text-slate-400 mb-2 break-all">${w.address}</p>
-            <div class="flex gap-2">
-                <button onclick="payoutAction('${w._id}', 'approved')" class="bg-green-600 text-[10px] px-3 py-1 rounded">Approve</button>
-                <button onclick="payoutAction('${w._id}', 'rejected')" class="bg-red-600 text-[10px] px-3 py-1 rounded">Reject</button>
-            </div>
-        </div>`;
-    });
-    document.getElementById('admin-withdraw-list').innerHTML = html || '<p class="text-xs text-slate-500">No pending payouts.</p>';
-        }        
+    const container = document.getElementById('admin-withdraw-list');
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading requests...</p>';
+
+    try {
+        // secureFetch automatically handles the .json() resolution
+        const list = await secureFetch('/api/admin/payouts/pending'); 
+        
+        if (!list || list.length === 0) {
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No pending requests</p>';
+            return;
+        }
+
+        let html = '';
+        list.forEach(w => {
+            html += `
+            <div class="glass p-4 border-l-4 border-yellow-500 mb-3">
+                <p class="text-sm font-black text-white">${w.amount} USDT</p>
+                <p class="text-[10px] text-slate-400 mb-2 break-all">${w.address}</p>
+                <div class="flex gap-2">
+                    <button onclick="payoutAction('${w._id}', 'approved')" class="flex-1 bg-green-600/20 text-green-400 py-2 rounded-lg text-[9px] font-black uppercase">Approve</button>
+                    <button onclick="payoutAction('${w._id}', 'rejected')" class="flex-1 bg-red-600/20 text-red-400 py-2 rounded-lg text-[9px] font-black uppercase">Reject</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = '<p class="text-center text-red-400 text-[10px]">Error loading payouts.</p>';
+    }
+}
 
 async function claimTask(taskId) {
     const btn = document.getElementById(`btn-task-${taskId}`);
@@ -1059,24 +1105,6 @@ if (result.success) {
         tg.showAlert("Connection error. Check your internet.");
         btn.disabled = false;
     }
-        }
-        // -- Support Ticket Logic --
-        async function submitTicket() {
-            const msg = document.getElementById('ticket-msg').value;
-            if(!msg) return tg.showAlert("Please enter a message.");
-            
-            try {
-                await fetch(`${RENDER_URL}/api/support/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, username: user.username, message: msg })
-                });
-                tg.showAlert("✅ Ticket sent! An admin will reply in short through the bot.");
-                document.getElementById('ticket-msg').value = '';
-                switchTab('home');
-            } catch (e) {
-                tg.showAlert("Error sending ticket. Check backend.");
-            }
         }
 
 function switchTab(tabId, btn) {
@@ -1141,7 +1169,7 @@ async function submitSupportTicket() {
     const msg = document.getElementById('support-msg').value;
     if(!msg) return tg.showAlert("Please enter a message.");
     
-    const res = await secureFetch('/api/support/ticket', {
+    const res = await secureFetch('/api/support/create', {
         method: 'POST',
         body: JSON.stringify({ message: msg })
     });
