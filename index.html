@@ -202,14 +202,20 @@ html, body {
 
     <div class="px-6 py-4 flex justify-between items-center fixed top-0 left-0 right-0 z-[100] glass rounded-none border-b border-white/5">
     <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xl font-black shadow-lg shadow-blue-500/20" id="user-pfp">Earn</div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden" id="user-pfp-container">
+            <img id="header-avatar" src="" alt="PFP" class="hidden w-full h-full object-cover">
+            
+            <span id="header-avatar-fallback" class="font-black text-sm uppercase">Earn</span>
+        </div>
+        
         <div>
             <h1 id="user-name" class="font-extrabold text-lg leading-tight">Loading...</h1>
             <div class="flex items-center gap-1">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span class="text-[10px] text-slate-400 uppercase tracking-tighter">Verified Member</span>
+                <span class="text-[10px] text-slate-400 uppercase tracking-tighter">Active User</span>
             </div>
         </div>
+    </div>
     </div>
     
   <div class="flex items-center gap-2">
@@ -743,19 +749,20 @@ html, body {
 </nav>
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Open full screen
-        tg.ready();
+tg.expand(); // Open full screen
+tg.ready();
 
-        // 🛑 IMPORTANT: REPLACE THIS WITH YOUR RENDER URL
-        const RENDER_URL = "https://embt-gateway.onrender.com"; 
-        
-        // 🛑 IMPORTANT: REPLACE WITH YOUR TELEGRAM ID
-        const OWNER_ID = 7329000880; 
+// 🛑 IMPORTANT: REPLACE THIS WITH YOUR RENDER URL
+const RENDER_URL = "https://embt-gateway.onrender.com"; 
 
-        // Current User Data
-        const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; 
-        let currentEditingUserId = null;
-        let tasksRequired = 5;
+// 🛑 IMPORTANT: REPLACE WITH YOUR TELEGRAM ID
+const OWNER_ID = 7329000880; 
+
+// Current User Data
+const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; 
+let currentEditingUserId = null;
+let tasksRequired = 5;
+
 async function secureFetch(endpoint, options = {}) {
     const initData = tg.initData || ''; // Gets the encrypted string from Telegram
     
@@ -789,7 +796,7 @@ async function secureFetch(endpoint, options = {}) {
         console.error("Fetch Execution Error:", networkError);
         return { success: false, error: "Network connection failed or timed out." };
     }
-        }
+}
 
 // -- Decoupled Initialization --
 async function initApp() {
@@ -797,7 +804,21 @@ async function initApp() {
     
     // 1. Update UI IMMEDIATELY (Don't wait for server)
     document.getElementById('user-name').innerText = user.first_name || user.username || "User";
-    document.getElementById('user-pfp').innerText = (user.first_name || "E")[0];
+    
+    // ─── 👤 INJECT REAL PFP IN THE PINNED HEADER IMMEDIATELY ───
+    const headerImg = document.getElementById('header-avatar');
+    const headerFallback = document.getElementById('header-avatar-fallback');
+
+    if (user.photo_url) {
+        headerImg.src = user.photo_url;
+        headerImg.classList.remove('hidden');
+        headerFallback.classList.add('hidden');
+    } else {
+        headerImg.classList.add('hidden');
+        headerFallback.classList.remove('hidden');
+        // Fallback to the user's first letter
+        headerFallback.innerText = user.first_name ? user.first_name.charAt(0).toUpperCase() : "E";
+    }
 
     // 2. Show Admin features if applicable
     if (user.id === OWNER_ID) {
@@ -812,14 +833,22 @@ async function initApp() {
         const data = await secureFetch('/api/secure/profile');
         
         if (data && !data.error) {
+            let activeProfile = null;
             if (typeof data.balance === 'number') {
-                cachedUserProfile = data;
-                document.getElementById('balance-main').innerText = data.balance.toFixed(2);
-                document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
+                activeProfile = data;
             } else if (data.success && data.profile) {
-                cachedUserProfile = data.profile;
-                document.getElementById('balance-main').innerText = data.profile.balance.toFixed(2);
-                document.getElementById('balance-wallet').innerText = data.profile.balance.toFixed(2);
+                activeProfile = data.profile;
+            }
+
+            if (activeProfile) {
+                cachedUserProfile = activeProfile;
+                document.getElementById('balance-main').innerText = activeProfile.balance.toFixed(2);
+                document.getElementById('balance-wallet').innerText = activeProfile.balance.toFixed(2);
+                
+                // If the user happens to have the profile tab open already, keep metrics synced
+                if (document.getElementById('tab-profile') && !document.getElementById('tab-profile').classList.contains('hidden')) {
+                    loadUserProfileMetrics();
+                }
             }
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
@@ -840,11 +869,12 @@ async function initApp() {
         if (activeTab === 'home') loadAvailableTasks();
         if (activeTab === 'friends') loadReferralData();
         if (activeTab === 'history') loadUserHistory();
+        if (activeTab === 'profile') loadUserProfileMetrics(); // Sync on pull-down
         
         cachedUserProfile = null; 
         initApp();
     });
-        }
+}
 
 let currentEditingUserData = null; // Cache active user model locally
 let userDirectoryFilter = 'all';
