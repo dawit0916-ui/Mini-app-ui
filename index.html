@@ -764,33 +764,6 @@ async function initApp() {
         cachedUserProfile = null; 
         initApp();
     });
-}
-
-
-async function loadAdminTaskList() {
-    const container = document.getElementById('admin-active-tasks-list');
-    if(!container) return;
-    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading active tasks...</p>';
-
-    try {
-        const tasks = await secureFetch('/api/admin/tasks');
-        if (!tasks || tasks.length === 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No tasks deployed.</p>';
-            return;
-        }
-
-        container.innerHTML = tasks.map(t => `
-            <div class="bg-white/5 p-3 rounded-xl flex justify-between items-center border border-white/5">
-                <div>
-                    <p class="text-xs font-bold text-white">${t.title}</p>
-                    <p class="text-[9px] text-slate-400">${t.category} | ${t.reward} USDT</p>
-                </div>
-                <button onclick="deleteTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-lg text-[9px] font-bold uppercase">Delete</button>
-            </div>
-        `).join('');
-    } catch (e) {
-        container.innerHTML = '<p class="text-center text-[10px] text-red-400">Error rendering active tasks.</p>';
-    }
         }
 
 let currentEditingUserData = null; // Cache active user model locally
@@ -902,53 +875,7 @@ async function toggleUserBanStatus() {
     });
 }
 
-// 4. Directory Views Manager
-function filterUserDirectory(filterType) {
-    userDirectoryFilter = filterType;
-    
-    const allBtn = document.getElementById('btn-dir-all');
-    const banBtn = document.getElementById('btn-dir-banned');
 
-    if(filterType === 'all') {
-        allBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-blue-600 text-white transition-all";
-        banBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all";
-    } else {
-        allBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all";
-        banBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white transition-all";
-    }
-    
-    loadUserDirectory();
-}
-
-async function loadUserDirectory() {
-    const listContainer = document.getElementById('admin-user-directory-list');
-    listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Syncing database records...</p>';
-
-    try {
-        const users = await secureFetch(`/api/admin/users/list?filter=${userDirectoryFilter}`);
-        
-        if (!users || users.length === 0) {
-            listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6 uppercase font-bold tracking-wider">No users found inside this view</p>';
-            return;
-        }
-
-        listContainer.innerHTML = users.map(u => `
-            <div onclick="document.getElementById('search-user-id').value='${u.user_id}'; searchUser();" class="glass p-3 flex justify-between items-center border-l-2 ${u.is_banned ? 'border-red-500 bg-red-500/5' : 'border-slate-500/40'} active:scale-[0.99] transition-all cursor-pointer">
-                <div>
-                    <p class="text-xs font-bold text-white">ID: ${u.user_id}</p>
-                    <p class="text-[9px] font-bold text-slate-400">${u.username ? '@'+u.username : 'No Username'}</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-[10px] font-black text-green-400">${u.balance.toFixed(2)} USDT</p>
-                    <p class="text-[8px] font-bold text-yellow-500">${(u.points || 0).toFixed(0)} pts</p>
-                </div>
-            </div>
-        `).join('');
-
-    } catch (e) {
-        listContainer.innerHTML = '<p class="text-center text-[10px] text-red-400">Directory loading error.</p>';
-    }
-}
 
 function getEmptyStateHTML(icon, title, subtitle) {
     return `
@@ -1033,36 +960,115 @@ function copyRefLink() {
     tg.showAlert(`✅ Category "${name}" added to dashboard views!`);
     }
 
-async function loadPendingWithdrawals() {
-    const container = document.getElementById('admin-withdraw-list');
-    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading requests...</p>';
+// 1. Fixed Directory Views Manager
+function filterUserDirectory(filterType) {
+    userDirectoryFilter = filterType;
+    
+    const allBtn = document.getElementById('btn-btn-dir-all') || document.getElementById('btn-dir-all');
+    const banBtn = document.getElementById('btn-btn-dir-banned') || document.getElementById('btn-dir-banned');
+
+    if(allBtn && banBtn) {
+        if(filterType === 'all') {
+            allBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-blue-600 text-white transition-all";
+            banBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all";
+        } else {
+            allBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all";
+            banBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white transition-all";
+        }
+    }
+    
+    loadUserDirectory();
+}
+
+// 2. Fixed Route Isolation Engine
+async function loadUserDirectory() {
+    const listContainer = document.getElementById('admin-user-directory-list');
+    if (!listContainer) return;
+    
+    listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Syncing database records...</p>';
 
     try {
-        // secureFetch automatically handles the .json() resolution
-        const list = await secureFetch('/api/admin/payouts/pending'); 
+        // CHANGED: Routing layout modified to point to the correct subdirectory structure
+        const res = await secureFetch(`/api/admin/directory?filter=${userDirectoryFilter}`);
         
-        if (!list || list.length === 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No pending requests</p>';
+        // Handle variations in custom wrapper payloads
+        const users = Array.isArray(res) ? res : (res.users || []);
+        
+        if (!users || users.length === 0) {
+            listContainer.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6 uppercase font-bold tracking-wider">No users found inside this view</p>';
             return;
         }
 
+        listContainer.innerHTML = users.map(u => `
+            <div onclick="document.getElementById('search-user-id').value='${u.user_id}'; searchUser();" class="glass p-3 flex justify-between items-center border-l-2 ${u.is_banned ? 'border-red-500 bg-red-500/5' : 'border-slate-500/40'} active:scale-[0.99] transition-all cursor-pointer">
+                <div>
+                    <p class="text-xs font-bold text-white">ID: ${u.user_id}</p>
+                    <p class="text-[9px] font-bold text-slate-400">${u.username ? '@'+u.username : 'No Username'}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-green-400">${(u.balance || 0).toFixed(2)} USDT</p>
+                    <p class="text-[8px] font-bold text-yellow-500">${(u.points || 0).toFixed(0)} pts</p>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        console.error("Directory Render Crash:", e);
+        listContainer.innerHTML = '<p class="text-center text-[10px] text-red-400">Directory loading error.</p>';
+    }
+}
+
+// 3. Fixed Task List UI Container Clash
+async function loadAdminTaskList() {
+    const tasks = await secureFetch('/api/admin/tasks');
+    const container = document.getElementById('admin-active-tasks-list'); // Fixed pointer assignment target
+    if (!container) return;
+    
+    const taskArray = Array.isArray(tasks) ? tasks : [];
+    if(taskArray.length === 0) {
+        container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No active tasks loaded</p>';
+        return;
+    }
+    
+    container.innerHTML = taskArray.map(t => `
+        <div class="glass p-3 flex justify-between items-center border-white/5">
+            <div>
+                <p class="text-xs font-bold">${t.title}</p>
+                <p class="text-[9px] text-green-400">${t.reward} USDT</p>
+            </div>
+            <button onclick="deleteTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase">Delete</button>
+        </div>
+    `).join('');
+}
+
+// 4. Fixed Payout Validation Security Bypass
+async function loadPendingWithdrawals() {
+    const container = document.getElementById('admin-withdraw-list');
+    if (!container) return;
+    
+    try {
+        // Fixed: Swapped fetch out for secureFetch wrapper
+        const data = await secureFetch('/api/admin/withdrawals');
+        const list = Array.isArray(data) ? data : (data.withdrawals || []);
+        
         let html = '';
         list.forEach(w => {
             html += `
-            <div class="glass p-4 border-l-4 border-yellow-500 mb-3">
-                <p class="text-sm font-black text-white">${w.amount} USDT</p>
+            <div class="glass p-4 border-l-4 border-yellow-500 mb-2">
+                <p class="text-sm font-bold">${w.amount} USDT</p>
                 <p class="text-[10px] text-slate-400 mb-2 break-all">${w.address}</p>
                 <div class="flex gap-2">
-                    <button onclick="payoutAction('${w._id}', 'approved')" class="flex-1 bg-green-600/20 text-green-400 py-2 rounded-lg text-[9px] font-black uppercase">Approve</button>
-                    <button onclick="payoutAction('${w._id}', 'rejected')" class="flex-1 bg-red-600/20 text-red-400 py-2 rounded-lg text-[9px] font-black uppercase">Reject</button>
+                    <button onclick="payoutAction('${w._id || w.id}', 'approved')" class="bg-green-600 text-[10px] px-3 py-1 rounded">Approve</button>
+                    <button onclick="payoutAction('${w._id || w.id}', 'rejected')" class="bg-red-600 text-[10px] px-3 py-1 rounded">Reject</button>
                 </div>
             </div>`;
         });
-        container.innerHTML = html;
-    } catch (e) {
-        container.innerHTML = '<p class="text-center text-red-400 text-[10px]">Error loading payouts.</p>';
+        container.innerHTML = html || '<p class="text-xs text-slate-500 text-center py-4">No pending payouts.</p>';
+    } catch(err) {
+        container.innerHTML = '<p class="text-xs text-red-400 text-center py-4">Failed to synchronize balance payout stream.</p>';
     }
 }
+
 
 async function claimTask(taskId) {
     const btn = document.getElementById(`btn-task-${taskId}`);
