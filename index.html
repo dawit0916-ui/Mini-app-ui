@@ -1565,8 +1565,17 @@ async function loadAvailableTasks() {
         }
         
         const completedIds = cachedUserProfile.completed_tasks || [];
-        const allTasks = await secureFetch('/api/admin/tasks'); 
         
+        const res = await secureFetch('/api/tasks');
+
+if (res.success && res.tasks) {
+    // Look at your category matching code from Screenshot 4:
+    // This will now find matches perfectly because 'Education' was mapped to 'edu' on the server!
+    allTasks = res.tasks; 
+    renderTaskTabs(); 
+} else {
+    console.error("Could not load tasks payload packet.");
+}
         // Filter tasks locally based on the category and completion status
         const availableTasks = allTasks.filter(task => {
             const isCompleted = completedIds.includes(task.id);
