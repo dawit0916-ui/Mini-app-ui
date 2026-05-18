@@ -711,9 +711,10 @@ async function secureFetch(endpoint, options = {}) {
     }
         }
 
-// -- Initialization --
+// -- Decoupled Initialization --
 async function initApp() {
     cachedUserProfile = null;
+    
     // 1. Update UI IMMEDIATELY (Don't wait for server)
     document.getElementById('user-name').innerText = user.first_name || user.username || "User";
     document.getElementById('user-pfp').innerText = (user.first_name || "E")[0];
@@ -722,56 +723,49 @@ async function initApp() {
     if (user.id === OWNER_ID) {
         document.getElementById('admin-badge').classList.remove('hidden');
         document.getElementById('nav-admin').classList.remove('hidden');
-         // Enable targeted admin panels opacity representation adjustments removal rule elements
         const alertsBtn = document.querySelector('button[onclick="switchAdminPanel(\'panel-notifications\')"]');
         if(alertsBtn) alertsBtn.classList.remove('opacity-50');
     }
 
-
-    loadAvailableTasks(); 
-    await syncUserInbox();
-
+    // 3. Fetch profile data without letting errors break downstream systems
     try {
         const data = await secureFetch('/api/secure/profile');
         
-        if(data.error) throw new Error(data.error);
-
-        // Update balance once server responds
-        document.getElementById('balance-main').innerText = data.balance.toFixed(2);
-        document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
-        // Change this inside initApp()
-if (data && typeof data.balance === 'number') {
-    document.getElementById('balance-main').innerText = data.balance.toFixed(2);
-    document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
-} else if (data && data.success && data.profile) {
-    // If your backend nests profile info inside a parent property
-    document.getElementById('balance-main').innerText = data.profile.balance.toFixed(2);
-    document.getElementById('balance-wallet').innerText = data.profile.balance.toFixed(2);
-} else {
-    console.warn("Profile structure unexpected:", data);
-}
-
+        if (data && !data.error) {
+            if (typeof data.balance === 'number') {
+                cachedUserProfile = data;
+                document.getElementById('balance-main').innerText = data.balance.toFixed(2);
+                document.getElementById('balance-wallet').innerText = data.balance.toFixed(2);
+            } else if (data.success && data.profile) {
+                cachedUserProfile = data.profile;
+                document.getElementById('balance-main').innerText = data.profile.balance.toFixed(2);
+                document.getElementById('balance-wallet').innerText = data.profile.balance.toFixed(2);
+            }
+        } else {
+            console.warn("Profile structure unexpected or unauthenticated:", data);
+        }
     } catch (err) {
-        console.error("Syncing Error:", err.message);
-        // Don't alert on startup, it's annoying for the user
-        console.log("Server is likely warming up...");
+        console.error("Profile sync caught error (Server warming up?):", err.message);
     }
-// Enable Native Pull-to-Refresh
-tg.onEvent('reloadVertical', function() {
-    tg.HapticFeedback.impactOccurred('medium');
-    
-    // Refresh only the current tab's data
-    const activeTab = document.querySelector('.tab-content.active').id.replace('tab-', '');
-    
-    if (activeTab === 'home') loadAvailableTasks();
-    if (activeTab === 'friends') loadReferralData();
-    if (activeTab === 'history') loadUserHistory();
-    
-    // Optional: Sync user profile/balance again
-    cachedUserProfile = null; 
-    initApp();
-});
+
+    // 4. Always load tasks and inbox even if profile data is limited
+    loadAvailableTasks(); 
+    await syncUserInbox();
+
+    // Enable Native Pull-to-Refresh
+    tg.onEvent('reloadVertical', function() {
+        tg.HapticFeedback.impactOccurred('medium');
+        const activeTab = document.querySelector('.tab-content.active').id.replace('tab-', '');
+        
+        if (activeTab === 'home') loadAvailableTasks();
+        if (activeTab === 'friends') loadReferralData();
+        if (activeTab === 'history') loadUserHistory();
+        
+        cachedUserProfile = null; 
+        initApp();
+    });
 }
+
 
 async function loadAdminTaskList() {
     const container = document.getElementById('admin-active-tasks-list');
@@ -1703,8 +1697,7 @@ setTimeout(() => {
 
 }
 
-
-// --- UPDATED REFERRAL LOGIC (REPLACE YOUR OLD loadReferralData) ---
+// --- UPDATED REFERRAL LOGIC ---
 async function loadReferralData() {
     const listContainer = document.getElementById('friends-list');
     try {
@@ -1714,27 +1707,34 @@ async function loadReferralData() {
         let activeTotal = 0;
         let commTotal = 0;
 
-        listContainer.innerHTML = data.friends.map(f => {
-            const isReady = f.tasks_done >= tasksRequired;
-            const progress = (f.tasks_done / tasksRequired) * 100;
+        if (!data || !data.friends) {
+            listContainer.innerHTML = getEmptyStateHTML('👥', 'No Friends', 'Invite friends to grow your team');
+            return;
+        }
+
+        listContainer.innerHTML = data.friends.map(friend => {
+            const isReady = friend.tasks_done >= tasksRequired;
+            const progress = Math.min((friend.tasks_done / tasksRequired) * 100, 100);
+            const displayName = friend.first_name || friend.username || "Anonymous User";
+            const initial = displayName.charAt(0).toUpperCase();
             
             if(isReady) {
                 activeTotal++;
-                commTotal += f.commission_earned;
+                commTotal += (friend.commission_earned || 0);
             }
 
             return `
-                <div class="glass p-4 mb-3 border-l-2 ${isReady ? 'border-blue-500' : 'border-yellow-500/30'}">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">${f.name[0]}</div>
-                            <div>
-                                <p class="text-xs font-bold">${f.name}</p>
-                                <p class="text-[8px] font-black uppercase ${isReady ? 'text-blue-400' : 'text-yellow-500'}">${isReady ? 'Active' : 'Pending Verification'}</p>
-                            </div>
-                        </div>
-                        <p class="text-xs font-black">${isReady ? '+' + f.commission_earned.toFixed(2) : 'Locked'}</p>
-                    </div>
+    <div class="glass p-4 mb-3 border-l-2 ${isReady ? 'border-blue-500' : 'border-yellow-500/30'}">
+        <div class="flex justify-between items-center mb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">${initial}</div>
+                <div>
+                    <p class="text-xs font-bold">${displayName}</p>
+                    <p class="text-[8px] font-black uppercase ${isReady ? 'text-blue-400' : 'text-yellow-500'}">${isReady ? 'Active' : 'Pending Verification'}</p>
+                </div>
+            </div>
+            <p class="text-xs font-black">${isReady ? '+' + (friend.commission_earned || 0).toFixed(2) : 'Locked'}</p>
+        </div>
                     <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                         <div class="h-full bg-blue-500 transition-all duration-700" style="width: ${progress}%"></div>
                     </div>
@@ -1745,9 +1745,11 @@ async function loadReferralData() {
         document.getElementById('earned-points').innerText = commTotal.toFixed(2);
 
     } catch (e) {
+        console.error(e);
         listContainer.innerHTML = '<p class="text-red-500 text-[10px]">Error syncing team.</p>';
     }
 }
+
 // Dynamically show or hide specific user id configuration row
 function toggleTargetIdField() {
     const targetType = document.getElementById('notif-target-select').value;
@@ -1804,30 +1806,30 @@ async function dispatchAdminNotification() {
     }
 }
 
-// Modify existing client notification execution engine to fetch real server elements
+// Modify client notification execution engine to safely fetch real server data properties
 async function syncUserInbox() {
     try {
         const remoteAlerts = await secureFetch('/api/secure/notifications');
         if (remoteAlerts && Array.isArray(remoteAlerts)) {
-            // Map remote payloads directly over internal client configurations array structure
+            // Map remote payloads directly using schema property fallbacks
             notifications = remoteAlerts.map(srvNotif => ({
-                type: srvNotif.type,
-                title: srvNotif.title,
-                msg: srvNotif.message,
-                read: srvNotif.isRead || false,
-                date: srvNotif.createdAt
+                type: srvNotif.type || 'system',
+                title: srvNotif.title || 'Notification',
+                msg: srvNotif.message || srvNotif.msg || srvNotif.text || '', // Fallbacks prevent blank text fields
+                read: srvNotif.isRead || srvNotif.read || false,
+                date: srvNotif.createdAt || srvNotif.date || new Date()
             }));
             
             // Verify unread states to reveal system indicator badge dot automatically
             const hasUnread = notifications.some(n => !n.read);
-            if (hasUnread) {
-                document.getElementById('unread-dot').classList.remove('hidden');
-            } else {
-                document.getElementById('unread-dot').classList.add('hidden');
+            const unreadDot = document.getElementById('unread-dot');
+            if (unreadDot) {
+                if (hasUnread) unreadDot.classList.remove('hidden');
+                else unreadDot.classList.add('hidden');
             }
         }
     } catch (e) {
-        console.log("Failed to sync application user data notifications records from gateway backend.");
+        console.log("Failed to sync application user data notifications records from gateway backend:", e);
     }
 }
 
