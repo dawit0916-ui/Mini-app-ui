@@ -21,7 +21,16 @@
     font-family: 'Inter', sans-serif;
             min-height: 100vh;
             padding-bottom: 100px;
+            height: 100svh;
     
+}
+main {
+    height: calc(100svh - 160px); /* Adjust based on your header + footer height */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Keeps the smooth momentum scroll */
+    padding: 24px;
+    padding-top: 100px; /* Account for the fixed header */
+    padding-bottom: 120px; /* Account for the fixed nav */
 }
 
         /* Glassmorphism Effect */
@@ -89,15 +98,15 @@
     box-shadow: 0 0 15px var(--neon-blue);
     animation: glow-pulse 2s infinite;
 }
-/* Prevent horizontal scroll and allow smooth vertical scroll */
+        /* Update your html, body block */
 html, body {
-    overflow-x: hidden;
-    overflow-y: auto;
-   
-    height: 100%;
-    
-    -webkit-overflow-scrolling: touch;
-        }
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100svh; /* Use svh to ensure it fits the mobile screen */
+    overflow: hidden; /* Prevent the body from scrolling the whole page */
+}
+
 /* Ensure the utility menu (three dots) stays on top of the fixed header */
 #utility-menu {
     position: fixed;
