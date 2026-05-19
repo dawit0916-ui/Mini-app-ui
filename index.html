@@ -128,12 +128,22 @@ html, body {
     50% { opacity: 1; transform: scaleX(1.5); }
     100% { opacity: 0.6; transform: scaleX(1); }
         }
-        .tab-content { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .tab-content.active { display: block; }
+        /* Hide all tabs by default */
+.tab-content { 
+    display: none; 
+    opacity: 0;
+}
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+/* Only display and animate the active tab */
+.tab-content.active { 
+    display: block; 
+    opacity: 1;
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
         }
         /* Custom Input Styling */
         input, textarea {
