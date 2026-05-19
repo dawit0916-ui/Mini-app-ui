@@ -20,14 +20,8 @@
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
-    padding-bottom: 100px;
 }
-/* This tells the mobile browser to use the GPU for these layers */
-.glass, .tab-content {
-    will-change: transform, opacity;
-    transform: translateZ(0);
-}
+
         /* Glassmorphism Effect */
         .glass {
             background: rgba(30, 41, 59, 0.4);
@@ -98,6 +92,7 @@ html, body {
     overflow-x: hidden;
     overflow-y: auto;
     height: 100%;
+    padding-bottom: 100px;
     -webkit-overflow-scrolling: touch;
         }
 /* Ensure the utility menu (three dots) stays on top of the fixed header */
@@ -121,7 +116,7 @@ html, body {
     50% { opacity: 1; transform: scaleX(1.5); }
     100% { opacity: 0.6; transform: scaleX(1); }
         }
-        .tab-content { display: none; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-content { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .tab-content.active { display: block; }
 
         @keyframes slideUp {
@@ -234,8 +229,7 @@ html, body {
     <div onclick="switchTab('history'); toggleUtilityMenu()" class="p-4 text-[11px] font-bold border-b border-white/5 hover:bg-white/5 cursor-pointer">📜 Task History</div>
     <div onclick="switchTab('support'); toggleUtilityMenu()" class="p-4 text-[11px] font-bold border-b border-white/5 hover:bg-white/5 cursor-pointer">❓ Help & Support</div>
     <div onclick="switchTab('add-task'); toggleUtilityMenu()" class="p-4 text-[11px] font-bold text-blue-400 hover:bg-white/5 cursor-pointer">➕ Add My Tasks</div>
-</div>
-</div>
+    </div>
 <main class="p-6 pt-24 pb-32">
 
     <div id="tab-home" class="tab-content active">
@@ -863,7 +857,7 @@ async function initApp() {
 
     // Enable Native Pull-to-Refresh
     tg.onEvent('reloadVertical', function() {
-        tg.HapticFeedback.impactOccurred('medium');
+        tg.HapticFeedback.impactOccurred('high');
         const activeTab = document.querySelector('.tab-content.active').id.replace('tab-', '');
         
         if (activeTab === 'home') loadAvailableTasks();
@@ -881,7 +875,7 @@ let userDirectoryFilter = 'all';
 
 // 1. Enhanced Search Engine Action (Fixed Query Routing Alignment)
 async function searchUser() {
-    const searchId = document.getElementById('search-id').value.trim();
+    const searchId = document.getElementById('search-user-id').value.trim();
     if (!searchId) return tg.showAlert("Please enter a Telegram ID");
 
     try {
