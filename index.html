@@ -15,22 +15,27 @@
             --neon-purple: #8b5cf6;
         }
 
-        body {
-    background: linear-gradient(to bottom, #1e1b4b, #020617); /* Changed from radial to linear */
+ /* Combined and locked root container frame */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100svh; /* Locks viewport perfectly to mobile screen limits */
+    overflow: hidden; /* Stops the entire page/body from dragging */
+    background: linear-gradient(to bottom, #1e1b4b, #020617);
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            padding-bottom: 100px;
-            height: 100svh;
-    
 }
+
+/* Dedicated internal scrolling area */
 main {
-    height: calc(100svh - 160px); /* Adjust based on your header + footer height */
+    height: calc(100svh - 100px); /* Formatted to accurately clear header/footer height */
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Keeps the smooth momentum scroll */
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Ensures fluid iOS inertia physics */
     padding: 24px;
-    padding-top: 100px; /* Account for the fixed header */
-    padding-bottom: 10px; /* Account for the fixed nav */
+    padding-top: 100px; /* Safe space clearing your fixed top element */
+    padding-bottom: 24px; /* Balanced resting padding at the very bottom */
 }
 
         /* Glassmorphism Effect */
@@ -98,15 +103,6 @@ main {
     box-shadow: 0 0 15px var(--neon-blue);
     animation: glow-pulse 2s infinite;
 }
-        /* Update your html, body block */
-html, body {
-    margin: 0;
-    padding: 1px;
-    width: 100%;
-    /* Use svh to ensure it fits the mobile screen */
-    overflow: hidden; /* Prevent the body from scrolling the whole page */
-}
-
 /* Ensure the utility menu (three dots) stays on top of the fixed header */
 #utility-menu {
     position: fixed;
