@@ -2295,8 +2295,7 @@ function triggerServerSpin() {
 fetch('/api/games/spin', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ telegramId: userTelegramId }) // Pass down active user context
-})
+    body: JSON.stringify({ telegramId: user.user_id || user.id })
 .then(res => res.json())
 .then(data => {
     if (data.success) {
