@@ -2291,7 +2291,34 @@ function triggerServerSpin() {
 
     // --- ARCHITECTURAL SIMULATION ---
     // In production, fetch this sequence index directly from your node route!
-    setTimeout(() => {
+     // Replace the setTimeout simulation with this:
+fetch('/api/games/spin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ telegramId: userTelegramId }) // Pass down active user context
+})
+.then(res => res.json())
+.then(data => {
+    if (data.success) {
+        // Update local state balances instantly
+        currentCoins = data.newCoinBalance;
+        currentPoints = data.newPointBalance;
+        
+        // Pass the verified server index directly into the physics engine animation!
+        executeWheelSpin(data.winningIndex);
+    } else {
+        // Handle error responses cleanly (e.g. out of coins)
+        const msg = document.getElementById("spin-status-msg");
+        msg.innerText = data.error;
+        msg.className = "text-xs font-bold text-red-400";
+        
+        // Re-enable spin button controls
+        isSpinning = false;
+        const btn = document.getElementById("spin-action-btn");
+        btn.disabled = false;
+        btn.classList.remove("opacity-50", "pointer-events-none");
+    }
+});
         // Secure server pick logic simulator (Matches the Architecture Blueprint odds)
         const mockRandom = Math.random() * 100;
         let selectedIndex = 3; // Defaults to "Try Again"
