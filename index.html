@@ -311,6 +311,108 @@ main {
                 </button>
             </div>
         </div>
+    <div id="tab-games" class="tab-content hidden space-y-4">
+    
+    <div class="mb-2">
+        <h2 class="text-xl font-bold tracking-wide text-white">Game Arena</h2>
+        <p class="text-xs text-slate-400">Play games to multiply your points and tokens</p>
+    </div>
+
+    <div class="relative overflow-hidden rounded-2xl border border-blue-500/30 bg-indigo-950/20 p-5 backdrop-blur-xl shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 hover:border-blue-400/50">
+        <div class="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-blue-500/10 blur-xl"></div>
+        
+        <div class="flex items-start justify-between">
+            <div class="space-y-1">
+                <span class="inline-flex items-center rounded-full bg-blue-500/20 px-2.5 py-0.5 text-xs font-semibold text-blue-400 border border-blue-500/30">
+                    LIVE NOW
+                </span>
+                <h3 class="text-lg font-bold text-white mt-1 flex items-center gap-2">
+                    🎡 Lucky Spin Wheel
+                </h3>
+                <p class="text-xs text-slate-300 max-w-[200px]">
+                    Spend 1 Coin to spin the wheel and win up to <span class="text-yellow-400 font-bold">500 Points</span>!
+                </p>
+            </div>
+            
+            <div class="relative flex h-16 w-16 items-center justify-center rounded-full border-4 border-dashed border-blue-500/40 animate-[spin_20s_linear_infinite]">
+                <div class="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center text-white text-xs font-black">★</div>
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+            <div class="text-xs text-slate-400">
+                Cost: <span class="font-bold text-yellow-400">1 Coin</span> / play
+            </div>
+            <button onclick="openSpinModal()" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 active:scale-95 transition-all">
+                Play Game
+            </button>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-5 opacity-40 backdrop-blur-md select-none">
+        <div class="flex items-start justify-between">
+            <div class="space-y-1">
+                <span class="inline-flex items-center rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-400">
+                    COMING SOON
+                </span>
+                <h3 class="text-lg font-bold text-slate-400 mt-1 flex items-center gap-2">
+                    ⚡ Tap-to-Earn Quest
+                </h3>
+                <p class="text-xs text-slate-500">
+                    Tap the energy cell to harvest raw coins in real-time.
+                </p>
+            </div>
+            <div class="text-slate-500 p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-5 opacity-40 backdrop-blur-md select-none">
+        <div class="flex items-start justify-between">
+            <div class="space-y-1">
+                <span class="inline-flex items-center rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-400">
+                    DEVELOPMENT
+                </span>
+                <h3 class="text-lg font-bold text-slate-400 mt-1 flex items-center gap-2">
+                    🎰 Neon Jackpot Slots
+                </h3>
+                <p class="text-xs text-slate-500">
+                    Match three Web3 tokens to unlock massive reward pool multipliers.
+                </p>
+            </div>
+            <div class="text-slate-500 p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-5 opacity-40 backdrop-blur-md select-none">
+        <div class="flex items-start justify-between">
+            <div class="space-y-1">
+                <span class="inline-flex items-center rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-slate-400">
+                    LOCKED
+                </span>
+                <h3 class="text-lg font-bold text-slate-400 mt-1 flex items-center gap-2">
+                    🎲 High-Low Dice Duel
+                </h3>
+                <p class="text-xs text-slate-500">
+                    Predict the roll vectors to instantly double your active wallet balance.
+                </p>
+            </div>
+            <div class="text-slate-500 p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+                </div>
   <div id="tab-profile" class="tab-content min-h-screen bg-slate-950 text-slate-100 p-4 font-sans pb-24">
     
     <div id="profile-restriction-banner" class="hidden mb-4 p-3 bg-red-950/80 border border-red-700/50 text-red-400 rounded-xl text-xs font-semibold tracking-wide items-center gap-2 animate-pulse">
@@ -718,6 +820,39 @@ main {
 </div>
 
 </main>
+    <div id="spin-game-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
+    <div class="relative w-full max-w-sm rounded-3xl border border-white/10 bg-indigo-950/40 p-6 shadow-2xl backdrop-blur-xl text-center">
+        
+        <button onclick="closeSpinModal()" class="absolute right-4 top-4 rounded-full bg-white/5 p-2 text-slate-400 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <h3 class="text-xl font-black tracking-wide text-white mb-1">🎯 Lucky Wheel</h3>
+        <p class="text-xs text-slate-400 mb-6">Test your luck to scale up your score balance</p>
+
+        <div class="relative mx-auto my-6 flex h-64 w-64 items-center justify-center">
+            
+            <div class="absolute -top-2 z-10 text-yellow-400 drop-shadow-[0_4px_10px_rgba(234,179,8,0.5)]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 21l-8-14h16l-8 14z"/>
+                </svg>
+            </div>
+
+            <div class="absolute inset-0 rounded-full border-4 border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.2)]"></div>
+
+            <canvas id="wheel-canvas" width="250" height="250" class="rounded-full shadow-inner transition-transform duration-[5000ms] cubic-bezier(0.25, 0.1, 0.1, 1)"></canvas>
+        </div>
+
+        <div class="mt-6 space-y-3">
+            <button id="spin-action-btn" onclick="triggerServerSpin()" class="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-black text-white shadow-xl shadow-blue-600/20 hover:brightness-110 active:scale-[0.98] transition-all">
+                SPIN WHEEL (Costs 1 Coin)
+            </button>
+            <p id="spin-status-msg" class="text-xs font-semibold text-slate-400 min-h-[16px]"></p>
+        </div>
+    </div>
+    </div>
 <div id="toast-container"></div>
 
 <div id="notification-center" class="fixed inset-0 z-[150] glass hidden flex-col">
@@ -742,6 +877,13 @@ main {
     <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
         <div class="text-2xl">👥</div>
         <span class="text-[9px] font-black uppercase tracking-widest">Friends</span>
+    </button>
+
+    <button onclick="switchTab('games')" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-blue-400 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+    </svg>
+    <span class="text-xs font-medium">Games</span>
     </button>
 
     <button id="nav-wallet" onclick="switchTab('wallet', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
@@ -2069,6 +2211,153 @@ async function syncUserInbox() {
         console.log("Failed to sync application user data notifications records from gateway backend:", e);
     }
 }
+        // --- LUCKY SPIN ENGINE STATE CONFIGURATION ---
+const prizes = [
+    { text: "10 Pts", color: "#1e1b4b" },
+    { text: "20 Pts", color: "#312e81" },
+    { text: "50 Pts", color: "#3730a3" },
+    { text: "TRY AGAIN", color: "#0f172a" },
+    { text: "100 Pts", color: "#4338ca" },
+    { text: "500 JACKPOT", color: "#b45309" }
+];
+
+let isSpinning = false;
+const canvas = document.getElementById("wheel-canvas");
+const ctx = canvas.getContext("2d");
+
+// Render Wheel Graphics Segments statically inside Canvas
+function drawWheel() {
+    const numSlices = prizes.length;
+    const arc = (2 * Math.PI) / numSlices;
+    const radius = canvas.width / 2;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    prizes.forEach((prize, i) => {
+        const angle = i * arc;
+        
+        // Draw Sector Piece
+        ctx.beginPath();
+        ctx.fillStyle = prize.color;
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, angle, angle + arc);
+        ctx.lineTo(radius, radius);
+        ctx.fill();
+        
+        // Draw Boundary Separation Lines
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Write Prize Segment Text Label Vectors
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "bold 12px 'Inter', sans-serif";
+        ctx.fillText(prize.text, radius - 20, 4);
+        ctx.restore();
+    });
+}
+
+// System Visibility Control Switches
+function openSpinModal() {
+    const modal = document.getElementById("spin-game-modal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    drawWheel(); // Refresh viewport canvas rendering bounds
+}
+
+function closeSpinModal() {
+    if (isSpinning) return; // Prevent closing while action is in execution
+    const modal = document.getElementById("spin-game-modal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
+
+// Server Authoritative Rotation Vector Trigger
+function triggerServerSpin() {
+    if (isSpinning) return;
+    
+    isSpinning = true;
+    const btn = document.getElementById("spin-action-btn");
+    const msg = document.getElementById("spin-status-msg");
+    
+    btn.disabled = true;
+    btn.classList.add("opacity-50", "pointer-events-none");
+    msg.innerText = "Encrypting transaction loop...";
+    msg.className = "text-xs font-semibold text-blue-400";
+
+    // --- ARCHITECTURAL SIMULATION ---
+    // In production, fetch this sequence index directly from your node route!
+    setTimeout(() => {
+        // Secure server pick logic simulator (Matches the Architecture Blueprint odds)
+        const mockRandom = Math.random() * 100;
+        let selectedIndex = 3; // Defaults to "Try Again"
+        
+        if (mockRandom < 40) selectedIndex = 0;        // 40% Chance for 10 Pts
+        else if (mockRandom < 70) selectedIndex = 1;   // 30% Chance for 20 Pts
+        else if (mockRandom < 85) selectedIndex = 2;   // 15% Chance for 50 Pts
+        else if (mockRandom < 95) selectedIndex = 3;   // 10% Chance for 0
+        else if (mockRandom < 99.5) selectedIndex = 4; // 4.5% Chance for 100 Pts
+        else selectedIndex = 5;                        // 0.5% Mega Jackpot!
+
+        executeWheelSpin(selectedIndex);
+    }, 800); 
+}
+
+function executeWheelSpin(targetIndex) {
+    const numSlices = prizes.length;
+    const arcSize = 360 / numSlices;
+    
+    // Calculate alignment parameters to center pointer arrow directly inside slice field
+    const targetSliceCenterAngle = (targetIndex * arcSize) + (arcSize / 2);
+    
+    // Canvas tracks degrees clockwise from right edge (3 o'clock). 
+    // The top pointer pin sits at 270 degrees. Offset translation math:
+    const degreesToStopAt = (270 - targetSliceCenterAngle + 360) % 360;
+    
+    // Force 5 full momentum loops before settling down on target coordinates
+    const totalRotationDegrees = 1800 + degreesToStopAt;
+    
+    // Render transform change event inside browser execution tree
+    canvas.style.transform = `rotate(${totalRotationDegrees}deg)`;
+    
+    const msg = document.getElementById("spin-status-msg");
+    msg.innerText = "Spinning wheel...";
+    msg.className = "text-xs font-semibold text-yellow-500 animate-pulse";
+
+    // Await transition deceleration frame timing completion (5000ms duration)
+    setTimeout(() => {
+        const wonItem = prizes[targetIndex];
+        
+        if (targetIndex === 3) {
+            msg.innerText = "Better luck next time! 💥";
+            msg.className = "text-xs font-bold text-red-400";
+        } else {
+            msg.innerText = `Success! You unlocked +${wonItem.text}! 🎉`;
+            msg.className = "text-xs font-bold text-green-400";
+            // Insert update trigger hook targeting your balance visual view fields here!
+        }
+
+        // Reset mechanics state machine triggers cleanly
+        setTimeout(() => {
+            canvas.style.transition = "none";
+            canvas.style.transform = `rotate(${degreesToStopAt}deg)`;
+            
+            // Re-enable interactions after animation cycles reset safely
+            setTimeout(() => {
+                canvas.style.transition = "transform 5000ms cubic-bezier(0.25, 0.1, 0.1, 1)";
+                isSpinning = false;
+                const btn = document.getElementById("spin-action-btn");
+                btn.disabled = false;
+                btn.classList.remove("opacity-50", "pointer-events-none");
+            }, 50);
+        }, 1500);
+
+    }, 5100);
+    }
 
         // Start App
         initApp();
