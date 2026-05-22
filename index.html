@@ -2277,62 +2277,56 @@ function closeSpinModal() {
 }
 
 // Server Authoritative Rotation Vector Trigger
-function triggerServerSpin() {
+async function triggerServerSpin() {
     if (isSpinning) return;
     
     isSpinning = true;
     const btn = document.getElementById("spin-action-btn");
     const msg = document.getElementById("spin-status-msg");
     
-    btn.disabled = true;
-    btn.classList.add("opacity-50", "pointer-events-none");
-    msg.innerText = "Encrypting transaction loop...";
-    msg.className = "text-xs font-semibold text-blue-400";
+    if (btn) btn.disabled = true;
+    if (btn) btn.classList.add("opacity-50", "pointer-events-none");
+    if (msg) msg.innerText = "Encrypting transaction loop...";
+    if (msg) msg.className = "text-xs font-semibold text-blue-400";
 
-    // --- ARCHITECTURAL SIMULATION ---
-    // In production, fetch this sequence index directly from your node route!
-     // Replace the setTimeout simulation with this:
-fetch('/api/games/spin', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ telegramId: user.user_id || user.id })
-.then(res => res.json())
-.then(data => {
-    if (data.success) {
-        // Update local state balances instantly
-        currentCoins = data.newCoinBalance;
-        currentPoints = data.newPointBalance;
+    try {
+        // Correct asynchronous fetch pattern integrated cleanly
+        const data = await secureFetch('/api/games/spin', {
+            method: 'POST',
+            body: JSON.stringify({ telegramId: user.id || OWNER_ID })
+        });
+
+        if (data && data.success) {
+            currentCoins = data.newCoinBalance;
+            currentPoints = data.newPointBalance;
+            
+            // Execute physical asset rotation tracking
+            if (typeof executeWheelSpin === 'function') {
+                executeWheelSpin(data.winningIndex);
+            } else {
+                // Fallback action mitigation logic if physical canvas tracking method is unmapped
+                if (msg) msg.innerText = `You won: ${prizes[data.winningIndex].text}`;
+                isSpinning = false;
+                if (btn) btn.disabled = false;
+                if (btn) btn.classList.remove("opacity-50", "pointer-events-none");
+            }
+        } else {
+            if (msg) msg.innerText = (data && data.error) ? data.error : "Failed to balance validation criteria.";
+            if (msg) msg.className = "text-xs font-bold text-red-400";
+            
+            isSpinning = false;
+            if (btn) btn.disabled = false;
+            if (btn) btn.classList.remove("opacity-50", "pointer-events-none");
+        }
+    } catch (err) {
+        if (msg) msg.innerText = "Gateway communication error.";
+        if (msg) msg.className = "text-xs font-bold text-red-400";
         
-        // Pass the verified server index directly into the physics engine animation!
-        executeWheelSpin(data.winningIndex);
-    } else {
-        // Handle error responses cleanly (e.g. out of coins)
-        const msg = document.getElementById("spin-status-msg");
-        msg.innerText = data.error;
-        msg.className = "text-xs font-bold text-red-400";
-        
-        // Re-enable spin button controls
         isSpinning = false;
-        const btn = document.getElementById("spin-action-btn");
-        btn.disabled = false;
-        btn.classList.remove("opacity-50", "pointer-events-none");
+        if (btn) btn.disabled = false;
+        if (btn) btn.classList.remove("opacity-50", "pointer-events-none");
     }
-});
-        // Secure server pick logic simulator (Matches the Architecture Blueprint odds)
-        const mockRandom = Math.random() * 100;
-        let selectedIndex = 3; // Defaults to "Try Again"
-        
-        if (mockRandom < 40) selectedIndex = 0;        // 40% Chance for 10 Pts
-        else if (mockRandom < 70) selectedIndex = 1;   // 30% Chance for 20 Pts
-        else if (mockRandom < 85) selectedIndex = 2;   // 15% Chance for 50 Pts
-        else if (mockRandom < 95) selectedIndex = 3;   // 10% Chance for 0
-        else if (mockRandom < 99.5) selectedIndex = 4; // 4.5% Chance for 100 Pts
-        else selectedIndex = 5;                        // 0.5% Mega Jackpot!
-
-        executeWheelSpin(selectedIndex);
-    }, 800); 
-}
-
+        }
 function executeWheelSpin(targetIndex) {
     const numSlices = prizes.length;
     const arcSize = 360 / numSlices;
