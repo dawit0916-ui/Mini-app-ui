@@ -381,7 +381,25 @@ main {
     backdrop-filter: blur(12px);
     cursor: pointer;
         }
+/* --- FLOATING TOP POINTER --- */
+.crystal-pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 32px;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(0, 243, 255, 0.8) 100%);
+    clip-path: polygon(50% 100%, 0% 25%, 50% 0%, 100% 25%); /* Sharp Diamond geometry */
+    filter: drop-shadow(0 0 12px var(--neon-blue));
+    z-index: 30;
+    animation: floatingIndicator 2s ease-in-out infinite;
+}
 
+@keyframes floatingIndicator {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+        }
     </style>
 </head>
 <body>
@@ -536,6 +554,7 @@ main {
         </footer>
     </div>
     </div>
+    
     <div id="tab-games" class="tab-content hidden space-y-4">
     
     <div class="mb-2">
@@ -1045,37 +1064,7 @@ main {
 </div>
 
 </main>
-    <div id="spin-game-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
-    <div class="relative w-full max-w-sm rounded-3xl border border-white/10 bg-indigo-950/40 p-6 shadow-2xl backdrop-blur-xl text-center">
-        
-        <button onclick="closeSpinModal()" class="absolute right-4 top-4 rounded-full bg-white/5 p-2 text-slate-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-
-        <h3 class="text-xl font-black tracking-wide text-white mb-1">🎯 Lucky Wheel</h3>
-        <p class="text-xs text-slate-400 mb-6">Test your luck to scale up your score balance</p>
-
-        <div class="relative mx-auto my-6 flex h-64 w-64 items-center justify-center">
-            
-            <div class="absolute -top-2 z-10 text-yellow-400 drop-shadow-[0_4px_10px_rgba(234,179,8,0.5)]">
-                
-            </div>
-
-            <div class="absolute inset-0 rounded-full border-4 border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.2)]"></div>
-
-            <canvas id="wheel-canvas" width="250" height="250" class="rounded-full shadow-inner transition-transform duration-[5000ms] cubic-bezier(0.25, 0.1, 0.1, 1)"></canvas>
-        </div>
-
-        <div class="mt-6 space-y-3">
-            <button id="spin-action-btn" onclick="triggerServerSpin()" class="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-black text-white shadow-xl shadow-blue-600/20 hover:brightness-110 active:scale-[0.98] transition-all">
-                SPIN WHEEL (Costs 1 Coin)
-            </button>
-            <p id="spin-status-msg" class="text-xs font-semibold text-slate-400 min-h-[16px]"></p>
-        </div>
-    </div>
-    </div>
+    
 <div id="toast-container"></div>
 
 <div id="notification-center" class="fixed inset-0 z-[150] glass hidden flex-col">
@@ -2434,269 +2423,242 @@ async function syncUserInbox() {
         console.log("Failed to sync application user data notifications records from gateway backend:", e);
     }
 }
-        // --- LUCKY SPIN ENGINE STATE CONFIGURATION ---
-const prizes = [
-    { text: "10 Pts", color: "#1e1b4b" },
-    { text: "20 Pts", color: "#312e81" },
-    { text: "50 Pts", color: "#3730a3" },
-    { text: "TRY AGAIN", color: "#0f172a" },
-    { text: "100 Pts", color: "#4338ca" },
-    { text: "500 JACKPOT", color: "#b45309" }
+
+    // --- CONFIGURATION & PRIZE MATRIX ---
+const PRIZES = [
+    { text: "10 USDT", type: "usdt", color: "#00f3ff", icon: "💰", weight: 5 },
+    { text: "1 TON", type: "ton", color: "#00a3ff", icon: "💎", weight: 10 },
+    { text: "TRY AGAIN", type: "none", color: "#ff265a", icon: "❌", weight: 30 },
+    { text: "BONUS BOX", type: "bonus", color: "#b026ff", icon: "🎁", weight: 15 },
+    { text: "50 USDT", type: "usdt", color: "#ffaa00", icon: "👑", weight: 2 },
+    { text: "QUIZ TOKEN", type: "quiz", color: "#00ff88", icon: "🧠", weight: 18 },
+    { text: "AIRDROP", type: "airdrop", color: "#3b82f6", icon: "🪂", weight: 10 },
+    { text: "0.5 TON", type: "ton", color: "#0ea5e9", icon: "💎", weight: 10 }
 ];
 
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+const container = document.getElementById('wheel-container');
+container.appendChild(canvas);
+
+// Dynamic sizing for high-density mobile screens (Retina support)
+const size = 340;
+canvas.width = size * window.devicePixelRatio;
+canvas.height = size * window.devicePixelRatio;
+canvas.style.width = `${size}px`;
+canvas.style.height = `${size}px`;
+ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+// --- ENGINE STATE VARIABLES ---
+let angle = 0;
+let speed = 0;
 let isSpinning = false;
-const canvas = document.getElementById("wheel-canvas");
-const ctx = canvas.getContext("2d");
+let targetIndex = null;
+let spinDuration = 6000; // 6 seconds execution pipeline
+let startTime = null;
+let particles = [];
+let lastTickSegment = -1;
+let ledOffset = 0;
 
-// Render Wheel Graphics Segments statically inside Canvas
-// Premium Wheel Graphics Engine
-function drawWheel() {
-    const numSlices = prizes.length;
-    const arc = (2 * Math.PI) / numSlices;
-    const radius = canvas.width / 2;
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
+// --- PARTICLE EMITTER SYSTEM ---
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = Math.random() * 4 + 2;
+        this.vx = (Math.random() - 0.5) * 8;
+        this.vy = (Math.random() - 0.5) * 8 - 3; // Upward burst bias
+        this.alpha = 1;
+        this.decay = Math.random() * 0.02 + 0.015;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.1; // Gravity emulation
+        this.alpha -= this.decay;
+    }
+    draw(context) {
+        context.save();
+        context.globalAlpha = this.alpha;
+        context.shadowColor = this.color;
+        context.shadowBlur = 10;
+        context.fillStyle = this.color;
+        context.beginPath();
+        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+    }
+}
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+// --- TELEGRAM NATIVE CUES ---
+function triggerHapticTick() {
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+}
 
-    // 1. Draw Outer Glow / Drop Shadow
-    ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 10;
+function triggerHapticWin() {
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    }
+}
 
-    // 2. Draw Main Segments
-    prizes.forEach((prize, i) => {
-        const angle = i * arc;
+// --- CASINO PHYSICS ANIMATION PIPELINE ---
+function easeOutQuart(t) {
+    return 1 - Math.pow(1 - t, 4); // Fast launch, extreme slowdown curves
+}
+
+function animate(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+
+    ctx.clearRect(0, 0, size, size);
+    
+    // Draw ambient cosmic rays/background glow tracks programmatically
+    ledOffset = isSpinning ? (ledOffset + 0.5) % 8 : (ledOffset + 0.05) % 8;
+
+    if (isSpinning) {
+        const progress = Math.min(elapsed / spinDuration, 1);
+        
+        // Motion Blur Trick: Simulating color bleeding at peak velocity fields
+        if (progress < 0.4) {
+            ctx.globalAlpha = 0.4; // Frame trails overlay
+        } else {
+            ctx.globalAlpha = 1.0;
+        }
+
+        // Standardize base rotations + index offset allocation
+        const totalRotation = (10 * Math.PI * 2) + ((Math.PI * 2) - (targetIndex * (Math.PI * 2 / PRIZES.length)));
+        angle = totalRotation * easeOutQuart(progress);
+
+        // Track slice crossovers to fire hardware vibration units dynamically
+        const currentSegment = Math.floor(((angle % (Math.PI * 2)) / (Math.PI * 2)) * PRIZES.length);
+        if (currentSegment !== lastTickSegment && progress > 0.4) {
+            triggerHapticTick();
+            lastTickSegment = currentSegment;
+        }
+
+        if (progress === 1) {
+            isSpinning = false;
+            triggerHapticWin();
+            spawnConfettiBurst();
+            showRewardModal(PRIZES[targetIndex]);
+        }
+    }
+
+    drawWheelEngine();
+    updateAndDrawParticles();
+
+    requestAnimationFrame(animate);
+}
+
+// --- HIGH-END RENDER FUNCTIONS ---
+function drawWheelEngine() {
+    const center = size / 2;
+    const radius = size / 2 - 20;
+    const arc = (Math.PI * 2) / PRIZES.length;
+
+    ctx.save();
+    ctx.translate(center, center);
+    ctx.rotate(angle);
+
+    // Draw Slices
+    PRIZES.forEach((prize, idx) => {
+        const currentArc = idx * arc;
         ctx.beginPath();
         
-        // Create a rich gradient for each slice to simulate 3D depth
-        const gradient = ctx.createLinearGradient(
-            centerX, centerY, 
-            centerX + Math.cos(angle + arc/2) * radius, 
-            centerY + Math.sin(angle + arc/2) * radius
-        );
-        
-        // Use the prize color as the base, fading into a darker shade towards the edge
-        gradient.addColorStop(0, prize.color);
-        gradient.addColorStop(1, adjustColorBrightness(prize.color, -30));
+        // Gradient shading to build 3D curvature aesthetics
+        const sliceGrad = ctx.createLinearGradient(0, 0, Math.cos(currentArc + arc/2) * radius, Math.sin(currentArc + arc/2) * radius);
+        sliceGrad.addColorStop(0, '#111326');
+        sliceGrad.addColorStop(0.7, prize.color + '22'); // Soft neon opacity bleed
+        sliceGrad.addColorStop(1, prize.color + '55');
 
-        ctx.fillStyle = gradient;
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius - 10, angle, angle + arc); // -10 leaves room for rim
-        ctx.lineTo(centerX, centerY);
+        ctx.fillStyle = sliceGrad;
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, currentArc, currentArc + arc);
+        ctx.lineTo(0, 0);
         ctx.fill();
 
-        // 3. Draw Boundary Lines (Metallic separators)
-        ctx.shadowBlur = 0; // Reset shadow for clean lines
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-        ctx.lineWidth = 2;
+        // Neon Border Lines
+        ctx.strokeStyle = "rgba(255,255,255,0.05)";
+        ctx.lineWidth = 1;
         ctx.stroke();
 
-        // 4. Render Typography
+        // Draw Text and Emoji Icons
         ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(angle + arc / 2);
+        ctx.rotate(currentArc + arc / 2);
         ctx.textAlign = "right";
-        
-        // Apply neon text shadow
-        ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-        ctx.shadowBlur = 4;
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 16px 'Inter', sans-serif";
+        ctx.font = "bold 12px 'Inter', sans-serif";
+        ctx.shadowColor = prize.color;
+        ctx.shadowBlur = 6;
         
-        // Position text dynamically based on radius
-        ctx.fillText(prize.text, radius - 35, 6);
+        // Label + Icon stack spacing calculation
+        ctx.fillText(`${prize.icon} ${prize.text}`, radius - 25, 4);
         ctx.restore();
     });
-
-    // 5. Draw the Premium Outer Rim
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius - 5, 0, 2 * Math.PI);
-    ctx.lineWidth = 10;
-    
-    // Silver/Metallic rim gradient
-    const rimGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    rimGradient.addColorStop(0, "#4a5568"); // Slate
-    rimGradient.addColorStop(0.5, "#cbd5e1"); // Silver
-    rimGradient.addColorStop(1, "#1e293b"); // Dark Slate
-    
-    ctx.strokeStyle = rimGradient;
-    ctx.stroke();
-
-    // 6. Draw the Center Hub
-    drawCenterHub(centerX, centerY);
-}
-
-// Helper function to darken hex colors for the gradient effect
-function adjustColorBrightness(hex, percent) {
-    let R = parseInt(hex.substring(1,3),16);
-    let G = parseInt(hex.substring(3,5),16);
-    let B = parseInt(hex.substring(5,7),16);
-
-    R = parseInt(R * (100 + percent) / 100);
-    G = parseInt(G * (100 + percent) / 100);
-    B = parseInt(B * (100 + percent) / 100);
-
-    R = (R<255)?R:255;  
-    G = (G<255)?G:255;  
-    B = (B<255)?B:255;  
-
-    let RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
-    let GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
-    let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
-
-    return "#"+RR+GG+BB;
-        }
- // Renders the static center hub over the spinning wheel
-function drawCenterHub(x, y) {
-    ctx.save();
-    
-    // 1. Dark Base Hub
-    ctx.beginPath();
-    ctx.arc(x, y, 30, 0, 2 * Math.PI);
-    ctx.fillStyle = "#0f172a"; // Dark slate
-    ctx.shadowColor = "rgba(0,0,0,0.6)";
-    ctx.shadowBlur = 10;
-    ctx.fill();
-
-    // 2. Glowing Neon Inner Ring
-    ctx.beginPath();
-    ctx.arc(x, y, 20, 0, 2 * Math.PI);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#a3e635"; // Qzino-style neon green
-    ctx.shadowColor = "#a3e635";
-    ctx.shadowBlur = 15;
-    ctx.stroke();
-
-    // 3. Central Dot
-    ctx.beginPath();
-    ctx.arc(x, y, 8, 0, 2 * Math.PI);
-    ctx.fillStyle = "#ffffff";
-    ctx.shadowBlur = 0;
-    ctx.fill();
-
     ctx.restore();
+
+    // --- OUTER CHASSIS (LED BULBS) ---
+    ctx.beginPath();
+    ctx.arc(center, center, radius + 5, 0, Math.PI * 2);
+    ctx.strokeStyle = "#1b1b3a";
+    ctx.lineWidth = 10;
+    ctx.stroke();
+
+    // Chasing LEDs Loop
+    for (let i = 0; i < 24; i++) {
+        const ledAngle = (i * (Math.PI * 2) / 24);
+        const lx = center + Math.cos(ledAngle) * (radius + 5);
+        const ly = center + Math.sin(ledAngle) * (radius + 5);
+        
+        const isLit = Math.floor((i + ledOffset) % 3) === 0;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 3, 0, Math.PI * 2);
+        ctx.fillStyle = isLit ? "#00f3ff" : "#050515";
+        if (isLit) {
+            ctx.shadowColor = "#00f3ff";
+            ctx.shadowBlur = 8;
+        } else {
+            ctx.shadowBlur = 0;
+        }
+        ctx.fill();
     }
-// System Visibility Control Switches
-function openSpinModal() {
-    const modal = document.getElementById("spin-game-modal");
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-    drawWheel(); // Refresh viewport canvas rendering bounds
 }
 
-function closeSpinModal() {
-    if (isSpinning) return; // Prevent closing while action is in execution
-    const modal = document.getElementById("spin-game-modal");
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
+function updateAndDrawParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw(ctx);
+        if (particles[i].alpha <= 0) particles.splice(i, 1);
+    }
 }
 
-// Server Authoritative Rotation Vector Trigger
-async function triggerServerSpin() {
+function spawnConfettiBurst() {
+    const colors = ["#00f3ff", "#b026ff", "#00ff88", "#ffaa00"];
+    for (let i = 0; i < 80; i++) {
+        particles.push(new Particle(size / 2, size / 2 - 80, colors[Math.floor(Math.random() * colors.length)]));
+    }
+}
+
+// --- ACTION HANDLING CONNECTORS ---
+function startServerVerifiedSpin(indexFromServer) {
     if (isSpinning) return;
-    
+    targetIndex = indexFromServer;
+    startTime = null;
     isSpinning = true;
-    const btn = document.getElementById("spin-action-btn");
-    const msg = document.getElementById("spin-status-msg");
-    
-    if (btn) btn.disabled = true;
-    if (btn) btn.classList.add("opacity-50", "pointer-events-none");
-    if (msg) msg.innerText = "Encrypting transaction loop...";
-    if (msg) msg.className = "text-xs font-semibold text-blue-400";
+}
 
-    try {
-        // Correct asynchronous fetch pattern integrated cleanly
-        const data = await secureFetch('/api/games/spin', {
-            method: 'POST',
-            body: JSON.stringify({ telegramId: user.id || OWNER_ID })
-        });
+// Global invocation linking wrapper to tie directly into your UI 'GO' button click events
+document.querySelector('.center-spin-btn').addEventListener('click', () => {
+    // Replace with your authoritative API data fetch packet. Emulating a server response index here (e.g., Index 4: 50 USDT)
+    const mockServerIndex = 4; 
+    startServerVerifiedSpin(mockServerIndex);
+});
 
-        if (data && data.success) {
-            currentCoins = data.newCoinBalance;
-            currentPoints = data.newPointBalance;
-            
-            // Execute physical asset rotation tracking
-            if (typeof executeWheelSpin === 'function') {
-                executeWheelSpin(data.winningIndex);
-            } else {
-                // Fallback action mitigation logic if physical canvas tracking method is unmapped
-                if (msg) msg.innerText = `You won: ${prizes[data.winningIndex].text}`;
-                isSpinning = false;
-                if (btn) btn.disabled = false;
-                if (btn) btn.classList.remove("opacity-50", "pointer-events-none");
-            }
-        } else {
-            if (msg) msg.innerText = (data && data.error) ? data.error : "Failed to balance validation criteria.";
-            if (msg) msg.className = "text-xs font-bold text-red-400";
-            
-            isSpinning = false;
-            if (btn) btn.disabled = false;
-            if (btn) btn.classList.remove("opacity-50", "pointer-events-none");
-        }
-    } catch (err) {
-        if (msg) msg.innerText = "Gateway communication error.";
-        if (msg) msg.className = "text-xs font-bold text-red-400";
-        
-        isSpinning = false;
-        if (btn) btn.disabled = false;
-        if (btn) btn.classList.remove("opacity-50", "pointer-events-none");
-    }
-        }
-function executeWheelSpin(targetIndex) {
-    const numSlices = prizes.length;
-    const arcSize = 360 / numSlices;
-    
-    // Calculate alignment parameters to center pointer arrow directly inside slice field
-    const targetSliceCenterAngle = (targetIndex * arcSize) + (arcSize / 2);
-    
-    // Canvas tracks degrees clockwise from right edge (3 o'clock). 
-    // The top pointer pin sits at 270 degrees. Offset translation math:
-    const degreesToStopAt = (270 - targetSliceCenterAngle + 360) % 360;
-    
-    // Force 5 full momentum loops before settling down on target coordinates
-    const totalRotationDegrees = 1800 + degreesToStopAt;
-    
-    // Render transform change event inside browser execution tree
-    // High-tension physics curve: fast start, prolonged agonizing slowdown
-canvas.style.transition = "transform 6000ms cubic-bezier(0.15, 0.9, 0.2, 1)";
-canvas.style.transform = `rotate(${totalRotationDegrees}deg)`;
-    
-    const msg = document.getElementById("spin-status-msg");
-    msg.innerText = "Spinning wheel...";
-    msg.className = "text-xs font-semibold text-yellow-500 animate-pulse";
-
-    // Await transition deceleration frame timing completion (5000ms duration)
-    setTimeout(() => {
-        const wonItem = prizes[targetIndex];
-        
-        if (targetIndex === 3) {
-            msg.innerText = "Better luck next time! 💥";
-            msg.className = "text-xs font-bold text-red-400";
-        } else {
-            msg.innerText = `Success! You unlocked +${wonItem.text}! 🎉`;
-            msg.className = "text-xs font-bold text-green-400";
-            // Insert update trigger hook targeting your balance visual view fields here!
-        }
-
-        // Reset mechanics state machine triggers cleanly
-        setTimeout(() => {
-            canvas.style.transition = "none";
-            canvas.style.transform = `rotate(${degreesToStopAt}deg)`;
-            
-            // Re-enable interactions after animation cycles reset safely
-            setTimeout(() => {
-                canvas.style.transition = "transform 5000ms cubic-bezier(0.25, 0.1, 0.1, 1)";
-                isSpinning = false;
-                const btn = document.getElementById("spin-action-btn");
-                btn.disabled = false;
-                btn.classList.remove("opacity-50", "pointer-events-none");
-            }, 50);
-        }, 1500);
-
-    }, 5100);
-    }
+// Boot up loop engine instance
+requestAnimationFrame(animate);
 
         // Start App
         initApp();
