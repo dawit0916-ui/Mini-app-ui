@@ -400,6 +400,56 @@ main {
     0%, 100% { transform: translateX(-50%) translateY(0); }
     50% { transform: translateX(-50%) translateY(-4px); }
         }
+        /* --- FULL SCREEN BLACKOUT BACKDROP --- */
+.spin-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 5, 15, 0.98); /* Deep dark background shield */
+    z-index: 2000; /* Must be higher than your tab footer bar (z-index: 110) */
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* --- THE GAME DISPLAY FRAME --- */
+.spin-modal-container {
+    position: relative;
+    width: 92%;
+    height: 85%;
+    max-width: 400px;
+    border-radius: 24px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+/* --- ACTIVE DISPLAY TRIGGER --- */
+.spin-modal-backdrop.show {
+    display: flex;
+    opacity: 1;
+}
+
+/* --- X CLOSE BUTTON --- */
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 50;
+              }
     </style>
 </head>
 <body>
@@ -588,9 +638,40 @@ main {
             <div class="text-xs text-slate-400">
                 Cost: <span class="font-bold text-yellow-400">1 Coin</span> / play
             </div>
-            <button onclick="openSpinModal()" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 active:scale-95 transition-all">
-                Play Game
-            </button>
+            <button class="btn-premium" onclick="openSpinModal()">Play Game</button>
+
+<div id="lucky-spin-modal" class="spin-modal-backdrop">
+    
+    <div class="spin-modal-container glass">
+        <button class="close-modal-btn" onclick="closeSpinModal()">✕ Close</button>
+        
+        <div class="ui-layer">
+            <header class="top-nav">
+                <h1 class="neon-title">LUCKY SPIN</h1>
+                <div class="glass-panel balance-panel">
+                    <span class="value" id="coin-balance">5 Coins</span>
+                </div>
+            </header>
+
+            <div class="game-layer" id="wheel-container">
+                <div class="crystal-pointer"></div>
+                <button class="center-spin-btn">GO</button>
+            </div>
+
+            <div class="side-panels">
+                <div class="glass-panel left-panel">
+                    <p class="label">Your Points</p>
+                    <p class="value">1,250</p>
+                </div>
+                <div class="glass-panel right-panel">
+                    <p class="label">Free Spin In</p>
+                    <p class="value countdown">04:59:21</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
         </div>
     </div>
 
@@ -2661,6 +2742,25 @@ document.querySelector('.center-spin-btn').addEventListener('click', () => {
 // Boot up loop engine instance
 requestAnimationFrame(animate);
 
+        function openSpinModal() {
+    const modal = document.getElementById('lucky-spin-modal');
+    modal.classList.add('show');
+    
+    // CRITICAL: Force the HTML canvas to calculate its sizing math
+    // now that its parent container is visible and active!
+    setTimeout(() => {
+        const canvas = document.querySelector('#wheel-container canvas');
+        if (canvas) {
+            // Re-sync sizes if needed to avoid layout squishing
+            console.log("Canvas layout container successfully initialized.");
+        }
+    }, 50);
+}
+
+function closeSpinModal() {
+    const modal = document.getElementById('lucky-spin-modal');
+    modal.classList.remove('show');
+}
         // Start App
         initApp();
     </script>
