@@ -207,7 +207,180 @@ main {
 }
 .skeleton-text { height: 12px; width: 60%; margin-bottom: 8px; }
 .skeleton-btn { height: 32px; width: 80px; }
+/*game*/
+        /* --- THEME VARIABLES --- */
+:root {
+    --bg-dark: #0a0a1a;
+    --neon-blue: #00f3ff;
+    --neon-purple: #b026ff;
+    --glass-bg: rgba(15, 20, 40, 0.45);
+    --glass-border: rgba(0, 243, 255, 0.3);
+}
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif; /* Standard crypto app font */
+}
+
+/* --- FULL SCREEN APP WRAPPER --- */
+.app-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-dark);
+    background: radial-gradient(circle at center, #1a1a3a 0%, #050510 100%);
+    overflow: hidden; /* Prevents mobile scrolling */
+    color: white;
+}
+
+/* --- UI LAYER GRID --- */
+.ui-layer {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    z-index: 10; /* Keeps UI above the spinning wheel */
+    pointer-events: none; /* Allows clicks to pass through to the wheel... */
+}
+
+/* Re-enable clicking on specific UI elements */
+.ui-layer header, .ui-layer .side-panels, .ui-layer footer, .center-spin-btn {
+    pointer-events: auto; 
+}
+
+/* --- GLASSMORPHISM BASE CLASS --- */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px); /* The frosted glass magic */
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* --- TOP NAVIGATION --- */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.neon-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+    letter-spacing: 2px;
+}
+
+.balance-panel {
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-right: 3px solid var(--neon-blue); /* Accent edge */
+}
+
+.balance-item {
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- LIVE TICKER --- */
+.ticker-wrapper {
+    position: absolute;
+    top: 90px; left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    padding: 8px 15px;
+    overflow: hidden;
+    border-radius: 50px;
+    border: 1px solid rgba(0, 255, 0, 0.3); /* Green glow for wins */
+}
+
+.ticker-msg {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 13px;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+/* --- SIDE PANELS --- */
+.side-panels {
+    position: absolute;
+    top: 50%; left: 0; width: 100%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.side-panels .glass-panel {
+    padding: 10px;
+    text-align: center;
+    width: 90px;
+}
+
+.side-panels .label { font-size: 10px; opacity: 0.7; text-transform: uppercase; }
+.side-panels .value { font-size: 16px; font-weight: bold; margin-top: 4px; }
+.countdown { color: var(--neon-blue); }
+
+/* --- GAME LAYER (Center) --- */
+.game-layer {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; height: 300px;
+    z-index: 5; /* Below UI, above background */
+    /* Canvas will be injected here */
+}
+
+.center-spin-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffaa00, #ff4400);
+    border: 4px solid #111;
+    color: white;
+    font-weight: 900;
+    font-size: 24px;
+    box-shadow: 0 0 30px var(--neon-purple);
+    cursor: pointer;
+    z-index: 20;
+    transition: transform 0.1s;
+}
+
+.center-spin-btn:active {
+    transform: translate(-50%, -50%) scale(0.9);
+}
+
+/* --- BOTTOM CONTROLS --- */
+.bottom-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.glass-btn {
+    flex: 1;
+    padding: 15px 0;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    font-weight: bold;
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+        }
 
     </style>
 </head>
@@ -311,6 +484,58 @@ main {
                 </button>
             </div>
         </div>
+    <div class="app-container">
+    <div class="bg-layer"></div>
+
+    <div class="ui-layer">
+        
+        <header class="top-nav">
+            <div class="title-container">
+                <h1 class="neon-title">LUCKY SPIN</h1>
+            </div>
+            
+            <div class="glass-panel balance-panel">
+                <div class="balance-item">
+                    <span class="icon">💰</span>
+                    <span class="value" id="usdt-balance">0.00 USDT</span>
+                </div>
+                <div class="balance-item">
+                    <span class="icon">🪙</span>
+                    <span class="value" id="coin-balance">5 Coins</span>
+                </div>
+                <button class="add-btn">+</button>
+            </div>
+        </header>
+
+        <div class="ticker-wrapper glass-panel">
+            <div class="ticker-track">
+                <span class="ticker-msg">🎉 Congratulations! Dawit just won 5.00 USDT 🔥</span>
+            </div>
+        </div>
+
+        <div class="side-panels">
+            <div class="glass-panel left-panel">
+                <p class="label">Your Points</p>
+                <p class="value">1,250</p>
+            </div>
+            <div class="glass-panel right-panel">
+                <p class="label">Free Spin In</p>
+                <p class="value countdown">04:59:21</p>
+            </div>
+        </div>
+
+        <div class="game-layer" id="wheel-container">
+            <div class="crystal-pointer"></div>
+            <button class="center-spin-btn">GO</button>
+        </div>
+
+        <footer class="bottom-controls">
+            <button class="glass-btn records-btn">📋 Records</button>
+            <button class="glass-btn multi-spin-btn">⚡ 10 Spins</button>
+            <button class="glass-btn leaderboard-btn">🏆 Leaderboard</button>
+        </footer>
+    </div>
+    </div>
     <div id="tab-games" class="tab-content hidden space-y-4">
     
     <div class="mb-2">
