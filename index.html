@@ -938,6 +938,7 @@ main {
                     <div class="flex justify-between text-xs">
                         <span>Current Balance: <b id="edit-user-balance" class="text-green-400">0.00</b> USDT</span>
                         <span>Current Points: <b id="edit-user-points" class="text-yellow-500">0.00</b> pts</span>
+                        <span>Current Coins: <b id="edit-user-coins" class="text-yellow-500">0.00</b> coin</span>
                     </div>
                 </div>
 
@@ -949,6 +950,10 @@ main {
                     <div>
                         <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">New Points Value</p>
                         <input id="new-user-points" type="number" step="0.01" class="w-full p-3 rounded-xl text-xs glass" placeholder="0.00">
+                    </div>
+                    <div>
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">New Coins Value</p>
+                        <input id="new-user-coins" type="number" step="0.01" class="w-full p-3 rounded-xl text-xs glass" placeholder="0.00">
                     </div>
                 </div>
 
@@ -1409,10 +1414,14 @@ async function searchUser() {
         document.getElementById('edit-user-display-id').innerText = foundUser.user_id;
         document.getElementById('edit-user-balance').innerText = parseFloat(foundUser.balance).toFixed(4);
         document.getElementById('edit-user-points').innerText = parseFloat(foundUser.points || 0).toFixed(2);
+        document.getElementById('edit-user-coins').innerText = parseFloat(foundUser.coins || 0).toFixed(2);
+
 
         // Populate editable input value fields
         document.getElementById('new-user-balance').value = foundUser.balance;
         document.getElementById('new-user-points').value = foundUser.points || 0;
+        document.getElementById('new-user-coins').value = foundUser.coins || 0;
+
 
         // Set state of Ban Button dynamically
         const banBtn = document.getElementById('btn-ban-toggle');
@@ -1437,8 +1446,9 @@ async function searchUser() {
 async function updateUserMetrics() {
     const newBalance = document.getElementById('new-user-balance').value;
     const newPoints = document.getElementById('new-user-points').value;
+    const newCoins = document.getElementById('new-user-coins').value;
     
-    if (!currentEditingUserId || newBalance === '' || newPoints === '') return;
+    if (!currentEditingUserId || newBalance === '' || newPoints === '' || newCoins === '') return;
 
     try {
         const res = await secureFetch('/api/admin/user/update', {
@@ -1447,7 +1457,8 @@ async function updateUserMetrics() {
                 // Changed from 'userId' to match backend 'target_user_id' parameter
                 target_user_id: currentEditingUserId,
                 balance: parseFloat(newBalance),
-                points: parseFloat(newPoints)
+                points: parseFloat(newPoints),
+                coins: parseFloat(newCoins)
             })
         });
 
@@ -1457,6 +1468,7 @@ async function updateUserMetrics() {
             
             document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(4);
             document.getElementById('edit-user-points').innerText = parseFloat(newPoints).toFixed(2);
+            document.getElementById('edit-user-coins').innerText = parseFloat(newCoins).toFixed(2);
             
             // Refresh main background list views implicitly
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
