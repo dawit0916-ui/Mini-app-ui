@@ -2680,17 +2680,28 @@ function openSpinModal() {
     const targetModalNode = document.getElementById('lucky-spin-modal');
     if (!targetModalNode) return;
 
-    // Direct interface data sync reading live from your existing cache nodes 
-    document.getElementById('spin-hud-coins').innerText = document.getElementById('coins')?.innerText || "0 Coins";
-    document.getElementById('spin-hud-balance').innerText = document.getElementById('balance-main')?.innerText + " USDT" || "0.00 USDT";
+    // Safe live balance sync
+    const coinsText =
+        document.getElementById('coins')?.innerText?.trim() || "0";
 
+    const balanceText =
+        document.getElementById('balance-main')?.innerText?.trim() || "0.00";
+
+    // Update HUD safely
+    document.getElementById('spin-hud-coins').innerText =
+        coinsText;
+
+    document.getElementById('spin-hud-balance').innerText =
+        balanceText + " USDT";
+
+    // Open modal
     targetModalNode.classList.add('show');
-    
-    // Safe micro delay timing guarantees reliable rendering on slower Android viewports
+
+    // Delay wheel rendering slightly for Telegram Android stability
     setTimeout(() => {
         initializeWheelCanvasContext();
     }, 60);
-}
+        }
 
 function closeSpinModal() {
     if (isSpinningActive) {
