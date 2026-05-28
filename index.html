@@ -2464,8 +2464,13 @@ async function dispatchAdminNotification() {
         });
 
         if (res.success) {
-            tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert("✅ Targeted system notification deployed successfully!");
+
+    tg.HapticFeedback.notificationOccurred('success');
+
+    showNotificationToast(
+        "✅ Targeted system notification deployed successfully!",
+        'success'
+    );
             
             // Clear input states
             document.getElementById('notif-title').value = '';
@@ -2474,10 +2479,16 @@ async function dispatchAdminNotification() {
             document.getElementById('notif-target-select').value = 'all';
             toggleTargetIdField();
         } else {
-            tg.showAlert("Error dispatching alert: " + res.error);
+            showNotificationToast(
+    "🚨 Error dispatching alert: " + res.error,
+    'error'
+);
         }
     } catch(e) {
-        tg.showAlert("Failed to contact targeted microservices routing gateway.");
+        showNotificationToast(
+    "⚠️ Failed to contact server gateway.",
+    'error'
+);
     } finally {
         btn.disabled = false;
         btn.innerText = "📢 Dispatch Notification";
@@ -2611,14 +2622,12 @@ function initializeWheelCanvasContext() {
 
     // Clean canvas resets to prevent duplicate container memory sizing leaks
     const existingCanvas = mountingArea.querySelector('canvas');
-    if (existingCanvas) existingCanvas.remove();
-
+    if (!spinCanvas) {
     spinCanvas = document.createElement('canvas');
-    spinCanvas.width = 580; // High DPI base target configuration resolution
-    spinCanvas.height = 580;
+    spinCanvas.width = 360;
+    spinCanvas.height = 360;
     mountingArea.appendChild(spinCanvas);
-    spinCtx = spinCanvas.getContext('2d');
-    
+    spinCtx = spinCanvas.getContext('2d'); 
     renderWheelStaticFrameState();
 }
 
@@ -2768,11 +2777,24 @@ async function executeSecureSpinState() {
             // Force dynamic background updates parsing out state tracking items back seamlessly into main cache views
             if (typeof initApp === "function") initApp();
 
-            tg.showPopup({
-                title: "🎰 Reward Unlocked!",
-                message: `Congratulations! You successfully won: ${WHEEL_SEGMENTS[assignedWinningIndexTarget].text}. Your data records profiles balance sets metrics updates have completed.`,
-                buttons: [{ type: "close" }]
-            });
+            const rewardText =
+    WHEEL_SEGMENTS[assignedWinningIndexTarget].text;
+
+if (rewardText === "TRY AGAIN") {
+
+    showNotificationToast(
+        "💔 Better luck next spin!",
+        'error'
+    );
+
+} else {
+
+    showNotificationToast(
+        `🎉 You won ${rewardText}!`,
+        'success'
+    );
+
+    }
         }
     }
 
