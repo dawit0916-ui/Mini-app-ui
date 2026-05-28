@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+d2ff73bebb29acc4dda001933cc624b4c08de1af<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -2775,9 +2775,10 @@ async function executeSecureSpinState() {
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
             // Force dynamic background updates parsing out state tracking items back seamlessly into main cache views
-            if (typeof initApp === "function") initApp();
-
-const rewardText =
+            if (typeof syncWalletBalances === "function") {
+    syncWalletBalances();
+    }
+            const rewardText =
     WHEEL_SEGMENTS[assignedWinningIndexTarget].text;
 
 if (rewardText === "TRY AGAIN") {
@@ -2793,14 +2794,9 @@ if (rewardText === "TRY AGAIN") {
         `🎉 You won ${rewardText}!`,
         'success'
     );
-
-    
-            
-
                 }  // closes if block
         }  // closes the animation function
-    }  // closes the parent function
-    
+    }  // closes the parent function    
     requestAnimationFrame(animationEngineTickFrameSequence);
 }  // closes requestAnimationFrame callback
 
