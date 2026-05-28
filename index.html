@@ -687,48 +687,10 @@ main {
                 <div class="text-xs text-slate-400">
                     Cost: <span class="font-bold text-yellow-400">1 Coin</span> / play
                 </div>
-                <button class="btn-premium px-5 py-2.5 rounded-xl font-bold text-xs" onclick="openSpinModal()">Play Game</button>
+                <button class="btn-premium px-5 py-2.5 rounded-xl font-bold text-xs" onclick="openSpinModal()">Play</button>
             </div>
         </div>
-    </div>
-    <div id="lucky-spin-modal" class="spin-modal-backdrop">
-        <div class="spin-modal-container glass glow-blue">
-            
-            <header class="flex justify-between items-center w-full border-b border-white/10 pb-3 z-30">
-                <div>
-                    <h2 class="text-lg font-black tracking-widest text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">LUCKY SPIN</h2>
-                    <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Provably Fair Rewards</p>
-                </div>
-                <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-300 hover:text-white active:scale-95 transition-all" onclick="closeSpinModal()">✕ Close</button>
-            </header>
-
-            <div class="grid grid-cols-2 gap-2 w-full my-3 z-30">
-                <div class="bg-black/30 border border-white/5 rounded-xl p-2 flex flex-col items-center">
-                    <span class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Available Coins</span>
-                    <span id="spin-hud-coins" class="text-xs font-black text-amber-400 mt-0.5">0.00</span>
-                </div>
-                <div class="bg-black/30 border border-white/5 rounded-xl p-2 flex flex-col items-center">
-                    <span class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Your Wallet Balance</span>
-                    <span id="spin-hud-balance" class="text-xs font-black text-blue-400 mt-0.5">0.00 USDT</span>
-                </div>
-            </div>
-
-            <div class="modal-game-arena flex-1 flex items-center justify-center relative w-full my-auto">
-                <div class="game-layer-container" id="canvas-mount-target">
-                    <div class="crystal-pointer"></div>
-                    <button id="spin-trigger-btn" class="center-spin-btn-core" onclick="executeSecureSpinState()">GO</button>
-                </div>
-            </div>
-
-            <div class="w-full text-center mt-3 pt-2 border-t border-white/5 z-30">
-                <p id="spin-cooldown-timer" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    ⚡ Instant Sync Mode Verified
-                </p>
-            </div>
-
-        </div>
-    </div>
-
+    
     <div class="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-5 opacity-40 backdrop-blur-md select-none">
         <div class="flex items-start justify-between">
             <div class="space-y-1">
@@ -792,6 +754,7 @@ main {
         </div>
     </div>
 
+</div>
 </div>
   <div id="tab-profile" class="tab-content min-h-screen bg-slate-950 text-slate-100 p-4 font-sans pb-24">
     
@@ -1207,8 +1170,45 @@ main {
         </div>
     </div>
 </div>
+<div id="lucky-spin-modal" class="spin-modal-backdrop">
+        <div class="spin-modal-container glass glow-blue">
+            
+            <header class="flex justify-between items-center w-full border-b border-white/10 pb-3 z-30">
+                <div>
+                    <h2 class="text-lg font-black tracking-widest text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">LUCKY SPIN</h2>
+                    <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Provably Fair Rewards</p>
+                </div>
+                <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-300 hover:text-white active:scale-95 transition-all" onclick="closeSpinModal()">✕ Close</button>
+            </header>
 
+            <div class="grid grid-cols-2 gap-2 w-full my-3 z-30">
+                <div class="bg-black/30 border border-white/5 rounded-xl p-2 flex flex-col items-center">
+                    <span class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Available Coins</span>
+                    <span id="spin-hud-coins" class="text-xs font-black text-amber-400 mt-0.5">0.00</span>
+                </div>
+                <div class="bg-black/30 border border-white/5 rounded-xl p-2 flex flex-col items-center">
+                    <span class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Your Wallet Balance</span>
+                    <span id="spin-hud-balance" class="text-xs font-black text-blue-400 mt-0.5">0.00 USDT</span>
+                </div>
+            </div>
+
+            <div class="modal-game-arena flex-1 flex items-center justify-center relative w-full my-auto">
+                <div class="game-layer-container" id="canvas-mount-target">
+                    <div class="crystal-pointer"></div>
+                    <button id="spin-trigger-btn" class="center-spin-btn-core" onclick="executeSecureSpinState()">GO</button>
+                </div>
+            </div>
+
+            <div class="w-full text-center mt-3 pt-2 border-t border-white/5 z-30">
+                <p id="spin-cooldown-timer" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    ⚡ Instant Sync Mode Verified
+                </p>
+            </div>
+
+        </div>
+                                                                                                                                        </div>
 </main>
+    
     
 <div id="toast-container"></div>
 
