@@ -659,7 +659,7 @@ main {
      <div id="tab-games" class="tab-content">
         <div class="mb-4">
             <h2 class="text-xl font-black tracking-wide text-white">Game Arena</h2>
-            <p class="text-xs text-slate-400">Play games to multiply your points and tokens</p>
+            <p class="text-xs text-slate-400">Play games to multiply your points and coins</p>
         </div>
 
         <div class="relative overflow-hidden rounded-2xl border border-blue-500/30 bg-indigo-950/20 p-5 backdrop-blur-xl shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 hover:border-blue-400/50">
@@ -792,7 +792,6 @@ main {
         </div>
     </div>
 
-</div>
 </div>
   <div id="tab-profile" class="tab-content min-h-screen bg-slate-950 text-slate-100 p-4 font-sans pb-24">
     
@@ -1768,6 +1767,7 @@ function switchTab(tabId, btn) {
     tg.HapticFeedback.selectionChanged();
     
     // --- ADD THESE TRIGGERS ---
+    if(tabId === 'home') loadAvailableTasks();
     if(tabId === 'history') loadUserHistory();
     if(tabId === 'friends') loadReferralData(); // Loads friends when tab opens
     if(tabId === 'admin') loadAdminData();      // Loads admin stats when tab opens
@@ -1776,9 +1776,14 @@ function switchTab(tabId, btn) {
 // --- ADMIN HUB NAVIGATION ---
 function switchAdminPanel(panelId) {
     const panels = [
-        'panel-task-manager', 'panel-broadcast', 'panel-settings', 
-        'panel-users', 'panel-payouts', 'panel-proofs', 
-        'panel-admins', 'panel-notifications'
+        'panel-task-manager', 
+        'panel-broadcast', 
+        'panel-settings', 
+        'panel-users', 
+        'panel-payouts', 
+        'panel-proofs', 
+        'panel-admins', 
+        'panel-notifications'
     ];
     
     if (panelId === 'hub') {
@@ -2377,7 +2382,7 @@ async function loadReferralData() {
     const listContainer = document.getElementById('friends-list');
     try {
         const data = await secureFetch('/api/secure/referrals');
-        const tasksRequired = 5; // Match your admin setting
+        const tasksRequired =1; // Match your admin setting
         
         let activeTotal = 0;
         let commTotal = 0;
@@ -2676,7 +2681,7 @@ function openSpinModal() {
     if (!targetModalNode) return;
 
     // Direct interface data sync reading live from your existing cache nodes 
-    document.getElementById('spin-hud-coins').innerText = document.getElementById('coin')?.innerText || "0 Coins";
+    document.getElementById('spin-hud-coins').innerText = document.getElementById('coins')?.innerText || "0 Coins";
     document.getElementById('spin-hud-balance').innerText = document.getElementById('balance-main')?.innerText + " USDT" || "0.00 USDT";
 
     targetModalNode.classList.add('show');
