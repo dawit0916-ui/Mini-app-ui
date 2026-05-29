@@ -1256,6 +1256,9 @@ main {
     </button>
 </nav>
     <script>
+        window.onerror = (msg, src, line) => {
+    shownotificationToast(`❌ ${msg} (line ${line})`, "error");
+};
         const tg = window.Telegram.WebApp;
 tg.expand(); // Open full screen
 tg.ready();
