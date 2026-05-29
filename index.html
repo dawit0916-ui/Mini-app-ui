@@ -2735,7 +2735,10 @@ function closeSpinModal() {
 async function executeSecureSpinState() {
     if (isSpinningActive) return;
 
-    const actionTriggerNodeButton = document.getElementById('spin-trigger-btn');
+    // Get the correct button context based on your DOM element ID
+    const actionTriggerNodeButton = document.getElementById('spin-trigger-btn') || document.getElementById('spin-trigger-button');
+    if (!actionTriggerNodeButton) return console.error("Spin trigger button not found in DOM");
+
     actionTriggerNodeButton.disabled = true;
     isSpinningActive = true;
 
@@ -2756,17 +2759,18 @@ async function executeSecureSpinState() {
     }
 
     // Capture verifiable response targets safely index mappings values calculated from backend nodes processing rule
-    const assignedWinningIndexTarget = parseInt(backendServerExecutionResult.winningIndex);
+    // FIX: Fallback to .index if .winningIndex is undefined based on your backend schemas
+    const assignedWinningIndexTarget = parseInt(backendServerExecutionResult.winningIndex ?? backendServerExecutionResult.index);
     
+    // Ensure segment arc length calculation fallback exists
+    const arcLength = typeof segmentArcRadiantLength !== 'undefined' ? segmentArcRadiantLength : (2 * Math.PI / WHEEL_SEGMENTS.length);
+
     // Physics engine calculations converting segment arrays data cleanly back into physical rotation variables coordinates
-    const targetOffsetCalculatedRotationAngle = (2 * Math.PI) - (assignedWinningIndexTarget * segmentArcRadiantLength) - (segmentArcRadiantLength / 2);
+    const targetOffsetCalculatedRotationAngle = (2 * Math.PI) - (assignedWinningIndexTarget * arcLength) - (arcLength / 2);
     const guaranteedMinimumSpinsVelocityRevolutionsBaseAngle = 8 * (2 * Math.PI); 
     const finalAbsoluteTerminalRotationAngleCoordinate = guaranteedMinimumSpinsVelocityRevolutionsBaseAngle + targetOffsetCalculatedRotationAngle;
 
-    let timestampStartReferenceFrame = null;
-    const completeAnimationDurationTimeRequirementLimit = 5000; // Exact milliseconds matching spinning time limits requirements
-
-    function executeSpinAnimationSequence(finalAbsoluteTerminalRotationAngleCoordinate, assignedWinningIndexTarget) {
+    // ─── 🚀 CRITICAL FIX: EXECUTING THE ANIMATION PIPELINE IMMEDIATELY ───
     let timestampStartReferenceFrame = null;
     const completeAnimationDurationTimeRequirementLimit = 4000; // 4 seconds duration
 
@@ -2777,8 +2781,11 @@ async function executeSecureSpinState() {
 
         // Premium cubic easing out physics deceleration mapping calculations
         const physicsDecelerationDecayModifierValue = 1 - Math.pow(1 - completeProgressRatioDelta, 4);
+        
+        // Update the global angle tracked by your canvas renderer
         wheelRotationAngle = physicsDecelerationDecayModifierValue * finalAbsoluteTerminalRotationAngleCoordinate;
 
+        // Render the new frame transformation matrix properties
         renderWheelStaticFrameState();
 
         if (animationElapsedDurationTime < completeAnimationDurationTimeRequirementLimit) {
@@ -2796,7 +2803,7 @@ async function executeSecureSpinState() {
                 syncWalletBalances();
             }
             
-            // CRITICAL CHECK: Protect against out-of-bounds array access
+            // Notification toast checker logic
             if (typeof WHEEL_SEGMENTS !== 'undefined' && WHEEL_SEGMENTS[assignedWinningIndexTarget]) {
                 const rewardText = WHEEL_SEGMENTS[assignedWinningIndexTarget].text;
 
@@ -2812,9 +2819,9 @@ async function executeSecureSpinState() {
         } // Closes else block
     } // Closes animationEngineTickFrameSequence
 
-    // Kick off the animation engine safely inside the parent initializer
+    // Fire the animation framework lifecycle now that variables are processed!
     requestAnimationFrame(animationEngineTickFrameSequence);
-}
+        }
 
 /* ==========================================================================
    VANILLA JAVASCRIPT SYSTEM ENGINE: ECOSYSTEM WALLET LOGIC ARCHITECTURE
