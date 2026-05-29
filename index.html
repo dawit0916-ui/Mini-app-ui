@@ -2640,14 +2640,14 @@ let wheelRotationAngle = 0;
 
 // Centralized Defined Segments List Data Config matching back-end processing rules
 const WHEEL_SEGMENTS = [
-    { text: "10,000", type: "COINS", icon: "assets/img/coins-stack-large.png", color: "#cca625" }, // Top slot (Index 0)
-    { text: "5", type: "SPINS", icon: "assets/img/refresh-blue.png", color: "#1d4ed8" },
-    { text: "2,000", type: "COINS", icon: "assets/img/coins-stack-medium.png", color: "#064e3b" },
-    { text: "100", type: "POINTS", icon: "assets/img/badge-purple.png", color: "#581c87" },
-    { text: "JACKPOT", type: "SPECIAL", icon: "assets/img/chest-gold.png", color: "#1e1b4b" }, // Bottom slot
-    { text: "1,000", type: "COINS", icon: "assets/img/coins-stack-small.png", color: "#7f1d1d" },
-    { text: "3", type: "SPINS", icon: "assets/img/refresh-gold.png", color: "#0f766e" },
-    { text: "500", type: "POINTS", icon: "assets/img/badge-purple-light.png", color: "#6b21a8" }
+    { text: "10,000", type: "COINS", color: "#cca625", textClr: "#ffffff" },
+    { text: "5", type: "SPINS", color: "#1d4ed8", textClr: "#ffffff" },
+    { text: "2,000", type: "COINS", color: "#064e3b", textClr: "#ffffff" },
+    { text: "100", type: "POINTS", color: "#581c87", textClr: "#ffffff" }, // Ensure this matches index 3
+    { text: "JACKPOT", type: "PRIZE", color: "#1e1b4b", textClr: "#ffffff" },
+    { text: "1,000", type: "COINS", color: "#7f1d1d", textClr: "#ffffff" },
+    { text: "3", type: "SPINS", color: "#0f766e", textClr: "#ffffff" },
+    { text: "500", type: "POINTS", color: "#6b21a8", textClr: "#ffffff" }
 ];
 
 const totalSegmentsCount = WHEEL_SEGMENTS.length;
@@ -2657,16 +2657,23 @@ function initializeWheelCanvasContext() {
     const mountingArea = document.getElementById('canvas-mount-target');
     if (!mountingArea) return;
 
-    // Clean canvas resets to prevent duplicate container memory sizing leaks
-    const existingCanvas = mountingArea.querySelector('canvas');
-    if (!spinCanvas) {
+    // Unify your local variable lookups with your global canvas handlers
+let existingCanvas = mountingArea.querySelector('canvas');
+
+if (!existingCanvas) {
+    // 1. Create the canvas strictly ONCE if it doesn't exist in the DOM yet
     spinCanvas = document.createElement('canvas');
     spinCanvas.width = 360;
     spinCanvas.height = 360;
     mountingArea.appendChild(spinCanvas);
     spinCtx = spinCanvas.getContext('2d');
-        }
-    renderWheelStaticFrameState();
+} else {
+    // 2. If it already exists, recycle the reference instead of breaking it
+    spinCanvas = existingCanvas;
+    spinCtx = spinCanvas.getContext('2d');
+}
+// 3. Render the state cleanly on the verified canvas asset reference
+renderWheelStaticFrameState();
 }
 function renderWheelStaticFrameState() {
     if (!spinCtx || !spinCanvas) return;
@@ -2858,9 +2865,8 @@ async function executeSecureSpinState() {
                     showNotificationToast(`🎉 You won ${rewardText}!`, 'success');
                 }
             } else {
-                console.error("Invalid winning index targeted:", assignedWinningIndexTarget);
-                showNotificationToast("🎉 Spin processed successfully!", 'success');
-            }
+                const dynamicRewardString = `${rewardItem.text} ${rewardItem.type || ''}`.trim();
+        showNotificationToast(`You won ${dynamicRewardString}!`, 'success');            }
         } // Closes else block
     } // Closes animationEngineTickFrameSequence
 
