@@ -1256,9 +1256,7 @@ main {
     </button>
 </nav>
     <script>
-        window.onerror = (msg, src, line) => {
-    shownotificationToast(`❌ ${msg} (line ${line})`, "error");
-};
+   
         const tg = window.Telegram.WebApp;
 tg.expand(); // Open full screen
 tg.ready();
@@ -1327,7 +1325,6 @@ async function initApp() {
     } else {
         headerImg.classList.add('hidden');
         headerFallback.classList.remove('hidden');
-        // Fallback to the user's first letter
         headerFallback.innerText = user.first_name ? user.first_name.charAt(0).toUpperCase() : "E";
     }
 
@@ -1339,8 +1336,9 @@ async function initApp() {
         if(alertsBtn) alertsBtn.classList.remove('opacity-50');
     }
 
-    // 3. Fetch profile data without letting errors break downstream systems
+    // 3. Main Operational Wrapper with Fail-Safe UI Recovery
     try {
+        // Fetch profile data safely
         const data = await secureFetch('/api/secure/profile');
         
         if (data && !data.error) {
@@ -1356,7 +1354,6 @@ async function initApp() {
                 document.getElementById('balance-main').innerText = activeProfile.balance.toFixed(2);
                 document.getElementById('balance-wallet').innerText = activeProfile.balance.toFixed(2);
                 
-                // If the user happens to have the profile tab open already, keep metrics synced
                 if (document.getElementById('tab-profile') && !document.getElementById('tab-profile').classList.contains('hidden')) {
                     loadUserProfileMetrics();
                 }
@@ -1364,28 +1361,40 @@ async function initApp() {
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
+
+        // 4. Moved inside the block and bundled to load concurrently
+        await Promise.all([
+            loadAvailableTasks(),
+            syncUserInbox()
+        ]).catch(err => console.warn("Background data synchronization failure:", err.message));
+
     } catch (err) {
-        console.error("Profile sync caught error (Server warming up?):", err.message);
+        console.error("Initialization pipeline caught an execution error:", err.message);
+    } finally {
+        // ─── 🚀 CRITICAL FIX: ABSOLUTELY HIDE LOADING OVERLAY HERE ───
+        const loader = document.getElementById('loading-screen'); // Double check if your element ID matches 'loading-screen'
+        if (loader) {
+            loader.classList.add('hidden');
+            loader.style.display = 'none';
+        }
     }
 
-    // 4. Always load tasks and inbox even if profile data is limited
-    loadAvailableTasks(); 
-    await syncUserInbox();
-
     // Enable Native Pull-to-Refresh
+    tg.offEvent('reloadVertical'); // Prevent duplicate event listeners on re-initialization
     tg.onEvent('reloadVertical', function() {
         tg.HapticFeedback.impactOccurred('high');
-        const activeTab = document.querySelector('.tab-content.active').id.replace('tab-', '');
+        const activeTab = document.querySelector('.tab-content.active')?.id.replace('tab-', '') || 'home';
         
         if (activeTab === 'home') loadAvailableTasks();
         if (activeTab === 'friends') loadReferralData();
         if (activeTab === 'history') loadUserHistory();
-        if (activeTab === 'profile') loadUserProfileMetrics(); // Sync on pull-down
+        if (activeTab === 'profile') loadUserProfileMetrics();
         
         cachedUserProfile = null; 
         initApp();
     });
 }
+
 
 let currentEditingUserData = null; // Cache active user model locally
 let userDirectoryFilter = 'all';
