@@ -177,22 +177,42 @@ main {
     border-left: 3px solid var(--neon-blue);
     background: rgba(59, 130, 246, 0.05);
 }
-/* Toast Popup Styling */
+/* Toast Popup Container Styling */
 #toast-container {
-    position: fixed;
-    top: 80px;
-    left: 20px;
-    right: 20px;
-    z-index: 999999;
-    pointer-events: none;
+    position: fixed !important;
+    top: 24px !important; /* Brought up slightly to sit nicely over the app UI */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 90% !important;
+    max-width: 350px !important;
+    z-index: 999999 !important; /* Dominates the 2000-level modal backdrop layout */
+    pointer-events: none !important; /* Allows underlying app elements to still be clicked */
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
 }
+
+/* Individual Toast Cards */
 .toast {
-    animation: slideInTop 0.5s ease forwards;
+    width: 100% !important;
+    z-index: 999999 !important; /* Force internal hardware layering hierarchy */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 
+                0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+    animation: slideInTop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
+
+/* Smooth Slide and Drop Physics */
 @keyframes slideInTop {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    from { 
+        opacity: 0; 
+        transform: translateY(-25px) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+        }
+
 /* Shimmer Animation */
 @keyframes shimmer {
     0% { background-position: -200% 0; }
@@ -2835,7 +2855,7 @@ let selectedTierFiatAllocationValue = 0;
 // Centralized Toast Context Notification Router Handler
 function showNotificationToast(messageText, notificationType = 'info') {
     const parentContainer = document.getElementById('toast-container');
-    if (!parentContainer) return;
+    if (!parentContainer) return console.error("Toast anchor element missing from DOM mapping framework!");
     
     const toastNode = document.createElement('div');
     toastNode.className = `toast glass p-4 rounded-xl mb-2 text-xs font-bold border flex items-center gap-2 shadow-2xl z-[5000] animate-[slideInTop_0.3s_ease_forwards]`;
