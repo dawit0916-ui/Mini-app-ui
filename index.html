@@ -2063,6 +2063,7 @@ function previewUploadedImage(input) {
 
 // Step 1: Create a global variable at the top of your script to store profile data
 let cachedUserProfile = null;
+        let allTasks = [];
 async function loadAvailableTasks() {
     const taskContainer = document.getElementById('task-list');
     
@@ -2629,7 +2630,8 @@ function initializeWheelCanvasContext() {
     spinCanvas.width = 360;
     spinCanvas.height = 360;
     mountingArea.appendChild(spinCanvas);
-    spinCtx = spinCanvas.getContext('2d'); 
+    spinCtx = spinCanvas.getContext('2d');
+        }
     renderWheelStaticFrameState();
 }
 
