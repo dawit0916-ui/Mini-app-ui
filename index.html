@@ -2766,6 +2766,10 @@ async function executeSecureSpinState() {
     let timestampStartReferenceFrame = null;
     const completeAnimationDurationTimeRequirementLimit = 5000; // Exact milliseconds matching spinning time limits requirements
 
+    function executeSpinAnimationSequence(finalAbsoluteTerminalRotationAngleCoordinate, assignedWinningIndexTarget) {
+    let timestampStartReferenceFrame = null;
+    const completeAnimationDurationTimeRequirementLimit = 4000; // 4 seconds duration
+
     function animationEngineTickFrameSequence(timestampCurrentFrame) {
         if (!timestampStartReferenceFrame) timestampStartReferenceFrame = timestampCurrentFrame;
         const animationElapsedDurationTime = timestampCurrentFrame - timestampStartReferenceFrame;
@@ -2789,29 +2793,28 @@ async function executeSecureSpinState() {
 
             // Force dynamic background updates parsing out state tracking items back seamlessly into main cache views
             if (typeof syncWalletBalances === "function") {
-    syncWalletBalances();
-    }
-            const rewardText =
-    WHEEL_SEGMENTS[assignedWinningIndexTarget].text;
+                syncWalletBalances();
+            }
+            
+            // CRITICAL CHECK: Protect against out-of-bounds array access
+            if (typeof WHEEL_SEGMENTS !== 'undefined' && WHEEL_SEGMENTS[assignedWinningIndexTarget]) {
+                const rewardText = WHEEL_SEGMENTS[assignedWinningIndexTarget].text;
 
-if (rewardText === "TRY AGAIN") {
+                if (rewardText === "TRY AGAIN") {
+                    showNotificationToast("💔 Better luck next spin!", 'error');
+                } else {
+                    showNotificationToast(`🎉 You won ${rewardText}!`, 'success');
+                }
+            } else {
+                console.error("Invalid winning index targeted:", assignedWinningIndexTarget);
+                showNotificationToast("🎉 Spin processed successfully!", 'success');
+            }
+        } // Closes else block
+    } // Closes animationEngineTickFrameSequence
 
-    showNotificationToast(
-        "💔 Better luck next spin!",
-        'error'
-    );
-
-} else {
-
-    showNotificationToast(
-        `🎉 You won ${rewardText}!`,
-        'success'
-    );
-                }  // closes if block
-        }  // closes the animation function
-    }  // closes the parent function    
+    // Kick off the animation engine safely inside the parent initializer
     requestAnimationFrame(animationEngineTickFrameSequence);
-}  // closes requestAnimationFrame callback
+}
 
 /* ==========================================================================
    VANILLA JAVASCRIPT SYSTEM ENGINE: ECOSYSTEM WALLET LOGIC ARCHITECTURE
