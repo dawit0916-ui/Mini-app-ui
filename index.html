@@ -2673,80 +2673,95 @@ if (!existingCanvas) {
     spinCtx = spinCanvas.getContext('2d');
 }
 // 3. Render the state cleanly on the verified canvas asset reference
-renderWheelStaticFrameState();
+
 }
 function renderWheelStaticFrameState() {
+    // Safety check for canvas context existence
     if (!spinCtx || !spinCanvas) return;
     
+    // 1. Force recalculate segment dimensions dynamically to prevent 0 or undefined values
+    const currentSegmentsCount = (typeof WHEEL_SEGMENTS !== 'undefined' && WHEEL_SEGMENTS.length > 0) 
+        ? WHEEL_SEGMENTS.length 
+        : 8; // Fallback to 8 segments if array is missing
+        
+    const currentArcRadiantLength = (2 * Math.PI) / currentSegmentsCount;
+
     const centerPointAxis = spinCanvas.width / 2;
     const exteriorOuterRadiusValue = centerPointAxis - 15;
     
+    // Clear out previous frames completely
     spinCtx.clearRect(0, 0, spinCanvas.width, spinCanvas.height);
     
-    // 1. Process main continuous animation rotation
     spinCtx.save();
     spinCtx.translate(centerPointAxis, centerPointAxis);
-    spinCtx.rotate(wheelRotationAngle);
+    spinCtx.rotate(wheelRotationAngle || 0); // Guard against undefined rotation angle
     
-    for (let i = 0; i < totalSegmentsCount; i++) {
-        const currentAngleRad = i * segmentArcRadiantLength;
+    // Fallback array colors if your main array is missing theme variables
+    const fallbackColors = ["#cca625", "#1d4ed8", "#064e3b", "#581c87", "#1e1b4b", "#7f1d1d", "#0f766e", "#6b21a8"];
+
+    for (let i = 0; i < currentSegmentsCount; i++) {
+        const currentAngleRad = i * currentArcRadiantLength;
         
-        // 2. Draw the colored segment wedge slice
+        // 2. Safely resolve segment color with absolute fallbacks
+        let segmentColor = "#1e1b4b"; // Master dark fallback
+        if (WHEEL_SEGMENTS && WHEEL_SEGMENTS[i] && WHEEL_SEGMENTS[i].color) {
+            segmentColor = WHEEL_SEGMENTS[i].color;
+        } else if (fallbackColors[i]) {
+            segmentColor = fallbackColors[i];
+        }
+
         spinCtx.beginPath();
-        spinCtx.fillStyle = WHEEL_SEGMENTS[i].color;
+        spinCtx.fillStyle = segmentColor;
         spinCtx.moveTo(0, 0);
-        spinCtx.arc(0, 0, exteriorOuterRadiusValue, currentAngleRad, currentAngleRad + segmentArcRadiantLength);
+        spinCtx.arc(0, 0, exteriorOuterRadiusValue, currentAngleRad, currentAngleRad + currentArcRadiantLength);
         spinCtx.lineTo(0, 0);
         spinCtx.fill();
         
-        // Premium golden-tinted separator divider borders between slices
         spinCtx.strokeStyle = "rgba(251, 191, 36, 0.2)";
         spinCtx.lineWidth = 1.5;
         spinCtx.stroke();
         
-        // 3. Render premium nested labels and values
-        spinCtx.save();
-        
-        // Pivot the canvas straight to the exact center line of this specific slice
-        const midSegmentAngle = currentAngleRad + (segmentArcRadiantLength / 2);
-        spinCtx.rotate(midSegmentAngle);
-        
-        // Move the drawing context out near the rim edge along the radius line
-        const textRadiusPlacement = exteriorOuterRadiusValue - 45;
-        spinCtx.translate(textRadiusPlacement, 0);
-        
-        // CRITICAL VISUAL FIX: Rotate context 90 degrees so text runs vertically toward center
-        spinCtx.rotate(Math.PI / 2);
-        
-        // Style and mount text layout configuration matrix
-        spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
-        spinCtx.textAlign = "center";
-        spinCtx.textBaseline = "middle";
-        
-        // Main Value Text (e.g., "10,000" or "50 USDT")
-        spinCtx.font = "bold 15px 'Inter', sans-serif";
-        spinCtx.fillText(WHEEL_SEGMENTS[i].text, 0, -10);
-        
-        // Secondary Type Label Text (e.g., "COINS" or "POINTS")
-        if (WHEEL_SEGMENTS[i].type) {
-            spinCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
-            spinCtx.font = "800 9px 'Inter', sans-serif";
-            spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, 6);
+        // 3. Draw text labels safely
+        if (WHEEL_SEGMENTS && WHEEL_SEGMENTS[i]) {
+            spinCtx.save();
+            
+            const midSegmentAngle = currentAngleRad + (currentArcRadiantLength / 2);
+            spinCtx.rotate(midSegmentAngle);
+            
+            const textRadiusPlacement = exteriorOuterRadiusValue - 45;
+            spinCtx.translate(textRadiusPlacement, 0);
+            spinCtx.rotate(Math.PI / 2);
+            
+            // Safe fallback for text colors
+            spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
+            spinCtx.textAlign = "center";
+            spinCtx.textBaseline = "middle";
+            
+            // Main text value
+            spinCtx.font = "bold 14px 'Inter', sans-serif";
+            spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -10);
+            
+            // Sub-label category type
+            if (WHEEL_SEGMENTS[i].type) {
+                spinCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
+                spinCtx.font = "800 9px 'Inter', sans-serif";
+                spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, 6);
+            }
+            
+            spinCtx.restore();
         }
-        
-        spinCtx.restore();
     }
     
-    // Restore back out of the wheel rotation matrix back to flat canvas base layer
     spinCtx.restore();
     
-    // 4. Pure outer golden framing casino chassis aesthetic ring border
+    // 4. Always draw outer gold border frame ring
     spinCtx.beginPath();
     spinCtx.arc(centerPointAxis, centerPointAxis, exteriorOuterRadiusValue, 0, 2 * Math.PI);
-    spinCtx.strokeStyle = "#fbbf24"; // Upgraded from basic blue to gold to match theme
+    spinCtx.strokeStyle = "#fbbf24"; 
     spinCtx.lineWidth = 5;
     spinCtx.stroke();
-        }
+}
+
 
 function openSpinModal() {
     const targetModalNode = document.getElementById('lucky-spin-modal');
