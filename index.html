@@ -2821,11 +2821,6 @@ async function executeSecureSpinState() {
         return;
     }
 
-    // Capture verifiable response targets safely index mappings values calculated from backend nodes processing rule
-    // FIX: Fallback to .index if .winningIndex is undefined based on your backend schemas
-    const assignedWinningIndexTarget = parseInt(backendServerExecutionResult.winningIndex ?? backendServerExecutionResult.index);
-
-
 async function executeSecureSpinState() {
     if (isSpinningActive) return;
 
