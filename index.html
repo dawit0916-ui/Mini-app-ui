@@ -2657,23 +2657,19 @@ function initializeWheelCanvasContext() {
     const mountingArea = document.getElementById('canvas-mount-target');
     if (!mountingArea) return;
 
-    // Unify your local variable lookups with your global canvas handlers
-let existingCanvas = mountingArea.querySelector('canvas');
+    // Look up existing canvas references to prevent duplicates and memory leaks
+    let existingCanvas = mountingArea.querySelector('canvas');
 
-if (!existingCanvas) {
-    // 1. Create the canvas strictly ONCE if it doesn't exist in the DOM yet
-    spinCanvas = document.createElement('canvas');
-    spinCanvas.width = 360;
-    spinCanvas.height = 360;
-    mountingArea.appendChild(spinCanvas);
+    if (!existingCanvas) {
+        spinCanvas = document.createElement('canvas');
+        spinCanvas.width = 360;
+        spinCanvas.height = 360;
+        mountingArea.appendChild(spinCanvas);
+    } else {
+        spinCanvas = existingCanvas;
+    }
     spinCtx = spinCanvas.getContext('2d');
-} else {
-    // 2. If it already exists, recycle the reference instead of breaking it
-    spinCanvas = existingCanvas;
-    spinCtx = spinCanvas.getContext('2d');
-}
-// 3. Render the state cleanly on the verified canvas asset reference
-
+    renderWheelStaticFrameState();
 }
 function renderWheelStaticFrameState() {
     // Safety check for canvas context existence
@@ -2828,66 +2824,94 @@ async function executeSecureSpinState() {
     // Capture verifiable response targets safely index mappings values calculated from backend nodes processing rule
     // FIX: Fallback to .index if .winningIndex is undefined based on your backend schemas
     const assignedWinningIndexTarget = parseInt(backendServerExecutionResult.winningIndex ?? backendServerExecutionResult.index);
-    
-    // Ensure segment arc length calculation fallback exists
-    const arcLength = typeof segmentArcRadiantLength !== 'undefined' ? segmentArcRadiantLength : (2 * Math.PI / WHEEL_SEGMENTS.length);
 
-    // Physics engine calculations converting segment arrays data cleanly back into physical rotation variables coordinates
-    const targetOffsetCalculatedRotationAngle = (2 * Math.PI) - (assignedWinningIndexTarget * arcLength) - (arcLength / 2);
-    const guaranteedMinimumSpinsVelocityRevolutionsBaseAngle = 8 * (2 * Math.PI); 
-    const finalAbsoluteTerminalRotationAngleCoordinate = guaranteedMinimumSpinsVelocityRevolutionsBaseAngle + targetOffsetCalculatedRotationAngle;
 
-    // ─── 🚀 CRITICAL FIX: EXECUTING THE ANIMATION PIPELINE IMMEDIATELY ───
-    let timestampStartReferenceFrame = null;
-    const completeAnimationDurationTimeRequirementLimit = 4000; // 4 seconds duration
+async function executeSecureSpinState() {
+    if (isSpinningActive) return;
 
-    function animationEngineTickFrameSequence(timestampCurrentFrame) {
-        if (!timestampStartReferenceFrame) timestampStartReferenceFrame = timestampCurrentFrame;
-        const animationElapsedDurationTime = timestampCurrentFrame - timestampStartReferenceFrame;
-        const completeProgressRatioDelta = Math.min(animationElapsedDurationTime / completeAnimationDurationTimeRequirementLimit, 1);
+    const actionTriggerNodeButton = document.getElementById('spin-trigger-btn') || document.getElementById('spin-trigger-button');
+    if (!actionTriggerNodeButton) return console.error("Spin trigger button not found in DOM");
 
-        // Premium cubic easing out physics deceleration mapping calculations
-        const physicsDecelerationDecayModifierValue = 1 - Math.pow(1 - completeProgressRatioDelta, 4);
-        
-        // Update the global angle tracked by your canvas renderer
-        wheelRotationAngle = physicsDecelerationDecayModifierValue * finalAbsoluteTerminalRotationAngleCoordinate;
+    actionTriggerNodeButton.disabled = true;
+    isSpinningActive = true;
 
-        // Render the new frame transformation matrix properties
-        renderWheelStaticFrameState();
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
-        if (animationElapsedDurationTime < completeAnimationDurationTimeRequirementLimit) {
-            requestAnimationFrame(animationEngineTickFrameSequence);
-        } else {
-            // Execution lifecycle sequences cleanly terminating spinning structural workflows
-            isSpinningActive = false;
+    document.getElementById('spin-cooldown-timer').innerText = "⏳ VALIDATING REQUEST WITH SERVER...";
+
+    try {
+        const backendServerExecutionResult = await secureFetch('/api/secure/lucky-spin', { method: 'POST' });
+
+        if (!backendServerExecutionResult || !backendServerExecutionResult.success || backendServerExecutionResult.error) {
+            tg.showAlert(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
+            document.getElementById('spin-cooldown-timer').innerText = "❌ TRANSACTION ERROR REJECTED";
             actionTriggerNodeButton.disabled = false;
-            document.getElementById('spin-cooldown-timer').innerText = "🎉 WINNING PAYOUT CONFIRMED SYNCED";
-            
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
-            // Force dynamic background updates parsing out state tracking items back seamlessly into main cache views
-            if (typeof syncWalletBalances === "function") {
-                syncWalletBalances();
-            }
-            
-            // Notification toast checker logic
-            if (typeof WHEEL_SEGMENTS !== 'undefined' && WHEEL_SEGMENTS[assignedWinningIndexTarget]) {
-                const rewardText = WHEEL_SEGMENTS[assignedWinningIndexTarget].text;
-
-                if (rewardText === "TRY AGAIN") {
-                    showNotificationToast("💔 Better luck next spin!", 'error');
-                } else {
-                    showNotificationToast(`🎉 You won ${rewardText}!`, 'success');
-                }
-            } else {
-                const dynamicRewardString = `${rewardItem.text} ${rewardItem.type || ''}`.trim();
-        showNotificationToast(`You won ${dynamicRewardString}!`, 'success');            }
-        } // Closes else block
-    } // Closes animationEngineTickFrameSequence
-
-    // Fire the animation framework lifecycle now that variables are processed!
-    requestAnimationFrame(animationEngineTickFrameSequence);
+            isSpinningActive = false;
+            return;
         }
+
+        // Handle variations in backend schema naming properties
+        const assignedWinningIndexTarget = parseInt(backendServerExecutionResult.winningIndex ?? backendServerExecutionResult.index);
+        if (isNaN(assignedWinningIndexTarget)) {
+            throw new Error("Invalid or missing winning index from server response.");
+        }
+
+        const arcLength = typeof segmentArcRadiantLength !== 'undefined' ? segmentArcRadiantLength : (2 * Math.PI / WHEEL_SEGMENTS.length);
+
+        // Convert segment data cleanly back into physical rotation coordinates
+        const targetOffsetCalculatedRotationAngle = (2 * Math.PI) - (assignedWinningIndexTarget * arcLength) - (arcLength / 2);
+        const guaranteedMinimumSpinsVelocityRevolutionsBaseAngle = 8 * (2 * Math.PI); 
+        const finalAbsoluteTerminalRotationAngleCoordinate = guaranteedMinimumSpinsVelocityRevolutionsBaseAngle + targetOffsetCalculatedRotationAngle;
+
+        let timestampStartReferenceFrame = null;
+        const completeAnimationDurationTimeRequirementLimit = 4000; // 4 seconds duration
+
+        function animationEngineTickFrameSequence(timestampCurrentFrame) {
+            if (!timestampStartReferenceFrame) timestampStartReferenceFrame = timestampCurrentFrame;
+            const animationElapsedDurationTime = timestampCurrentFrame - timestampStartReferenceFrame;
+            const completeProgressRatioDelta = Math.min(animationElapsedDurationTime / completeAnimationDurationTimeRequirementLimit, 1);
+
+            // Premium cubic easing out physics deceleration mapping calculations
+            const physicsDecelerationDecayModifierValue = 1 - Math.pow(1 - completeProgressRatioDelta, 4);
+            wheelRotationAngle = physicsDecelerationDecayModifierValue * finalAbsoluteTerminalRotationAngleCoordinate;
+
+            // Render updated canvas transformation properties
+            renderWheelStaticFrameState();
+
+            if (animationElapsedDurationTime < completeAnimationDurationTimeRequirementLimit) {
+                requestAnimationFrame(animationEngineTickFrameSequence);
+            } else {
+                isSpinningActive = false;
+                actionTriggerNodeButton.disabled = false;
+                document.getElementById('spin-cooldown-timer').innerText = "🎉 WINNING PAYOUT CONFIRMED SYNCED";
+                
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                if (typeof syncWalletBalances === "function") syncWalletBalances();
+                
+                const rewardItem = WHEEL_SEGMENTS[assignedWinningIndexTarget];
+                if (rewardItem) {
+                    if (rewardItem.text === "TRY AGAIN") {
+                        showNotificationToast("💔 Better luck next spin!", 'error');
+                    } else {
+                        showNotificationToast(`🎉 You won ${rewardItem.text} ${rewardItem.type || ''}!`, 'success');
+                    }
+                }
+            }
+        }
+
+        // Fire animation frames sequence immediately
+        requestAnimationFrame(animationEngineTickFrameSequence);
+
+    } catch (err) {
+        console.error("Spin failure:", err);
+        tg.showAlert("An error occurred during verification execution.");
+        document.getElementById('spin-cooldown-timer').innerText = "❌ ERROR";
+        actionTriggerNodeButton.disabled = false;
+        isSpinningActive = false;
+    }
+}
+
 
 /* ==========================================================================
    VANILLA JAVASCRIPT SYSTEM ENGINE: ECOSYSTEM WALLET LOGIC ARCHITECTURE
