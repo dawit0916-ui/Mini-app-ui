@@ -1212,16 +1212,17 @@ main {
             </div>
 
             <div class="modal-game-arena flex-1 flex items-center justify-center relative w-full my-auto">
-                <div class="game-layer-container relative w-[320px] height-[320px] bg-[url('assets/img/outer-gold-ring.png')] bg-cover">
     
-    <div class="absolute top-[-15px] left-50% -translate-x-1/2 w-[34px] h-[42px] bg-[url('assets/img/pin-drop-red.png')] z-50"></div>
+    <div id="canvas-mount-target" class="game-layer-container relative w-[320px] h-[320px] bg-[url('assets/img/outer-gold-ring.png')] bg-cover flex items-center justify-center">
+        
+        <div class="absolute top-[-15px] left-1/2 -translate-x-1/2 w-[34px] h-[42px] bg-[url('assets/img/pin-drop-red.png')] bg-contain bg-no-repeat z-50"></div>
 
-    <canvas id="wheel-canvas" width="640" height="640" class="w-full h-full z-10"></canvas>
+        <button id="spin-trigger-btn" onclick="executeSecureSpinState()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80px] h-[80px] rounded-full bg-[url('assets/img/center-gold-star.png')] bg-cover shadow-[0_0_30px_rgba(245,158,11,0.6)] z-40 transition-transform active:scale-95 focus:outline-none">
+        </button>
+        
+    </div>
+</div>
 
-    <button id="spin-trigger-btn" onclick="executeSecureSpinState()" class="absolute top-50% left-50% -translate-x-1/2 -translate-y-1/2 w-[80px] h-[80px] rounded-full bg-[url('assets/img/center-gold-star.png')] bg-cover shadow-[0_0_30px_rgba(245,158,11,0.6)] z-40 transition-transform active:scale-95">
-    </button>
-                </div>
-            </div>
 
             <div class="w-full text-center mt-3 pt-2 border-t border-white/5 z-30">
                 <p id="spin-cooldown-timer" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
