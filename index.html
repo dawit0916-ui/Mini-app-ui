@@ -2688,7 +2688,7 @@ function renderWheelStaticFrameState() {
     
     spinCtx.save();
     spinCtx.translate(centerPointAxis, centerPointAxis);
-    spinCtx.rotate(wheelRotationAngle || 0); 
+    spinCtx.rotate(wheelRotationAngle); 
     
     const fallbackColors = ["#cca625", "#1d4ed8", "#064e3b", "#581c87", "#1e1b4b", "#7f1d1d", "#0f766e", "#6b21a8"];
 
@@ -2810,8 +2810,8 @@ async function executeSecureSpinState() {
 
         const arcLength = typeof segmentArcRadiantLength !== 'undefined' ? segmentArcRadiantLength : (2 * Math.PI / WHEEL_SEGMENTS.length);
 
-        const targetOffsetCalculatedRotationAngle = (2 * Math.PI) - (assignedWinningIndexTarget * arcLength) - (arcLength / 2);
-        const guaranteedMinimumSpinsVelocityRevolutionsBaseAngle = 8 * (2 * Math.PI); 
+        const targetOffsetCalculatedRotationAngle = (-Math.PI / 2) + (assignedWinningIndexTarget * arcLength) + (arcLength / 2);
+        const guaranteedMinimumSpinsVelocityRevolutionsBaseAngle = 8 * (2 * Math.PI);
         const finalAbsoluteTerminalRotationAngleCoordinate = guaranteedMinimumSpinsVelocityRevolutionsBaseAngle + targetOffsetCalculatedRotationAngle;
 
         let timestampStartReferenceFrame = null;
