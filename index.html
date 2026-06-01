@@ -1192,45 +1192,81 @@ main {
 <div id="lucky-spin-modal" class="spin-modal-backdrop">
         <div class="spin-modal-container glass glow-blue">
             
-            <header class="flex justify-between items-center w-full border-b border-white/10 pb-3 z-30">
-                <div>
-                    <h2 class="text-lg font-black tracking-widest text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">LUCKY SPIN</h2>
-                    <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Provably Fair Rewards</p>
-                </div>
-                <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-300 hover:text-white active:scale-95 transition-all" onclick="closeSpinModal()">✕ Close</button>
-            </header>
-
-            <div class="grid grid-cols-2 gap-2 w-full my-3 z-30">
-                <div class="bg-black/30 border border-white/5 rounded-xl p-2 flex flex-col items-center">
-                    <span class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Available Coins</span>
-                    <span id="spin-hud-coins" class="text-xs font-black text-amber-400 mt-0.5">0.00</span>
-                </div>
-                <div class="bg-black/30 border border-white/5 rounded-xl p-2 flex flex-col items-center">
-                    <span class="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Your Wallet Balance</span>
-                    <span id="spin-hud-balance" class="text-xs font-black text-blue-400 mt-0.5">0.00 USDT</span>
-                </div>
-            </div>
-
-            <div class="modal-game-arena flex-1 flex items-center justify-center relative w-full my-auto">
+             <button
+    class="relative left-32 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-100 hover:text-white active:scale-95 transition-all"
+    onclick="closeSpinModal()">
+    ❌ </button>
+          <div class="modal-game-arena flex-1 flex flex-col items-center justify-center relative w-full my-auto select-none min-h-[520px]">
     
-    <div id="canvas-mount-target" class="game-layer-container relative w-[320px] h-[320px] bg-[url('assets/img/outer-gold-ring.png')] bg-cover flex items-center justify-center">
-        
-        <div class="absolute top-[-15px] left-1/2 -translate-x-1/2 w-[34px] h-[42px] bg-[url('assets/img/pin-drop-red.png')] bg-contain bg-no-repeat z-50"></div>
+    <div class="w-full max-w-[320px] flex flex-col items-center justify-center mb-6 relative z-50 transform scale-105">
+        <div class="text-3xl mb-1 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)] animate-[bounce_3s_infinite_ease-in-out]">👑</div>
+        <div class="relative bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-900 border-y-2 border-yellow-400 px-8 py-2 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.6)] text-center tracking-wide">
+            <div class="absolute left-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-l-sm skew-y-12"></div>
+            <h2 class="text-2xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-amber-500 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                Lucky Spin
+            </h2>
+            <p class="text-[9px] font-bold text-yellow-300/80 uppercase tracking-widest mt-0.5">Win Exciting Prizes</p>
+            <div class="absolute right-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-r-sm -skew-y-12"></div>
+        </div>
+    </div>
 
-        <button id="spin-trigger-btn" onclick="executeSecureSpinState()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80px] h-[80px] rounded-full bg-[url('assets/img/center-gold-star.png')] bg-cover shadow-[0_0_30px_rgba(245,158,11,0.6)] z-40 transition-transform active:scale-95 focus:outline-none">
+    <div id="canvas-mount-target" class="game-layer-container relative w-[300px] h-[300px] rounded-full p-2 bg-gradient-to-tr from-amber-400 via-yellow-400 via-amber-600 to-yellow-300 shadow-[0_0_50px_rgba(245,158,11,0.5),inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-amber-900/60 flex items-center justify-center box-border">
+        
+        <div class="absolute inset-2 rounded-full border-[2px] border-amber-950/40 bg-gradient-to-b from-transparent to-black/20 pointer-events-none z-20"></div>
+        
+     <div class="absolute top-[-20px] left-1/2 -translate-x-1/2 z-50">
+    <svg width="44" height="54" viewBox="0 0 44 54" class="drop-shadow-lg">
+        
+        <!-- Gold Border -->
+        <path
+            d="M22 52
+               L8 24
+               C4 16 6 4 22 4
+               C38 4 40 16 36 24
+               Z"
+            fill="#F4C430"/>
+
+        <!-- Red Body -->
+        <path
+            d="M22 47
+               L11 24
+               C8 17 10 8 22 8
+               C34 8 36 17 33 24
+               Z"
+            fill="#FF4D6D"/>
+
+        <!-- Center Gold Circle -->
+        <circle
+            cx="22"
+            cy="18"
+            r="6"
+            fill="#FFD700"
+            stroke="#FFF4B0"
+            stroke-width="1.5"/>
+
+        <!-- Shine -->
+        <circle
+            cx="19"
+            cy="15"
+            r="2"
+            fill="rgba(255,255,255,0.7)"/>
+
+    </svg>
+</div>
+        <canvas id="wheel-canvas" width="640" height="640" class="w-full h-full rounded-full z-10 aspect-square object-contain pointer-events-none"></canvas>
+
+        <button id="spin-trigger-btn" onclick="executeSecureSpinState()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[74px] h-[74px] rounded-full z-40 bg-gradient-to-b from-yellow-300 via-amber-500 to-amber-700 border-[4px] border-yellow-200 shadow-[0_4px_12px_rgba(0,0,0,0.5),0_0_20px_rgba(245,158,11,0.7),inset_0_1px_3px_rgba(255,255,255,0.6)] flex flex-col items-center justify-center transition-all duration-200 active:scale-90 focus:outline-none select-none group">
+            <div class="absolute inset-0.5 rounded-full border border-amber-800/30 pointer-events-none"></div>
+            <span class="font-black text-white text-base tracking-wider uppercase leading-none filter drop-shadow-[0_2px_2px_rgba(146,64,14,0.8)]">Go!</span>
         </button>
         
     </div>
-</div>
-
-
-            <div class="w-full text-center mt-3 pt-2 border-t border-white/5 z-30">
-                <p id="spin-cooldown-timer" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    ⚡ Instant Sync Mode Verified
-                </p>
-            </div>
-
-        </div>
+    
+    <div class="text-[15px] font-bold uppercase tracking-widest text-slate-500 mt-6 select-none animate-pulse">
+        🎯 Tap GO To Spin 
+    </div>
+ </div>
+    </div>
                                                                                                                                         </div>
 </main>
     
@@ -2632,141 +2668,184 @@ async function syncUserInbox() {
 
 
 /* ==========================================================================
-   PRODUCTION ENGINE LOGIC: CORE SECURE LUCKY SPIN SYSTEMS ARCHITECTURE
+   PRODUCTION ENGINE LOGIC: ASSET-PRELOADED CORE ARCHITECTURE WITH ICONS
    ========================================================================== */
 
 let spinCanvas = null;
 let spinCtx = null;
 let isSpinningActive = false;
-let wheelRotationAngle = 0;
+let wheelRotationAngle = 0; 
 
-// Centralized Defined Segments List Data Config matching back-end processing rules
+// 1. Updated Segments with Icon URL paths targeting your project folder
 const WHEEL_SEGMENTS = [
-    { text: "10,000", type: "COINS", icon: "assets/img/coins-stack-large.png", color: "#cca625" }, // Top slot (Index 0)
-    { text: "5", type: "SPINS", icon: "assets/img/refresh-blue.png", color: "#1d4ed8" },
-    { text: "2,000", type: "COINS", icon: "assets/img/coins-stack-medium.png", color: "#064e3b" },
-    { text: "100", type: "POINTS", icon: "assets/img/badge-purple.png", color: "#581c87" },
-    { text: "JACKPOT", type: "SPECIAL", icon: "assets/img/chest-gold.png", color: "#1e1b4b" }, // Bottom slot
-    { text: "1,000", type: "COINS", icon: "assets/img/coins-stack-small.png", color: "#7f1d1d" },
-    { text: "3", type: "SPINS", icon: "assets/img/refresh-gold.png", color: "#0f766e" },
-    { text: "500", type: "POINTS", icon: "assets/img/badge-purple-light.png", color: "#6b21a8" }
+    { text: "10,000", type: "COINS", color: "#cca625", textClr: "#ffffff", iconUrl: "assets/img/coins-stack.png" },
+    { text: "5", type: "SPINS", color: "#1d4ed8", textClr: "#ffffff", iconUrl: "assets/img/spin-arrows.png" },
+    { text: "2,000", type: "COINS", color: "#064e3b", textClr: "#ffffff", iconUrl: "https://cdn-icons-png.flaticon.com/512/272/272525.png" },
+    { text: "100", type: "POINTS", color: "#581c87", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" }, 
+    { text: "JACKPOT", type: "SPECIAL", color: "#1e1b4b", textClr: "#ffffff", iconUrl: "assets/img/jackpot-chest.png" },
+    { text: "1,000", type: "COINS", color: "#7f1d1d", textClr: "#ffffff", iconUrl: "assets/img/coins-stack.png" },
+    { text: "3", type: "SPINS", color: "#0f766e", textClr: "#ffffff", iconUrl: "assets/img/spin-arrows.png" },
+    { text: "500", type: "POINTS", color: "#6b21a8", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" }
 ];
 
 const totalSegmentsCount = WHEEL_SEGMENTS.length;
 const segmentArcRadiantLength = (2 * Math.PI) / totalSegmentsCount;
 
+// Cache object to store loaded HTMLImageElements
+const loadedSegmentIconsCache = {};
+
+// 2. Preloader Engine: Loops through config and boots up image assets into memory
+function preloadWheelIconAssets() {
+    WHEEL_SEGMENTS.forEach((segment, index) => {
+        if (segment.iconUrl) {
+            const imgInstance = new Image();
+            imgInstance.src = segment.iconUrl;
+            imgInstance.onload = () => {
+                // Store inside cache once asset successfully streams down
+                loadedSegmentIconsCache[index] = imgInstance;
+                // Force a redraw once loaded so wheel isn't blank on cold launch
+                if (spinCtx) renderWheelStaticFrameState();
+            };
+            imgInstance.onerror = () => {
+                console.warn(`Failed to preload asset icon at pathway: ${segment.iconUrl}`);
+            };
+        }
+    });
+}
+
+// Trigger image preloading immediately when script evaluates
+preloadWheelIconAssets();
 function initializeWheelCanvasContext() {
-    const mountingArea = document.getElementById('canvas-mount-target');
-    if (!mountingArea) return;
+    // Look up the canvas hardcoded element hook directly
+    spinCanvas = document.getElementById('wheel-canvas');
+    if (!spinCanvas) return console.error("Canvas element 'wheel-canvas' not found in DOM.");
 
-    let existingCanvas = mountingArea.querySelector('canvas');
-
-    if (!existingCanvas) {
-        spinCanvas = document.createElement('canvas');
-        spinCanvas.width = 360;
-        spinCanvas.height = 360;
-        mountingArea.appendChild(spinCanvas);
-    } else {
-        spinCanvas = existingCanvas;
-    }
     spinCtx = spinCanvas.getContext('2d');
+    
+    // Set initial canvas position shifted by -90 deg so slice 0 starts perfectly centered at 12 o'clock
+    wheelRotationAngle = -Math.PI / 2 - (segmentArcRadiantLength / 2);
+    
     renderWheelStaticFrameState();
 }
 
 function renderWheelStaticFrameState() {
     if (!spinCtx || !spinCanvas) return;
     
-    const currentSegmentsCount = (typeof WHEEL_SEGMENTS !== 'undefined' && WHEEL_SEGMENTS.length > 0) 
-        ? WHEEL_SEGMENTS.length 
-        : 8; 
-        
-    const currentArcRadiantLength = (2 * Math.PI) / currentSegmentsCount;
-    const centerPointAxis = spinCanvas.width / 2;
-    const exteriorOuterRadiusValue = centerPointAxis - 15;
+    // --- DYNAMIC SCALING RATIO SYSTEM ---
+    // Read the actual display layout width on the phone screen
+    const displayRect = spinCanvas.getBoundingClientRect();
+    const currentDisplayWidth = displayRect.width || 330; 
     
+    // Force the internal drawing resolution to match the exact view layout pixels
+    // This stops the canvas from inflating and spilling out of the golden ring!
+    if (spinCanvas.width !== currentDisplayWidth * 2) {
+        spinCanvas.width = currentDisplayWidth * 2;
+        spinCanvas.height = currentDisplayWidth * 2;
+    }
+    
+    const centerPointAxis = spinCanvas.width / 2;
+    // Shrink the wheel radius down slightly inside the frame to prevent clipping the gold border
+    const exteriorOuterRadiusValue = centerPointAxis - 8;
+    
+    // Wipe layout dirty frames clean
     spinCtx.clearRect(0, 0, spinCanvas.width, spinCanvas.height);
     
     spinCtx.save();
     spinCtx.translate(centerPointAxis, centerPointAxis);
-    spinCtx.rotate(wheelRotationAngle || 0 ); 
-    
-    const fallbackColors = ["#cca625", "#1d4ed8", "#064e3b", "#581c87", "#1e1b4b", "#7f1d1d", "#0f766e", "#6b21a8"];
+    spinCtx.rotate(wheelRotationAngle); 
 
-    for (let i = 0; i < currentSegmentsCount; i++) {
-        const currentAngleRad = i * currentArcRadiantLength;
-        
-        let segmentColor = "#1e1b4b"; 
-        if (WHEEL_SEGMENTS && WHEEL_SEGMENTS[i] && WHEEL_SEGMENTS[i].color) {
-            segmentColor = WHEEL_SEGMENTS[i].color;
-        } else if (fallbackColors[i]) {
-            segmentColor = fallbackColors[i];
-        }
+    for (let i = 0; i < totalSegmentsCount; i++) {
+        const currentAngleRad = i * segmentArcRadiantLength;
 
+        // Draw colored slice wedge background
         spinCtx.beginPath();
-        spinCtx.fillStyle = segmentColor;
+        spinCtx.fillStyle = WHEEL_SEGMENTS[i].color || "#1e1b4b";
         spinCtx.moveTo(0, 0);
-        spinCtx.arc(0, 0, exteriorOuterRadiusValue, currentAngleRad, currentAngleRad + currentArcRadiantLength);
+        spinCtx.arc(0, 0, exteriorOuterRadiusValue, currentAngleRad, currentAngleRad + segmentArcRadiantLength);
         spinCtx.lineTo(0, 0);
         spinCtx.fill();
         
-        spinCtx.strokeStyle = "rgba(251, 191, 36, 0.2)";
-        spinCtx.lineWidth = 1.5;
+        // Premium subtle segment split separator lines
+        spinCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+        spinCtx.lineWidth = 2;
         spinCtx.stroke();
         
-        if (WHEEL_SEGMENTS && WHEEL_SEGMENTS[i]) {
-            spinCtx.save();
-            
-            const midSegmentAngle = currentAngleRad + (currentArcRadiantLength / 2);
-            spinCtx.rotate(midSegmentAngle);
-            
-            const textRadiusPlacement = exteriorOuterRadiusValue - 45;
-            spinCtx.translate(textRadiusPlacement, 0);
+        // Typography Vector Transformation
+        spinCtx.save();
+        
+        const midSegmentAngle = currentAngleRad + (segmentArcRadiantLength / 2);
+        spinCtx.rotate(midSegmentAngle);
+        
+        // REFINED RADIUS PLACEMENT: Pulls the text outward toward the rim edge cleanly
+        const textRadiusPlacement = exteriorOuterRadiusValue - 65;
+        spinCtx.translate(textRadiusPlacement, 0);
+        
+        let absoluteTextAngle = (midSegmentAngle + wheelRotationAngle) % (2 * Math.PI);
+        if (absoluteTextAngle < 0) absoluteTextAngle += 2 * Math.PI;
+        
+        const isBottomHalf = absoluteTextAngle > 0 && absoluteTextAngle < Math.PI;
+        if (isBottomHalf) {
+            spinCtx.rotate(-Math.PI / 2);
+        } else {
             spinCtx.rotate(Math.PI / 2);
-            
-            spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
-            spinCtx.textAlign = "center";
-            spinCtx.textBaseline = "middle";
-            
-            spinCtx.font = "bold 14px 'Inter', sans-serif";
-            spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -10);
-            
-            if (WHEEL_SEGMENTS[i].type) {
-                spinCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
-                spinCtx.font = "800 9px 'Inter', sans-serif";
-                spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, 6);
-            }
-            
-            spinCtx.restore();
         }
+        
+        spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
+        spinCtx.textAlign = "center";
+        spinCtx.textBaseline = "middle";
+        
+        // Scale text size proportional to the canvas layout container scale rule
+        const textFontSize = Math.floor(spinCanvas.width * 0.042);
+        const subFontSize = Math.floor(spinCanvas.width * 0.024);
+        
+        // 1. Render Main Value Text String
+        spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
+        spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, isBottomHalf ? 18 : -18);
+        
+        // 2. Render Sub-Category text label
+        if (WHEEL_SEGMENTS[i].type) {
+            spinCtx.fillStyle = "rgba(255, 255, 255, 0.55)";
+            spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
+            spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, isBottomHalf ? -2 : 2);
+        }
+        
+        spinCtx.restore();
     }
     
     spinCtx.restore();
-    
-    spinCtx.beginPath();
-    spinCtx.arc(centerPointAxis, centerPointAxis, exteriorOuterRadiusValue, 0, 2 * Math.PI);
-    spinCtx.strokeStyle = "#fbbf24"; 
-    spinCtx.lineWidth = 5;
-    spinCtx.stroke();
 }
-
+/* ==========================================================================
+   PRODUCTION UTILITY: MODAL OPEN AND DYNAMIC BALANCE HUD SYNC ENGINE
+   ========================================================================== */
 function openSpinModal() {
     const targetModalNode = document.getElementById('lucky-spin-modal');
-    if (!targetModalNode) return;
+    if (!targetModalNode) return console.error("Target element 'lucky-spin-modal' not located in DOM.");
 
+    // 1. Target the main dashboard text strings safely
     const coinsText = document.getElementById('asset-bal-coins')?.innerText?.trim() || "0";
     const balanceText = document.getElementById('balance-main')?.innerText?.trim() || "0.00";
 
-    const hudCoins = document.getElementById('spin-hud-coins');
-    const hudBalance = document.getElementById('spin-hud-balance');
+    // 2. REFINED TARGET MAPPING: Coordinates with your updated Step 1 premium layout IDs
+    // Changed 'spin-hud-coins' -> 'spin-coins-display' & 'spin-hud-balance' -> 'spin-balance-display'
+    const hudCoins = document.getElementById('spin-coins-display');
+    const hudBalance = document.getElementById('spin-balance-display');
     
-    if (hudCoins) hudCoins.innerText = coinsText;
-    if (hudBalance) hudBalance.innerText = balanceText + " USDT";
+    if (hudCoins) {
+        hudCoins.innerText = coinsText;
+    }
+    if (hudBalance) {
+        // Enforces clean string formatting layout
+        const strippedBalance = balanceText.replace("USDT", "").trim();
+        hudBalance.innerText = `${strippedBalance} USDT`;
+    }
 
+    // 3. Trigger css layer styling show transition rule
     targetModalNode.classList.add('show');
 
+    // 4. Fire the canvas build script context once the CSS slide/fade animations complete smoothly
     setTimeout(() => {
         initializeWheelCanvasContext();
-    }, 60);
+    }, 150); // Increased slightly to 150ms to ensure Android webview rendering has fully unfolded
 }
 
 function closeSpinModal() {
@@ -2777,17 +2856,18 @@ function closeSpinModal() {
     const targetModalNode = document.getElementById('lucky-spin-modal');
     if (targetModalNode) targetModalNode.classList.remove('show');
 }
-
 async function executeSecureSpinState() {
     if (isSpinningActive) return;
 
-    const actionTriggerNodeButton = document.getElementById('spin-trigger-btn') || document.getElementById('spin-trigger-button');
-    if (!actionTriggerNodeButton) return console.error("Spin trigger button not found in DOM");
+    const actionTriggerNodeButton = document.getElementById('spin-trigger-btn');
+    if (!actionTriggerNodeButton) return console.error("Spin trigger button context missing.");
 
     actionTriggerNodeButton.disabled = true;
     isSpinningActive = true;
 
-    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
 
     const cooldownTimer = document.getElementById('spin-cooldown-timer');
     if (cooldownTimer) cooldownTimer.innerText = "⏳ VALIDATING REQUEST WITH SERVER...";
@@ -2796,8 +2876,10 @@ async function executeSecureSpinState() {
         const backendServerExecutionResult = await secureFetch('/api/secure/lucky-spin', { method: 'POST' });
 
         if (!backendServerExecutionResult || !backendServerExecutionResult.success || backendServerExecutionResult.error) {
-            tg.showAlert(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
-            if (cooldownTimer) cooldownTimer.innerText = "❌ TRANSACTION ERROR REJECTED";
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
+            }
+            if (cooldownTimer) cooldownTimer.innerText = "❌ TRANSACTION REJECTED";
             actionTriggerNodeButton.disabled = false;
             isSpinningActive = false;
             return;
@@ -2808,22 +2890,35 @@ async function executeSecureSpinState() {
             throw new Error("Invalid or missing winning index from server response.");
         }
 
-        const arcLength = typeof segmentArcRadiantLength !== 'undefined' ? segmentArcRadiantLength : (2 * Math.PI / WHEEL_SEGMENTS.length);
-
-        const targetOffsetCalculatedRotationAngle = (-Math.PI / 2) + (assignedWinningIndexTarget * arcLength) + (arcLength / 2);
-        const guaranteedMinimumSpinsVelocityRevolutionsBaseAngle = 8 * (2 * Math.PI);
-        const finalAbsoluteTerminalRotationAngleCoordinate = guaranteedMinimumSpinsVelocityRevolutionsBaseAngle + targetOffsetCalculatedRotationAngle;
+        // --- CLOCKWISE ENGINE TARGET CALCULATOR ---
+        // 1. Initial configuration pointing straight up to 12 o'clock
+        const baseZeroPointerOffset = -Math.PI / 2;
+        
+        // 2. Center target destination inside slice index 
+        const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
+        
+        // 3. Counter balance index matching clockwise rotation direction logic
+        const targetedLandingCoordinates = baseZeroPointerOffset - (assignedWinningIndexTarget * segmentArcRadiantLength) - sliceCenterTargetOffset;
+        
+        // 4. Wrap with massive velocity momentum spin revolutions (8 full circles)
+        const totalSpinRevolutionsAngle = 8 * (2 * Math.PI);
+        
+        // 5. Final terminal stop endpoint execution coordinate configuration
+        const finalAbsoluteTerminalRotationAngleCoordinate = totalSpinRevolutionsAngle - targetedLandingCoordinates;
 
         let timestampStartReferenceFrame = null;
-        const completeAnimationDurationTimeRequirementLimit = 4000; 
+        const completeAnimationDurationTimeRequirementLimit = 4500; // Smooth 4.5 second spin action
 
         function animationEngineTickFrameSequence(timestampCurrentFrame) {
             if (!timestampStartReferenceFrame) timestampStartReferenceFrame = timestampCurrentFrame;
             const animationElapsedDurationTime = timestampCurrentFrame - timestampStartReferenceFrame;
             const completeProgressRatioDelta = Math.min(animationElapsedDurationTime / completeAnimationDurationTimeRequirementLimit, 1);
 
+            // Premium ease-out quartic easing calculation formula curve
             const physicsDecelerationDecayModifierValue = 1 - Math.pow(1 - completeProgressRatioDelta, 4);
-            wheelRotationAngle = physicsDecelerationDecayModifierValue * finalAbsoluteTerminalRotationAngleCoordinate;
+            
+            // Increment rotation values positively to spin clockwise
+            wheelRotationAngle = (physicsDecelerationDecayModifierValue * finalAbsoluteTerminalRotationAngleCoordinate);
 
             renderWheelStaticFrameState();
 
@@ -2834,17 +2929,15 @@ async function executeSecureSpinState() {
                 actionTriggerNodeButton.disabled = false;
                 if (cooldownTimer) cooldownTimer.innerText = "🎉 WINNING PAYOUT CONFIRMED SYNCED";
                 
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
 
                 if (typeof syncWalletBalances === "function") syncWalletBalances();
                 
                 const rewardItem = WHEEL_SEGMENTS[assignedWinningIndexTarget];
-                if (rewardItem) {
-                    if (rewardItem.text === "TRY AGAIN") {
-                        showNotificationToast("💔 Better luck next spin!", 'error');
-                    } else {
-                        showNotificationToast(`🎉 You won ${rewardItem.text} ${rewardItem.type || ''}!`, 'success');
-                    }
+                if (rewardItem && typeof showNotificationToast === "function") {
+                    showNotificationToast(`🎉 You won ${rewardItem.text} ${rewardItem.type || ''}!`, 'success');
                 }
             }
         }
@@ -2853,14 +2946,16 @@ async function executeSecureSpinState() {
 
     } catch (err) {
         console.error("Spin failure:", err);
-        tg.showAlert("An error occurred during verification execution.");
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert("An error occurred during verification execution.");
+        }
         if (cooldownTimer) cooldownTimer.innerText = "❌ ERROR";
         actionTriggerNodeButton.disabled = false;
         isSpinningActive = false;
     }
-}
-
-
+    }
+            
+            
 
 /* ==========================================================================
    VANILLA JAVASCRIPT SYSTEM ENGINE: ECOSYSTEM WALLET LOGIC ARCHITECTURE
