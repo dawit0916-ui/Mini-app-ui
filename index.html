@@ -2894,7 +2894,7 @@ window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transac
 const baseZeroPointerOffset = -Math.PI / 2;
 
 // 1. Convert the server's winning index to clockwise logic
-const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget + 1) % totalSegmentsCount;
+const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget - 1) % totalSegmentsCount;
 
 // 2. FIXED: Add 'sliceCenterTargetOffset' (half a segment size) 
 // AND ensure it shifts far enough to hit the dead center of the prize slot.
