@@ -694,7 +694,7 @@ main {
                         🎡 Lucky Spin Wheel
                     </h3>
                     <p class="text-xs text-slate-300 max-w-[200px]">
-                        Spend 1 Coin to spin the wheel and win up to <span class="text-yellow-400 font-bold">500 Points</span>!
+                        Spend 1 Coin to spin the wheel and win up to <span class="text-yellow-400 font-bold">5000 Points</span>!
                     </p>
                 </div>
                 
@@ -2875,8 +2875,9 @@ async function executeSecureSpinState() {
         const backendServerExecutionResult = await secureFetch('/api/secure/lucky-spin', { method: 'POST' });
 
         if (!backendServerExecutionResult || !backendServerExecutionResult.success || backendServerExecutionResult.error) {
-            ShowNotificationToast(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
-            
+            if (window.Telegram?.WebApp) {
+window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
+            }
             if (cooldownTimer) cooldownTimer.innerText = "❌ TRANSACTION REJECTED";
             actionTriggerNodeButton.disabled = false;
             isSpinningActive = false;
