@@ -2893,14 +2893,14 @@ window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transac
 // 1. Establish structural base offset (-90 degrees) to treat 12 o'clock as zero alignment
 const baseZeroPointerOffset = -Math.PI / 2;
 
-// 2. Isolate the target midpoint of the selected segment slice
-const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
-
-// 3. CORRECTED DIRECTION BALANCE: Invert the index direction mapping subtraction 
-// by pulling from total segments count to match clockwise movement vector
+// 1. Convert the server's winning index to clockwise logic
 const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget) % totalSegmentsCount;
 
-// 4. Calculate final landing coordinate position relative to top pointer context
+// 2. FIXED: Add 'sliceCenterTargetOffset' (half a segment size) 
+// AND ensure it shifts far enough to hit the dead center of the prize slot.
+const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
+
+// 3. Final structural target calculation
 const targetedLandingCoordinates = baseZeroPointerOffset + (invertedIndexClockwiseTarget * segmentArcRadiantLength) + sliceCenterTargetOffset;
 
 // 5. Build full rotational velocity spin revolutions momentum (8 complete circles)
