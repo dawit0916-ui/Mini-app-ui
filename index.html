@@ -1459,10 +1459,24 @@ function renderGlobalMaintenanceViewportScreen(meta) {
 // -- Decoupled Initialization --
 async function initApp() {
     cachedUserProfile = null;
+     
+    // SAFE EXTRACT: Safely pull the Telegram user instance with a robust local fallback object
+    const user = window.Telegram?.WebApp?.initDataUnsafe?.user || {
+        first_name: "Gamer",
+        username: "User",
+        id: 0,
+        photo_url: ""
+    };
     
-    // 1. Update UI IMMEDIATELY (Don't wait for server)
-    document.getElementById('user-name').innerText = user.first_name || user.username || "User";
+    // Safety check: Fallback validation for OWNER_ID checks if it is declared elsewhere
+    const currentOwnerId = typeof OWNER_ID !== 'undefined' ? OWNER_ID : 0;
     
+    // 1. Update UI IMMEDIATELY (Don't wait for server) using our validated user object
+    const userNameEl = document.getElementById('user-name');
+    if (userNameEl) {
+        userNameEl.innerText = user.first_name || user.username || "User";
+        }
+
     // ─── 👤 INJECT REAL PFP IN THE PINNED HEADER IMMEDIATELY ───
     const headerImg = document.getElementById('header-avatar');
     const headerFallback = document.getElementById('header-avatar-fallback');
