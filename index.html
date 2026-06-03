@@ -1355,13 +1355,23 @@ async function secureFetch(url, options = {}) {
         const response = await fetch(url, config);
 
         // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
-        if (response.status === 503) {
-            const maintenanceData = await response.json();
-            if (maintenanceData.maintenance) {
-                renderGlobalMaintenanceViewportScreen(maintenanceData);
-                throw new Error("System operation halted: Infrastructure upgrading.");
-            }
-        }
+        // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
+if (response.status === 503) {
+    let maintenanceData = { maintenance: true };
+    try {
+        maintenanceData = await response.json();
+    } catch (parseFallback) {
+        // Fallback context values if response isn't programmatic JSON
+        maintenanceData.message = "The server is currently undergoing infrastructure updates or experiencing high load.";
+        maintenanceData.accentAsset = "⚠️";
+    }
+
+    if (maintenanceData.maintenance) {
+        renderGlobalMaintenanceViewportScreen(maintenanceData);
+        throw new Error("System operation halted: Infrastructure upgrading.");
+    }
+}
+
 
         // Return standard raw object maps out to calling layers if structural clearance passes
         if (!response.ok) {
