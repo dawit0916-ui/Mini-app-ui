@@ -2152,55 +2152,39 @@ async function loadAvailableTasks() {
     `).join('');
 
     try {
-        // 2. Fetch profile metrics check tracking maps
-        if (!cachedUserProfile) {
-            cachedUserProfile = await secureFetch('/api/secure/profile');
-        }
-        
-        // Fallback to empty array if profile parsing returns incomplete
-        const completedIds = cachedUserProfile?.completed_tasks || [];
-        
-        // 3. Request task matrix payload from public API route
-        const res = await secureFetch('/api/tasks');
+        // 2. FIXED: Query your secure, server-filtered available-tasks route directly
+        // This completely eliminates the old /api/tasks public fetch and client-side array filtering loops!
+        const availableTasks = await secureFetch('/api/secure/available-tasks');
 
-        // Verify payload structure matches expectations safely
-        if (res && res.success && Array.isArray(res.tasks)) {
-            allTasks = res.tasks; 
-        } else {
+        if (!Array.isArray(availableTasks)) {
             console.error("Could not load tasks payload packet safely.");
-            allTasks = []; // Set empty safety default array
+            taskContainer.innerHTML = '<p class="text-center text-xs text-red-400">Error rendering catalog lists</p>';
+            return;
         }
 
-        // 4. Filter tasks locally based on category tab state maps
-        // Normalizes values to lower-case string matching
-        const availableTasks = allTasks.filter(task => {
-            const isCompleted = completedIds.includes(task.id);
+        // 3. Handle Category Filtering on the safe array set returned by MongoDB
+        const filteredTasks = availableTasks.filter(task => {
+            if (currentFilter === 'All') return true;
             
-            if (currentFilter === 'All') {
-                return !isCompleted;
-            }
-            
-            // Safe cross-comparison mapping for categories (e.g. 'Education' vs 'edu')
             const taskCatClean = (task.category || '').toLowerCase();
             const filterCatClean = currentFilter.toLowerCase();
             
-            const matchesCategory = taskCatClean === filterCatClean || 
-                                    (filterCatClean === 'edu' && taskCatClean.startsWith('edu'));
-                                    
-            return !isCompleted && matchesCategory;
+            return taskCatClean === filterCatClean || 
+                   (filterCatClean === 'edu' && taskCatClean.startsWith('edu'));
         });
 
-        // If active filtering matrix returns empty set
-        if (availableTasks.length === 0) {
+        if (filteredTasks.length === 0) {
             taskContainer.innerHTML = '<p class="text-center text-[10px] text-slate-400 py-10 uppercase font-black tracking-widest">No tasks available</p>';
             return;
         }
 
-        // 5. Build HTML strings dynamically via buffer allocation tracking variables
+        // 4. Build HTML strings dynamically
         let htmlBuffer = ''; 
-        availableTasks.forEach(task => {
+        filteredTasks.forEach(task => {
             const isManual = task.type === 'manual' || !task.url || !task.url.includes('t.me');
             
+            // SECURITY FIX: Never pass 'task.reward' inside the inline click handler!
+            // Your backend must read the task.id on the server side to look up the secure reward amount.
             htmlBuffer += `
                 <div id="task-card-${task.id}" class="glass mb-4">
                     <div class="p-4 flex justify-between items-center">
@@ -2215,11 +2199,11 @@ async function loadAvailableTasks() {
 
                             <div>
                                 <h4 class="text-sm font-bold">${task.title}</h4>
-                                <span class="text-[10px] text-green-400 font-black">+${task.reward || task.rewardAmt || 0} USDT</span>
+                                <span class="text-[10px] text-green-400 font-black">+${task.reward || 0} USDT</span>
                             </div>
                         </div>
                         <button id="btn-task-${task.id}" 
-                            onclick="${isManual ? `toggleProofSection('${task.id}', '${task.url}')` : `startTask('${task.url}', '${task.id}', ${task.reward || task.rewardAmt || 0}, 30)`}" 
+                            onclick="${isManual ? `toggleProofSection('${task.id}', '${task.url}')` : `startTask('${task.url}', '${task.id}', 30)`}" 
                             class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase">
                             ${isManual ? 'Submit' : 'Start'}
                         </button>
@@ -2232,15 +2216,13 @@ async function loadAvailableTasks() {
                 </div>`;
         });
         
-        // Push buffer payload structure to render update instantly
         taskContainer.innerHTML = htmlBuffer;
         
     } catch (e) {
         console.error("Task Load Error Handled Exception Trace:", e);
         taskContainer.innerHTML = '<p class="text-center text-xs text-red-400">Error rendering catalog lists</p>';
     }
-}
-  
+        }
 
 // Helper to open manual proof area
 function toggleProofSection(taskId, url) {
