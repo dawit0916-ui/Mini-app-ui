@@ -2232,10 +2232,6 @@ function previewUploadedImage(input) {
     }
 }
 
-
-// Step 1: Create a global variable at the top of your script to store profile data
-let cachedUserProfile = null;
-        let allTasks = [];
 // Step 1: Global variable synchronization hooks
 let cachedUserProfile = null;
 let allTasks = [];
@@ -2672,7 +2668,7 @@ async function dispatchAdminNotification() {
         
 async function loadUserProfileMetrics() {
     try {
-        let telegramId = 0000000000; // Default pipeline backup variable
+        let telegramId = 0; // Default pipeline backup variable
         let firstName = "You";
         let photoUrl = "";
 
@@ -2767,7 +2763,6 @@ async function syncUserInbox() {
     }
 }
 
-
 /* ==========================================================================
    PRODUCTION ENGINE LOGIC: ASSET-PRELOADED CORE ARCHITECTURE WITH ICONS
    ========================================================================== */
@@ -2816,6 +2811,7 @@ function preloadWheelIconAssets() {
 
 // Trigger image preloading immediately when script evaluates
 preloadWheelIconAssets();
+
 function initializeWheelCanvasContext() {
     // Look up the canvas hardcoded element hook directly
     spinCanvas = document.getElementById('wheel-canvas');
@@ -2833,19 +2829,15 @@ function renderWheelStaticFrameState() {
     if (!spinCtx || !spinCanvas) return;
     
     // --- DYNAMIC SCALING RATIO SYSTEM ---
-    // Read the actual display layout width on the phone screen
     const displayRect = spinCanvas.getBoundingClientRect();
     const currentDisplayWidth = displayRect.width || 330; 
     
-    // Force the internal drawing resolution to match the exact view layout pixels
-    // This stops the canvas from inflating and spilling out of the golden ring!
     if (spinCanvas.width !== currentDisplayWidth * 2) {
         spinCanvas.width = currentDisplayWidth * 2;
         spinCanvas.height = currentDisplayWidth * 2;
     }
     
     const centerPointAxis = spinCanvas.width / 2;
-    // Shrink the wheel radius down slightly inside the frame to prevent clipping the gold border
     const exteriorOuterRadiusValue = centerPointAxis - 8;
     
     // Wipe layout dirty frames clean
@@ -2915,6 +2907,7 @@ function renderWheelStaticFrameState() {
     
     spinCtx.restore();
 }
+
 /* ==========================================================================
    PRODUCTION UTILITY: MODAL OPEN AND DYNAMIC BALANCE HUD SYNC ENGINE
    ========================================================================== */
@@ -2922,12 +2915,9 @@ function openSpinModal() {
     const targetModalNode = document.getElementById('lucky-spin-modal');
     if (!targetModalNode) return console.error("Target element 'lucky-spin-modal' not located in DOM.");
 
-    // 1. Target the main dashboard text strings safely
     const coinsText = document.getElementById('asset-bal-coins')?.innerText?.trim() || "0";
     const balanceText = document.getElementById('balance-main')?.innerText?.trim() || "0.00";
 
-    // 2. REFINED TARGET MAPPING: Coordinates with your updated Step 1 premium layout IDs
-    // Changed 'spin-hud-coins' -> 'spin-coins-display' & 'spin-hud-balance' -> 'spin-balance-display'
     const hudCoins = document.getElementById('spin-coins-display');
     const hudBalance = document.getElementById('spin-balance-display');
     
@@ -2935,18 +2925,15 @@ function openSpinModal() {
         hudCoins.innerText = coinsText;
     }
     if (hudBalance) {
-        // Enforces clean string formatting layout
         const strippedBalance = balanceText.replace("USDT", "").trim();
         hudBalance.innerText = `${strippedBalance} USDT`;
     }
 
-    // 3. Trigger css layer styling show transition rule
     targetModalNode.classList.add('show');
 
-    // 4. Fire the canvas build script context once the CSS slide/fade animations complete smoothly
     setTimeout(() => {
         initializeWheelCanvasContext();
-    }, 150); // Increased slightly to 150ms to ensure Android webview rendering has fully unfolded
+    }, 150); 
 }
 
 function closeSpinModal() {
@@ -2957,6 +2944,7 @@ function closeSpinModal() {
     const targetModalNode = document.getElementById('lucky-spin-modal');
     if (targetModalNode) targetModalNode.classList.remove('show');
 }
+
 async function executeSecureSpinState() {
     if (isSpinningActive) return;
 
@@ -2978,7 +2966,7 @@ async function executeSecureSpinState() {
 
         if (!backendServerExecutionResult || !backendServerExecutionResult.success || backendServerExecutionResult.error) {
             if (window.Telegram?.WebApp) {
-window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
+                window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
             }
             if (cooldownTimer) cooldownTimer.innerText = "❌ TRANSACTION REJECTED";
             actionTriggerNodeButton.disabled = false;
@@ -2991,25 +2979,24 @@ window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transac
             throw new Error("Invalid or missing winning index from server response.");
         }
 
-        // --- CLOCKWISE ENGINE TARGET CALCULATOR ---
-// 1. Establish structural base offset (-90 degrees) to treat 12 o'clock as zero alignment
-const baseZeroPointerOffset = -Math.PI / 2;
+        // --- CLOCKWISE MATH CORRECTION BALANCING LOGIC ---
+        // 1. Establish structural base offset (-90 degrees) to treat 12 o'clock as zero alignment
+        const baseZeroPointerOffset = -Math.PI / 2;
 
-// 1. Convert the server's winning index to clockwise logic
-const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget - 1) % totalSegmentsCount;
+        // 2. Convert the server's winning index to clockwise movement logic
+        const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget - 1) % totalSegmentsCount;
 
-// 2. FIXED: Add 'sliceCenterTargetOffset' (half a segment size) 
-// AND ensure it shifts far enough to hit the dead center of the prize slot.
-const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
+        // 3. Center Target Offset: Half a segment size added to land directly in the middle of the wedge
+        const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
 
-// 3. Final structural target calculation
-const targetedLandingCoordinates = baseZeroPointerOffset + (invertedIndexClockwiseTarget * segmentArcRadiantLength) + sliceCenterTargetOffset;
+        // 4. Final structural destination point calculation
+        const targetedLandingCoordinates = baseZeroPointerOffset + (invertedIndexClockwiseTarget * segmentArcRadiantLength) + sliceCenterTargetOffset;
 
-// 5. Build full rotational velocity spin revolutions momentum (8 complete circles)
-const totalSpinRevolutionsAngle = 8 * (2 * Math.PI);
+        // 5. Build full rotational velocity spin revolutions momentum (8 complete circles)
+        const totalSpinRevolutionsAngle = 8 * (2 * Math.PI);
 
-// 6. Formulate absolute endpoint rotation state target
-const finalAbsoluteTerminalRotationAngleCoordinate = totalSpinRevolutionsAngle + targetedLandingCoordinates;
+        // 6. Formulate absolute endpoint rotation state target
+        const finalAbsoluteTerminalRotationAngleCoordinate = totalSpinRevolutionsAngle + targetedLandingCoordinates;
 
         let timestampStartReferenceFrame = null;
         const completeAnimationDurationTimeRequirementLimit = 4500; // Smooth 4.5 second spin action
@@ -3058,9 +3045,8 @@ const finalAbsoluteTerminalRotationAngleCoordinate = totalSpinRevolutionsAngle +
         actionTriggerNodeButton.disabled = false;
         isSpinningActive = false;
     }
-    }
-            
-            
+}
+
 
 /* ==========================================================================
    VANILLA JAVASCRIPT SYSTEM ENGINE: ECOSYSTEM WALLET LOGIC ARCHITECTURE
@@ -3415,4 +3401,4 @@ window.switchTab = function(targetTabIdParam, clickEventContextButtonInstance) {
         initApp();
     </script>
 </body>
-                </html>
+</html>
