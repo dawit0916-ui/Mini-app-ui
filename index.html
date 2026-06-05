@@ -1353,7 +1353,7 @@ async function secureFetch(url, options = {}) {
     };
 
     try {
-        const response = await fetch(url, config);
+        const response = await fetch(absoluteUrl, config);
 
         // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
         // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
@@ -1383,7 +1383,7 @@ if (response.status === 503) {
         return await response.json();
 
     } catch (networkException) {
-        console.error(`[Gateway Network Fault] Path: ${url} Trace:`, networkException.message);
+        console.error(`[Gateway Network Fault] Path: ${absoluteUrl} Trace:`, networkException.message);
         throw networkException;
     }
 }
