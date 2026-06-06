@@ -2764,7 +2764,7 @@ function renderFilteredNotifications() {
                     <span class="font-black text-white uppercase text-xs tracking-wider">${notif.title}</span>
                     <span class="text-[9px] uppercase font-bold text-slate-500">${formattedTime}</span>
                 </div>
-                <p class="text-xs text-slate-300 font-medium leading-relaxed">${notif.msg}</p>
+                <p class="text-xs text-slate-300 font-medium leading-relaxed">${notif.msg|| notif.message || ''}</p>
             </div>
         `;
     }).join('');
