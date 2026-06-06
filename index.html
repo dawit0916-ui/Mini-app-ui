@@ -2758,6 +2758,11 @@ async function syncUserInbox() {
                 if (hasUnread) unreadDot.classList.remove('hidden');
                 else unreadDot.classList.add('hidden');
             }
+            if (typeof renderNotifications === 'function') {
+                renderNotifications(notifications);
+            } else if (typeof showNotifications === 'function') {
+                showNotifications();
+    }
         }
     } catch (e) {
         console.log("Failed to sync application user data notifications records from gateway backend:", e);
