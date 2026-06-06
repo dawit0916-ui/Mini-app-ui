@@ -2953,6 +2953,7 @@ function closeSpinModal() {
     if (targetModalNode) targetModalNode.classList.remove('show');
 }
 
+
 async function executeSecureSpinState() {
     if (isSpinningActive) return;
 
@@ -2991,8 +2992,8 @@ async function executeSecureSpinState() {
         // 1. Establish structural base offset (-90 degrees) to treat 12 o'clock as zero alignment
         const baseZeroPointerOffset = -Math.PI / 2;
 
-        // 2. Convert the server's winning index to clockwise movement logic
-        const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget - 1) % totalSegmentsCount;
+        // 🔥 FIXED: Corrected clockwise tracking computation matrix so Index 0 lands perfectly on Index 0
+        const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget) % totalSegmentsCount;
 
         // 3. Center Target Offset: Half a segment size added to land directly in the middle of the wedge
         const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
@@ -3033,11 +3034,30 @@ async function executeSecureSpinState() {
                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 }
 
+                // 🔥 FIXED: Direct explicit integration of new server balances into HTML DOM UI nodes
+                if (backendServerExecutionResult.newWalletBalance !== undefined) {
+                    const mBal = document.getElementById('balance-main');
+                    const wBal = document.getElementById('balance-wallet');
+                    if (mBal) mBal.innerText = backendServerExecutionResult.newWalletBalance.toFixed(2);
+                    if (wBal) wBal.innerText = backendServerExecutionResult.newWalletBalance.toFixed(2);
+                }
+
+                if (backendServerExecutionResult.newPointBalance !== undefined) {
+                    const pBal = document.getElementById('user-points-display');
+                    if (pBal) pBal.innerText = backendServerExecutionResult.newPointBalance.toLocaleString();
+                }
+
+                if (backendServerExecutionResult.newCoinBalance !== undefined) {
+                    const cBal = document.getElementById('user-spins-left-display');
+                    if (cBal) cBal.innerText = backendServerExecutionResult.newCoinBalance;
+                }
+
+                // Call internal synchronization functions safely
                 if (typeof syncWalletBalances === "function") syncWalletBalances();
                 
-                const rewardItem = WHEEL_SEGMENTS[assignedWinningIndexTarget];
-                if (rewardItem && typeof showNotificationToast === "function") {
-                    showNotificationToast(`🎉 You won ${rewardItem.text} ${rewardItem.type || ''}!`, 'success');
+                // Show toast using your specific server notification string text wrapper
+                if (typeof showNotificationToast === "function") {
+                    showNotificationToast(`${backendServerExecutionResult.rewardNotificationString}`, 'success');
                 }
             }
         }
@@ -3053,9 +3073,7 @@ async function executeSecureSpinState() {
         actionTriggerNodeButton.disabled = false;
         isSpinningActive = false;
     }
-}
-
-
+        }
 /* ==========================================================================
    VANILLA JAVASCRIPT SYSTEM ENGINE: ECOSYSTEM WALLET LOGIC ARCHITECTURE
    ========================================================================== */
@@ -3075,7 +3093,7 @@ function showNotificationToast(messageText, notificationType = 'info') {
     
     if (notificationType === 'success') {
         toastNode.className += " border-emerald-500/30 bg-emerald-950/80 text-emerald-400";
-        toastNode.innerHTML = `🟢 ${messageText}`;
+        toastNode.innerHTML = `🎉 ${messageText}`;
     } else if (notificationType === 'error') {
         toastNode.className += " border-red-500/30 bg-red-950/80 text-red-400";
         toastNode.innerHTML = `🚨 ${messageText}`;
