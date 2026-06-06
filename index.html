@@ -2772,18 +2772,25 @@ let spinCanvas = null;
 let spinCtx = null;
 let isSpinningActive = false;
 let wheelRotationAngle = 0; 
-
-// 1. Updated Segments with Icon URL paths targeting your project folder
 const WHEEL_SEGMENTS = [
-    { text: "10,000", type: "COINS", color: "#cca625", textClr: "#ffffff", iconUrl: "assets/img/coins-stack.png" },
-    { text: "5", type: "SPINS", color: "#1d4ed8", textClr: "#ffffff", iconUrl: "assets/img/spin-arrows.png" },
-    { text: "2,000", type: "COINS", color: "#064e3b", textClr: "#ffffff", iconUrl: "https://cdn-icons-png.flaticon.com/512/272/272525.png" },
-    { text: "100", type: "POINTS", color: "#581c87", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" }, 
-    { text: "JACKPOT", type: "SPECIAL", color: "#1e1b4b", textClr: "#ffffff", iconUrl: "assets/img/jackpot-chest.png" },
-    { text: "1,000", type: "COINS", color: "#7f1d1d", textClr: "#ffffff", iconUrl: "assets/img/coins-stack.png" },
-    { text: "3", type: "SPINS", color: "#0f766e", textClr: "#ffffff", iconUrl: "assets/img/spin-arrows.png" },
-    { text: "500", type: "POINTS", color: "#6b21a8", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" }
+    // Index 0: 1.0% Odds
+    { text: "1 USDT", type: "USDT", color: "#e11d48", textClr: "#ffffff", iconUrl: "assets/img/usdt-icon.png" },
+    // Index 1: 45% Odds
+    { text: "25 PTS", type: "POINTS", color: "#1e293b", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" },
+    // Index 2: 30% Odds
+    { text: "TRY AGAIN", type: "EMPTY", color: "#334155", textClr: "#ffffff", iconUrl: "assets/img/try-again.png" },
+    // Index 3: 15% Odds
+    { text: "100 PTS", type: "POINTS", color: "#581c87", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" }, 
+    // Index 4: 6% Odds
+    { text: "1 SPIN", type: "SPINS", color: "#2563eb", textClr: "#ffffff", iconUrl: "assets/img/spin-arrows.png" },
+    // Index 5: 2.5% Odds
+    { text: "500 PTS", type: "POINTS", color: "#0f172a", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" },
+    // Index 6: Safety Bonus slot (Fills the missing index from the backend conditionals)
+    { text: "50 PTS", type: "POINTS", color: "#0f766e", textClr: "#ffffff", iconUrl: "assets/img/points-badge.png" },
+    // Index 7: 0.5% Odds
+    { text: "5 USDT", type: "USDT", color: "#ca8a04", textClr: "#ffffff", iconUrl: "assets/img/jackpot-chest.png" }
 ];
+
 
 const totalSegmentsCount = WHEEL_SEGMENTS.length;
 const segmentArcRadiantLength = (2 * Math.PI) / totalSegmentsCount;
