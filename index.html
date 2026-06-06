@@ -2475,13 +2475,7 @@ async function payoutAction(requestId, action) {
         loadAdminData(); // Refresh stats and list
     }
     }
-    // --- NOTIFICATION SYSTEM LOGIC ---
-let notifications = [
-    { type: 'system', title: 'System Active', msg: 'Welcome to the premium vault.', read: true, date: new Date() }
-];
-let currentNotifTab = 'personal';
-
-
+    
 // --- UPDATED REFERRAL LOGIC ---
 async function loadReferralData() {
     const listContainer = document.getElementById('friends-list');
@@ -2672,7 +2666,7 @@ async function loadUserProfileMetrics() {
         console.error("DOM controller profile loader script trace engine error:", err);
     }
         }
-l
+
 // ==========================================================================
 // UNIFIED NOTIFICATION SUITE (GATEWAY SYSTEM & LOCAL TOASTS)
 // ==========================================================================
