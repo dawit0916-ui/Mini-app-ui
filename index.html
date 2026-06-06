@@ -2993,7 +2993,7 @@ async function executeSecureSpinState() {
         const baseZeroPointerOffset = -Math.PI / 2;
 
         // 🔥 FIXED: Corrected clockwise tracking computation matrix so Index 0 lands perfectly on Index 0
-        const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget) % totalSegmentsCount;
+        const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget - 1 + totalSegmentsCount) % totalSegmentsCount;
 
         // 3. Center Target Offset: Half a segment size added to land directly in the middle of the wedge
         const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
