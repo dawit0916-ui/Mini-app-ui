@@ -1527,10 +1527,24 @@ async function initApp() {
         }
 
         // 4. Moved inside the block and bundled to load concurrently
-        await Promise.all([
-            loadAvailableTasks(),
-            syncUserInbox()
-        ]).catch(err => console.warn("Background data synchronization failure:", err.message));
+        // ✅ New Split-Execution Architecture with Mobile Alerts
+try {
+    // 1. Run tasks initialization safely
+    await loadAvailableTasks().catch(e => {
+        alert("Task Loader Engine Error:\n" + e.message);
+    });
+} catch(err) {
+    console.warn("Tasks dropped:", err.message);
+}
+
+try {
+    // 2. Run notification sync safely inside its own tracking box
+    await syncUserInbox().catch(e => {
+        alert("Inbox Engine Array Sync Error:\n" + e.message);
+    });
+} catch(err) {
+    console.warn("Inbox synchronization dropped:", err.message);
+}
 
     } catch (err) {
         console.error("Initialization pipeline caught an execution error:", err.message);
