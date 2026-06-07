@@ -2726,6 +2726,8 @@ console.log("Current State Synchronized List Payload Array:", notifications);
             renderFilteredNotifications();
         }
     } catch (e) {
+        // This will force your phone to show you exactly why the code is breaking!
+        alert("CRITICAL INBOX SYNC ERROR TRACE:\n" + e.message + "\n\nStack: " + e.stack);
         console.error("Failed to sync application user data notifications records:", e);
     }
 }
