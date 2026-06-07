@@ -2675,7 +2675,7 @@ async function loadUserProfileMetrics() {
 let notifications = [
     { type: 'system', title: 'System Active', msg: 'Welcome to the premium vault.', read: true, date: new Date() }
 ];
-let currentNotifTab = 'personal';
+let currentNotifTab = 'system';
 
 /**
  * Toggles visibility of the modal box interface view wrapper
@@ -2722,7 +2722,7 @@ async function syncUserInbox() {
                 if (hasUnread) unreadDot.classList.remove('hidden');
                 else unreadDot.classList.add('hidden');
             }
-
+console.log("Current State Synchronized List Payload Array:", notifications);
             renderFilteredNotifications();
         }
     } catch (e) {
