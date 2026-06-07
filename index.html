@@ -2698,7 +2698,7 @@ async function loadUserProfileMetrics() {
 let notifications = [
     { type: 'system', title: 'System Active', msg: 'Welcome to the premium vault.', read: true, date: new Date() }
 ];
-let currentNotifTab = 'personal';
+let currentNotifTab = 'system';
 
 /**
  * Toggles visibility of the modal box interface view wrapper
@@ -2727,16 +2727,22 @@ async function syncUserInbox() {
         if (remoteAlerts && Array.isArray(remoteAlerts)) {
           
             // Map payloads to uniform design schemes safely matching backend parameters
-            notifications = remoteAlerts.map(srvNotif => {
-                const incomingType = srvNotif.type || srvNotif.targetType || 'system';
-                return {
-                    type: (incomingType === 'specific_member' || incomingType === 'personal') ? 'personal' : 'system',
-                    title: srvNotif.title || 'Notification',
-                    msg: srvNotif.message || srvNotif.msg || '',
-                    read: srvNotif.read || false,
-                    date: srvNotif.date || srvNotif.createdAt || new Date()
-                };
-            });
+            // ==========================================================================
+// ✅ REPLACE YOUR MAP MATRIX INSIDE syncUserInbox() WITH THIS:
+// ==========================================================================
+notifications = remoteAlerts.map(srvNotif => {
+    // Read the clean incoming type from our updated backend property
+    const incomingType = srvNotif.type || 'system';
+    
+    return {
+        // If it explicitly says 'system', route it to 'system'. Otherwise, it's 'personal'.
+        type: (incomingType === 'system') ? 'system' : 'personal',
+        title: srvNotif.title || 'Notification',
+        msg: srvNotif.message || srvNotif.msg || '',
+        read: srvNotif.read || false,
+        date: srvNotif.date || srvNotif.createdAt || new Date()
+    };
+});
             
             // Sync status badge dot context
             const hasUnread = notifications.some(n => !n.read);
