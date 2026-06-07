@@ -2702,7 +2702,7 @@ async function syncUserInbox() {
     try {
         const remoteAlerts = await secureFetch('/api/secure/notifications');
         if (remoteAlerts && Array.isArray(remoteAlerts)) {
-            
+          alert("Total items fetched: " + remoteAlerts.length + "\nFirst text: " + (remoteAlerts[0]?.message || remoteAlerts[0]?.msg || 'None'));  
             // Map payloads to uniform design schemes safely matching backend parameters
             notifications = remoteAlerts.map(srvNotif => {
                 const incomingType = srvNotif.type || srvNotif.targetType || 'system';
