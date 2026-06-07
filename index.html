@@ -1515,8 +1515,11 @@ async function initApp() {
 
             if (activeProfile) {
                 cachedUserProfile = activeProfile;
-                document.getElementById('balance-main').innerText = activeProfile.balance.toFixed(2);
-                document.getElementById('balance-wallet').innerText = activeProfile.balance.toFixed(2);
+                const balanceMainEl = document.getElementById('balance-main');
+                const balanceWalletEl = document.getElementById('balance-wallet');
+
+                if (balanceMainEl) balanceMainEl.innerText = activeProfile.balance.toFixed(2);
+               if (balanceWalletEl) balanceWalletEl.innerText = activeProfile.balance.toFixed(2);
                 
                 if (document.getElementById('tab-profile') && !document.getElementById('tab-profile').classList.contains('hidden')) {
                     loadUserProfileMetrics();
@@ -2695,7 +2698,7 @@ async function loadUserProfileMetrics() {
 let notifications = [
     { type: 'system', title: 'System Active', msg: 'Welcome to the premium vault.', read: true, date: new Date() }
 ];
-let currentNotifTab = 'system';
+let currentNotifTab = 'personal';
 
 /**
  * Toggles visibility of the modal box interface view wrapper
@@ -2711,7 +2714,7 @@ function toggleNotificationCenter() {
     
     if (el.classList.contains('active')) {
         if (dot) dot.classList.add('hidden'); // Hide red indicator dot on modal activation
-        renderFilteredNotifications();
+        switchNotifTab(currentNotifTab);
     }
 }
 
@@ -2722,7 +2725,7 @@ async function syncUserInbox() {
     try {
         const remoteAlerts = await secureFetch('/api/secure/notifications');
         if (remoteAlerts && Array.isArray(remoteAlerts)) {
-          alert("Total items fetched: " + remoteAlerts.length + "\nFirst text: " + (remoteAlerts[0]?.message || remoteAlerts[0]?.msg || 'None'));  
+          
             // Map payloads to uniform design schemes safely matching backend parameters
             notifications = remoteAlerts.map(srvNotif => {
                 const incomingType = srvNotif.type || srvNotif.targetType || 'system';
