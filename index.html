@@ -2505,7 +2505,7 @@ async function loadReferralData() {
     const listContainer = document.getElementById('friends-list');
     try {
         const data = await secureFetch('/api/secure/referrals');
-        const tasksRequired =1; // Match your admin setting
+        const tasksRequired =3; // Match your admin setting
         
         let activeTotal = 0;
         let commTotal = 0;
@@ -2515,15 +2515,15 @@ async function loadReferralData() {
             return;
         }
 
-        listContainer.innerHTML = data.friends.map(friend => {
-            const isReady = friend.tasks_done >= tasksRequired;
-            const progress = Math.min((friend.tasks_done / tasksRequired) * 100, 100);
-            const displayName = friend.first_name || friend.username || "Anonymous User";
+        listContainer.innerHTML = data.friends.map(f => {
+            const isReady = f.tasks_done >= tasksRequired;
+            const progress = Math.min((f.tasks_done / tasksRequired) * 100, 100);
+            const displayName = f.first_name || f.username || "Anonymous User";
             const initial = displayName.charAt(0).toUpperCase();
             
             if(isReady) {
                 activeTotal++;
-                commTotal += (friend.commission_earned || 0);
+                commTotal += (f.commission_earned || 0);
             }
 
             return `
@@ -2536,7 +2536,7 @@ async function loadReferralData() {
                     <p class="text-[8px] font-black uppercase ${isReady ? 'text-blue-400' : 'text-yellow-500'}">${isReady ? 'Active' : 'Pending Verification'}</p>
                 </div>
             </div>
-            <p class="text-xs font-black">${isReady ? '+' + (friend.commission_earned || 0).toFixed(2) : 'Locked'}</p>
+            <p class="text-xs font-black">${isReady ? '+' + (f.commission_earned || 0).toFixed(2) : 'Locked'}</p>
         </div>
                     <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                         <div class="h-full bg-blue-500 transition-all duration-700" style="width: ${progress}%"></div>
