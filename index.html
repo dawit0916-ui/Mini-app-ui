@@ -1804,7 +1804,7 @@ async function toggleUserBanStatus() {
     const targetState = !currentEditingUserData.is_banned;
     const actionLabel = targetState ? "BAN" : "UNBAN";
 
-    tg.showConfirm(`Are you sure you want to ${actionLabel} this user?`, async (confirmed) => {
+    showAppConfirm(`Are you sure you want to ${actionLabel} this user?`, async (confirmed) => {
         if(!confirmed) return;
 
         try {
@@ -1818,7 +1818,7 @@ async function toggleUserBanStatus() {
 
             if(res.success) {
                 tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert(`User successfully ${targetState ? 'banned' : 'unbanned'}!`);
+                showAppAlert(`User successfully ${targetState ? 'banned' : 'unbanned'}!`, 'success');
                 searchUser(); // Refresh data to load current layout state
             } else {
                 showAppAlert("Action denied by server.", 'error')
@@ -2141,7 +2141,6 @@ async function submitSupportTicket() {
         switchTab('home', document.getElementById('nav-home'));
     }
 }
-
 async function saveSettings() {
     const isMaint = document.getElementById('set-maintenance').checked;
 
@@ -2153,11 +2152,13 @@ async function saveSettings() {
         
         if(res.success) {
             tg.HapticFeedback.impactOccurred('medium');
-            showAppAlert(`Maintenance mode is now ${isMaint ? 'ON 🔴' : 'OFF 🟢'}.`, isMaint ? 'warning' : 'success')
+            showAppAlert(`Maintenance mode is now ${isMaint ? 'ON 🔴' : 'OFF 🟢'}.`, isMaint ? 'warning' : 'success');
+        }
     } catch (e) {
-        showAppAlert("Failed to update settings.", 'error')
+        showAppAlert("Failed to update settings.", 'error');
     }
 }
+
 async function submitWithdraw() {
     const amount = document.getElementById('with-amount').value;
     const address = document.getElementById('with-address').value;
@@ -2566,10 +2567,12 @@ async function loadAdminData() {
 
 
 async function deleteTask(id) {
-    if(!confirm("Delete this task?")) return;
+showAppConfirm("Delete this task permanently?", async (ok) => {
+    if(!ok) return;
     await secureFetch(`/api/admin/tasks/delete/${id}`, { method: 'DELETE' });
     loadAdminTaskList();
-    tg.showAlert("Task Removed");
+    showAppAlert("Task removed successfully.", 'success');
+});
 }
 async function sendBroadcast() {
     const msg = document.getElementById('broadcast-msg').value;
@@ -3159,7 +3162,7 @@ function openSpinModal() {
 
 function closeSpinModal() {
     if (isSpinningActive) {
-        tg.showAlert("Please wait until the prize calculation sequence finishes processing.");
+        showAppAlert("Please wait until the spin finishes.", 'warning');
         return;
     }
     const targetModalNode = document.getElementById('lucky-spin-modal');
