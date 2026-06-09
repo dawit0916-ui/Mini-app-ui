@@ -2175,10 +2175,10 @@ async function submitWithdraw() {
 
             if(data.success) {
                 tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert("🚀 Request Sent! Wait for Admin approval.");
+                showAppAlert("Request sent! Wait for admin approval.", 'success');
                 initApp(); 
             } else {
-                tg.showAlert(data.error || "Withdrawal failed");
+                showAppAlert(data.error || "Withdrawal failed.", 'error');
             }
         }
     });
@@ -2283,7 +2283,7 @@ async function runSweep() {
             tg.MainButton.setText("SWEEPING...").show();
             const res = await secureFetch('/api/admin/run-sweep', { method: 'POST' });
             tg.MainButton.hide();
-            tg.showAlert(`Sweep Finished! Found ${res.flagged || 0} rule breakers.`);
+            showAppAlert(`Sweep finished! Found ${res.flagged || 0} rule breakers.`, 'success');
         }
     });
         }
@@ -2691,9 +2691,8 @@ async function dispatchAdminNotification() {
     const targetType = document.getElementById('notif-target-select').value;
     const targetUserId = document.getElementById('notif-target-userid').value;
 
-    if (!title || !message) return tg.showAlert("Please complete Title and Message text elements!");
-    if (targetType === 'specific_member' && !targetUserId) return tg.showAlert("Please specify a Target User ID!");
-
+    if (!title || !message) return showAppAlert("Please complete Title and Message fields.", 'warning'); 
+    if (targetType === 'specific_member' && !targetUserId) return showAppAlert("Please specify a Target User ID.", 'warning');
     const payload = { title, message, type, targetType, targetUserId };
 
     const btn = document.getElementById('btn-send-notif');
@@ -3433,8 +3432,7 @@ function attemptTriggerTierPayout(inviteRequirementThreshold, dollarAllocationVa
     
     if (totalTeamInvitesValue < inviteRequirementThreshold) {
         if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.showAlert(`Milestone locked. This cashout option requires an invite team network structure of at least ${inviteRequirementThreshold} active users.`);
-        }
+            showAppAlert(`Milestone locked. You need at least ${inviteRequirementThreshold} active referrals.`, 'warning');        }
         return;
     }
     
