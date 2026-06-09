@@ -2052,7 +2052,7 @@ if (result.success) {
     showNotificationToast(`+${result.reward || ''} USDT earned! 🎉`, 'success');
 }
      else {
-            showAppAlert(result.error || "Verification failed.", 'error')
+            showAppAlert(result.error || "Verification failed.", 'error', 'Not Joined Yet')
             btn.disabled = false;
             btn.innerText = "Claim Reward";
         }
