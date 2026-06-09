@@ -3191,7 +3191,7 @@ async function executeSecureSpinState() {
 
         if (!backendServerExecutionResult || !backendServerExecutionResult.success || backendServerExecutionResult.error) {
             if (window.Telegram?.WebApp) {
-                window.Telegram.WebApp.showAlert(backendServerExecutionResult?.error || "Transaction Execution Verification Failure.");
+                showAppAlert(backendServerExecutionResult?.error || "Transaction verification failed.", 'error')
             }
             if (cooldownTimer) cooldownTimer.innerText = "❌ TRANSACTION REJECTED";
             actionTriggerNodeButton.disabled = false;
@@ -3283,7 +3283,7 @@ async function executeSecureSpinState() {
     } catch (err) {
         console.error("Spin failure:", err);
         if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.showAlert("An error occurred during verification execution.");
+            showAppAlert("An error occurred during verification.", 'error')
         }
         if (cooldownTimer) cooldownTimer.innerText = "❌ ERROR";
         actionTriggerNodeButton.disabled = false;
