@@ -435,6 +435,115 @@ main {
     color: var(--premium-gold);
     border-color: var(--premium-gold);
     }
+        /* ==========================================================================
+   CUSTOM IN-APP POPUP SYSTEM
+   ========================================================================== */
+#app-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 2, 14, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.2s ease-out;
+}
+#app-popup-backdrop.show {
+    display: flex;
+}
+#app-popup-card {
+    background: rgba(20, 18, 60, 0.97);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 28px;
+    padding: 28px 24px 24px;
+    width: 100%;
+    max-width: 320px;
+    position: relative;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.1);
+    animation: popupSlideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes popupSlideUp {
+    from { opacity: 0; transform: scale(0.88) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+#app-popup-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+#app-popup-close:active { transform: scale(0.9); background: rgba(255,255,255,0.12); }
+#app-popup-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 24px;
+}
+#app-popup-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #f8fafc;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+}
+#app-popup-message {
+    font-size: 11px;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+.popup-btn-primary {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+    border: none;
+}
+.popup-btn-primary:active { transform: scale(0.97); }
+.popup-btn-cancel {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+.popup-btn-cancel:active { transform: scale(0.97); }
         
     </style>
 </head>
@@ -1268,7 +1377,17 @@ main {
 </div>
                                                                                                                                         </div>
 </main>
-    
+ <!-- CUSTOM IN-APP POPUP -->
+<div id="app-popup-backdrop">
+    <div id="app-popup-card">
+        <button id="app-popup-close" onclick="closeAppPopup()">✕</button>
+        <div id="app-popup-icon-wrap">🔔</div>
+        <div id="app-popup-title">Notice</div>
+        <div id="app-popup-message">Message here</div>
+        <button id="app-popup-confirm-btn" class="popup-btn-primary">Got It</button>
+        <button id="app-popup-cancel-btn" class="popup-btn-cancel hidden" onclick="closeAppPopup()">Cancel</button>
+    </div>
+</div>   
     
 <div id="toast-container"></div>
 
@@ -1589,19 +1708,17 @@ let userDirectoryFilter = 'all';
 // 1. Enhanced Search Engine Action (Fixed Query Routing Alignment)
 async function searchUser() {
     const searchId = document.getElementById('search-user-id').value.trim();
-    if (!searchId) return tg.showAlert("Please enter a Telegram ID");
-
+    if (!searchId) return showAppAlert("Please enter a Telegram ID.", 'warning')       
     try {
         // Corrected path from /api/admin/users/${id} to use search query parameters
         const res = await secureFetch(`/api/admin/users?search=${searchId}`);
 
         // The backend returns an array under "users". Let's check if we got a match
         if (!res.success || !res.users || res.users.length === 0) {
-            tg.showAlert("User record not found!");
+            showAppAlert("User record not found.", 'error')
             document.getElementById('admin-user-editor').classList.add('hidden');
             return;
         }
-
         // Isolate the exact matching user document from the payload array
         const foundUser = res.users[0];
 
@@ -1637,7 +1754,7 @@ async function searchUser() {
 
     } catch (e) {
         console.error("Frontend search routing tracking error:", e);
-        tg.showAlert("Search engine error.");
+        showAppAlert("Search engine error.", 'error')
     }
         }
 
@@ -1663,7 +1780,7 @@ async function updateUserMetrics() {
 
         if (res.success) {
             tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert("✅ User metrics synchronized!");
+            showAppAlert("User metrics synchronized successfully.", 'success')
             
             document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(4);
             document.getElementById('edit-user-points').innerText = parseFloat(newPoints).toFixed(2);
@@ -1672,11 +1789,11 @@ async function updateUserMetrics() {
             // Refresh main background list views implicitly
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
         } else {
-            tg.showAlert("Failed to update profile values.");
+            showAppAlert("Failed to update profile values.", 'error')
         }
     } catch (e) {
         console.error("Data tracking writing failure:", e);
-        tg.showAlert("Network communications failed.");
+        showAppAlert("Network communications failed.", 'error')
     }
 }
 
@@ -1704,10 +1821,10 @@ async function toggleUserBanStatus() {
                 tg.showAlert(`User successfully ${targetState ? 'banned' : 'unbanned'}!`);
                 searchUser(); // Refresh data to load current layout state
             } else {
-                tg.showAlert("Action denied by server.");
+                showAppAlert("Action denied by server.", 'error')
             }
         } catch(e) {
-            tg.showAlert("Failed to run ban assignment command.");
+            showAppAlert("Failed to run ban assignment.", 'error')
         }
     });
 }
@@ -1779,7 +1896,7 @@ function copyRefLink() {
  async function addNewCategory() {
     const input = document.getElementById('new-category-name');
     const name = input.value.trim();
-    if(!name) return tg.showAlert("Please provide a category title name.");
+    if(!name) return showAppAlert("Please provide a category name.", 'warning')
     
     // Send it to your backend if you want it persistent, 
     // or push it right directly into the DOM dropdown picker element layout:
@@ -1794,7 +1911,7 @@ function copyRefLink() {
     }
     
     input.value = '';
-    tg.showAlert(`✅ Category "${name}" added to dashboard views!`);
+    showAppAlert(`Category "${name}" added successfully!`, 'success')
     }
 
 // 1. Fixed Directory Views Manager
@@ -1935,12 +2052,12 @@ if (result.success) {
     showNotificationToast(`+${result.reward || ''} USDT earned! 🎉`, 'success');
 }
      else {
-            tg.showAlert(result.error || "Verification failed.");
+            showAppAlert(result.error || "Verification failed.", 'error')
             btn.disabled = false;
             btn.innerText = "Claim Reward";
         }
     } catch (err) {
-        tg.showAlert("Connection error. Check your internet.");
+        showAppAlert("Connection error. Check your internet.", 'error')
         btn.disabled = false;
     }
         }
@@ -2012,7 +2129,7 @@ function switchAdminPanel(panelId) {
 // Example Support Ticket Function
 async function submitSupportTicket() {
     const msg = document.getElementById('support-msg').value;
-    if(!msg) return tg.showAlert("Please enter a message.");
+    if(!msg) return showAppAlert("Please enter a message.", 'warning')
     
     const res = await secureFetch('/api/support/create', {
         method: 'POST',
@@ -2020,7 +2137,7 @@ async function submitSupportTicket() {
     });
     
     if(res.success) {
-        tg.showAlert("✅ Ticket sent! Check the bot for replies.");
+        showAppAlert("Ticket sent! We will reply via the bot.", 'success')
         switchTab('home', document.getElementById('nav-home'));
     }
 }
@@ -2036,19 +2153,18 @@ async function saveSettings() {
         
         if(res.success) {
             tg.HapticFeedback.impactOccurred('medium');
-            tg.showConfirm(`Maintenance is now ${isMaint ? 'ON' : 'OFF'}. All users will be ${isMaint ? 'locked out' : 'granted access'}.`);
-        }
+            showAppAlert(`Maintenance mode is now ${isMaint ? 'ON 🔴' : 'OFF 🟢'}.`, isMaint ? 'warning' : 'success')
     } catch (e) {
-        tg.showAlert("Failed to update settings.");
+        showAppAlert("Failed to update settings.", 'error')
     }
 }
 async function submitWithdraw() {
     const amount = document.getElementById('with-amount').value;
     const address = document.getElementById('with-address').value;
 
-    if(!amount || !address) return tg.showAlert("Please fill all fields");
+    if(!amount || !address) return showAppAlert("Please fill all fields.", 'warning')
 
-    tg.showConfirm("Are you sure you want to withdraw?", async (ok) => {
+    showAppConfirm("Are you sure you want to submit this withdrawal request?", async (ok) => {
         if(ok) {
             // Fix: Remove the manual .json() call
             const data = await secureFetch('/api/withdraw/request', {
@@ -2106,8 +2222,7 @@ async function addNewTask() {
     const category = document.getElementById('new-task-category').value;
     const type = document.querySelector('input[name="verify-type"]:checked').value;
 
-    if (!title || !link || !reward) return tg.showAlert("Title, Link, and Reward are required!");
-
+    if (!title || !link || !reward) return showAppAlert("Title, Link, and Reward are required.", 'warning')
     const taskData = {
         title,
         url: link,
@@ -2125,7 +2240,7 @@ async function addNewTask() {
 
     if (res.success) {
         tg.HapticFeedback.notificationOccurred('success');
-        tg.showAlert("✅ Task Deployed!");
+        showAppAlert("Task deployed successfully!", 'success')
         
         // Clear basic fields
         ['new-task-title', 'new-task-link', 'new-task-desc', 'new-task-reward'].forEach(id => {
@@ -2143,10 +2258,10 @@ async function addNewTask() {
         loadAdminTaskList();
     
         } else {
-            tg.showAlert("Error: " + res.error);
+            showAppAlert("Error: " + res.error, 'error')
         }
     } catch (e) {
-        tg.showAlert("Failed to connect to server.");
+        showAppAlert("Failed to connect to server.", 'error')
     }
 }
 
@@ -2162,7 +2277,7 @@ function updateCategoryDropdown(categoryName) {
 
 // Admin: Run Sweep Function
 async function runSweep() {
-    tg.showConfirm("Run Global Sweep? This scans all users for channel departures.", async (ok) => {
+    showAppConfirm("Run Global Sweep? This scans all users for channel departures.", async (ok) => {
         if(ok) {
             tg.MainButton.setText("SWEEPING...").show();
             const res = await secureFetch('/api/admin/run-sweep', { method: 'POST' });
@@ -2218,7 +2333,7 @@ async function processProof(proofId, action) {
         loadPendingProofs(); // Refresh the list
         loadAdminData();    // Refresh overall stats
     } else {
-        tg.showAlert("Action failed: " + res.error);
+        showAppAlert("Action failed: " + res.error, 'error')
     }
 }
 
@@ -2375,7 +2490,7 @@ function toggleProofSection(taskId, url) {
 
 async function submitManualProof(taskId) {
     const proof = document.getElementById(`input-proof-${taskId}`).value;
-    if(!proof) return tg.showAlert("Please enter your username/link as proof!");
+    if(!proof) return showAppAlert("Please enter your username or proof link.", 'warning')
 
     const res = await secureFetch('/api/secure/submit-proof', {
         method: 'POST',
@@ -2383,7 +2498,7 @@ async function submitManualProof(taskId) {
     });
 
     if(res.success) {
-        tg.showAlert("✅ Proof submitted! Admin will verify soon.");
+        showAppAlert("Proof submitted! Admin will verify soon.", 'success')
         loadAvailableTasks();
     }
 }
@@ -2399,13 +2514,13 @@ async function saveRefSettings() {
             ref_commission_percent: parseInt(percent) 
         })
     });
-    tg.showAlert("✅ Referral rules updated!");
+    showAppAlert("Referral rules updated!", 'success')
         }
             // --- ADMIN: LOAD DASHBOARD ---
 async function loadAdminData() {
     try {
         const stats = await secureFetch('/api/admin/stats');
-        if(stats.error) return tg.showAlert("Access Denied");
+        if(stats.error) return showAppAlert("Access Denied.", 'error')
 
         document.getElementById('stat-users').innerText = stats.users;
         document.getElementById('stat-withdraws').innerText = stats.pending;
@@ -2460,9 +2575,9 @@ async function sendBroadcast() {
     const msg = document.getElementById('broadcast-msg').value;
     const btn = document.getElementById('btn-broadcast');
 
-    if (!msg) return tg.showAlert("Please enter a message first!");
+    if (!msg) return showAppAlert("Please enter a message first.", 'warning')
 
-    tg.showConfirm(`Confirm: Send this to ALL users?`, async (ok) => {
+    showAppConfirm("Send this broadcast to ALL users?", async (ok) => {
         if (ok) {
             btn.disabled = true;
             btn.innerText = "⌛ SENDING...";
@@ -2474,11 +2589,11 @@ async function sendBroadcast() {
                 });
 
                 if (res.success) {
-                    tg.showAlert(`✅ Broadcast started! Sending to ${res.total} users.`);
+                    showAppAlert(`Broadcast started! Sending to ${res.total} users.`, 'success')
                     document.getElementById('broadcast-msg').value = '';
                 }
             } catch (e) {
-                tg.showAlert("Broadcast error. Check server logs.");
+                showAppAlert("Broadcast error. Check server logs.", 'error')
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🚀 Send to All Users";
@@ -3521,6 +3636,90 @@ window.switchTab = function(targetTabIdParam, clickEventContextButtonInstance) {
         syncWalletBalances();
     }
 };
+        // ==========================================================================
+// CUSTOM IN-APP POPUP SYSTEM — REPLACES tg.showAlert & tg.showConfirm
+// ==========================================================================
+const POPUP_THEMES = {
+    info:    { icon: 'ℹ️',  bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.25)',  btn: 'linear-gradient(135deg,#3b82f6,#2563eb)',  glow: 'rgba(59,130,246,0.15)'  },
+    success: { icon: '✅',  bg: 'rgba(16,185,129,0.1)',  border: 'rgba(16,185,129,0.3)',   btn: 'linear-gradient(135deg,#10b981,#059669)',  glow: 'rgba(16,185,129,0.1)'   },
+    error:   { icon: '🚨',  bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.3)',    btn: 'linear-gradient(135deg,#ef4444,#dc2626)',  glow: 'rgba(239,68,68,0.1)'    },
+    warning: { icon: '⚠️', bg: 'rgba(245,158,11,0.1)',  border: 'rgba(245,158,11,0.25)',  btn: 'linear-gradient(135deg,#f59e0b,#d97706)',  glow: 'rgba(245,158,11,0.1)'   }
+};
+
+let _popupConfirmCallback = null;
+
+function showAppAlert(message, type = 'info', title = '') {
+    const theme = POPUP_THEMES[type] || POPUP_THEMES.info;
+    const defaultTitles = { info: 'Notice', success: 'Success', error: 'Error', warning: 'Warning' };
+
+    document.getElementById('app-popup-icon-wrap').innerText = theme.icon;
+    document.getElementById('app-popup-icon-wrap').style.cssText = `width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;background:${theme.bg};border:1px solid ${theme.border};`;
+    document.getElementById('app-popup-title').innerText = title || defaultTitles[type];
+    document.getElementById('app-popup-message').innerText = message;
+    document.getElementById('app-popup-card').style.borderColor = theme.border;
+    document.getElementById('app-popup-card').style.boxShadow = `0 0 40px ${theme.glow}`;
+
+    const confirmBtn = document.getElementById('app-popup-confirm-btn');
+    confirmBtn.innerText = 'Got It';
+    confirmBtn.style.background = theme.btn;
+    confirmBtn.style.color = '#ffffff';
+    confirmBtn.onclick = closeAppPopup;
+
+    document.getElementById('app-popup-cancel-btn').classList.add('hidden');
+
+    _popupConfirmCallback = null;
+    document.getElementById('app-popup-backdrop').classList.add('show');
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        const hapticMap = { success: 'success', error: 'error', warning: 'warning', info: 'light' };
+        tg.HapticFeedback.notificationOccurred(hapticMap[type] || 'light');
+    }
+}
+
+function showAppConfirm(message, callback, type = 'warning', title = '', confirmText = 'Confirm', cancelText = 'Cancel') {
+    const theme = POPUP_THEMES[type] || POPUP_THEMES.warning;
+    const defaultTitles = { info: 'Confirm', success: 'Confirm', error: 'Are You Sure?', warning: 'Confirm Action' };
+
+    document.getElementById('app-popup-icon-wrap').innerText = theme.icon;
+    document.getElementById('app-popup-icon-wrap').style.cssText = `width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;background:${theme.bg};border:1px solid ${theme.border};`;
+    document.getElementById('app-popup-title').innerText = title || defaultTitles[type];
+    document.getElementById('app-popup-message').innerText = message;
+    document.getElementById('app-popup-card').style.borderColor = theme.border;
+    document.getElementById('app-popup-card').style.boxShadow = `0 0 40px ${theme.glow}`;
+
+    const confirmBtn = document.getElementById('app-popup-confirm-btn');
+    confirmBtn.innerText = confirmText;
+    confirmBtn.style.background = theme.btn;
+    confirmBtn.style.color = '#ffffff';
+    confirmBtn.onclick = () => {
+        closeAppPopup();
+        if (typeof callback === 'function') callback(true);
+    };
+
+    const cancelBtn = document.getElementById('app-popup-cancel-btn');
+    cancelBtn.innerText = cancelText;
+    cancelBtn.classList.remove('hidden');
+    cancelBtn.onclick = () => {
+        closeAppPopup();
+        if (typeof callback === 'function') callback(false);
+    };
+
+    _popupConfirmCallback = callback;
+    document.getElementById('app-popup-backdrop').classList.add('show');
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('medium');
+    }
+}
+
+function closeAppPopup() {
+    const backdrop = document.getElementById('app-popup-backdrop');
+    backdrop.classList.remove('show');
+    _popupConfirmCallback = null;
+}
+
+// Close popup when clicking outside the card
+document.getElementById('app-popup-backdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeAppPopup();
+});
         // Start App
         initApp();
     </script>
