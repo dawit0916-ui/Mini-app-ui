@@ -544,6 +544,111 @@ main {
     transition: all 0.2s ease;
 }
 .popup-btn-cancel:active { transform: scale(0.97); }
+        /* ==========================================================================
+   SHOW APP REWARD POPUP SYSTEM
+   ========================================================================== */
+#reward-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 2, 14, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+#reward-popup-backdrop.show {
+    display: flex;
+}
+#reward-popup-card {
+    border-radius: 28px;
+    padding: 28px 24px 20px;
+    width: 240px;
+    text-align: center;
+    position: relative;
+    border: 1px solid transparent;
+}
+#reward-icon-wrap {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: rewardDrop 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes rewardDrop {
+    0%   { opacity: 0; transform: translateY(-60px) rotate(0deg);   }
+    60%  { opacity: 1; transform: translateY(6px)   rotate(270deg); }
+    80%  { transform: translateY(-4px) rotate(330deg); }
+    100% { opacity: 1; transform: translateY(0px)   rotate(360deg); }
+}
+#reward-popup-card {
+    animation: rewardCardPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes rewardCardPop {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+}
+.reward-type-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.reward-amount-text {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.reward-unit-text {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+.reward-sub-msg {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 14px;
+}
+#reward-progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+#reward-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    width: 100%;
+}
+#reward-progress-fill.draining {
+    transition: width linear;
+}
+
+/* Confetti particles for jackpot */
+.confetti-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+    0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+    100% { opacity: 0; transform: translateY(140px) rotate(540deg) scale(0.5); }
+    }
         
     </style>
 </head>
@@ -1377,7 +1482,21 @@ main {
 </div>
                                                                                                                                         </div>
 </main>
- <!-- CUSTOM IN-APP POPUP -->
+
+    <!-- REWARD POPUP -->
+<div id="reward-popup-backdrop" onclick="closeRewardPopup()">
+    <div id="reward-popup-card" onclick="event.stopPropagation()">
+        <div id="reward-icon-wrap"></div>
+        <div id="reward-type-label" class="reward-type-label"></div>
+        <div id="reward-amount-text" class="reward-amount-text"></div>
+        <div id="reward-unit-text" class="reward-unit-text"></div>
+        <div id="reward-sub-msg" class="reward-sub-msg"></div>
+        <div id="reward-progress-bar">
+            <div id="reward-progress-fill"></div>
+        </div>
+    </div>
+</div>
+    <!-- CUSTOM IN-APP POPUP -->
 <div id="app-popup-backdrop">
     <div id="app-popup-card">
         <button id="app-popup-close" onclick="closeAppPopup()">✕</button>
@@ -3269,11 +3388,34 @@ async function executeSecureSpinState() {
 
                 // Call internal synchronization functions safely
                 if (typeof syncWalletBalances === "function") syncWalletBalances();
-                
-                // Show toast using your specific server notification string text wrapper
-                if (typeof showNotificationToast === "function") {
-                    showNotificationToast(`${backendServerExecutionResult.rewardNotificationString}`, 'success');
-                }
+ // Map winning index to reward type
+const rewardTypeMap = {
+    0: 'usdt',
+    1: 'points',
+    2: 'tryagain',
+    3: 'points',
+    4: 'coins',
+    5: 'points',
+    6: 'points',
+    7: 'jackpot'
+};
+
+const spinRewardType = rewardTypeMap[assignedWinningIndexTarget] || 'tryagain';
+
+// Get display amount
+const spinAmountMap = {
+    0: '1.00',
+    1: '25',
+    2: null,
+    3: '100',
+    4: '1',
+    5: '500',
+    6: '50',
+    7: '5.00'
+};
+
+const spinDisplayAmount = spinAmountMap[assignedWinningIndexTarget];
+showAppReward(spinRewardType, spinDisplayAmount);
             }
         }
 
@@ -3721,6 +3863,271 @@ function closeAppPopup() {
 document.getElementById('app-popup-backdrop').addEventListener('click', function(e) {
     if (e.target === this) closeAppPopup();
 });
+                            // ==========================================================================
+// SHOW APP REWARD POPUP SYSTEM
+// ==========================================================================
+
+const REWARD_SVGS = {
+
+    usdt: `<svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="30" fill="#26a17b"/>
+        <circle cx="32" cy="32" r="30" fill="url(#usdt-grad)" opacity="0.4"/>
+        <defs>
+            <radialGradient id="usdt-grad" cx="40%" cy="30%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+            </radialGradient>
+        </defs>
+        <!-- T letter -->
+        <rect x="20" y="18" width="24" height="5" rx="2.5" fill="white"/>
+        <rect x="29.5" y="21" width="5" height="14" rx="2" fill="white"/>
+        <!-- Tether bar -->
+        <rect x="17" y="38" width="30" height="4" rx="2" fill="white" opacity="0.9"/>
+        <rect x="22" y="42" width="20" height="3" rx="1.5" fill="white" opacity="0.5"/>
+    </svg>`,
+
+    points: `<svg width="64" height="64" viewBox="0 0 64 64">
+        <defs>
+            <radialGradient id="p-grad" cx="35%" cy="30%">
+                <stop offset="0%" stop-color="#818cf8"/>
+                <stop offset="100%" stop-color="#3730a3"/>
+            </radialGradient>
+        </defs>
+        <!-- coin body -->
+        <ellipse cx="32" cy="36" rx="26" ry="8" fill="rgba(55,48,163,0.7)"/>
+        <ellipse cx="32" cy="28" rx="26" ry="16" fill="url(#p-grad)" stroke="rgba(129,140,248,0.5)" stroke-width="1.5"/>
+        <ellipse cx="32" cy="28" rx="20" ry="12" fill="rgba(99,102,241,0.6)"/>
+        <!-- P letter -->
+        <text x="32" y="33" text-anchor="middle" font-size="16" font-weight="900"
+            fill="white" font-family="Inter,sans-serif" opacity="0.95">P</text>
+        <!-- shine -->
+        <ellipse cx="24" cy="22" rx="5" ry="3" fill="white" opacity="0.15" transform="rotate(-20 24 22)"/>
+    </svg>`,
+
+    coins: `<svg width="64" height="64" viewBox="0 0 64 64">
+        <defs>
+            <radialGradient id="c-grad" cx="35%" cy="30%">
+                <stop offset="0%" stop-color="#fde68a"/>
+                <stop offset="100%" stop-color="#b45309"/>
+            </radialGradient>
+        </defs>
+        <!-- coin shadow -->
+        <ellipse cx="32" cy="38" rx="26" ry="8" fill="rgba(120,53,15,0.6)"/>
+        <!-- coin body -->
+        <ellipse cx="32" cy="28" rx="26" ry="16" fill="url(#c-grad)" stroke="rgba(251,191,36,0.6)" stroke-width="1.5"/>
+        <ellipse cx="32" cy="28" rx="20" ry="12" fill="rgba(251,191,36,0.5)"/>
+        <!-- C letter -->
+        <text x="32" y="33" text-anchor="middle" font-size="16" font-weight="900"
+            fill="white" font-family="Inter,sans-serif" opacity="0.95">C</text>
+        <!-- shine -->
+        <ellipse cx="24" cy="22" rx="5" ry="3" fill="white" opacity="0.2" transform="rotate(-20 24 22)"/>
+    </svg>`,
+
+    tryagain: `<svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="rgba(51,65,85,0.5)" stroke="rgba(71,85,105,0.4)" stroke-width="1.5"/>
+        <path d="M20 32 A12 12 0 1 1 32 44" fill="none" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
+        <polygon points="18,24 26,27 20,34" fill="#64748b"/>
+    </svg>`,
+
+    jackpot: `<svg width="64" height="64" viewBox="0 0 64 64">
+        <defs>
+            <radialGradient id="j-glow" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="rgba(251,191,36,0.3)"/>
+                <stop offset="100%" stop-color="rgba(251,191,36,0)"/>
+            </radialGradient>
+        </defs>
+        <circle cx="32" cy="32" r="30" fill="url(#j-glow)"/>
+        <!-- chest base -->
+        <rect x="10" y="36" width="44" height="24" rx="4" fill="rgba(120,53,15,0.95)" stroke="rgba(251,191,36,0.6)" stroke-width="1.5"/>
+        <!-- band -->
+        <rect x="10" y="44" width="44" height="6" fill="rgba(251,191,36,0.15)"/>
+        <!-- chest lid -->
+        <path d="M10 36 Q10 18 32 15 Q54 18 54 36 Z" fill="rgba(146,64,14,0.95)" stroke="rgba(251,191,36,0.55)" stroke-width="1.5"/>
+        <!-- shine on lid -->
+        <path d="M18 31 Q32 23 46 31" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+        <!-- lock -->
+        <rect x="27" y="44" width="10" height="8" rx="2" fill="rgba(251,191,36,0.8)"/>
+        <path d="M29 44 Q29 39 32 39 Q35 39 35 44" fill="none" stroke="rgba(251,191,36,0.8)" stroke-width="2"/>
+        <!-- coins spilling -->
+        <ellipse cx="24" cy="35" rx="5" ry="3" fill="rgba(251,191,36,0.85)" transform="rotate(-15 24 35)"/>
+        <ellipse cx="40" cy="33" rx="5" ry="3" fill="rgba(251,191,36,0.75)" transform="rotate(10 40 33)"/>
+        <ellipse cx="32" cy="31" rx="5" ry="3" fill="rgba(251,191,36,0.95)"/>
+        <!-- sparkles -->
+        <line x1="10" y1="10" x2="10" y2="18" stroke="rgba(251,191,36,0.6)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="6"  y1="14" x2="14" y2="14" stroke="rgba(251,191,36,0.6)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="52" y1="8"  x2="52" y2="14" stroke="rgba(251,191,36,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="49" y1="11" x2="55" y2="11" stroke="rgba(251,191,36,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="56" cy="26" r="2" fill="rgba(251,191,36,0.5)"/>
+        <circle cx="8"  cy="38" r="1.5" fill="rgba(251,191,36,0.4)"/>
+    </svg>`
+};
+
+const REWARD_CONFIGS = {
+    usdt: {
+        bg:       'rgba(10,25,18,0.98)',
+        border:   'rgba(16,185,129,0.4)',
+        shadow:   '0 0 50px rgba(16,185,129,0.18)',
+        labelClr: '#6ee7b7',
+        label:    'Reward Earned',
+        amtClr:   '#10b981',
+        unitClr:  '#34d399',
+        unit:     'USDT',
+        msg:      'Credited to your wallet',
+        progress: '#10b981',
+        duration: 2500,
+        haptic:   'light'
+    },
+    points: {
+        bg:       'rgba(10,10,28,0.98)',
+        border:   'rgba(99,102,241,0.4)',
+        shadow:   '0 0 50px rgba(99,102,241,0.15)',
+        labelClr: '#c4b5fd',
+        label:    'Points Earned',
+        amtClr:   '#818cf8',
+        unitClr:  '#a5b4fc',
+        unit:     'Points',
+        msg:      'Added to your points balance',
+        progress: '#818cf8',
+        duration: 2000,
+        haptic:   'light'
+    },
+    coins: {
+        bg:       'rgba(20,14,4,0.98)',
+        border:   'rgba(245,158,11,0.45)',
+        shadow:   '0 0 50px rgba(245,158,11,0.18)',
+        labelClr: '#fde68a',
+        label:    'Bonus Spin',
+        amtClr:   '#f59e0b',
+        unitClr:  '#fbbf24',
+        unit:     'Free Spin',
+        msg:      'Extra spin credited',
+        progress: '#f59e0b',
+        duration: 2000,
+        haptic:   'light'
+    },
+    tryagain: {
+        bg:       'rgba(8,10,16,0.98)',
+        border:   'rgba(71,85,105,0.3)',
+        shadow:   '0 0 20px rgba(0,0,0,0.5)',
+        labelClr: '#64748b',
+        label:    'Better Luck!',
+        amtClr:   '#475569',
+        unitClr:  '#334155',
+        unit:     'Try Again',
+        msg:      'Spin again for your chance',
+        progress: '#475569',
+        duration: 1500,
+        haptic:   'light'
+    },
+    jackpot: {
+        bg:       'rgba(18,12,2,0.99)',
+        border:   'rgba(251,191,36,0.6)',
+        shadow:   '0 0 70px rgba(251,191,36,0.25)',
+        labelClr: '#fde68a',
+        label:    '🎉 JACKPOT!',
+        amtClr:   '#fbbf24',
+        unitClr:  '#f59e0b',
+        unit:     'USDT',
+        msg:      'Grand prize — incredible win!',
+        progress: '#fbbf24',
+        duration: 3000,
+        haptic:   'light'
+    }
+};
+
+let _rewardTimer = null;
+
+function showAppReward(type, amount) {
+    const config = REWARD_CONFIGS[type] || REWARD_CONFIGS.tryagain;
+
+    // Clear any existing timer
+    if (_rewardTimer) clearTimeout(_rewardTimer);
+
+    // Set card styles
+    const card = document.getElementById('reward-popup-card');
+    card.style.background   = config.bg;
+    card.style.borderColor  = config.border;
+    card.style.border       = '1px solid ' + config.border;
+    card.style.boxShadow    = config.shadow;
+
+    // Inject icon — reset animation by replacing element
+    const iconWrap = document.getElementById('reward-icon-wrap');
+    iconWrap.style.animation = 'none';
+    iconWrap.innerHTML = REWARD_SVGS[type] || REWARD_SVGS.tryagain;
+    void iconWrap.offsetWidth; // force reflow
+    iconWrap.style.animation = '';
+
+    // Reset card animation
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = '';
+
+    // Set text content
+    document.getElementById('reward-type-label').innerText  = config.label;
+    document.getElementById('reward-type-label').style.color = config.labelClr;
+
+    const amountDisplay = (amount !== undefined && amount !== null)
+        ? (type === 'tryagain' ? '' : '+' + amount)
+        : '';
+    document.getElementById('reward-amount-text').innerText = amountDisplay;
+    document.getElementById('reward-amount-text').style.color = config.amtClr;
+
+    document.getElementById('reward-unit-text').innerText = config.unit;
+    document.getElementById('reward-unit-text').style.color = config.unitClr;
+
+    document.getElementById('reward-sub-msg').innerText = config.msg;
+
+    // Progress bar
+    const fill = document.getElementById('reward-progress-fill');
+    fill.style.background  = config.progress;
+    fill.style.width       = '100%';
+    fill.style.transition  = 'none';
+    void fill.offsetWidth;
+    fill.style.transition  = `width ${config.duration}ms linear`;
+    fill.style.width       = '0%';
+
+    // Haptic
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('light');
+    }
+
+    // Show backdrop
+    document.getElementById('reward-popup-backdrop').classList.add('show');
+
+    // Jackpot confetti
+    if (type === 'jackpot') spawnConfetti();
+
+    // Auto close
+    _rewardTimer = setTimeout(() => closeRewardPopup(), config.duration);
+}
+
+function closeRewardPopup() {
+    document.getElementById('reward-popup-backdrop').classList.remove('show');
+    if (_rewardTimer) {
+        clearTimeout(_rewardTimer);
+        _rewardTimer = null;
+    }
+    // Clean up confetti
+    document.querySelectorAll('.confetti-particle').forEach(p => p.remove());
+}
+
+function spawnConfetti() {
+    const backdrop = document.getElementById('reward-popup-backdrop');
+    const colors = ['#fbbf24','#f59e0b','#fde68a','#ffffff','#fb923c','#facc15'];
+    for (let i = 0; i < 28; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-particle';
+        dot.style.left            = Math.random() * 100 + '%';
+        dot.style.top             = Math.random() * 40 + '%';
+        dot.style.background      = colors[Math.floor(Math.random() * colors.length)];
+        dot.style.animationDuration = (0.8 + Math.random() * 1.4) + 's';
+        dot.style.animationDelay  = (Math.random() * 0.6) + 's';
+        dot.style.width           = (4 + Math.random() * 5) + 'px';
+        dot.style.height          = (4 + Math.random() * 5) + 'px';
+        backdrop.appendChild(dot);
+        setTimeout(() => dot.remove(), 3000);
+    }
+    }
         // Start App
         initApp();
     </script>
