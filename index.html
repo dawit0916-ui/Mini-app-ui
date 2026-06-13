@@ -2278,30 +2278,6 @@ async function saveSettings() {
     }
 }
 
-async function submitWithdraw() {
-    const amount = document.getElementById('with-amount').value;
-    const address = document.getElementById('with-address').value;
-
-    if(!amount || !address) return showAppAlert("Please fill all fields.", 'warning')
-
-    showAppConfirm("Are you sure you want to submit this withdrawal request?", async (ok) => {
-        if(ok) {
-            // Fix: Remove the manual .json() call
-            const data = await secureFetch('/api/withdraw/request', {
-                method: 'POST',
-                body: JSON.stringify({ amount, address })
-            });
-
-            if(data.success) {
-                tg.HapticFeedback.notificationOccurred('success');
-                showAppAlert("Request sent! Wait for admin approval.", 'success');
-                initApp(); 
-            } else {
-                showAppAlert(data.error || "Withdrawal failed.", 'error');
-            }
-        }
-    });
-}
 
 function toggleUtilityMenu() {
     const menu = document.getElementById('utility-menu');
@@ -2411,7 +2387,7 @@ async function runSweep() {
     container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
 
     try {
-        const proofs = await secureFetch('/api/admin/pending-proofs');
+        const proofs = await secureFetch('/api/admin/payouts/pending');
         
         if (proofs.length === 0) {
             container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Queue is empty!</p>';
