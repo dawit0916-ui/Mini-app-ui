@@ -721,10 +721,13 @@ main {
                 <p class="text-[8px] text-slate-500 uppercase font-black">Active Team</p>
                 <p id="total-invited" class="text-lg font-black">0</p>
             </div>
-            <div class="bg-white/5 p-3 rounded-2xl">
-                <p class="text-[8px] text-slate-500 uppercase font-black">Available</p>
-                <p id="earned-points" class="text-lg font-black text-green-400">0.00</p>
-            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+    <div id="referral-coin" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+    <div class="bg-white/5 p-3 rounded-2xl flex-1">
+        <p class="text-[8px] text-slate-500 uppercase font-black">Available</p>
+        <p id="earned-points" class="text-lg font-black text-green-400">0.00</p>
+    </div>
+</div>
         </div>
 
         <button onclick="shareInvite()" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2">
@@ -742,9 +745,15 @@ main {
     <div class="wallet-premium-card green-glow p-6 mb-6">
         <div class="absolute -right-12 -top-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
         <div class="flex justify-between items-center mb-2">
-            <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Net Portfolio Balance</span>
-            <button onclick="syncWalletBalances()" class="w-8 h-8 glass rounded-full flex items-center justify-center active:scale-90 transition-transform">🔄</button>
-        </div>
+    <!-- LEFT: Title -->
+    <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Net Portfolio Balance</span>
+    
+    <!-- RIGHT: Coin + Refresh Button -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div id="wallet-coin-display" style="width: 50px; height: 50px; flex-shrink: 0;"></div>
+        <button onclick="syncWalletBalances()" class="w-8 h-8 glass rounded-full flex items-center justify-center active:scale-90 transition-transform">🔄</button>
+    </div>
+</div>
         <div class="flex items-baseline gap-2">
             <h2 id="wallet-total-value" class="text-4xl font-black text-white tracking-tight">0.00</h2>
             <span class="text-sm font-bold text-emerald-400 tracking-wider">USDT Equiv.</span>
@@ -1758,7 +1767,14 @@ async function initApp() {
 
                 if (balanceMainEl) balanceMainEl.innerText = activeProfile.balance.toFixed(2);
                if (balanceWalletEl) balanceWalletEl.innerText = activeProfile.balance.toFixed(2);
-                
+                setTimeout(() => {
+                    if (document.getElementById('wallet-coin-display')) {
+                        createUSDTCoin('wallet-coin-display', { 
+                            size: 50, 
+                            animated: true 
+                        });
+                    }
+                }, 300);
                 if (document.getElementById('tab-profile') && !document.getElementById('tab-profile').classList.contains('hidden')) {
                     loadUserProfileMetrics();
                 }
@@ -2764,6 +2780,11 @@ async function loadReferralData() {
         console.error(e);
         listContainer.innerHTML = '<p class="text-red-500 text-[10px]">Error syncing team.</p>';
     }
+    setTimeout(() => {
+        if (document.getElementById('referral-coin')) {
+            createUSDTCoin('referral-coin', { size: 40, animated: true });
+        }
+    }, 200);
 }
 
 // Dynamically show or hide specific user id configuration row
@@ -4027,9 +4048,42 @@ function showAppReward(type, amount) {
     card.style.boxShadow    = config.shadow;
 
     // Inject icon — reset animation by replacing element
-    const iconWrap = document.getElementById('reward-icon-wrap');
-    iconWrap.style.animation = 'none';
+    // Inject icon — reset animation by replacing element
+const iconWrap = document.getElementById('reward-icon-wrap');
+iconWrap.style.animation = 'none';
+
+// 🆕 Show USDT coin for USDT rewards
+if (type === 'usdt') {
+    iconWrap.innerHTML = `
+        <svg width="72" height="72" viewBox="0 0 300 300" style="width:100%;height:100%;filter:drop-shadow(0 4px 12px rgba(31,229,217,0.3));">
+            <defs>
+                <radialGradient id="usdt-r" cx="50%" cy="35%">
+                    <stop offset="0%" style="stop-color:#1FE5D9"/>
+                    <stop offset="50%" style="stop-color:#00D4C4"/>
+                    <stop offset="100%" style="stop-color:#00A89C"/>
+                </radialGradient>
+                <linearGradient id="rim-r" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1A7A72"/>
+                    <stop offset="50%" style="stop-color:#0F4A44"/>
+                    <stop offset="100%" style="stop-color:#1A7A72"/>
+                </linearGradient>
+                <linearGradient id="gloss-r" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.6"/>
+                    <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:0.2"/>
+                    <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0"/>
+                </linearGradient>
+            </defs>
+            <ellipse cx="150" cy="240" rx="70" ry="20" fill="rgba(0,0,0,0.15)"/>
+            <ellipse cx="150" cy="120" rx="95" ry="95" fill="url(#rim-r)"/>
+            <ellipse cx="150" cy="120" rx="90" ry="90" fill="url(#usdt-r)"/>
+            <ellipse cx="120" cy="80" rx="50" ry="40" fill="url(#gloss-r)"/>
+            <rect x="120" y="95" width="60" height="8" rx="4" fill="#FFFFFF" opacity="0.95"/>
+            <rect x="143" y="103" width="14" height="50" rx="7" fill="#FFFFFF" opacity="0.95"/>
+        </svg>
+    `;
+} else {
     iconWrap.innerHTML = REWARD_SVGS[type] || REWARD_SVGS.tryagain;
+}
     void iconWrap.offsetWidth; // force reflow
     iconWrap.style.animation = '';
 
@@ -4107,5 +4161,6 @@ function spawnConfetti() {
         // Start App
         initApp();
     </script>
+    <script src="usdt-coin.js"></script>
 </body>
 </html>
