@@ -3287,20 +3287,20 @@ function renderWheelStaticFrameState() {
         
         // 1. Render Main Value Text String
         spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-        spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, isBottomHalf ? 40 : -40);
+        spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, isBottomHalf ? 18 : -18);
         
         // 2. Render Sub-Category text label
         if (WHEEL_SEGMENTS[i].type) {
             spinCtx.fillStyle = "rgba(255, 255, 255, 0.55)";
             spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
-            spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, isBottomHalf ? 25 : -25);
+            spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, isBottomHalf ? -2 : 2);
         }
         
         // 3. Draw segment icon image if loaded
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
     const iconSize = Math.floor(spinCanvas.width * 0.20);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 30 : -30, iconSize, iconSize);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 25 : -25, iconSize, iconSize);
 }
 
 spinCtx.restore();
