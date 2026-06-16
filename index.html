@@ -1132,6 +1132,10 @@ main {
             <span class="text-2xl">🔔</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Alerts</span>
         </button>
+        <button onclick="switchAdminPanel('panel-console')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">🖥</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
+        </button>
     </div>
     <div id="panel-users" class="hidden space-y-6 pb-10">
         <div class="flex items-center gap-3 mb-4">
@@ -1350,7 +1354,44 @@ main {
         </div>
     </div>
 </div>
+<div id="panel-console" class="hidden space-y-4 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-green-400">Dev Console</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Live app logs & errors</p>
+        </div>
+    </div>
 
+    <!-- Toolbar -->
+    <div class="glass p-3 border-white/5 flex flex-wrap gap-2 items-center">
+        <span class="text-[10px] font-black text-green-400 tracking-widest">⬛ CONSOLE</span>
+        <div id="con-filter-btns" class="flex gap-1 flex-wrap">
+            <button onclick="conFilter('all',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black bg-slate-600 text-white">ALL</button>
+            <button onclick="conFilter('log',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">LOG</button>
+            <button onclick="conFilter('info',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">INFO</button>
+            <button onclick="conFilter('warn',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">WARN</button>
+            <button onclick="conFilter('error',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">ERROR</button>
+        </div>
+        <input id="con-search" oninput="conRender()" placeholder="Search..." class="flex-1 min-w-[80px] p-1.5 rounded-lg text-[10px] glass text-white outline-none border border-white/10">
+        <button onclick="conTogglePause()" id="con-pause-btn" class="px-2 py-1 border border-white/20 rounded text-[9px] font-black text-slate-400">⏸</button>
+        <button onclick="conClear()" class="px-2 py-1 border border-red-500/30 rounded text-[9px] font-black text-red-400">✕ Clear</button>
+    </div>
+    <!-- Stats bar -->
+    <div id="con-stats" class="flex gap-3 px-2 text-[9px] text-slate-500 font-bold"></div>
+    <!-- Log entries -->
+    <div id="con-entries" class="glass border-white/5 rounded-2xl overflow-hidden" style="max-height:420px;overflow-y:auto;font-family:'JetBrains Mono',monospace;">
+        <div class="flex flex-col items-center justify-center py-16 text-slate-600">
+            <span class="text-2xl mb-2">◌</span>
+            <span class="text-[10px] font-bold">No logs yet — trigger some actions</span>
+        </div>
+    </div>
+    <!-- Footer -->
+    <div class="flex justify-between text-[9px] text-slate-600 font-bold px-2">
+        <span>Intercepting: log · info · warn · error · debug · uncaught · unhandledrejection</span>
+        <span id="con-error-count" class="text-slate-600">✓ no errors</span>
+    </div>
+    </div>
 <div id="panel-broadcast" class="hidden space-y-6 pb-10">
     <div class="glass p-5 mb-6 border-purple-500/20">
     <h3 class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Global Broadcast</h3>
@@ -2233,7 +2274,8 @@ function switchAdminPanel(panelId) {
         'panel-payouts', 
         'panel-proofs', 
         'panel-admins', 
-        'panel-notifications'
+        'panel-notifications',
+        'panel-console'
     ];
     
     if (panelId === 'hub') {
@@ -3254,7 +3296,14 @@ function renderWheelStaticFrameState() {
             spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, isBottomHalf ? -2 : 2);
         }
         
-        spinCtx.restore();
+        // 3. Draw segment icon image if loaded
+const cachedIcon = loadedSegmentIconsCache[i];
+if (cachedIcon) {
+    const iconSize = Math.floor(spinCanvas.width * 0.07);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize - 24 : 24, iconSize, iconSize);
+}
+
+spinCtx.restore();
     }
     
     spinCtx.restore();
@@ -4124,6 +4173,111 @@ function spawnConfetti() {
         setTimeout(() => dot.remove(), 3000);
     }
     }
+        // ==========================================================================
+// DEV CONSOLE PANEL ENGINE
+// ==========================================================================
+const _conHistory = [];
+let _conFilter = 'all';
+let _conPaused = false;
+let _conListeners = [];
+
+(function patchConsole() {
+    ['log','info','warn','error','debug'].forEach(level => {
+        const orig = console[level].bind(console);
+        console[level] = (...args) => {
+            orig(...args);
+            const entry = {
+                id: Date.now() + Math.random(),
+                level,
+                time: new Date().toLocaleTimeString('en-US', { hour12: false }),
+                message: args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')
+            };
+            _conHistory.push(entry);
+            if (_conHistory.length > 500) _conHistory.shift();
+            if (!_conPaused) _conListeners.forEach(fn => fn());
+        };
+    });
+    window.addEventListener('error', e => console.error('Uncaught: ' + e.message));
+    window.addEventListener('unhandledrejection', e => console.error('Unhandled Promise: ' + e.reason));
+})();
+
+function conRender() {
+    const container = document.getElementById('con-entries');
+    const stats = document.getElementById('con-stats');
+    const errorCount = document.getElementById('con-error-count');
+    if (!container) return;
+
+    const search = (document.getElementById('con-search')?.value || '').toLowerCase();
+    const filtered = _conHistory.filter(e =>
+        (_conFilter === 'all' || e.level === _conFilter) &&
+        (!search || e.message.toLowerCase().includes(search))
+    );
+
+    const counts = { log:0, info:0, warn:0, error:0, debug:0 };
+    _conHistory.forEach(e => { if (counts[e.level] !== undefined) counts[e.level]++; });
+
+    if (stats) {
+        stats.innerHTML = Object.entries(counts)
+            .filter(([,v]) => v > 0)
+            .map(([k,v]) => {
+                const clr = {log:'#cdd6f4',info:'#89b4fa',warn:'#f9e2af',error:'#f38ba8',debug:'#a6e3a1'}[k];
+                return `<span style="color:${clr}">${k}: ${v}</span>`;
+            }).join(' · ') + `<span class="ml-auto">${filtered.length}/${_conHistory.length} entries</span>`;
+    }
+
+    if (errorCount) {
+        const ec = counts.error;
+        errorCount.innerText = ec > 0 ? `${ec} error${ec > 1 ? 's' : ''}` : '✓ no errors';
+        errorCount.style.color = ec > 0 ? '#f38ba8' : '#475569';
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="flex flex-col items-center justify-center py-16 text-slate-600"><span class="text-2xl mb-2">◌</span><span class="text-[10px] font-bold">No matching logs</span></div>`;
+        return;
+    }
+
+    const COLORS = { log:'#cdd6f4', info:'#89b4fa', warn:'#f9e2af', error:'#f38ba8', debug:'#a6e3a1' };
+    const BADGES = { log:'#45475a', info:'#1e3a5f', warn:'#5f4a00', error:'#5f1a2a', debug:'#1a3a1a' };
+
+    container.innerHTML = filtered.map(e => `
+        <div style="display:flex;gap:8px;padding:4px 12px;align-items:flex-start;border-left:2px solid ${COLORS[e.level]}20;" 
+             onmouseover="this.style.background='rgba(255,255,255,0.03)'" 
+             onmouseout="this.style.background='transparent'">
+            <span style="color:#45475a;font-size:9px;min-width:55px;padding-top:3px;flex-shrink:0">${e.time}</span>
+            <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:${BADGES[e.level]};color:${COLORS[e.level]};min-width:38px;text-align:center;flex-shrink:0;font-weight:800">${e.level.toUpperCase()}</span>
+            <span style="color:${COLORS[e.level]};font-size:11px;flex:1;white-space:pre-wrap;word-break:break-all">${e.message}</span>
+        </div>
+    `).join('');
+
+    container.scrollTop = container.scrollHeight;
+}
+
+function conFilter(level, btn) {
+    _conFilter = level;
+    document.querySelectorAll('.con-lvl-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#64748b';
+    });
+    btn.style.background = '#3b82f6';
+    btn.style.color = '#ffffff';
+    conRender();
+}
+
+function conTogglePause() {
+    _conPaused = !_conPaused;
+    const btn = document.getElementById('con-pause-btn');
+    if (btn) {
+        btn.innerText = _conPaused ? '▶ Resume' : '⏸';
+        btn.style.color = _conPaused ? '#f9e2af' : '#64748b';
+    }
+}
+
+function conClear() {
+    _conHistory.length = 0;
+    conRender();
+}
+
+_conListeners.push(conRender);
         // Start App
         initApp();
     </script>
