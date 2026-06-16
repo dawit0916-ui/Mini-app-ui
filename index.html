@@ -3300,7 +3300,7 @@ function renderWheelStaticFrameState() {
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
     const iconSize = Math.floor(spinCanvas.width * 0.20);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 40 : -40, iconSize, iconSize);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 10 : -10, iconSize, iconSize);
 }
 
 spinCtx.restore();
