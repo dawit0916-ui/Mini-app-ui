@@ -3299,7 +3299,7 @@ function renderWheelStaticFrameState() {
         // 3. Draw segment icon image if loaded
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
-    const iconSize = Math.floor(spinCanvas.width * 0.10);
+    const iconSize = Math.floor(spinCanvas.width * 0.20);
     spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize - 30 : 30, iconSize, iconSize);
 }
 
