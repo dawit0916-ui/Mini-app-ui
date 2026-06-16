@@ -727,7 +727,7 @@ main {
         </div>
 
         <!-- USDT COIN IMAGE (CENTER) -->
-        <img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/usdt-coin.png" 
+        <img src="/assets/images/usdt-coin.png" 
              alt="USDT" 
              style="width: 70px; height: 70px; margin: 0 auto;">
 
@@ -757,7 +757,7 @@ main {
     <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Net Portfolio Balance</span>
     <div style="display: flex; align-items: center; gap: 12px;">
         <!-- USDT COIN IMAGE -->
-        <img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/usdt-coin.png" 
+        <img src="/assets/images/usdt-coin.png" 
              alt="USDT" 
              style="width: 50px; height: 50px; flex-shrink: 0;">
         <button onclick="syncWalletBalances()" class="w-8 h-8 glass rounded-full flex items-center justify-center active:scale-90 transition-transform">🔄</button>
@@ -3101,28 +3101,28 @@ let isSpinningActive = false;
 let wheelRotationAngle = 0; 
 const WHEEL_SEGMENTS = [
     // Index 0: 1.0% Odds - USDT REWARD
-    { text: "1 USDT", type: "USDT", color: "#e11d48", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/usdt-coin.png" },
+    { text: "1 USDT", type: "USDT", color: "#e11d48", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
     
     // Index 1: 45% Odds - POINTS
-    { text: "25 PTS", type: "POINTS", color: "#1e293b", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/point-coin.png" },
+    { text: "25 PTS", type: "POINTS", color: "#1e293b", textClr: "#ffffff", iconUrl: "/assets/images/point-coin.png" },
     
     // Index 2: 30% Odds - TRY AGAIN
-    { text: "TRY AGAIN", type: "EMPTY", color: "#334155", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/spin-coin.png" },
+    { text: "TRY AGAIN", type: "EMPTY", color: "#334155", textClr: "#ffffff", iconUrl: "/assets/images/spin-coin.png" },
     
     // Index 3: 15% Odds - POINTS
-    { text: "100 PTS", type: "POINTS", color: "#581c87", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/point-coin.png" },
+    { text: "100 PTS", type: "POINTS", color: "#581c87", textClr: "#ffffff", iconUrl: "/assets/images/point-coin.png" },
     
     // Index 4: 6% Odds - SPINS
-    { text: "1 SPIN", type: "SPINS", color: "#2563eb", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/spin-coin.png" },
+    { text: "1 SPIN", type: "SPINS", color: "#2563eb", textClr: "#ffffff", iconUrl: "/assets/images/spin-coin.png" },
     
     // Index 5: 2.5% Odds - POINTS
-    { text: "500 PTS", type: "POINTS", color: "#0f172a", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/point-coin.png" },
+    { text: "500 PTS", type: "POINTS", color: "#0f172a", textClr: "#ffffff", iconUrl: "/assets/images/point-coin.png" },
     
     // Index 6: 0.5% Odds - SAFETY BONUS
-    { text: "50 PTS", type: "POINTS", color: "#0f766e", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/point-coin.png" },
+    { text: "50 PTS", type: "POINTS", color: "#0f766e", textClr: "#ffffff", iconUrl: "/assets/images/point-coin.png" },
     
     // Index 7: 0.5% Odds - JACKPOT (Randomly picks between 3 types!)
-    { text: "🎉 JACKPOT!", type: "JACKPOT", color: "#ca8a04", textClr: "#ffffff", iconUrl: "https://github.com/dawit0916-ui/mini-app-ui/raw/main/assets/images/jackpot-usdt-coin.png" }
+    { text: "🎉 JACKPOT!", type: "JACKPOT", color: "#ca8a04", textClr: "#ffffff", iconUrl: "/assets/images/jackpot-usdt-coin.png" }
 ];
 // 🆕 ADD THIS MAPPING - Maps wheel index to reward amounts
 const spinAmountMap = {
@@ -3892,11 +3892,11 @@ document.getElementById('app-popup-backdrop').addEventListener('click', function
 // ==========================================================================
 
 const REWARD_SVGS = {
-    usdt: `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/usdt-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(31,229,217,0.3));">`,
+    usdt: `<img src="/assets/images/usdt-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(31,229,217,0.3));">`,
     
-    points: `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/point-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(99,102,241,0.3));">`,
+    points: `<img src="/assets/images/point-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(99,102,241,0.3));">`,
     
-    coins: `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/spin-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));">`,
+    coins: `<img src="/assets/images/spin-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));">`,
     
     tryagain: `<svg width="64" height="64" viewBox="0 0 64 64">
         <circle cx="32" cy="32" r="28" fill="rgba(51,65,85,0.5)" stroke="rgba(71,85,105,0.4)" stroke-width="1.5"/>
@@ -3904,13 +3904,13 @@ const REWARD_SVGS = {
         <polygon points="18,24 26,27 20,34" fill="#64748b"/>
     </svg>`,
     
-    jackpot: `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/jackpot-usdt-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));">`,
+    jackpot: `<img src="/assets/images/jackpot-usdt-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));">`,
     
-    jackpot_usdt: `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/jackpot-usdt-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));">`,
+    jackpot_usdt: `<img src="/assets/images/jackpot-usdt-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));">`,
     
-    jackpot_coin: `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/jackpot-spin-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));transform:scale(1.2);">`,
+    jackpot_coin: `<img src="/assets/images/jackpot-spin-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));transform:scale(1.2);">`,
     
-    jackpot_point: `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/jackpot-point-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));transform:scale(1.2);">`
+    jackpot_point: `<img src="/assets/images/jackpot-point-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));transform:scale(1.2);">`
 };
 
 const REWARD_CONFIGS = {
@@ -4036,15 +4036,15 @@ iconWrap.style.animation = 'none';
 
 // 🆕 SHOW CORRECT COIN IMAGE
 if (type === 'usdt') {
-    iconWrap.innerHTML = `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/usdt-coin.png" 
+    iconWrap.innerHTML = `<img src="/assets/images/usdt-coin.png" 
                                 alt="USDT" 
                                 style="width:72px;height:72px;">`;
 } else if (type === 'points') {
-    iconWrap.innerHTML = `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/point-coin.png" 
+    iconWrap.innerHTML = `<img src="/assets/images/point-coin.png" 
                                 alt="Points" 
                                 style="width:72px;height:72px;">`;
 } else if (type === 'coins') {
-    iconWrap.innerHTML = `<img src="https://github.com/dawit0916-ui/Mini-app-ui/raw/main/assets/images/spin-coin.png" 
+    iconWrap.innerHTML = `<img src="/assets/images/spin-coin.png" 
                                 alt="Coins" 
                                 style="width:72px;height:72px;">`;
 } else {
