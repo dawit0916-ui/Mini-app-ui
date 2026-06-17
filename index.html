@@ -1509,17 +1509,57 @@ main {
         <div class="spin-modal-container glass glow-blue">
           <div class="modal-game-arena flex-1 flex flex-col items-center justify-center relative w-full my-auto select-none min-h-[520px]">
     
-    <div class="w-full max-w-[320px] flex flex-col items-center justify-center mb-6 relative z-50 transform scale-105">
-        <div class="text-3xl mb-1 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)] animate-[bounce_3s_infinite_ease-in-out]">👑</div>
-        <div class="relative bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-900 border-y-2 border-yellow-400 px-8 py-2 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.6)] text-center tracking-wide">
-            <div class="absolute left-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-l-sm skew-y-12"></div>
-            <h2 class="text-2xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-amber-500 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                Lucky Spin
-            </h2>
-            <p class="text-[9px] font-bold text-yellow-300/80 uppercase tracking-widest mt-0.5">Win Exciting Prizes</p>
-            <div class="absolute right-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-r-sm -skew-y-12"></div>
-        </div>
+    <!-- TOP: Coins Box (LEFT) + Title (CENTER) Layout -->
+<div class="w-full max-w-[340px] flex items-start justify-between gap-2 mb-6 relative z-50">
+  
+  <!-- LEFT: Small Coins Box -->
+  <div class="glass p-2 rounded-lg border border-blue-500/20 bg-slate-800/40 w-24 flex flex-col gap-1.5 flex-shrink-0">
+    
+    <!-- USDT -->
+    <div class="flex items-center gap-1.5 px-1 py-1 bg-white/5 rounded-md border border-emerald-500/20">
+      <img src="/assets/images/usdt-coin.png" alt="USDT" class="w-6 h-6 rounded-lg object-cover" style="filter: drop-shadow(0 2px 4px rgba(16,185,129,0.3));">
+      <div class="min-w-0">
+        <p class="text-[7px] text-emerald-300 font-black uppercase tracking-wider leading-none">USDT</p>
+        <p class="text-[10px] font-black text-white" id="spin-usdt-val">0.00</p>
+      </div>
     </div>
+
+    <!-- Points -->
+    <div class="flex items-center gap-1.5 px-1 py-1 bg-white/5 rounded-md border border-indigo-500/20">
+      <img src="/assets/images/point-coin.png" alt="Points" class="w-6 h-6 rounded-lg object-cover" style="filter: drop-shadow(0 2px 4px rgba(99,102,241,0.3));">
+      <div class="min-w-0">
+        <p class="text-[7px] text-indigo-300 font-black uppercase tracking-wider leading-none">PTS</p>
+        <p class="text-[10px] font-black text-white" id="spin-pts-val">0</p>
+      </div>
+    </div>
+
+    <!-- Coins -->
+    <div class="flex items-center gap-1.5 px-1 py-1 bg-white/5 rounded-md border border-amber-500/20">
+      <img src="/assets/images/spin-coin.png" alt="Coins" class="w-6 h-6 rounded-lg object-cover" style="filter: drop-shadow(0 2px 4px rgba(245,158,11,0.3));">
+      <div class="min-w-0">
+        <p class="text-[7px] text-amber-300 font-black uppercase tracking-wider leading-none">COIN</p>
+        <p class="text-[10px] font-black text-white" id="spin-coin-val">0</p>
+      </div>
+    </div>
+
+  </div>
+  <!-- CENTER: Title -->
+  <div class="flex-1 flex flex-col items-center">
+    <div class="text-3xl mb-1 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)]">👑</div>
+    <div class="relative bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-900 border-y-2 border-yellow-400 px-8 py-2 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.6)] text-center tracking-wide">
+      <div class="absolute left-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-l-sm skew-y-12"></div>
+      <h2 class="text-2xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-amber-500 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          Lucky Spin
+      </h2>
+      <p class="text-[9px] font-bold text-yellow-300/80 uppercase tracking-widest mt-0.5">Win Exciting Prizes</p>
+      <div class="absolute right-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-r-sm -skew-y-12"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Empty spacer -->
+  <div class="w-24"></div>
+
+</div>
 
     <div id="canvas-mount-target" class="game-layer-container relative w-[300px] h-[300px] rounded-full p-2 bg-gradient-to-tr from-amber-400 via-yellow-400 via-amber-600 to-yellow-300 shadow-[0_0_50px_rgba(245,158,11,0.5),inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-amber-900/60 flex items-center justify-center box-border">
         
@@ -3211,7 +3251,16 @@ function pushNotification(title, msg, type = 'system') {
     // Live update the list elements if center layout is open
     renderFilteredNotifications();
 }
-
+// Update spin modal coins display
+function updateSpinModalCoinsDisplay() {
+    const usdtVal = document.getElementById('balance-main')?.innerText || '0.00';
+    const pointsVal = document.getElementById('asset-bal-points')?.innerText || '0.00';
+    const coinsVal = document.getElementById('asset-bal-coins')?.innerText || '0';
+    
+    document.getElementById('spin-usdt-val').innerText = usdtVal;
+    document.getElementById('spin-pts-val').innerText = pointsVal;
+    document.getElementById('spin-coin-val').innerText = coinsVal;
+        }
 
 /* ==========================================================================
    PRODUCTION ENGINE LOGIC: ASSET-PRELOADED CORE ARCHITECTURE WITH ICONS
@@ -3379,7 +3428,7 @@ function renderWheelStaticFrameState() {
         // 3. Draw segment icon image if loaded
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
-    const iconSize = Math.floor(spinCanvas.width * 0.20);
+    const iconSize = Math.floor(spinCanvas.width * 0.18);
     spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 10 : -10, iconSize, iconSize);
 }
 
@@ -3396,19 +3445,7 @@ function openSpinModal() {
     const targetModalNode = document.getElementById('lucky-spin-modal');
     if (!targetModalNode) return console.error("Target element 'lucky-spin-modal' not located in DOM.");
 
-    const coinsText = document.getElementById('asset-bal-coins')?.innerText?.trim() || "0";
-    const balanceText = document.getElementById('balance-main')?.innerText?.trim() || "0.00";
-
-    const hudCoins = document.getElementById('spin-coins-display');
-    const hudBalance = document.getElementById('spin-balance-display');
-    
-    if (hudCoins) {
-        hudCoins.innerText = coinsText;
-    }
-    if (hudBalance) {
-        const strippedBalance = balanceText.replace("USDT", "").trim();
-        hudBalance.innerText = `${strippedBalance} USDT`;
-    }
+    updateSpinModalCoinsDisplay(); // ← ADD THIS LINE
 
     targetModalNode.classList.add('show');
 
