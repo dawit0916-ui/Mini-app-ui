@@ -1095,11 +1095,11 @@ main {
 <div id="tab-admin" class="tab-content">
     <div class="grid grid-cols-2 gap-4 mb-6">
         <div class="glass p-4 border-b-2 border-blue-500">
-            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Total Users</p>
+            <p class="text-[5px] text-slate-500 uppercase font-bold tracking-widest">Total Users</p>
             <h4 id="stat-users" class="text-2xl font-black">0</h4>
         </div>
         <div class="glass p-4 border-b-2 border-yellow-500">
-            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Pending Payouts</p>
+            <p class="text-[5px] text-slate-500 uppercase font-bold tracking-widest">Pending Payouts</p>
             <h4 id="stat-withdraws" class="text-2xl font-black text-yellow-500">0</h4>
         </div>
     </div>
@@ -1205,42 +1205,7 @@ main {
         </div>
     </div>
 
-    <div class="glass p-5 mb-6 border-white/5">
-        <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">System Controls</h3>
-        
-        <div class="space-y-4">
-            <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
-                <div>
-                    <p class="text-xs font-bold">Maintenance Mode</p>
-                    <p class="text-[9px] text-slate-500">Block all user access</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="set-maintenance" onchange="saveSettings()" class="sr-only peer">
-                    <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:bg-red-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                </label>
-            </div>
-
-            <div class="space-y-3 pt-2">
-                <div class="flex gap-2">
-                    <div class="flex-1">
-                        <p class="text-[9px] text-slate-500 mb-1 ml-1">Invite Bonus</p>
-                        <input id="set-ref-bonus" type="number" step="0.1" class="w-full p-3 rounded-xl text-xs glass" placeholder="0.50">
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-[9px] text-slate-500 mb-1 ml-1">Comm. %</p>
-                        <input id="set-ref-percent" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="10">
-                    </div>
-                    <div class="flex-1">
-    <p class="text-[9px] text-slate-500 mb-1 ml-1">Req. Tasks</p>
-    <input id="set-ref-threshold" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="5">
-</div>
-
-                </div>
-                <button onclick="saveRefSettings()" class="w-full bg-blue-600/20 text-blue-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/30">Update Referral Rules</button>
-            </div>
-        </div>
-    </div>
-    <div id="panel-task-manager" class="hidden space-y-6 pb-10">
+<div id="panel-task-manager" class="hidden space-y-6 pb-10">
         <div class="flex items-center gap-3 mb-4">
             <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
             <div>
@@ -1312,6 +1277,46 @@ main {
             </div>
         </div>
     </div>
+<!-- REPLACE the two floating glass divs with this: -->
+<div id="panel-payouts" class="hidden space-y-6 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-yellow-400">Payout Queue</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Review and action withdrawal requests</p>
+        </div>
+    </div>
+
+    <div class="glass p-5 border-yellow-500/20">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-[10px] font-black uppercase text-yellow-500 tracking-widest">Pending Withdrawals</h3>
+            <button onclick="loadPendingWithdrawals()" class="text-[10px] text-blue-400 font-bold">Refresh</button>
+        </div>
+        <div id="admin-withdraw-list" class="space-y-3">
+            <p class="text-center text-[10px] text-slate-500 py-4">No pending requests</p>
+        </div>
+    </div>
+</div>
+
+<div id="panel-proofs" class="hidden space-y-6 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-indigo-400">Proof Queue</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Review manual task submissions</p>
+        </div>
+    </div>
+
+    <div class="glass p-5 border-indigo-500/20">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-[10px] font-black uppercase text-indigo-400 tracking-widest">Manual Proof Queue</h3>
+            <button onclick="loadPendingProofs()" class="text-[10px] text-blue-400 font-bold">Refresh</button>
+        </div>
+        <div id="admin-proof-list" class="space-y-3">
+            <p class="text-center text-[10px] text-slate-500 py-4">No proofs waiting for review</p>
+        </div>
+    </div>
+</div>
 <div id="panel-notifications" class="hidden space-y-6 pb-10">
     <div class="flex items-center gap-3 mb-4">
         <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
@@ -1397,38 +1402,72 @@ main {
     </div>
     </div>
 <div id="panel-broadcast" class="hidden space-y-6 pb-10">
-    <div class="glass p-5 mb-6 border-purple-500/20">
-    <h3 class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Global Broadcast</h3>
-    <textarea id="broadcast-msg" rows="3" class="w-full p-3 rounded-xl text-xs glass mb-3" placeholder="Type your announcement here... (HTML allowed)"></textarea>
-    
-    <button id="btn-broadcast" onclick="sendBroadcast()" class="w-full bg-purple-600/20 text-purple-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-purple-500/30 transition-all active:scale-95">
-        🚀 Send to All Users
-    </button>
-    <p class="text-[8px] text-slate-500 mt-2 text-center">Tip: Use &lt;b&gt;text&lt;/b&gt; for bold</p>
-    </div>
-</div>
-
-    <div class="glass p-5">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-[10px] font-black uppercase text-yellow-500 tracking-widest">Payout Queue</h3>
-            <button onclick="loadPendingWithdrawals()" class="text-[10px] text-blue-400 font-bold">Refresh</button>
-        </div>
-        <div id="admin-withdraw-list" class="space-y-3">
-            <p class="text-center text-[10px] text-slate-500 py-4">No pending requests</p>
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-purple-400">Broadcast</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Send announcements to all users</p>
         </div>
     </div>
-    <!-- Place this inside Tab Admin, below the Payout Queue -->
-<div class="glass p-5 border-indigo-500/20">
-    <div class="flex justify-between items-center mb-4">
-        <h3 class="text-[10px] font-black uppercase text-indigo-400 tracking-widest">Manual Proof Queue</h3>
-        <button onclick="loadPendingProofs()" class="text-[10px] text-blue-400 font-bold">Refresh</button>
-    </div>
-    <div id="admin-proof-list" class="space-y-3">
-        <p class="text-center text-[10px] text-slate-500 py-4">No proofs waiting for review</p>
+
+    <div class="glass p-5 border-purple-500/20">
+        <h3 class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Global Broadcast</h3>
+        
+        <textarea id="broadcast-msg" rows="5" class="w-full p-3 rounded-xl text-xs glass mb-3" placeholder="Type your announcement here... (HTML allowed)"></textarea>
+        
+        <button id="btn-broadcast" onclick="sendBroadcast()" class="w-full bg-purple-600/20 text-purple-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-purple-500/30 transition-all active:scale-95">
+            🚀 Send to All Users
+        </button>
+        <p class="text-[8px] text-slate-500 mt-2 text-center">Tip: Use &lt;b&gt;text&lt;/b&gt; for bold</p>
     </div>
 </div>
+ <div id="panel-settings" class="hidden space-y-6 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400">System Settings</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Maintenance, referral rules & config</p>
+        </div>
+    </div>
 
+    <div class="glass p-5 border-white/5">
+        <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">System Controls</h3>
+        
+        <div class="space-y-4">
+            <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
+                <div>
+                    <p class="text-xs font-bold">Maintenance Mode</p>
+                    <p class="text-[9px] text-slate-500">Block all user access</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="set-maintenance" onchange="saveSettings()" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:bg-red-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                </label>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <p class="text-[9px] text-slate-500 mb-1 ml-1">Invite Bonus</p>
+                        <input id="set-ref-bonus" type="number" step="0.1" class="w-full p-3 rounded-xl text-xs glass" placeholder="0.50">
                     </div>
+                    <div class="flex-1">
+                        <p class="text-[9px] text-slate-500 mb-1 ml-1">Comm. %</p>
+                        <input id="set-ref-percent" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="10">
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[9px] text-slate-500 mb-1 ml-1">Req. Tasks</p>
+                        <input id="set-ref-threshold" type="number" class="w-full p-3 rounded-xl text-xs glass" placeholder="5">
+                    </div>
+                </div>
+                <button onclick="saveRefSettings()" class="w-full bg-blue-600/20 text-blue-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/30">
+                    Update Referral Rules
+                </button>
+            </div>
+        </div>
+    </div>
+ </div>
+</div>
             <div id="tab-support" class="tab-content">
     <div class="glass p-6 mb-6">
         <h3 class="text-xl font-bold mb-2 text-blue-400">Help & Support</h3>
@@ -2329,6 +2368,11 @@ function switchAdminPanel(panelId) {
                     el.classList.remove('hidden');
                     // Add this hook right here:
                     if (panelId === 'panel-users') loadUserDirectory();
+                    if (panelId === 'panel-payouts') loadPendingWithdrawals();
+                    if (panelId === 'panel-proofs') loadPendingProofs();       
+                    if (panelId === 'panel-task-manager') loadAdminTaskList();
+                    if (panelId === 'panel-settings') loadAdminData();
+                    if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
                 } else {
                     el.classList.add('hidden');
                 }
