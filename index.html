@@ -20,7 +20,9 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100svh; /* Locks viewport perfectly to mobile screen limits */
+    min-height: 100%;
+    position: fixed;
+    height: 100%; /* Locks viewport perfectly to mobile screen limits */
     overflow: hidden; /* Stops the entire page/body from dragging */
     background: linear-gradient(to bottom, #1e1b4b, #020617);
     color: #f8fafc;
@@ -29,10 +31,11 @@ html, body {
 
 /* Dedicated internal scrolling area */
 main {
-    height: calc(100svh - 100px); /* Formatted to accurately clear header/footer height */
+    height: calc(100% - 100px); /* Formatted to accurately clear header/footer height */
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch; /* Ensures fluid iOS inertia physics */
+    overscroll-behavior: contain;
     padding: 24px;
     padding-top: 100px; /* Safe space clearing your fixed top element */
     padding-bottom: 24px; /* Balanced resting padding at the very bottom */
@@ -237,7 +240,7 @@ main {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100svh;
+    height: 100dvh;
     background: rgba(4, 2, 14, 0.96);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -409,8 +412,9 @@ main {
     padding: 24px;
     transform: translateY(100%);
     transition: transform 0.25s cubic-bezier(0.1, 0.76, 0.55, 0.94);
-    max-height: 85vh;
+    max-height: 85dvh;
     overflow-y: auto;
+    overscroll-behavior: contain;
 }
 .wallet-modal-backdrop.active .wallet-modal-drawer {
     transform: translateY(0);
@@ -1615,15 +1619,17 @@ main {
 </nav>
     <script>
    
-        const tg = window.Telegram.WebApp;
-tg.expand(); // Open full screen
+const tg = window.Telegram.WebApp;
 tg.ready();
+tg.expand();
+// Also add this — prevents Telegram from collapsing on vertical swipe
+if (tg.disableVerticalSwipes) {
+    tg.disableVerticalSwipes();
+}
 
 // 🛑 IMPORTANT: REPLACE THIS WITH YOUR RENDER URL
-const RENDER_URL = "https://embt-gateway.onrender.com"; 
-
-// 🛑 IMPORTANT: REPLACE WITH YOUR TELEGRAM ID
- let OWNER_ID = null;
+  const RENDER_URL = "https://embt-gateway.onrender.com";
+let OWNER_ID = null;
 let isCurrentUserAdmin = false;
 let allAdmins = [];
 // ==========================================================================
