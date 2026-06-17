@@ -1623,7 +1623,36 @@ tg.ready();
 const RENDER_URL = "https://embt-gateway.onrender.com"; 
 
 // 🛑 IMPORTANT: REPLACE WITH YOUR TELEGRAM ID
-const OWNER_ID = 7329000880; 
+ let OWNER_ID = null;
+let isCurrentUserAdmin = false;
+let allAdmins = [];
+// ==========================================================================
+// FETCH ADMIN STATUS FROM BACKEND
+// ==========================================================================
+async function fetchAdminStatus() {
+    try {
+        const data = await secureFetch('/api/admin/check');
+        
+        if (data && data.success) {
+            isCurrentUserAdmin = data.isAdmin;
+            allAdmins = data.adminList || [];
+            
+            // Set primary admin ID (first in list)
+            OWNER_ID = allAdmins.length > 0 ? allAdmins[0] : null;
+            
+            console.log("✅ Admin Status Fetched:", {
+                isAdmin: isCurrentUserAdmin,
+                totalAdmins: allAdmins.length,
+                adminIds: allAdmins
+            });
+            
+            return isCurrentUserAdmin;
+        }
+    } catch (err) {
+        console.error("Failed to fetch admin status:", err);
+    }
+    return false;
+}
 
 // Current User Data
 const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; 
@@ -1756,6 +1785,7 @@ function renderGlobalMaintenanceViewportScreen(meta) {
 
 // -- Decoupled Initialization --
 async function initApp() {
+    await fetchAdminStatus();
     cachedUserProfile = null;
      
     // SAFE EXTRACT: Safely pull the Telegram user instance with a robust local fallback object
@@ -1790,7 +1820,7 @@ async function initApp() {
     }
 
     // 2. Show Admin features if applicable
-    if (user.id === OWNER_ID) {
+    if (isCurrentUserAdmin) {
         document.getElementById('admin-badge').classList.remove('hidden');
         document.getElementById('nav-admin').classList.remove('hidden');
         const alertsBtn = document.querySelector('button[onclick="switchAdminPanel(\'panel-notifications\')"]');
