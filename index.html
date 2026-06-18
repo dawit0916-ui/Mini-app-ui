@@ -2323,21 +2323,21 @@ async function loadAdminTaskList() {
 async function loadPendingWithdrawals() {
     const container = document.getElementById('admin-withdraw-list');
     if (!container) return;
-    
+
     try {
-        // Fixed: Swapped fetch out for secureFetch wrapper
-        const data = await secureFetch('/api/admin/withdrawals');
-        const list = Array.isArray(data) ? data : (data.withdrawals || []);
-        
+        const data = await secureFetch('/api/admin/payouts/pending');
+        const list = data.payouts || [];
+
         let html = '';
         list.forEach(w => {
             html += `
             <div class="glass p-4 border-l-4 border-yellow-500 mb-2">
-                <p class="text-sm font-bold">${w.amount} USDT</p>
-                <p class="text-[10px] text-slate-400 mb-2 break-all">${w.address}</p>
+                <p class="text-sm font-bold">${w.amount} ${(w.assetType || 'USDT').toUpperCase()}</p>
+                <p class="text-[9px] text-slate-500 mb-1">${w.network || ''}</p>
+                <p class="text-[10px] text-slate-400 mb-2 break-all">${w.cryptoAddress || ''}</p>
                 <div class="flex gap-2">
-                    <button onclick="payoutAction('${w._id || w.id}', 'approved')" class="bg-green-600 text-[10px] px-3 py-1 rounded">Approve</button>
-                    <button onclick="payoutAction('${w._id || w.id}', 'rejected')" class="bg-red-600 text-[10px] px-3 py-1 rounded">Reject</button>
+                    <button onclick="payoutAction('${w.txId}', 'accepted')" class="bg-green-600 text-[10px] px-3 py-1 rounded">Approve</button>
+                    <button onclick="payoutAction('${w.txId}', 'rejected')" class="bg-red-600 text-[10px] px-3 py-1 rounded">Reject</button>
                 </div>
             </div>`;
         });
@@ -2913,18 +2913,20 @@ async function sendBroadcast() {
         }
 
 // --- ADMIN: PAYOUT ACTIONS ---
-async function payoutAction(requestId, action) {
+async function payoutAction(txId, action) {
     const res = await secureFetch('/api/admin/payouts/action', {
         method: 'POST',
-        body: JSON.stringify({ requestId, status: action })
+        body: JSON.stringify({ txId, status: action })
     });
-    
+
     if(res.success) {
         tg.HapticFeedback.notificationOccurred('success');
-        loadAdminData(); // Refresh stats and list
+        loadPendingWithdrawals();
+        loadAdminData();
+    } else {
+        showAppAlert(res.error || "Action failed.", 'error');
     }
-    }
-    
+}
 // --- UPDATED REFERRAL LOGIC ---
 async function loadReferralData() {
     const listContainer = document.getElementById('friends-list');
@@ -3462,7 +3464,7 @@ function renderWheelStaticFrameState() {
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
     const iconSize = Math.floor(spinCanvas.width * 0.12);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 20 : -20, iconSize, iconSize);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 25 : -25, iconSize, iconSize);
 }
 
 spinCtx.restore();
@@ -3947,8 +3949,8 @@ async function loadWalletStatementLedgerLogs() {
     if (!networkResponseDataPayload || !networkResponseDataPayload.success || !networkResponseDataPayload.history || networkResponseDataPayload.history.length === 0) {
         listDisplayMountAnchorNode.innerHTML = getEmptyStateHTML(
     "📁",
-    "No matching statements recorded",
-    "please make some movement to your wallet"
+    "No statements recorded",
+    "please make some activity"
 );
         return;
     }
