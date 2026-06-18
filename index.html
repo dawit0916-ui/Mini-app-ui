@@ -2144,6 +2144,7 @@ async function toggleUserBanStatus() {
                 tg.HapticFeedback.notificationOccurred('success');
                 showAppAlert(`User successfully ${targetState ? 'banned' : 'unbanned'}!`, 'success');
                 searchUser(); // Refresh data to load current layout state
+                await logAdminAction(db, { adminId, adminName, action: banned ? 'user_banned' : 'user_unbanned', description: `${banned ? 'Banned' : 'Unbanned'} user ${userId}` });
             } else {
                 showAppAlert("Action denied by server.", 'error')
             }
@@ -2484,6 +2485,7 @@ async function saveSettings() {
         if(res.success) {
             tg.HapticFeedback.impactOccurred('medium');
             showAppAlert(`Maintenance mode is now ${isMaint ? 'ON 🔴' : 'OFF 🟢'}.`, isMaint ? 'warning' : 'success');
+            await logAdminAction(db, { adminId, adminName, action: 'settings_updated', description: `Updated settings: ${Object.keys(changedFields).join(', ')}` });
         }
     } catch (e) {
         showAppAlert("Failed to update settings.", 'error');
@@ -2564,7 +2566,7 @@ async function addNewTask() {
         document.getElementById('upload-text').className = "text-xs font-bold text-slate-400";
         
         loadAdminTaskList();
-    
+        await logAdminAction(db, { adminId, adminName, action: 'task_added', description: `Added task: ${task.title}` });
         } else {
             showAppAlert("Error: " + res.error, 'error')
         }
@@ -2640,6 +2642,8 @@ async function processProof(proofId, action) {
         tg.HapticFeedback.notificationOccurred('success');
         loadPendingProofs(); // Refresh the list
         loadAdminData();    // Refresh overall stats
+        await logAdminAction(db, { adminId, adminName, action: approved ? 'proof_approved' : 'proof_rejected',
+    description: `${approved ? 'Approved' : 'Rejected'} proof for user ${userId}` });
     } else {
         showAppAlert("Action failed: " + res.error, 'error')
     }
@@ -2879,6 +2883,7 @@ showAppConfirm("Delete this task permanently?", async (ok) => {
     await secureFetch(`/api/admin/tasks/delete/${id}`, { method: 'DELETE' });
     loadAdminTaskList();
     showAppAlert("Task removed successfully.", 'success');
+    await logAdminAction(db, { adminId, adminName, action: 'task_deleted', description: `Deleted task: ${taskId}` });
 });
 }
 async function sendBroadcast() {
@@ -2901,6 +2906,7 @@ async function sendBroadcast() {
                 if (res.success) {
                     showAppAlert(`Broadcast started! Sending to ${res.total} users.`, 'success')
                     document.getElementById('broadcast-msg').value = '';
+                    await logAdminAction(db, { adminId, adminName, action: 'broadcast_sent', description: `Sent broadcast to ${recipientCount} users` });
                 }
             } catch (e) {
                 showAppAlert("Broadcast error. Check server logs.", 'error')
