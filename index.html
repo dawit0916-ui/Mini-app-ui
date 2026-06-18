@@ -1509,55 +1509,62 @@ main {
         <div class="spin-modal-container glass glow-blue">
           <div class="modal-game-arena flex-1 flex flex-col items-center justify-center relative w-full my-auto select-none min-h-[520px]">
     
-    <!-- TOP: Coins Box (LEFT) + Title (CENTER) Layout -->
-<div class="w-full max-w-[340px] flex items-start justify-between gap-2 mb-6 relative z-50">
-  
-  <!-- LEFT: Small Coins Box -->
-  <div class="glass p-2 rounded-lg border border-blue-500/20 bg-slate-800/40 w-24 flex flex-col gap-1.5 flex-shrink-0">
+<!-- COINS BOX: Positioned on LEFT edge, moved DOWN -->
+<div class="absolute left-0 top-32 w-24 z-20">
+  <div class="glass p-2 rounded-xl border border-blue-500/30 bg-slate-800/50 flex flex-col gap-2">
     
     <!-- USDT -->
-    <div class="flex items-center gap-1.5 px-1 py-1 bg-white/5 rounded-md border border-emerald-500/20">
-      <img src="/assets/images/usdt-coin.png" alt="USDT" class="w-6 h-6 rounded-lg object-cover" style="filter: drop-shadow(0 2px 4px rgba(16,185,129,0.3));">
+    <div class="flex items-center gap-2 px-1.5 py-1.5 bg-white/5 rounded-lg border border-emerald-500/30">
+      <img src="/assets/images/usdt-coin.png" alt="USDT" class="w-6 h-6 rounded-lg object-cover flex-shrink-0" style="filter: drop-shadow(0 2px 5px rgba(16,185,129,0.4));">
       <div class="min-w-0">
-        <p class="text-[7px] text-emerald-300 font-black uppercase tracking-wider leading-none">USDT</p>
-        <p class="text-[10px] font-black text-white" id="spin-usdt-val">0.00</p>
+        <p class="text-[7px] text-emerald-300 font-black uppercase tracking-wider">USDT</p>
+        <p class="text-xs font-black text-white" id="spin-usdt-val">0.00</p>
       </div>
     </div>
 
     <!-- Points -->
-    <div class="flex items-center gap-1.5 px-1 py-1 bg-white/5 rounded-md border border-indigo-500/20">
-      <img src="/assets/images/point-coin.png" alt="Points" class="w-6 h-6 rounded-lg object-cover" style="filter: drop-shadow(0 2px 4px rgba(99,102,241,0.3));">
+    <div class="flex items-center gap-2 px-1.5 py-1.5 bg-white/5 rounded-lg border border-indigo-500/30">
+      <img src="/assets/images/point-coin.png" alt="Points" class="w-6 h-6 rounded-lg object-cover flex-shrink-0" style="filter: drop-shadow(0 2px 5px rgba(99,102,241,0.4));">
       <div class="min-w-0">
-        <p class="text-[7px] text-indigo-300 font-black uppercase tracking-wider leading-none">PTS</p>
-        <p class="text-[10px] font-black text-white" id="spin-pts-val">0</p>
+        <p class="text-[7px] text-indigo-300 font-black uppercase tracking-wider">PTS</p>
+        <p class="text-xs font-black text-white" id="spin-pts-val">0</p>
       </div>
     </div>
 
     <!-- Coins -->
-    <div class="flex items-center gap-1.5 px-1 py-1 bg-white/5 rounded-md border border-amber-500/20">
-      <img src="/assets/images/spin-coin.png" alt="Coins" class="w-6 h-6 rounded-lg object-cover" style="filter: drop-shadow(0 2px 4px rgba(245,158,11,0.3));">
+    <div class="flex items-center gap-2 px-1.5 py-1.5 bg-white/5 rounded-lg border border-amber-500/30">
+      <img src="/assets/images/spin-coin.png" alt="Coins" class="w-6 h-6 rounded-lg object-cover flex-shrink-0" style="filter: drop-shadow(0 2px 5px rgba(245,158,11,0.4));">
       <div class="min-w-0">
-        <p class="text-[7px] text-amber-300 font-black uppercase tracking-wider leading-none">COIN</p>
-        <p class="text-[10px] font-black text-white" id="spin-coin-val">0</p>
+        <p class="text-[7px] text-amber-300 font-black uppercase tracking-wider">COIN</p>
+        <p class="text-xs font-black text-white" id="spin-coin-val">0</p>
       </div>
     </div>
 
   </div>
-  <!-- CENTER: Title -->
-  <div class="flex-1 flex flex-col items-center">
-    <div class="text-3xl mb-1 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.6)]">👑</div>
-    <div class="relative bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-900 border-y-2 border-yellow-400 px-8 py-2 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.6)] text-center tracking-wide">
-      <div class="absolute left-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-l-sm skew-y-12"></div>
-      <h2 class="text-2xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-amber-500 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-          Lucky Spin
-      </h2>
-      <p class="text-[9px] font-bold text-yellow-300/80 uppercase tracking-widest mt-0.5">Win Exciting Prizes</p>
-      <div class="absolute right-[-8px] top-1/2 -translate-y-1/2 w-2 h-4 bg-yellow-500 rounded-r-sm -skew-y-12"></div>
-    </div>
+</div>
+
+<!-- CENTER: Title with Bouncing Crown & Info Icon -->
+<div class="w-full max-w-xs flex flex-col items-center mx-auto relative z-10">
+  
+  <!-- Bouncing Crown -->
+  <div class="text-5xl mb-2 filter drop-shadow-[0_3px_8px_rgba(245,158,11,0.6)] animate-[bounce_3s_infinite_ease-in-out]">👑</div>
+
+  <!-- Expanded Title Box -->
+  <div class="relative bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-900 border-y-2 border-yellow-400 px-10 py-4 rounded-lg shadow-[0_6px_25px_rgba(0,0,0,0.7)] text-center w-full">
+    <div class="absolute left-[-10px] top-1/2 -translate-y-1/2 w-3 h-5 bg-yellow-500 rounded-l-sm skew-y-12"></div>
+    
+    <h2 class="text-3xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight">
+      Lucky Spin
+    </h2>
+    <p class="text-[10px] font-bold text-yellow-300/80 uppercase tracking-widest mt-1">Win Exciting Prizes</p>
+    
+    <div class="absolute right-[-10px] top-1/2 -translate-y-1/2 w-3 h-5 bg-yellow-500 rounded-r-sm -skew-y-12"></div>
   </div>
 
-  <!-- RIGHT: Empty spacer -->
-  <div class="w-24"></div>
+  <!-- Info Icon (?) on Top Right -->
+  <button class="absolute -right-8 top-2 w-10 h-10 rounded-full border-2 border-red-500/60 text-red-500 text-xl font-black flex items-center justify-center hover:bg-red-500/10 transition-all active:scale-90" style="box-shadow: 0 0 10px rgba(239,68,68,0.3);">
+    ?
+  </button>
 
 </div>
 
@@ -3428,7 +3435,7 @@ function renderWheelStaticFrameState() {
         // 3. Draw segment icon image if loaded
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
-    const iconSize = Math.floor(spinCanvas.width * 0.18);
+    const iconSize = Math.floor(spinCanvas.width * 0.15);
     spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 10 : -10, iconSize, iconSize);
 }
 
