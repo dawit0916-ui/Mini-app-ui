@@ -1,3 +1,4 @@
+.spin-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
@@ -13,12 +14,10 @@
     opacity: 0;
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .spin-modal-backdrop.show {
     display: flex;
     opacity: 1;
 }
-
 .spin-modal-container {
     width: 92%;
     height: 88%;
@@ -34,7 +33,6 @@
     border: 1px solid rgba(59, 130, 246, 0.15);
     background: radial-gradient(circle at center, rgba(30, 27, 75, 0.6) 0%, rgba(3, 7, 18, 0.9) 100%);
 }
-
 /* Perfect Canvas Scaling Containers for Android & Mobile Screen Boundaries */
 .game-layer-container {
     position: relative;
@@ -47,7 +45,6 @@
     border-radius: 50%;
     box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
 }
-
 .game-layer-container canvas {
     position: absolute;
     top: 0;
@@ -57,7 +54,6 @@
     display: block;
     z-index: 10;
 }
-
 /* Premium Casino Centered Solid Input Interactive Node Button Control */
 .center-spin-btn-core {
     position: absolute;
@@ -78,18 +74,15 @@
     z-index: 40;
     transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
 .center-spin-btn-core:active {
     transform: translate(-50%, -50%) scale(0.92);
 }
-
 .center-spin-btn-core:disabled {
     background: radial-gradient(circle at center, #475569 0%, #334155 100%);
     color: #94a3b8;
     box-shadow: none;
     cursor: not-allowed;
 }
-
 /* Precision Floating Crystal Pointer Target Element Overlay Node */
 .crystal-pointer {
     position: absolute;
