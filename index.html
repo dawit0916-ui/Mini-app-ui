@@ -1363,6 +1363,34 @@ main {
         </div>
     </div>
 </div>
+<div id="panel-admins" class="hidden space-y-6 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-red-400">Admin Registry</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Active admins & 24hr activity log</p>
+        </div>
+    </div>
+
+    <!-- Admin List -->
+    <div class="glass p-5 border-red-500/20">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-[10px] font-black uppercase text-red-400 tracking-widest">Admin Accounts</h3>
+            <button onclick="loadAdminRegistry()" class="text-[10px] text-blue-400 font-bold">Refresh</button>
+        </div>
+        <div id="admin-registry-list" class="space-y-3">
+            <p class="text-center text-[10px] text-slate-500 py-4">Loading admins...</p>
+        </div>
+    </div>
+
+    <!-- 24hr Activity Log -->
+    <div class="glass p-5 border-red-500/10">
+        <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Activity — Last 24 Hours</h3>
+        <div id="admin-activity-log" class="space-y-2">
+            <p class="text-center text-[10px] text-slate-500 py-4">No recent activity</p>
+        </div>
+    </div>
+</div>
 <div id="panel-console" class="hidden space-y-4 pb-10">
     <div class="flex items-center gap-3 mb-4">
         <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
@@ -2416,6 +2444,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-proofs') loadPendingProofs();       
                     if (panelId === 'panel-task-manager') loadAdminTaskList();
                     if (panelId === 'panel-settings') loadAdminData();
+                    if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
                 } else {
                     el.classList.add('hidden');
@@ -4399,6 +4428,102 @@ function conClear() {
 }
 
 _conListeners.push(conRender);
+ async function loadAdminRegistry() {
+    const registryList = document.getElementById('admin-registry-list');
+    const activityLog = document.getElementById('admin-activity-log');
+    if (!registryList) return;
+
+    registryList.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
+
+    try {
+        const res = await secureFetch('/api/admin/registry');
+
+        const admins = res.admins || [];
+        const activity = res.activity || [];
+
+        // Render admin cards
+        if (admins.length === 0) {
+            registryList.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No admins found</p>';
+        } else {
+            registryList.innerHTML = admins.map(a => {
+                const lastSeen = a.last_active
+                    ? new Date(a.last_active).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : 'Never';
+                const isOnline = a.last_active && (Date.now() - new Date(a.last_active)) < 300000; // 5 min
+
+                return `
+                    <div class="glass p-4 border-l-2 ${isOnline ? 'border-green-500' : 'border-slate-600'} flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-rose-700 flex items-center justify-center text-xs font-black">
+                                ${(a.first_name || a.username || 'A').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p class="text-xs font-black text-white">${a.first_name || 'Admin'}</p>
+                                <p class="text-[9px] text-slate-400">${a.username ? '@' + a.username : 'ID: ' + a.user_id}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="flex items-center gap-1 justify-end mb-1">
+                                <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-slate-600'}"></span>
+                                <span class="text-[9px] font-bold ${isOnline ? 'text-green-400' : 'text-slate-500'}">${isOnline ? 'Online' : 'Last: ' + lastSeen}</span>
+                            </div>
+                            <span class="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">
+                                ${a.user_id === OWNER_ID ? 'Owner' : 'Admin'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render activity log
+        if (activity.length === 0) {
+            activityLog.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No activity in last 24 hours</p>';
+        } else {
+            const ACTION_ICONS = {
+                'payout_approved': '✅',
+                'payout_rejected': '❌',
+                'proof_approved':  '📥',
+                'proof_rejected':  '🚫',
+                'task_added':      '📋',
+                'task_deleted':    '🗑️',
+                'user_banned':     '🔨',
+                'user_unbanned':   '🔓',
+                'broadcast_sent':  '📣',
+                'settings_updated':'⚙️'
+            };
+
+            activityLog.innerHTML = activity.map(log => {
+                const timeAgo = getTimeAgo(new Date(log.timestamp));
+                const icon = ACTION_ICONS[log.action] || '🔧';
+
+                return `
+                    <div class="flex items-start gap-3 p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                        <span class="text-base flex-shrink-0">${icon}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] font-bold text-white">${log.description || log.action}</p>
+                            <p class="text-[9px] text-slate-500 mt-0.5">
+                                ${log.admin_name || 'Admin'} · ${timeAgo}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+    } catch (e) {
+        registryList.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load registry.</p>';
+    }
+}
+
+// Helper: human-readable time ago
+function getTimeAgo(date) {
+    const seconds = Math.floor((Date.now() - date) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
+                    }
         // Start App
         initApp();
     </script>
