@@ -1136,15 +1136,15 @@ main {
             <span class="text-2xl">🖥</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
         </button>
-        <button onclick="switchAdminPanel('panel-support')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
+        <button onclick="switchAdminPanel('panel-support')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-teal-500/20 hover:bg-white/5 active:scale-95 transition-all">
             <span class="text-2xl">🎧</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Support</span>
         </button>
-         <button onclick="switchAdminPanel('panel-daily-checkin')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
+        <button onclick="switchAdminPanel('panel-daily-checkin')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
             <span class="text-2xl">📅</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
         </button>
-         <button onclick="switchAdminPanel('panel-user-task-approve')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
+        <button onclick="switchAdminPanel('panel-user-task-approve')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
             <span class="text-2xl">📑</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
         </button>
@@ -1400,6 +1400,81 @@ main {
         </div>
     </div>
 </div>
+
+<div id="panel-support" class="hidden space-y-6 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-teal-400">Support Center</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">User tickets & replies</p>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex gap-2 bg-black/20 p-1 rounded-xl border border-white/5">
+        <button id="ticket-tab-open" onclick="loadAdminTickets('open')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-teal-600 text-white transition-all">Open</button>
+        <button id="ticket-tab-replied" onclick="loadAdminTickets('replied')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all">Replied</button>
+        <button id="ticket-tab-resolved" onclick="loadAdminTickets('resolved')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all">Resolved</button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-3 gap-2">
+        <div class="glass p-3 text-center border-teal-500/20">
+            <p class="text-[8px] text-slate-500 uppercase font-black">Open</p>
+            <p id="ticket-count-open" class="text-lg font-black text-teal-400">0</p>
+        </div>
+        <div class="glass p-3 text-center border-blue-500/20">
+            <p class="text-[8px] text-slate-500 uppercase font-black">Replied</p>
+            <p id="ticket-count-replied" class="text-lg font-black text-blue-400">0</p>
+        </div>
+        <div class="glass p-3 text-center border-slate-500/20">
+            <p class="text-[8px] text-slate-500 uppercase font-black">Resolved</p>
+            <p id="ticket-count-resolved" class="text-lg font-black text-slate-400">0</p>
+        </div>
+    </div>
+
+    <!-- Ticket List -->
+    <div id="admin-ticket-list" class="space-y-3">
+        <p class="text-center text-[10px] text-slate-500 py-6">Loading tickets...</p>
+    </div>
+</div>
+
+<!-- Reply Drawer -->
+<div id="modal-ticket-reply" class="wallet-modal-backdrop" onclick="closeTicketReplyDrawer()">
+    <div class="wallet-modal-drawer" onclick="event.stopPropagation()">
+        <div class="w-12 h-1 bg-slate-800 rounded-full mx-auto mb-4"></div>
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="text-sm font-black text-white">Reply to Ticket</h3>
+                <p id="reply-drawer-ref" class="text-[9px] text-slate-500 font-mono mt-0.5"></p>
+            </div>
+            <button onclick="closeTicketReplyDrawer()" class="text-slate-500 text-lg">✕</button>
+        </div>
+
+        <!-- Original message preview -->
+        <div id="reply-drawer-original" class="bg-black/30 border border-white/5 rounded-xl p-3 mb-4">
+            <p class="text-[9px] text-slate-500 uppercase font-black mb-1">User Message</p>
+            <p id="reply-drawer-msg" class="text-xs text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Previous reply if any -->
+        <div id="reply-drawer-prev-wrap" class="hidden bg-teal-950/30 border border-teal-500/20 rounded-xl p-3 mb-4">
+            <p class="text-[9px] text-teal-400 uppercase font-black mb-1">Previous Reply</p>
+            <p id="reply-drawer-prev" class="text-xs text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <textarea id="ticket-reply-input" rows="4" class="w-full p-3 rounded-xl text-xs glass mb-3" placeholder="Type your reply here..."></textarea>
+
+        <div class="flex gap-2">
+            <button onclick="submitTicketReply()" class="flex-1 bg-teal-600/20 text-teal-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-teal-500/30 active:scale-95 transition-all">
+                📩 Send Reply
+            </button>
+            <button onclick="resolveTicket()" class="flex-1 bg-slate-600/20 text-slate-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-500/20 active:scale-95 transition-all">
+                ✅ Resolve
+            </button>
+        </div>
+    </div>
+                </div>
 <div id="panel-console" class="hidden space-y-4 pb-10">
     <div class="flex items-center gap-3 mb-4">
         <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
@@ -2453,6 +2528,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-proofs') loadPendingProofs();       
                     if (panelId === 'panel-task-manager') loadAdminTaskList();
                     if (panelId === 'panel-settings') loadAdminData();
+                    if (panelId === 'panel-support') loadAdminTickets('open');
                     if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
                 } else {
@@ -2608,34 +2684,53 @@ async function loadPendingProofs() {
     container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
 
     try {
-        const proofs = await secureFetch('/api/admin/payouts/pending');
-        
+        const data = await secureFetch('/api/admin/proofs/pending');
+        const proofs = data.proofs || [];
+
         if (proofs.length === 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Queue is empty!</p>';
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No proofs pending.</p>';
             return;
         }
 
-        container.innerHTML = '';
-        proofs.forEach(p => {
-            container.insertAdjacentHTML('beforeend', `
-                <div class="glass p-4 border-l-2 border-indigo-500">
-                    <div class="flex justify-between mb-2">
-                        <span class="text-[10px] font-bold text-slate-400">User: ${p.userId}</span>
-                        <span class="text-[10px] font-black text-green-400">+${p.reward} USDT</span>
+        container.innerHTML = proofs.map(p => `
+            <div class="glass p-4 border-l-2 border-indigo-500 mb-3">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <p class="text-[10px] font-black text-indigo-300">REF: ${p.proofId}</p>
+                        <p class="text-xs font-bold text-white mt-0.5">${p.taskTitle}</p>
+                        <p class="text-[9px] text-slate-400">User: ${p.userId}${p.username ? ' @' + p.username : ''}</p>
                     </div>
-                    <p class="text-xs font-bold mb-1">${p.taskTitle}</p>
-                    <div class="bg-black/30 p-2 rounded text-[11px] text-blue-300 break-all mb-3">
-                        Proof: ${p.proofValue}
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="processProof('${p.id}', 'approve')" class="flex-1 bg-green-600/20 text-green-400 py-2 rounded-lg text-[9px] font-black uppercase">Approve</button>
-                        <button onclick="processProof('${p.id}', 'reject')" class="flex-1 bg-red-600/20 text-red-400 py-2 rounded-lg text-[9px] font-black uppercase">Reject</button>
-                    </div>
+                    <span class="text-[10px] font-black text-green-400">+${p.reward} USDT</span>
                 </div>
-            `);
-        });
+                ${p.proofType === 'screenshot' ? `
+                    <div class="mb-3">
+                        <img id="proof-img-preview-${p.proofId}" src="" class="hidden w-full rounded-xl max-h-40 object-cover border border-white/10 mb-1">
+                        <button onclick="loadProofImage('${p.proofId}')" class="text-[9px] text-blue-400 font-bold">📸 View Screenshot</button>
+                    </div>
+                ` : `
+                    <div class="bg-black/30 p-2 rounded-lg text-[10px] text-blue-300 break-all mb-3">${p.proofText || 'No text'}</div>
+                `}
+                <div class="flex gap-2">
+                    <button onclick="processProof('${p.proofId}','approve')" class="flex-1 bg-green-600/20 text-green-400 py-2 rounded-lg text-[9px] font-black uppercase border border-green-500/20">✅ Approve</button>
+                    <button onclick="processProof('${p.proofId}','reject')" class="flex-1 bg-red-600/20 text-red-400 py-2 rounded-lg text-[9px] font-black uppercase border border-red-500/20">❌ Reject</button>
+                </div>
+            </div>
+        `).join('');
     } catch (e) {
-        container.innerHTML = '<p class="text-red-500 text-[10px]">Error loading queue.</p>';
+        container.innerHTML = '<p class="text-red-500 text-[10px] text-center">Error loading proofs.</p>';
+    }
+}
+
+async function loadProofImage(proofId) {
+    try {
+        const data = await secureFetch(`/api/admin/proof-image/${proofId}`);
+        if (data.url) {
+            const img = document.getElementById(`proof-img-preview-${proofId}`);
+            img.src = data.url;
+            img.classList.remove('hidden');
+        }
+    } catch (e) {
+        showAppAlert("Failed to load image.", 'error');
     }
 }
 
@@ -2647,11 +2742,11 @@ async function processProof(proofId, action) {
 
     if (res.success) {
         tg.HapticFeedback.notificationOccurred('success');
-        loadPendingProofs(); // Refresh the list
-        loadAdminData();    // Refresh overall stats
-        
+        showNotificationToast(`Proof ${action === 'approve' ? 'approved ✅' : 'rejected ❌'}`, action === 'approve' ? 'success' : 'info');
+        loadPendingProofs();
+        loadAdminData();
     } else {
-        showAppAlert("Action failed: " + res.error, 'error')
+        showAppAlert(res.error || "Action failed.", 'error');
     }
 }
 
@@ -2782,10 +2877,25 @@ async function loadAvailableTasks() {
                         </button>
                     </div>
                     ${isManual ? `
-                    <div id="proof-${taskId}" class="proof-section px-4 pb-4 border-t border-white/[0.02] pt-3 bg-black/10">
-                        <input id="input-proof-${taskId}" type="text" class="w-full p-3 rounded-xl text-xs mb-2.5 bg-black/40 text-white border border-white/5 focus:border-blue-500/40 outline-none transition-colors font-medium" placeholder="Username / Proof link...">
-                        <button onclick="submitManualProof('${taskId}')" class="w-full bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-500/20 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-[0.99] transition-all">Send Proof</button>
-                    </div>` : ''}
+<div id="proof-${taskId}" class="proof-section px-4 pb-4 border-t border-white/[0.02] pt-3 bg-black/10">
+    <div class="flex gap-2 mb-3 bg-black/20 p-1 rounded-xl">
+        <button onclick="switchProofMode('${taskId}','text',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white">✏️ Text</button>
+        <button onclick="switchProofMode('${taskId}','img',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase text-slate-400">📸 Screenshot</button>
+    </div>
+    <div id="proof-text-${taskId}">
+        <input id="input-proof-${taskId}" type="text" class="w-full p-3 rounded-xl text-xs mb-2.5 bg-black/40 text-white border border-white/5 focus:border-blue-500/40 outline-none" placeholder="Username / Proof link...">
+    </div>
+    <div id="proof-img-${taskId}" class="hidden">
+        <div class="relative flex items-center justify-center w-full p-4 border border-dashed border-white/20 rounded-xl bg-black/20 mb-2.5">
+            <input id="proof-file-${taskId}" type="file" accept="image/*" onchange="previewProofImage(this,'${taskId}')" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+            <div id="proof-upload-label-${taskId}" class="text-center">
+                <span class="text-[10px] font-bold text-slate-400">📷 Tap to upload screenshot</span>
+            </div>
+        </div>
+        <img id="proof-preview-${taskId}" src="" class="hidden w-full rounded-xl object-cover border border-white/10 mb-2.5 max-h-40">
+    </div>
+    <button onclick="submitManualProof('${taskId}')" class="w-full bg-green-600/20 text-green-400 border border-green-500/20 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-[0.99] transition-all">Send Proof</button>
+</div>` : ''}
                 </div>`;
         });
         
@@ -2806,22 +2916,64 @@ function toggleProofSection(taskId, url) {
     section.classList.toggle('open');
     tg.HapticFeedback.impactOccurred('light');
 }
-
 async function submitManualProof(taskId) {
-    const proof = document.getElementById(`input-proof-${taskId}`).value;
-    if(!proof) return showAppAlert("Please enter your username or proof link.", 'warning')
+    const textInput = document.getElementById(`input-proof-${taskId}`);
+    const fileInput = document.getElementById(`proof-file-${taskId}`);
+    const previewImg = document.getElementById(`proof-preview-${taskId}`);
+    const isImageMode = !document.getElementById(`proof-img-${taskId}`).classList.contains('hidden');
+
+    let payload = { taskId };
+
+    if (isImageMode) {
+        const file = fileInput?.files[0];
+        if (!file) return showAppAlert("Please upload a screenshot.", 'warning');
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+        payload.screenshot = base64;
+    } else {
+        const proof = textInput?.value?.trim();
+        if (!proof) return showAppAlert("Please enter your proof.", 'warning');
+        payload.proof = proof;
+    }
 
     const res = await secureFetch('/api/secure/submit-proof', {
         method: 'POST',
-        body: JSON.stringify({ taskId, proof })
+        body: JSON.stringify(payload)
     });
 
-    if(res.success) {
-        showAppAlert("Proof submitted! Admin will verify soon.", 'success')
+    if (res.success) {
+        showAppAlert(`Proof submitted! REF: ${res.proofId}`, 'success');
         loadAvailableTasks();
+    } else {
+        showAppAlert(res.error || "Submission failed.", 'error');
     }
 }
+        function switchProofMode(taskId, mode, btn) {
+    document.querySelectorAll(`#proof-${taskId} .proof-mode-btn`).forEach(b => {
+        b.className = 'proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase text-slate-400';
+    });
+    btn.className = 'proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white';
+    document.getElementById(`proof-text-${taskId}`).classList.toggle('hidden', mode !== 'text');
+    document.getElementById(`proof-img-${taskId}`).classList.toggle('hidden', mode !== 'img');
+}
 
+function previewProofImage(input, taskId) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const preview = document.getElementById(`proof-preview-${taskId}`);
+        const label = document.getElementById(`proof-upload-label-${taskId}`);
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        label.innerHTML = `<span class="text-[10px] font-bold text-green-400">✅ ${file.name.substring(0, 20)}</span>`;
+    };
+    reader.readAsDataURL(file);
+            }
 async function saveRefSettings() {
     const bonus = document.getElementById('set-ref-bonus').value;
     const percent = document.getElementById('set-ref-percent').value;
@@ -4539,6 +4691,163 @@ function getTimeAgo(date) {
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
     return `${Math.floor(seconds / 86400)}d ago`;
                     }
+  let currentTicketId = null;
+let currentTicketFilter = 'open';
+
+async function loadAdminTickets(filter = 'open') {
+    currentTicketFilter = filter;
+    const container = document.getElementById('admin-ticket-list');
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">Loading...</p>';
+
+    // Update tab styles
+    ['open', 'replied', 'resolved'].forEach(f => {
+        const btn = document.getElementById(`ticket-tab-${f}`);
+        if (!btn) return;
+        btn.className = f === filter
+            ? 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-teal-600 text-white transition-all'
+            : 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all';
+    });
+
+    try {
+        const data = await secureFetch(`/api/admin/tickets?filter=${filter}`);
+        
+        // Update count badges
+        if (data.counts) {
+            document.getElementById('ticket-count-open').innerText = data.counts.open || 0;
+            document.getElementById('ticket-count-replied').innerText = data.counts.replied || 0;
+            document.getElementById('ticket-count-resolved').innerText = data.counts.resolved || 0;
+        }
+
+        const tickets = data.tickets || [];
+
+        if (tickets.length === 0) {
+            container.innerHTML = getEmptyStateHTML('🎧', 'No Tickets', `No ${filter} tickets found`);
+            return;
+        }
+
+        const STATUS_CONFIG = {
+            open:     { color: 'border-teal-500',   badge: 'bg-teal-500/10 text-teal-400 border-teal-500/20',   label: 'Open'     },
+            replied:  { color: 'border-blue-500',    badge: 'bg-blue-500/10 text-blue-400 border-blue-500/20',   label: 'Replied'  },
+            resolved: { color: 'border-slate-500',   badge: 'bg-slate-500/10 text-slate-400 border-slate-500/20', label: 'Resolved' }
+        };
+
+        container.innerHTML = tickets.map(t => {
+            const cfg = STATUS_CONFIG[t.status] || STATUS_CONFIG.open;
+            const date = new Date(t.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const preview = (t.message || '').substring(0, 80) + ((t.message || '').length > 80 ? '...' : '');
+
+            return `
+                <div class="glass p-4 border-l-2 ${cfg.color}">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1 min-w-0 mr-3">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="text-[9px] font-mono text-slate-500">${t.ticket_id || String(t._id).substring(0, 8)}</span>
+                                <span class="badge-tx text-[8px] px-2 py-0.5 rounded border ${cfg.badge}">${cfg.label}</span>
+                            </div>
+                            <p class="text-[10px] font-bold text-slate-300">User: ${t.user_id}${t.username ? ' @' + t.username : ''}</p>
+                            <p class="text-[9px] text-slate-500 mt-0.5">${date}</p>
+                        </div>
+                        <button onclick="openTicketReplyDrawer('${t._id}', \`${(t.message || '').replace(/`/g, "'")}\`, \`${(t.admin_reply || '').replace(/`/g, "'")}\`, '${t.ticket_id || ''}')"
+                            class="bg-teal-600/20 text-teal-400 border border-teal-500/20 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase shrink-0 active:scale-95 transition-all">
+                            ${t.status === 'resolved' ? 'View' : 'Reply'}
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 leading-relaxed bg-black/20 p-2 rounded-lg">${preview}</p>
+                    ${t.admin_reply ? `
+                        <div class="mt-2 border-t border-white/5 pt-2">
+                            <p class="text-[9px] text-teal-400 font-black uppercase mb-1">Admin Reply</p>
+                            <p class="text-[10px] text-slate-300">${(t.admin_reply || '').substring(0, 60)}${(t.admin_reply || '').length > 60 ? '...' : ''}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<p class="text-center text-red-400 text-[10px] py-4">Failed to load tickets.</p>';
+    }
+}
+
+function openTicketReplyDrawer(ticketId, message, prevReply, ticketRef) {
+    currentTicketId = ticketId;
+
+    document.getElementById('reply-drawer-ref').innerText = ticketRef ? `REF: ${ticketRef}` : `ID: ${ticketId.substring(0, 8)}`;
+    document.getElementById('reply-drawer-msg').innerText = message;
+    document.getElementById('ticket-reply-input').value = '';
+
+    const prevWrap = document.getElementById('reply-drawer-prev-wrap');
+    const prevEl = document.getElementById('reply-drawer-prev');
+    if (prevReply) {
+        prevEl.innerText = prevReply;
+        prevWrap.classList.remove('hidden');
+    } else {
+        prevWrap.classList.add('hidden');
+    }
+
+    document.getElementById('modal-ticket-reply').classList.add('active');
+    tg.HapticFeedback.impactOccurred('light');
+}
+
+function closeTicketReplyDrawer() {
+    document.getElementById('modal-ticket-reply').classList.remove('active');
+    currentTicketId = null;
+}
+
+async function submitTicketReply() {
+    const reply = document.getElementById('ticket-reply-input').value.trim();
+    if (!reply) return showAppAlert("Please type a reply.", 'warning');
+    if (!currentTicketId) return;
+
+    const btn = document.querySelector('#modal-ticket-reply button[onclick="submitTicketReply()"]');
+    if (btn) { btn.disabled = true; btn.innerText = "SENDING..."; }
+
+    try {
+        const res = await secureFetch('/api/admin/reply-ticket', {
+            method: 'POST',
+            body: JSON.stringify({ ticketId: currentTicketId, reply })
+        });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showNotificationToast("Reply sent successfully!", 'success');
+            closeTicketReplyDrawer();
+            loadAdminTickets(currentTicketFilter);
+        } else {
+            showAppAlert(res.error || "Failed to send reply.", 'error');
+        }
+    } catch (e) {
+        showAppAlert("Network error.", 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerText = "📩 Send Reply"; }
+    }
+}
+
+async function resolveTicket() {
+    if (!currentTicketId) return;
+
+    showAppConfirm("Mark this ticket as resolved? The user will be notified.", async (confirmed) => {
+        if (!confirmed) return;
+
+        try {
+            const res = await secureFetch('/api/admin/tickets/resolve', {
+                method: 'POST',
+                body: JSON.stringify({ ticketId: currentTicketId })
+            });
+
+            if (res.success) {
+                tg.HapticFeedback.notificationOccurred('success');
+                showNotificationToast("Ticket resolved.", 'success');
+                closeTicketReplyDrawer();
+                loadAdminTickets(currentTicketFilter);
+            } else {
+                showAppAlert(res.error || "Failed to resolve.", 'error');
+            }
+        } catch (e) {
+            showAppAlert("Network error.", 'error');
+        }
+    }, 'info', 'Resolve Ticket', 'Yes, Resolve', 'Cancel');
+}
         // Start App
         initApp();
     </script>
