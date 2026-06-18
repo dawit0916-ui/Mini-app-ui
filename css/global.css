@@ -1,1 +1,86 @@
+:root {
+            --neon-blue: #3b82f6;
+            --neon-green: #10b981;
+            --neon-purple: #8b5cf6;
+        }
 
+ /* Combined and locked root container frame */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    position: fixed;
+    height: 100%; /* Locks viewport perfectly to mobile screen limits */
+    overflow: hidden; /* Stops the entire page/body from dragging */
+    background: linear-gradient(to bottom, #1e1b4b, #020617);
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Dedicated internal scrolling area */
+main {
+    height: calc(100% - 100px); /* Formatted to accurately clear header/footer height */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Ensures fluid iOS inertia physics */
+    overscroll-behavior: contain;
+    padding: 24px;
+    padding-top: 100px; /* Safe space clearing your fixed top element */
+    padding-bottom: 24px; /* Balanced resting padding at the very bottom */
+}
+
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+        }
+        /* Neon Glows */
+        .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+        .nav-active {
+    color: white !important;
+    filter: drop-shadow(0 0 8px var(--neon-blue));
+}
+        /* Category Chip Styling */
+.category-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: none; /* Hide scrollbar for clean look */
+}
+.category-chip {
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    color: #94a3b8;
+}
+.category-chip.active {
+    background: var(--neon-blue);
+    color: white;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    border-color: transparent;
+}
+/* Proof Area Styling */
+.proof-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 20px 20px;
+}
+.proof-section.open {
+    max-height: 500px;
+    padding: 15px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
