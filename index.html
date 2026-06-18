@@ -1510,7 +1510,7 @@ main {
           <div class="modal-game-arena flex-1 flex flex-col items-center justify-center relative w-full my-auto select-none min-h-[520px]">
     
 <!-- COINS BOX: Positioned on LEFT edge, moved DOWN -->
-<div class="absolute left-[-12px]  top-24 w-16 z-20">
+<div class="absolute left-[-12px]  top-20 w-16 z-20">
   <div class="glass p-1 rounded-lg border border-blue-500/20 bg-slate-800/40 flex flex-col gap-0.5">
     
     <!-- USDT -->
@@ -1559,7 +1559,7 @@ main {
 <!-- Bouncing Crown -->
   <div class="text-5xl mb-2 filter drop-shadow-[0_3px_8px_rgba(245,158,11,0.6)] animate-[bounce_3s_infinite_ease-in-out]">👑</div>
   <!-- Info Icon (?) on Top Right -->
-  <button class="absolute -right-0 top-24 w-8 h-8 rounded-full border-2 border-red-500/60 text-red-500 text-xl font-black flex items-center justify-center hover:bg-red-500/10 transition-all active:scale-90" style="box-shadow: 0 0 10px rgba(239,68,68,0.3);">
+  <button class="absolute -right-0 top-20 w-8 h-8 rounded-full border-2 border-red-500/60 text-red-500 text-xl font-black flex items-center justify-center hover:bg-red-500/10 transition-all active:scale-90" style="box-shadow: 0 0 10px rgba(239,68,68,0.3);">
     ?
   </button>
 
@@ -3433,7 +3433,7 @@ function renderWheelStaticFrameState() {
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
     const iconSize = Math.floor(spinCanvas.width * 0.12);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 8 : -8, iconSize, iconSize);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -iconSize + 20 : -20, iconSize, iconSize);
 }
 
 spinCtx.restore();
@@ -3916,11 +3916,11 @@ async function loadWalletStatementLedgerLogs() {
     const networkResponseDataPayload = await secureFetch(`/api/secure/wallet/history?status=${activeLedgerCategoryFilter}`);
     
     if (!networkResponseDataPayload || !networkResponseDataPayload.success || !networkResponseDataPayload.history || networkResponseDataPayload.history.length === 0) {
-        listDisplayMountAnchorNode.innerHTML = `
-            <div class="text-center py-8 text-slate-500 font-bold text-xs uppercase tracking-wider select-none">
-                📁 No matching statements recorded
-            </div>
-        `;
+        listDisplayMountAnchorNode.innerHTML = getEmptyStateHTML(
+    "📁",
+    "No matching statements recorded",
+    "please make some movement to your wallet"
+);
         return;
     }
     
