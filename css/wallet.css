@@ -1,1 +1,95 @@
+:root {
+    --premium-gold: #fbbf24;
+    --premium-gold-glow: rgba(251, 191, 36, 0.3);
+    --crypto-green: #10b981;
+    --crypto-green-glow: rgba(16, 185, 129, 0.25);
+    --matte-black: #090a14;
+}
 
+/* Luxury Dashboard Card Layouts */
+.wallet-premium-card {
+    background: linear-gradient(135deg, rgba(26, 27, 46, 0.7) 0%, rgba(10, 11, 22, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.wallet-premium-card:active {
+    transform: scale(0.98);
+}
+.gold-glow { box-shadow: 0 0 25px var(--premium-gold-glow); border-color: rgba(251, 191, 36, 0.2); }
+.green-glow { box-shadow: 0 0 25px var(--crypto-green-glow); border-color: rgba(16, 185, 129, 0.2); }
+
+/* Referral Threshold Withdrawal Rule Tier Elements */
+.tier-card-locked {
+    background: rgba(15, 16, 32, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    opacity: 0.55;
+    cursor: not-allowed !important;
+}
+.tier-card-unlocked {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(16, 185, 129, 0.03) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    cursor: pointer;
+}
+.tier-card-unlocked:active {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--premium-gold-glow);
+}
+
+/* Modals & Backdrop Core Mechanics */
+.wallet-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(4, 5, 11, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 1500;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    align-items: flex-end; /* Mobile drawer execution feel */
+}
+.wallet-modal-backdrop.active {
+    display: flex;
+    opacity: 1;
+}
+.wallet-modal-drawer {
+    width: 100%;
+    background: #0d0e1c;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+    padding: 24px;
+    transform: translateY(100%);
+    transition: transform 0.25s cubic-bezier(0.1, 0.76, 0.55, 0.94);
+    max-height: 85dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.wallet-modal-backdrop.active .wallet-modal-drawer {
+    transform: translateY(0);
+}
+
+/* Custom Mini Pill Status Badges */
+.badge-tx { padding: 4px 10px; font-size: 10px; font-weight: 800; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-tx-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+.badge-tx-accepted { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+.badge-tx-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+/* History Layout Utility Elements */
+.tx-history-tab {
+    padding: 10px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+.tx-history-tab.active {
+    color: var(--premium-gold);
+    border-color: var(--premium-gold);
+    }
