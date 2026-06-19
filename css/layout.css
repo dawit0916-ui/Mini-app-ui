@@ -1,1 +1,175 @@
+    /* Category Chip Styling */
+.category-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: none; /* Hide scrollbar for clean look */
+}
+.category-chip {
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    color: #94a3b8;
+}
+.category-chip.active {
+    background: var(--neon-blue);
+    color: white;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    border-color: transparent;
+}
+/* Proof Area Styling */
+.proof-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 20px 20px;
+}
+.proof-section.open {
+    max-height: 500px;
+    padding: 15px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.nav-active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    width: 20px;
+    height: 4px;
+    background: var(--neon-blue);
+    border-radius: 10px;
+    box-shadow: 0 0 15px var(--neon-blue);
+    animation: glow-pulse 2s infinite;
+}
+/* Ensure the utility menu (three dots) stays on top of the fixed header */
+#utility-menu {
+    position: fixed;
+    top: 70px; /* Adjust based on your header height */
+    right: 24px;
+    z-index: 110;
+}
+        /* Utility Dropdown Animation */
+#utility-menu.hidden { display: none; }
+#utility-menu { animation: fadeIn 0.2s ease-out; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Sweep Button Styling */
+.sweep-active { border-color: #f97316 !important; color: #fb923c; }
+@keyframes glow-pulse {
+    0% { opacity: 0.6; transform: scaleX(1); }
+    50% { opacity: 1; transform: scaleX(1.5); }
+    100% { opacity: 0.6; transform: scaleX(1); }
+        }
+        /* Hide all tabs by default */
+.tab-content { 
+    display: none; 
+    opacity: 0;
+}
+
+/* Only display and animate the active tab */
+.tab-content.active { 
+    display: block; 
+    opacity: 1;
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom Input Styling */
+        input, textarea {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.3s ease;
+        }
+        input:focus { border-color: var(--neon-blue) !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+        }
+        .btn-premium:active { transform: scale(0.96); }
+        .fade-out {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 1s ease;
+    pointer-events: none;
+        }
+        /* Notification Center Styles */
+#notification-center {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(100%);
+}
+#notification-center.active {
+    transform: translateY(0);
+}
+.notif-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.notif-card.unread {
+    border-left: 3px solid var(--neon-blue);
+    background: rgba(59, 130, 246, 0.05);
+}
+/* Toast Popup Container Styling */
+#toast-container {
+    position: fixed !important;
+    top: 24px !important; /* Brought up slightly to sit nicely over the app UI */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 90% !important;
+    max-width: 350px !important;
+    z-index: 999999 !important; /* Dominates the 2000-level modal backdrop layout */
+    pointer-events: none !important; /* Allows underlying app elements to still be clicked */
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+/* Individual Toast Cards */
+.toast {
+    width: 100% !important;
+    z-index: 999999 !important; /* Force internal hardware layering hierarchy */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 
+                0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+    animation: slideInTop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Smooth Slide and Drop Physics */
+@keyframes slideInTop {
+    from { 
+        opacity: 0; 
+        transform: translateY(-25px) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+        }
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+        }
+.skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    background-color: rgba(255, 255, 255, 0.05); /* Base color */
+    animation: shimmer 5.5s infinite;
+    border-radius: 12px;
+}
+.skeleton-text { height: 12px; width: 60%; margin-bottom: 8px; }
+.skeleton-btn { height: 32px; width: 80px; }
 
