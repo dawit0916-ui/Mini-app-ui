@@ -96,3 +96,193 @@
     filter: drop-shadow(0 4px 10px rgba(59, 130, 246, 0.6));
     z-index: 50;
 }
+/* ── How-To-Play Info Overlay ── */
+#spin-info-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    border-radius: inherit;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    background: radial-gradient(ellipse at top, rgba(15,10,40,0.98) 0%, rgba(3,5,15,0.99) 100%);
+}
+#spin-info-overlay.show {
+    display: flex;
+    animation: infoSlideIn 0.3s cubic-bezier(0.34,1.26,0.64,1) forwards;
+}
+@keyframes infoSlideIn {
+    from { opacity: 0; transform: scale(0.95) translateY(12px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+
+/* Header */
+.spin-info-header {
+    flex-shrink: 0;
+    padding: 16px 18px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(251,191,36,0.12);
+    background: rgba(0,0,0,0.3);
+}
+.spin-info-back-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; color: #f8fafc;
+    transition: all 0.15s ease; flex-shrink: 0;
+}
+.spin-info-back-btn:active { transform: scale(0.88); background: rgba(255,255,255,0.14); }
+
+/* Scrollable body */
+.spin-info-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 0 24px;
+}
+
+/* ── Hero image block ── */
+.spin-hero-wrap {
+    position: relative;
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+}
+.spin-hero-img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 220px;
+    opacity: 0.92;
+}
+/* Gradient fade at the bottom so it blends into the dark content */
+.spin-hero-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: linear-gradient(to bottom, transparent, rgba(3,5,15,0.99));
+    pointer-events: none;
+}
+
+/* Callout chips overlaid on hero */
+.spin-hero-callouts {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.spin-callout {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 9px;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+}
+.spin-callout .dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+/* Connector line from callout to its region */
+.spin-callout::before {
+    content: '';
+    position: absolute;
+    background: rgba(255,255,255,0.3);
+}
+
+/* Positioned callouts */
+.sc-pointer   { top: 7%; left: 38%;   border-color: rgba(59,130,246,0.5); }
+.sc-go        { top: 43%; left: 36%;  border-color: rgba(245,158,11,0.6); }
+.sc-hud       { top: 8%;  left: 2%;   border-color: rgba(16,185,129,0.4); }
+.sc-close     { bottom: 6%; left: 28%; border-color: rgba(100,116,139,0.4); }
+
+/* Content padding wrapper */
+.spin-info-content {
+    padding: 14px 16px 0;
+}
+
+/* Step row */
+.spin-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.spin-step:last-child { border-bottom: none; }
+.spin-step-num {
+    width: 24px; height: 24px; border-radius: 8px;
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 900; color: #93c5fd;
+    flex-shrink: 0; margin-top: 1px;
+}
+.spin-step-body { flex: 1; }
+.spin-step-title {
+    font-size: 11px; font-weight: 900; color: #f8fafc;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px;
+}
+.spin-step-desc { font-size: 10px; color: #94a3b8; line-height: 1.55; }
+
+/* Prize mini-grid */
+.prizes-section-title {
+    font-size: 9px; font-weight: 900; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #64748b;
+    margin: 14px 0 8px; padding-left: 2px;
+}
+.prize-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 12px; margin-bottom: 5px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+    position: relative; overflow: hidden;
+}
+.prize-row::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px;
+}
+.prize-row.tier-jackpot::before { background: linear-gradient(to bottom,#fbbf24,#f59e0b); }
+.prize-row.tier-usdt::before    { background: #10b981; }
+.prize-row.tier-pts::before     { background: #818cf8; }
+.prize-row.tier-coin::before    { background: #3b82f6; }
+.prize-row.tier-empty::before   { background: #334155; }
+.prize-row-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden; font-size: 16px;
+}
+.prize-row-icon img { width: 26px; height: 26px; object-fit: contain; }
+.prize-row-info { flex: 1; min-width: 0; }
+.prize-row-name { font-size: 11px; font-weight: 800; color: #f1f5f9; line-height: 1; margin-bottom: 2px; }
+.prize-row-desc { font-size: 9px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+.prize-row-right { text-align: right; flex-shrink: 0; }
+.prize-odds-badge {
+    display: inline-block; font-size: 9px; font-weight: 900;
+    padding: 2px 6px; border-radius: 5px; margin-bottom: 2px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+}
+.prize-row-amount { font-size: 10px; font-weight: 900; color: #f8fafc; }
+
+/* Tip card */
+.spin-tip-card {
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.14);
+    border-radius: 12px; padding: 12px; margin-top: 14px;
+}
+.spin-tip-card p { font-size: 10px; color: #94a3b8; line-height: 1.6; margin: 0; }
+.spin-tip-card strong { color: #93c5fd; }
