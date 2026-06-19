@@ -1,4 +1,368 @@
+// ==========================================================================
+// ADMIN PANEL FUNCTIONS - PART 1
+// ==========================================================================
 
+let currentEditingUserId = null;
+let currentEditingUserData = null;
+let userDirectoryFilter = 'all';
+
+// 1. Search User
+async function searchUser() {
+    const searchId = document.getElementById('search-user-id').value.trim();
+    if (!searchId) return showAppAlert("Please enter a Telegram ID.", 'warning')       
+    try {
+        const res = await secureFetch(`/api/admin/users?search=${searchId}`);
+
+        if (!res.success || !res.users || res.users.length === 0) {
+            showAppAlert("User record not found.", 'error')
+            document.getElementById('admin-user-editor').classList.add('hidden');
+            return;
+        }
+        const foundUser = res.users[0];
+        currentEditingUserData = foundUser;
+        currentEditingUserId = foundUser.user_id;
+
+        document.getElementById('edit-user-display-id').innerText = foundUser.user_id;
+        document.getElementById('edit-user-balance').innerText = parseFloat(foundUser.balance).toFixed(4);
+        document.getElementById('edit-user-points').innerText = parseFloat(foundUser.points || 0).toFixed(2);
+        document.getElementById('edit-user-coins').innerText = parseFloat(foundUser.coins || 0).toFixed(2);
+
+        document.getElementById('new-user-balance').value = foundUser.balance;
+        document.getElementById('new-user-points').value = foundUser.points || 0;
+        document.getElementById('new-user-coins').value = foundUser.coins || 0;
+
+        const banBtn = document.getElementById('btn-ban-toggle');
+        if (foundUser.is_banned) {
+            banBtn.innerHTML = "🔴 Unban User";
+            banBtn.className = "flex-1 bg-yellow-600/20 text-yellow-400 py-3 rounded-xl text-[10px] font-black uppercase";
+        } else {
+            banBtn.innerHTML = "🪓 Ban User";
+            banBtn.className = "flex-1 bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase";
+        }
+
+        document.getElementById('admin-user-editor').classList.remove('hidden');
+        tg.HapticFeedback.impactOccurred('light');
+
+    } catch (e) {
+        console.error("Frontend search routing tracking error:", e);
+        showAppAlert("Search engine error.", 'error')
+    }
+}
+
+// 2. Update User Metrics
+async function updateUserMetrics() {
+    const newBalance = document.getElementById('new-user-balance').value;
+    const newPoints = document.getElementById('new-user-points').value;
+    const newCoins = document.getElementById('new-user-coins').value;
+    
+    if (!currentEditingUserId || newBalance === '' || newPoints === '' || newCoins === '') return;
+
+    try {
+        const res = await secureFetch('/api/admin/user/update', {
+            method: 'POST',
+            body: JSON.stringify({
+                target_user_id: currentEditingUserId,
+                balance: parseFloat(newBalance),
+                points: parseFloat(newPoints),
+                coins: parseFloat(newCoins)
+            })
+        });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showAppAlert("User metrics synchronized successfully.", 'success')
+            
+            document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(4);
+            document.getElementById('edit-user-points').innerText = parseFloat(newPoints).toFixed(2);
+            document.getElementById('edit-user-coins').innerText = parseFloat(newCoins).toFixed(2);
+            
+            if (typeof loadUserDirectory === 'function') loadUserDirectory();
+        } else {
+            showAppAlert("Failed to update profile values.", 'error')
+        }
+    } catch (e) {
+        console.error("Data tracking writing failure:", e);
+        showAppAlert("Network communications failed.", 'error')
+    }
+}
+
+// 3. Toggle Ban Status
+async function toggleUserBanStatus() {
+    if(!currentEditingUserId || !currentEditingUserData) return;
+    
+    const targetState = !currentEditingUserData.is_banned;
+    const actionLabel = targetState ? "BAN" : "UNBAN";
+
+    showAppConfirm(`Are you sure you want to ${actionLabel} this user?`, async (confirmed) => {
+        if(!confirmed) return;
+
+        try {
+            const res = await secureFetch('/api/admin/users/ban', {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    userId: currentEditingUserId,
+                    banned: targetState
+                })
+            });
+
+            if(res.success) {
+                tg.HapticFeedback.notificationOccurred('success');
+                showAppAlert(`User successfully ${targetState ? 'banned' : 'unbanned'}!`, 'success');
+                searchUser();
+            } else {
+                showAppAlert("Action denied by server.", 'error')
+            }
+        } catch(e) {
+            showAppAlert("Failed to run ban assignment.", 'error')
+        }
+    });
+}
+
+// 4. Load Pending Proofs
+async function loadPendingProofs() {
+    const container = document.getElementById('admin-proof-list');
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
+
+    try {
+        const data = await secureFetch('/api/admin/proofs/pending');
+        const proofs = data.proofs || [];
+
+        if (proofs.length === 0) {
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No proofs pending.</p>';
+            return;
+        }
+
+        container.innerHTML = proofs.map(p => `
+            <div class="glass p-4 border-l-2 border-indigo-500 mb-3">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <p class="text-[10px] font-black text-indigo-300">REF: ${p.proofId}</p>
+                        <p class="text-xs font-bold text-white mt-0.5">${p.taskTitle}</p>
+                        <p class="text-[9px] text-slate-400">User: ${p.userId}${p.username ? ' @' + p.username : ''}</p>
+                    </div>
+                    <span class="text-[10px] font-black text-green-400">+${p.reward} USDT</span>
+                </div>
+                ${p.proofType === 'screenshot' ? `
+                    <div class="mb-3">
+                        <img id="proof-img-preview-${p.proofId}" src="" class="hidden w-full rounded-xl max-h-40 object-cover border border-white/10 mb-1">
+                        <button onclick="loadProofImage('${p.proofId}')" class="text-[9px] text-blue-400 font-bold">📸 View Screenshot</button>
+                    </div>
+                ` : `
+                    <div class="bg-black/30 p-2 rounded-lg text-[10px] text-blue-300 break-all mb-3">${p.proofText || 'No text'}</div>
+                `}
+                <div class="flex gap-2">
+                    <button onclick="processProof('${p.proofId}','approve')" class="flex-1 bg-green-600/20 text-green-400 py-2 rounded-lg text-[9px] font-black uppercase border border-green-500/20">✅ Approve</button>
+                    <button onclick="processProof('${p.proofId}','reject')" class="flex-1 bg-red-600/20 text-red-400 py-2 rounded-lg text-[9px] font-black uppercase border border-red-500/20">❌ Reject</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        container.innerHTML = '<p class="text-red-500 text-[10px] text-center">Error loading proofs.</p>';
+    }
+}
+
+// 5. Load Proof Image
+async function loadProofImage(proofId) {
+    try {
+        const data = await secureFetch(`/api/admin/proof-image/${proofId}`);
+        if (data.url) {
+            const img = document.getElementById(`proof-img-preview-${proofId}`);
+            img.src = data.url;
+            img.classList.remove('hidden');
+        }
+    } catch (e) {
+        showAppAlert("Failed to load image.", 'error');
+    }
+}
+
+// 6. Process Proof
+async function processProof(proofId, action) {
+    const res = await secureFetch('/api/admin/proof-action', {
+        method: 'POST',
+        body: JSON.stringify({ proofId, action })
+    });
+
+    if (res.success) {
+        tg.HapticFeedback.notificationOccurred('success');
+        showNotificationToast(`Proof ${action === 'approve' ? 'approved ✅' : 'rejected ❌'}`, action === 'approve' ? 'success' : 'info');
+        loadPendingProofs();
+        loadAdminData();
+    } else {
+        showAppAlert(res.error || "Action failed.", 'error');
+    }
+}
+
+// 7. Delete Task
+async function deleteTask(id) {
+    showAppConfirm("Delete this task permanently?", async (ok) => {
+        if(!ok) return;
+        await secureFetch(`/api/admin/tasks/delete/${id}`, { method: 'DELETE' });
+        loadAdminTaskList();
+        showAppAlert("Task removed successfully.", 'success');
+    });
+}
+
+// 8. Update Category Dropdown
+function updateCategoryDropdown(categoryName) {
+    const dropdown = document.getElementById('new-task-category');
+    const option = document.createElement('option');
+    option.value = categoryName;
+    option.text = categoryName;
+    dropdown.add(option);
+}
+
+// 9. Payout Action
+async function payoutAction(txId, action) {
+    const res = await secureFetch('/api/admin/payouts/action', {
+        method: 'POST',
+        body: JSON.stringify({ txId, status: action })
+    });
+
+    if(res.success) {
+        tg.HapticFeedback.notificationOccurred('success');
+        loadPendingWithdrawals();
+        loadAdminData();
+    } else {
+        showAppAlert(res.error || "Action failed.", 'error');
+    }
+}
+
+// 10. Load Admin Data
+async function loadAdminData() {
+    try {
+        const stats = await secureFetch('/api/admin/stats');
+        if(stats.error) return showAppAlert("Access Denied.", 'error')
+
+        document.getElementById('stat-users').innerText = stats.users;
+        document.getElementById('stat-withdraws').innerText = stats.pending;
+        document.getElementById('set-maintenance').checked = stats.maintenance;
+        document.getElementById('set-ref-bonus').value = stats.ref_bonus || 0.5;
+        document.getElementById('set-ref-percent').value = stats.ref_percent || 10;
+
+        loadAdminTaskList();
+        loadPendingWithdrawals();
+    } catch (e) { console.error(e); }
+}
+
+// 11. Save Settings
+async function saveSettings() {
+    const isMaint = document.getElementById('set-maintenance').checked;
+
+    try {
+        const res = await secureFetch('/api/admin/settings', {
+            method: 'POST',
+            body: JSON.stringify({ maintenance_mode: isMaint })
+        });
+        
+        if(res.success) {
+            tg.HapticFeedback.impactOccurred('medium');
+            showAppAlert(`Maintenance mode is now ${isMaint ? 'ON 🔴' : 'OFF 🟢'}.`, isMaint ? 'warning' : 'success');
+        }
+    } catch (e) {
+        showAppAlert("Failed to update settings.", 'error');
+    }
+}
+
+// 12. Save Referral Settings
+async function saveRefSettings() {
+    const bonus = document.getElementById('set-ref-bonus').value;
+    const percent = document.getElementById('set-ref-percent').value;
+
+    await secureFetch('/api/admin/settings', {
+        method: 'POST',
+        body: JSON.stringify({ 
+            ref_bonus_amount: parseFloat(bonus), 
+            ref_commission_percent: parseInt(percent) 
+        })
+    });
+    showAppAlert("Referral rules updated!", 'success')
+}
+
+// 13. Send Broadcast
+async function sendBroadcast() {
+    const msg = document.getElementById('broadcast-msg').value;
+    const btn = document.getElementById('btn-broadcast');
+
+    if (!msg) return showAppAlert("Please enter a message first.", 'warning')
+
+    showAppConfirm("Send this broadcast to ALL users?", async (ok) => {
+        if (ok) {
+            btn.disabled = true;
+            btn.innerText = "⌛ SENDING...";
+            
+            try {
+                const res = await secureFetch('/api/admin/broadcast', {
+                    method: 'POST',
+                    body: JSON.stringify({ message: msg })
+                });
+
+                if (res.success) {
+                    showAppAlert(`Broadcast started! Sending to ${res.total} users.`, 'success')
+                    document.getElementById('broadcast-msg').value = '';
+                }
+            } catch (e) {
+                showAppAlert("Broadcast error. Check server logs.", 'error')
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🚀 Send to All Users";
+            }
+        }
+    });
+}
+
+// 14. Toggle Target ID Field
+function toggleTargetIdField() {
+    const targetType = document.getElementById('notif-target-select').value;
+    const idContainer = document.getElementById('notif-user-id-container');
+    
+    if (targetType === 'specific_member') {
+        idContainer.classList.remove('hidden');
+    } else {
+        idContainer.classList.add('hidden');
+    }
+}
+
+// 15. Dispatch Admin Notification
+async function dispatchAdminNotification() {
+    const title = document.getElementById('notif-title').value;
+    const message = document.getElementById('notif-msg').value;
+    const type = document.getElementById('notif-type-select').value;
+    const targetType = document.getElementById('notif-target-select').value;
+    const targetUserId = document.getElementById('notif-target-userid').value;
+
+    if (!title || !message) return showAppAlert("Please complete Title and Message fields.", 'warning'); 
+    if (targetType === 'specific_member' && !targetUserId) return showAppAlert("Please specify a Target User ID.", 'warning');
+    const payload = { title, message, type, targetType, targetUserId };
+
+    const btn = document.getElementById('btn-send-notif');
+    btn.disabled = true;
+    btn.innerText = "PROCESSING DISPATCH...";
+
+    try {
+        const res = await secureFetch('/api/admin/notifications/send', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showNotificationToast("✅ Targeted system notification deployed successfully!", 'success');
+            
+            document.getElementById('notif-title').value = '';
+            document.getElementById('notif-msg').value = '';
+            document.getElementById('notif-target-userid').value = '';
+            document.getElementById('notif-target-select').value = 'all';
+            toggleTargetIdField();
+        } else {
+            showNotificationToast("🚨 Error dispatching alert: " + res.error, 'error');
+        }
+    } catch(e) {
+        showNotificationToast("⚠️ Failed to contact server gateway.", 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "📢 Dispatch Notification";
+    }
+}
 
 
 
