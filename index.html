@@ -7,6 +7,11 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+   <!-- AdGrams SDK -->
+<script src="https://adgrams.io/static/sdk.js"></script>
+
+<!-- Google Ad Manager / AdMob -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx"></script> 
     
     <style>
         :root {
@@ -16,19 +21,54 @@
         }
 
  /* Combined and locked root container frame */
+
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     min-height: 100%;
     position: fixed;
-    height: 100%; /* Locks viewport perfectly to mobile screen limits */
-    overflow: hidden; /* Stops the entire page/body from dragging */
+    height: 100%;
+    overflow: hidden;
     background: linear-gradient(to bottom, #1e1b4b, #020617);
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
 }
 
+/* USDT Rain Animation Background */
+#usdt-rain-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0.12;
+    z-index: 0;
+}
+
+.usdt-coin-rain {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background-image: url('/assets/images/usdt-coin.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: fallRain 8s linear forwards;
+    will-change: transform;
+}
+
+@keyframes fallRain {
+    0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
 /* Dedicated internal scrolling area */
 main {
     height: calc(100% - 100px); /* Formatted to accurately clear header/footer height */
@@ -847,7 +887,9 @@ main {
     </style>
 </head>
 <body>
-
+      <!-- USDT Rain Background -->
+    <div id="usdt-rain-bg"></div>
+    
     <div class="px-6 py-4 flex justify-between items-center fixed top-0 left-0 right-0 z-[100] glass rounded-none border-b border-white/5">
     <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden" id="user-pfp-container">
@@ -3224,7 +3266,6 @@ async function loadAvailableTasks() {
     const taskContainer = document.getElementById('task-list');
     if (!taskContainer) return;
     
-    // 1. Skeleton Placeholder View Setup
     taskContainer.innerHTML = Array(3).fill(0).map(() => `
         <div class="glass mb-4 p-4 flex justify-between items-center opacity-50">
             <div class="flex items-center gap-4 w-full">
@@ -3239,105 +3280,92 @@ async function loadAvailableTasks() {
     `).join('');
 
     try {
-        // 2. Query your secure, server-filtered available-tasks route directly
-        const availableTasks = await secureFetch('/api/secure/available-tasks');
+        const availableTasks = await secureFetch('/api/secure/tasks-with-progress');
 
-        // Safety Gate: Ensure the payload packet is a valid array map execution sequence
-        if (!availableTasks || !Array.isArray(availableTasks)) {
-            console.error("Could not load tasks payload packet safely. Payload received:", availableTasks);
-            taskContainer.innerHTML = '<p class="text-center text-xs text-red-400 py-6">Error rendering catalog lists</p>';
+        if (!availableTasks || !Array.isArray(availableTasks.tasks)) {
+            taskContainer.innerHTML = '<p class="text-center text-xs text-red-400 py-6">Error loading tasks</p>';
             return;
         }
 
-        // Synchronize state down into your global variables registry tracking cache
-        allTasks = availableTasks;
+        allTasks = availableTasks.tasks;
 
-        // 3. Handle Category Filtering on the safe array set returned by MongoDB
         const filteredTasks = allTasks.filter(task => {
             if (!currentFilter || currentFilter === 'All') return true;
-            
-            const taskCatClean = String(task.category || '').toLowerCase().trim();
-            const filterCatClean = String(currentFilter).toLowerCase().trim();
-            
-            return taskCatClean === filterCatClean || 
-                   (filterCatClean === 'edu' && taskCatClean.startsWith('edu'));
+            const taskCat = String(task.category || '').toLowerCase().trim();
+            const filterCat = String(currentFilter).toLowerCase().trim();
+            return taskCat === filterCat;
         });
 
         if (filteredTasks.length === 0) {
-            taskContainer.innerHTML = `
-                <div class="text-center py-10 select-none">
-                    <p class="text-2xl mb-1">🏜️</p>
-                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest">No tasks available</p>
-                </div>`;
+            taskContainer.innerHTML = `<div class="text-center py-10"><p class="text-2xl mb-1">🏜️</p><p class="text-[10px] text-slate-400 uppercase">No tasks available</p></div>`;
             return;
         }
 
-        // 4. Build HTML strings dynamically via buffer execution allocation arrays
-        let htmlBuffer = ''; 
+        let htmlBuffer = '';
         
         filteredTasks.forEach(task => {
-            // Standardizing properties strings safety checks
-            const taskId = task.id || task._id || '';
-            const taskUrl = task.url || '';
-            const taskTitle = task.title || 'Untitled Task';
-            const taskReward = parseFloat(task.reward || 0);
-            
-            const isManual = task.type === 'manual' || !taskUrl || !taskUrl.includes('t.me');
-            
+            const taskId = task.id || task._id;
+            const isDaily = task.type === 'daily';
+            const isManual = task.type === 'manual' || !task.url;
+            const isCompleted = task.completed;
+            const progressPercent = (task.progress / task.requirementCount) * 100;
+
             htmlBuffer += `
-                <div id="task-card-${taskId}" class="glass mb-4 overflow-hidden border border-white/5 rounded-2xl transition-all">
+                <div id="task-card-${taskId}" class="glass mb-4 overflow-hidden border border-white/5 rounded-2xl transition-all ${isDaily ? 'border-l-4 border-green-500' : ''}">
                     <div class="p-4 flex justify-between items-center gap-3">
                         <div class="flex items-center gap-4 min-w-0">
                             ${task.image ? `
-                                <img src="${task.image}" class="w-10 h-10 rounded-xl object-cover border border-white/10 shrink-0" onerror="this.src=''; this.style.display='none'">
+                                <img src="${task.image}" class="w-10 h-10 rounded-xl object-cover border border-white/10 shrink-0">
                             ` : `
-                                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl shrink-0 border border-blue-500/10">
-                                    ${isManual ? '📢' : '🔗'}
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl shrink-0">
+                                    ${isDaily ? '📅' : (isManual ? '📢' : '🔗')}
                                 </div>
                             `}
-
                             <div class="min-w-0">
-                                <h4 class="text-sm font-bold text-white truncate pr-1">${taskTitle}</h4>
-                                <span class="text-[10px] text-green-400 font-black tracking-wide block mt-0.5">+${taskReward.toFixed(2)} USDT</span>
+                                <h4 class="text-sm font-bold text-white truncate">${task.title}</h4>
+                                ${isDaily ? `<span class="text-[9px] text-green-400 font-black">Daily Task</span>` : ''}
+                                <span class="text-[10px] text-green-400 font-black tracking-wide block mt-0.5">+${task.reward.toFixed(2)} USDT</span>
                             </div>
                         </div>
                         <button id="btn-task-${taskId}" 
-                            onclick="${isManual ? `toggleProofSection('${taskId}', '${taskUrl}')` : `startTask('${taskUrl}', '${taskId}', ${taskReward}, 30)`}"
-                            class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider shrink-0 shadow-lg active:scale-95 transition-transform">
-                            ${isManual ? 'Submit' : 'Start'}
+                            onclick="${isManual ? `toggleProofSection('${taskId}', '${task.url || ''}')` : `startTask('${task.url || ''}', '${taskId}', ${task.reward}, 30)`}"
+                            class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase shrink-0 ${isCompleted ? 'opacity-50 cursor-default' : ''}"
+                            ${isCompleted ? 'disabled' : ''}>
+                            ${isCompleted ? '✓ Done' : (isManual ? 'Submit' : 'Start')}
                         </button>
                     </div>
-                    ${isManual ? `
-<div id="proof-${taskId}" class="proof-section px-4 pb-4 border-t border-white/[0.02] pt-3 bg-black/10">
-    <div class="flex gap-2 mb-3 bg-black/20 p-1 rounded-xl">
-        <button onclick="switchProofMode('${taskId}','text',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white">✏️ Text</button>
-        <button onclick="switchProofMode('${taskId}','img',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase text-slate-400">📸 Screenshot</button>
-    </div>
-    <div id="proof-text-${taskId}">
-        <input id="input-proof-${taskId}" type="text" class="w-full p-3 rounded-xl text-xs mb-2.5 bg-black/40 text-white border border-white/5 focus:border-blue-500/40 outline-none" placeholder="Username / Proof link...">
-    </div>
-    <div id="proof-img-${taskId}" class="hidden">
-        <div class="relative flex items-center justify-center w-full p-4 border border-dashed border-white/20 rounded-xl bg-black/20 mb-2.5">
-            <input id="proof-file-${taskId}" type="file" accept="image/*" onchange="previewProofImage(this,'${taskId}')" class="absolute inset-0 opacity-0 cursor-pointer z-10">
-            <div id="proof-upload-label-${taskId}" class="text-center">
-                <span class="text-[10px] font-bold text-slate-400">📷 Tap to upload screenshot</span>
-            </div>
-        </div>
-        <img id="proof-preview-${taskId}" src="" class="hidden w-full rounded-xl object-cover border border-white/10 mb-2.5 max-h-40">
-    </div>
-    <button onclick="submitManualProof('${taskId}')" class="w-full bg-green-600/20 text-green-400 border border-green-500/20 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-[0.99] transition-all">Send Proof</button>
-</div>` : ''}
+
+                    ${isDaily && !isCompleted ? `
+                        <div class="px-4 pb-3 border-t border-white/5 pt-2">
+                            <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 transition-all" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <span class="text-[9px] text-slate-400 mt-1 block">Resets at midnight UTC</span>
+                        </div>
+                    ` : ''}
+
+                    ${isManual && !isCompleted ? `
+                        <div id="proof-${taskId}" class="proof-section px-4 pb-4 border-t border-white/[0.02] pt-3 bg-black/10">
+                            <div class="flex gap-2 mb-3 bg-black/20 p-1 rounded-xl">
+                                <button onclick="switchProofMode('${taskId}','text',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white">✏️ Text</button>
+                                <button onclick="switchProofMode('${taskId}','img',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase text-slate-400">📸 Screenshot</button>
+                            </div>
+                            <div id="proof-text-${taskId}">
+                                <input id="input-proof-${taskId}" type="text" class="w-full p-3 rounded-xl text-xs mb-2.5 bg-black/40 text-white border border-white/5" placeholder="Username / Proof link...">
+                            </div>
+                            <button onclick="submitManualProof('${taskId}')" class="w-full bg-green-600/20 text-green-400 py-2.5 rounded-xl text-[10px] font-black uppercase active:scale-[0.99]">Send Proof</button>
+                        </div>
+                    ` : ''}
                 </div>`;
         });
         
         taskContainer.innerHTML = htmlBuffer;
         
     } catch (e) {
-        console.error("Task Load Error Handled Exception Trace Engine:", e);
-        taskContainer.innerHTML = '<p class="text-center text-xs text-red-400 py-6">Error rendering catalog lists</p>';
+        console.error("Task Load Error:", e);
+        taskContainer.innerHTML = '<p class="text-center text-xs text-red-400 py-6">Error</p>';
     }
 }
-
 
 // Helper to open manual proof area
 function toggleProofSection(taskId, url) {
@@ -5279,6 +5307,93 @@ async function resolveTicket() {
         }
     }, 'info', 'Resolve Ticket', 'Yes, Resolve', 'Cancel');
 }
+        // Initialize USDT Rain Animation
+function initUSDTRain() {
+    const rainContainer = document.getElementById('usdt-rain-bg');
+    if (!rainContainer) return;
+
+    function spawnCoin() {
+        const coin = document.createElement('div');
+        coin.className = 'usdt-coin-rain';
+        coin.style.left = Math.random() * 100 + '%';
+        coin.style.animationDuration = (6 + Math.random() * 4) + 's';
+        coin.style.animationDelay = Math.random() * 2 + 's';
+        rainContainer.appendChild(coin);
+
+        setTimeout(() => coin.remove(), 10000);
+    }
+
+    // Spawn coins continuously
+    setInterval(spawnCoin, 500);
+    
+    // Initial burst
+    for (let i = 0; i < 5; i++) {
+        setTimeout(spawnCoin, i * 100);
+    }
+}
+async function playAdAndTrack(adId, adNetwork) {
+    try {
+        let watched = false;
+
+        if (adNetwork === 'adgrams') {
+            // AdGrams integration
+            if (window.AdGrams && window.AdGrams.show) {
+                await new Promise((resolve) => {
+                    window.AdGrams.show({
+                        onClose: () => {
+                            watched = true;
+                            resolve();
+                        }
+                    });
+                });
+            } else {
+                showAppAlert('AdGrams not loaded', 'error');
+                return;
+            }
+        } else if (adNetwork === 'google_ads') {
+            // Google Ads / AdMob
+            // For web, you'd typically use Admob SDK
+            // This is a simplified placeholder
+            showAppAlert('Google Ads playing...', 'info');
+            await new Promise(r => setTimeout(r, 5000)); // Simulate 5s ad
+            watched = true;
+        }
+
+        if (watched) {
+            // Record the watch
+            const watchRes = await secureFetch('/api/secure/watch-ad', {
+                method: 'POST',
+                body: JSON.stringify({ adId })
+            });
+
+            if (watchRes.success) {
+                showNotificationToast(`Watched ad! +${watchRes.reward} USDT`, 'success');
+                
+                // Claim reward
+                const claimRes = await secureFetch('/api/secure/claim-ad-reward', {
+                    method: 'POST',
+                    body: JSON.stringify({ adId })
+                });
+
+                if (claimRes.success) {
+                    // Update UI
+                    const balMain = document.getElementById('balance-main');
+                    if (balMain) balMain.innerText = claimRes.newBalance.toFixed(2);
+                    
+                    syncWalletBalances();
+                    loadAvailableTasks();
+                }
+            }
+        }
+    } catch (err) {
+        console.error('Ad playback error:', err);
+        showAppAlert('Failed to play ad', 'error');
+    }
+}
+// Start rain on load
+initUSDTRain();
+
+
         // Start App
         initApp();
     </script>
