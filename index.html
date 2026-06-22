@@ -8,8 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
    <!-- AdGrams SDK -->
-<script src="https://adgrams.io/static/sdk.js"></script>
-
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <!-- Google Ad Manager / AdMob -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx"></script> 
     
@@ -1380,6 +1379,7 @@ main {
             <span class="text-2xl">📑</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
         </button>
+            <button onclick="createTestAds()" style="...">Create Test Ads</button>
     </div>
     
     <div id="panel-users" class="hidden space-y-6 pb-10">
@@ -5388,6 +5388,21 @@ async function playAdAndTrack(adId, adNetwork) {
     } catch (err) {
         console.error('Ad playback error:', err);
         showAppAlert('Failed to play ad', 'error');
+    }
+}
+        async function createTestAds() {
+    try {
+        const response = await fetch('https://embt-gateway.onrender.com/api/admin/create-test-ads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        });
+        const data = await response.json();
+        console.log('Test ads created:', data);
+        alert(`Created ${data.created} test ad units`);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to create test ads');
     }
 }
 // Start rain on load
