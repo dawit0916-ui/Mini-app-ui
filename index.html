@@ -686,7 +686,7 @@ main {
      <div id="tab-games" class="tab-content">
         <div class="mb-4">
             <h2 class="text-xl font-black tracking-wide text-white">Game Arena</h2>
-            <p class="text-xs text-slate-400">Play games to multiply your points and coins</p>
+            <p class="text-xs text-slate-400">Play games to multiply your points and Win USDT </p>
         </div>
 
         <div class="relative overflow-hidden rounded-2xl border border-blue-500/30 bg-indigo-950/20 p-5 backdrop-blur-xl shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 hover:border-blue-400/50">
@@ -701,7 +701,7 @@ main {
                         🎡 Lucky Spin Wheel
                     </h3>
                     <p class="text-xs text-slate-300 max-w-[200px]">
-                        Spend 1 Coin to spin the wheel and win up to <span class="text-yellow-400 font-bold">5000 Points</span>!
+                        Spend 10 Tickets to spin the wheel and win up to <span class="text-yellow-400 font-bold">1 USDT</span>!
                     </p>
                 </div>
                 
@@ -1213,259 +1213,10 @@ main {
     </div>
  </div>
 </div>
-            <div id="tab-support" class="tab-content">
-    <div class="glass p-6 mb-6">
-        <h3 class="text-xl font-bold mb-2 text-blue-400">Help & Support</h3>
-        <p class="text-xs text-slate-400 mb-6">Send a message to our team. We usually reply within 24 hours.</p>
-        
-        <textarea id="support-msg" rows="5" class="w-full rounded-xl p-4 text-sm mb-4" placeholder="Describe your issue..."></textarea>
-        <button onclick="submitSupportTicket()" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm">
-            Send Message
-        </button>
-    </div>
-</div>
+            
 
-<div id="tab-history" class="tab-content">
-    <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Completion History</h3>
-    <div id="history-list" class="space-y-3">
-        <p class="text-center text-xs text-slate-500 py-10">Fetching history...</p>
-    </div>
-</div>
-
-<div id="tab-add-task" class="tab-content">
-    <div class="glass p-6 mb-6 border-blue-500/30">
-        <h3 class="text-lg font-black mb-2">Promote Your Link</h3>
-        <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-6">Reach thousands of users</p>
-        
-        <div class="space-y-4">
-            <input id="user-task-title" type="text" class="w-full rounded-xl p-4 text-sm" placeholder="Task Name (e.g. Join my Group)">
-            <input id="user-task-link" type="text" class="w-full rounded-xl p-4 text-sm" placeholder="https://t.me/...">
-            <div class="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
-                <p class="text-[10px] text-blue-300 font-bold mb-1">Estimated Cost</p>
-                <p class="text-xl font-black">5.00 <span class="text-xs">USDT / 100 clicks</span></p>
-            </div>
-            <button onclick="tg.showAlert('Payment system integrating...')" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm">
-                Pay & Launch Task
-            </button>
-        </div>
-    </div>
-</div>
 <div id="lucky-spin-modal" class="spin-modal-backdrop">
         <div class="spin-modal-container glass glow-blue">
-            <div id="spin-info-overlay">
-
-    <!-- Header -->
-    <div class="spin-info-header">
-        <button class="spin-info-back-btn" onclick="closeSpinInfo()" aria-label="Back">←</button>
-        <div>
-            <h3 style="font-size:13px;font-weight:900;color:#f8fafc;line-height:1;margin:0 0 2px;">How to Play</h3>
-            <p style="font-size:9px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin:0;">Lucky Spin Guide</p>
-        </div>
-        <span style="margin-left:auto;font-size:20px;">🎡</span>
-    </div>
-
-    <!-- Scrollable content -->
-    <div class="spin-info-body">
-
-        <!-- Real wheel screenshot with callout labels -->
-        <div class="spin-hero-wrap">
-            <img class="spin-hero-img"
-                 src="/assets/images/spin-info.png"
-                 alt="Lucky Spin wheel">
-
-            <div class="spin-hero-callouts">
-                <!-- Pointer marker at top -->
-                <div class="spin-callout sc-pointer">
-                    <span class="dot" style="background:#3b82f6;"></span>
-                    Pointer
-                </div>
-                <!-- GO button in centre -->
-                <div class="spin-callout sc-go">
-                    <span class="dot" style="background:#f59e0b;"></span>
-                    Tap GO to spin
-                </div>
-                <!-- Balance HUD top-left -->
-                <div class="spin-callout sc-hud">
-                    <span class="dot" style="background:#10b981;"></span>
-                    Your balances
-                </div>
-                <!-- Close button at bottom -->
-                <div class="spin-callout sc-close">
-                    <span class="dot" style="background:#64748b;"></span>
-                    Close anytime
-                </div>
-            </div>
-        </div>
-
-        <div class="spin-info-content">
-
-            <!-- Steps -->
-            <div class="spin-step">
-                <div class="spin-step-num">1</div>
-                <div class="spin-step-body">
-                    <div class="spin-step-title">Earn Coins</div>
-                    <div class="spin-step-desc">Complete tasks in the Vault tab. Each task rewards you with Coins you can spend on spins.</div>
-                </div>
-            </div>
-
-            <div class="spin-step">
-                <div class="spin-step-num">2</div>
-                <div class="spin-step-body">
-                    <div class="spin-step-title">Open Game Arena → Lucky Spin</div>
-                    <div class="spin-step-desc">Tap <strong style="color:#f8fafc;">Games</strong> in the nav bar, then tap <strong style="color:#f8fafc;">Play</strong> on the Lucky Spin card.</div>
-                </div>
-            </div>
-
-            <div class="spin-step">
-                <div class="spin-step-num">3</div>
-                <div class="spin-step-body">
-                    <div class="spin-step-title">Tap GO!</div>
-                    <div class="spin-step-desc">Each spin costs <strong style="color:#fbbf24;">1 Coin</strong>. The pointer at the top marks the winning segment when the wheel stops.</div>
-                </div>
-            </div>
-
-            <div class="spin-step">
-                <div class="spin-step-num">4</div>
-                <div class="spin-step-body">
-                    <div class="spin-step-title">Collect Your Prize</div>
-                    <div class="spin-step-desc">Winnings are added to your wallet instantly. USDT goes to your cash balance; Points and Coins are credited to your asset totals.</div>
-                </div>
-            </div>
-
-            <!-- Prize table -->
-            <div class="prizes-section-title">Prize Segments & Odds</div>
-
-            <!-- JACKPOT -->
-            <div class="prize-row tier-jackpot">
-                <div class="prize-row-icon" style="background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.3);">
-                    <img src="/assets/images/jackpot-coin.png" alt="Jackpot" onerror="this.replaceWith(document.createTextNode('🏆'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">🎉 JACKPOT!</div>
-                    <div class="prize-row-desc">Grand prize — USDT / Coins / Pts</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(251,191,36,0.14);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);">0.5%</div>
-                    <div class="prize-row-amount" style="color:#fbbf24;">Random</div>
-                </div>
-            </div>
-
-            <!-- 1 USDT -->
-            <div class="prize-row tier-usdt">
-                <div class="prize-row-icon" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);">
-                    <img src="/assets/images/usdt-coin.png" alt="USDT" onerror="this.replaceWith(document.createTextNode('💵'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">1 USDT</div>
-                    <div class="prize-row-desc">Credited to cash balance</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2);">1%</div>
-                    <div class="prize-row-amount" style="color:#34d399;">+1.00 USDT</div>
-                </div>
-            </div>
-
-            <!-- 500 PTS -->
-            <div class="prize-row tier-pts">
-                <div class="prize-row-icon" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);">
-                    <img src="/assets/images/point-stack.png" alt="Points" onerror="this.replaceWith(document.createTextNode('💎'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">500 Points</div>
-                    <div class="prize-row-desc">Large points boost</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(99,102,241,0.1);color:#a5b4fc;border:1px solid rgba(99,102,241,0.2);">2.5%</div>
-                    <div class="prize-row-amount" style="color:#a5b4fc;">+500 Pts</div>
-                </div>
-            </div>
-
-            <!-- 1 SPIN -->
-            <div class="prize-row tier-coin">
-                <div class="prize-row-icon" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);">
-                    <img src="/assets/images/spin-coin.png" alt="Coin" onerror="this.replaceWith(document.createTextNode('🎰'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">1 Free Spin</div>
-                    <div class="prize-row-desc">Bonus coin refunded</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(59,130,246,0.1);color:#93c5fd;border:1px solid rgba(59,130,246,0.2);">6%</div>
-                    <div class="prize-row-amount" style="color:#93c5fd;">+1 Coin</div>
-                </div>
-            </div>
-
-            <!-- 100 PTS -->
-            <div class="prize-row tier-pts">
-                <div class="prize-row-icon" style="background:rgba(88,28,135,0.15);border:1px solid rgba(139,92,246,0.25);">
-                    <img src="/assets/images/point-stack.png" alt="Points" onerror="this.replaceWith(document.createTextNode('⭐'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">100 Points</div>
-                    <div class="prize-row-desc">Mid-tier reward</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(139,92,246,0.1);color:#c4b5fd;border:1px solid rgba(139,92,246,0.2);">15%</div>
-                    <div class="prize-row-amount" style="color:#c4b5fd;">+100 Pts</div>
-                </div>
-            </div>
-
-            <!-- 50 PTS -->
-            <div class="prize-row tier-pts">
-                <div class="prize-row-icon" style="background:rgba(15,118,110,0.12);border:1px solid rgba(20,184,166,0.2);">
-                    <img src="/assets/images/point-coin.png" alt="Points" onerror="this.replaceWith(document.createTextNode('✨'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">50 Points</div>
-                    <div class="prize-row-desc">Small boost</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(20,184,166,0.08);color:#5eead4;border:1px solid rgba(20,184,166,0.15);">0.5%</div>
-                    <div class="prize-row-amount" style="color:#5eead4;">+50 Pts</div>
-                </div>
-            </div>
-
-            <!-- 25 PTS -->
-            <div class="prize-row tier-pts">
-                <div class="prize-row-icon" style="background:rgba(30,41,59,0.4);border:1px solid rgba(255,255,255,0.07);">
-                    <img src="/assets/images/point-coin.png" alt="Points" onerror="this.replaceWith(document.createTextNode('🔵'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">25 Points</div>
-                    <div class="prize-row-desc">Micro reward</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(255,255,255,0.04);color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">45%</div>
-                    <div class="prize-row-amount" style="color:#94a3b8;">+25 Pts</div>
-                </div>
-            </div>
-
-            <!-- TRY AGAIN -->
-            <div class="prize-row tier-empty">
-                <div class="prize-row-icon" style="background:rgba(51,65,85,0.25);border:1px solid rgba(71,85,105,0.2);">
-                    <img src="/assets/images/try-again.png" alt="Try Again" onerror="this.replaceWith(document.createTextNode('🔄'))">
-                </div>
-                <div class="prize-row-info">
-                    <div class="prize-row-name">Try Again</div>
-                    <div class="prize-row-desc">No reward this spin</div>
-                </div>
-                <div class="prize-row-right">
-                    <div class="prize-odds-badge" style="background:rgba(71,85,105,0.12);color:#64748b;border:1px solid rgba(71,85,105,0.18);">30%</div>
-                    <div class="prize-row-amount" style="color:#475569;">—</div>
-                </div>
-            </div>
-
-            <!-- Tip -->
-            <div class="spin-tip-card">
-                <p>
-                    <strong>Earn more Coins</strong> by completing tasks in the Vault tab — each task credits your Coin balance. <br><br>
-                    The <strong>JACKPOT</strong> randomly awards USDT, Coins, or a large Points bundle and is the rarest segment on the wheel.
-                </p>
-            </div>
-
-        </div><!-- /spin-info-content -->
-    </div><!-- /spin-info-body -->
-</div><!-- /#spin-info-overlay -->
           <div class="modal-game-arena flex-1 flex flex-col items-center justify-center relative w-full my-auto select-none min-h-[520px]">
     
 <!-- COINS BOX: Positioned on LEFT edge, moved DOWN -->
@@ -1492,9 +1243,9 @@ main {
 
     <!-- Coins -->
     <div class="flex items-center gap-1 px-0.5 py-0.5 bg-white/5 rounded border border-amber-500/20">
-      <img src="/assets/images/spin-coin.png" alt="Coins" class="w-4 h-4 rounded object-cover flex-shrink-0" style="filter: drop-shadow(0 1px 2px rgba(245,158,11,0.3));">
+      <img src="/assets/images/spin-ticket.png" alt="Coins" class="w-4 h-4 rounded object-cover flex-shrink-0" style="filter: drop-shadow(0 1px 2px rgba(245,158,11,0.3));">
       <div class="min-w-0">
-        <p class="text-[4px] text-amber-300 font-black uppercase tracking-tight leading-none">COIN</p>
+        <p class="text-[4px] text-amber-300 font-black uppercase tracking-tight leading-none">Ticket</p>
         <p class="text-[7px] font-black text-white" id="spin-coin-val">0</p>
       </div>
     </div>
@@ -1517,14 +1268,6 @@ main {
   </div>
 <!-- Bouncing Crown -->
   <div class="text-5xl mb-2 filter drop-shadow-[0_3px_8px_rgba(245,158,11,0.6)] animate-[bounce_3s_infinite_ease-in-out]">👑</div>
-  <!-- Info Icon (?) on Top Right -->
-  <button
-    onclick="openSpinInfo()"
-    aria-label="How to play"
-    class="absolute -right-0 top-20 w-8 h-8 rounded-full border-2 border-red-500/60 text-red-500 text-xl font-black flex items-center justify-center hover:bg-red-500/10 transition-all active:scale-90"
-    style="box-shadow: 0 0 10px rgba(239,68,68,0.3);">
-    ?
-</button>
 
 </div>
 
@@ -1619,17 +1362,7 @@ main {
     
 <div id="toast-container"></div>
 
-<div id="notification-center" class="fixed inset-0 z-[150] glass flex-col" style="display:none;">
-    <div class="p-6 pt-12 flex justify-between items-center border-b border-white/10">
-        <h2 class="text-xl font-black uppercase tracking-widest">Inbox</h2>
-        <button onclick="toggleNotificationCenter()" class="text-slate-400 font-bold">❌</button>
-    </div>
-    <div class="flex p-4 gap-2">
-        <button onclick="switchNotifTab('personal')" id="btn-notif-personal" class="flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-blue-600 text-white">Personal</button>
-        <button onclick="switchNotifTab('system')" id="btn-notif-system" class="flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-white/5 text-slate-400">System</button>
-    </div>
-    <div id="notifications-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-</div>
+
 
         
 <nav class="fixed bottom-4 left-4 right-4 h-20 glass flex justify-around items-center px-4 z-[100] border border-white/10 glow-blue rounded-3×l">
@@ -1653,11 +1386,7 @@ main {
         <span class="text-[9px] font-black uppercase tracking-widest">Wallet</span>
     </button>
 
-    <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
-        <div class="text-2xl">👤</div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Profile</span>
-    </button>
-
+    
     <button id="nav-admin" onclick="switchTab('admin', this)" class="hidden nav-btn flex flex-col items-center gap-1 text-red-900/50 transition-all duration-300">
         <div class="text-2xl">🔐</div>
         <span class="text-[9px] font-black uppercase tracking-widest">Admin</span>
