@@ -16,8 +16,9 @@
             --neon-purple: #8b5cf6;
         }
 
- /* Combined and locked root container frame */
-
+ /* ============================================================
+   BACKGROUND IMAGE
+   ============================================================ */
 html, body {
     margin: 0;
     padding: 0;
@@ -26,12 +27,19 @@ html, body {
     position: fixed;
     height: 100%;
     overflow: hidden;
-    background: linear-gradient(to bottom, #1e1b4b, #020617);
+    background-image: 
+        linear-gradient(to bottom, rgba(8, 4, 28, 0.55), rgba(4, 2, 14, 0.60)),
+        url('/assets/images/bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
 }
 
-/* USDT Rain Animation Background */
+/* ============================================================
+   GLOWING LIGHTS — tuned to purple/orange bg palette
+   ============================================================ */
 #usdt-rain-bg {
     position: fixed;
     top: 0;
@@ -40,31 +48,241 @@ html, body {
     height: 100%;
     pointer-events: none;
     overflow: hidden;
-    opacity: 0.12;
     z-index: 0;
 }
 
-.usdt-coin-rain {
+.glow-orb {
     position: absolute;
-    width: 24px;
-    height: 24px;
-    background-image: url('/assets/images/usdt-coin.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    animation: fallRain 8s linear forwards;
-    will-change: transform;
+    border-radius: 50%;
+    filter: blur(70px);
+    animation: floatOrb linear infinite;
+    will-change: transform, opacity;
 }
 
-@keyframes fallRain {
-    0% {
-        transform: translateY(-100px) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-    }
+@keyframes floatOrb {
+    0%   { transform: translateY(100vh) scale(0.8); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
 }
+
+.glow-spark {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: sparkFloat linear infinite;
+    will-change: transform, opacity;
+}
+
+@keyframes sparkFloat {
+    0%   { transform: translateY(100vh) translateX(0px); opacity: 0; }
+    15%  { opacity: 1; }
+    50%  { transform: translateY(50vh) translateX(18px); }
+    85%  { opacity: 0.9; }
+    100% { transform: translateY(-10vh) translateX(-12px); opacity: 0; }
+}
+
+/* ============================================================
+   BOTTOM SHEET DRAWER — new reusable class system
+   ============================================================ */
+.sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 2, 18, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 8000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sheet-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.sheet-drawer {
+    width: 100%;
+    max-width: 480px;
+    background: linear-gradient(160deg, rgba(28, 14, 52, 0.98) 0%, rgba(10, 4, 28, 0.99) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-bottom: none;
+    border-radius: 28px 28px 0 0;
+    padding: 14px 20px 36px;
+    max-height: 82vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 
+        0 -8px 40px rgba(139, 92, 246, 0.12),
+        0 -2px 0px rgba(251, 146, 60, 0.15);
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.34, 1.1, 0.64, 1);
+}
+
+.sheet-backdrop.active .sheet-drawer {
+    transform: translateY(0);
+}
+
+/* Drag handle */
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, #7c3aed, #f97316);
+    border-radius: 4px;
+    margin: 0 auto 18px;
+    opacity: 0.6;
+}
+
+/* Sheet header row */
+.sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.sheet-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.sheet-subtitle {
+    font-size: 9px;
+    color: #64748b;
+    font-weight: 700;
+    font-family: monospace;
+    margin-top: 3px;
+}
+
+.sheet-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #64748b;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sheet-close:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
+
+/* Message bubble inside sheet */
+.sheet-msg-bubble {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.sheet-msg-label {
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    color: #475569;
+}
+
+.sheet-msg-text {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+/* Previous reply bubble */
+.sheet-prev-bubble {
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.sheet-prev-label {
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    color: #a78bfa;
+}
+
+/* Textarea inside sheet */
+.sheet-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #f1f5f9;
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.sheet-textarea:focus {
+    border-color: rgba(139, 92, 246, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08);
+}
+
+/* Action buttons row */
+.sheet-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.sheet-btn-primary {
+    flex: 1;
+    padding: 13px;
+    border-radius: 16px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    border: none;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+    transition: all 0.2s ease;
+}
+
+.sheet-btn-primary:active { transform: scale(0.97); }
+.sheet-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.sheet-btn-secondary {
+    flex: 1;
+    padding: 13px;
+    border-radius: 16px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.sheet-btn-secondary:active { transform: scale(0.97); background: rgba(255,255,255,0.08); }
 /* Dedicated internal scrolling area */
 main {
     height: calc(100% - 100px); /* Formatted to accurately clear header/footer height */
@@ -1072,42 +1290,43 @@ main {
     </div>
 </div>
 
-<!-- Reply Drawer -->
-<div id="modal-ticket-reply" class="wallet-modal-backdrop" onclick="closeTicketReplyDrawer()">
-    <div class="wallet-modal-drawer" onclick="event.stopPropagation()">
-        <div class="w-12 h-1 bg-slate-800 rounded-full mx-auto mb-4"></div>
-        <div class="flex justify-between items-start mb-4">
+<!-- Reply Drawer — new sheet system -->
+<div id="modal-ticket-reply" class="sheet-backdrop" onclick="closeTicketReplyDrawer()">
+    <div class="sheet-drawer" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+
+        <div class="sheet-header">
             <div>
-                <h3 class="text-sm font-black text-white">Reply to Ticket</h3>
-                <p id="reply-drawer-ref" class="text-[9px] text-slate-500 font-mono mt-0.5"></p>
+                <div class="sheet-title">Reply to Ticket</div>
+                <div id="reply-drawer-ref" class="sheet-subtitle"></div>
             </div>
-            <button onclick="closeTicketReplyDrawer()" class="text-slate-500 text-lg">✕</button>
+            <button class="sheet-close" onclick="closeTicketReplyDrawer()">✕</button>
         </div>
 
-        <!-- Original message preview -->
-        <div id="reply-drawer-original" class="bg-black/30 border border-white/5 rounded-xl p-3 mb-4">
-            <p class="text-[9px] text-slate-500 uppercase font-black mb-1">User Message</p>
-            <p id="reply-drawer-msg" class="text-xs text-slate-300 leading-relaxed"></p>
+        <!-- Original message -->
+        <div class="sheet-msg-bubble">
+            <div class="sheet-msg-label">User Message</div>
+            <div id="reply-drawer-msg" class="sheet-msg-text"></div>
         </div>
 
-        <!-- Previous reply if any -->
-        <div id="reply-drawer-prev-wrap" class="hidden bg-teal-950/30 border border-teal-500/20 rounded-xl p-3 mb-4">
-            <p class="text-[9px] text-teal-400 uppercase font-black mb-1">Previous Reply</p>
-            <p id="reply-drawer-prev" class="text-xs text-slate-300 leading-relaxed"></p>
+        <!-- Previous reply -->
+        <div id="reply-drawer-prev-wrap" class="hidden sheet-prev-bubble">
+            <div class="sheet-prev-label">Previous Reply</div>
+            <div id="reply-drawer-prev" class="sheet-msg-text"></div>
         </div>
 
-        <textarea id="ticket-reply-input" rows="4" class="w-full p-3 rounded-xl text-xs glass mb-3" placeholder="Type your reply here..."></textarea>
+        <textarea id="ticket-reply-input" rows="4" class="sheet-textarea" placeholder="Type your reply here..."></textarea>
 
-        <div class="flex gap-2">
-            <button onclick="submitTicketReply()" class="flex-1 bg-teal-600/20 text-teal-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-teal-500/30 active:scale-95 transition-all">
+        <div class="sheet-actions">
+            <button onclick="submitTicketReply()" class="sheet-btn-primary">
                 📩 Send Reply
             </button>
-            <button onclick="resolveTicket()" class="flex-1 bg-slate-600/20 text-slate-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-500/20 active:scale-95 transition-all">
+            <button onclick="resolveTicket()" class="sheet-btn-secondary">
                 ✅ Resolve
             </button>
         </div>
     </div>
-                </div>
+</div>
 <div id="panel-console" class="hidden space-y-4 pb-10">
     <div class="flex items-center gap-3 mb-4">
         <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
@@ -4438,28 +4657,64 @@ async function resolveTicket() {
     }, 'info', 'Resolve Ticket', 'Yes, Resolve', 'Cancel');
 }
         // Initialize USDT Rain Animation
+// Initialize Glowing Lights Background
 function initUSDTRain() {
-    const rainContainer = document.getElementById('usdt-rain-bg');
-    if (!rainContainer) return;
+    const container = document.getElementById('usdt-rain-bg');
+    if (!container) return;
 
-    function spawnCoin() {
-        const coin = document.createElement('div');
-        coin.className = 'usdt-coin-rain';
-        coin.style.left = Math.random() * 100 + '%';
-        coin.style.animationDuration = (6 + Math.random() * 4) + 's';
-        coin.style.animationDelay = Math.random() * 2 + 's';
-        rainContainer.appendChild(coin);
+    // Pulled from your bg image palette
+    const orbColors = [
+        'rgba(139, 92, 246, 0.20)',   // purple
+        'rgba(249, 115, 22, 0.14)',   // orange
+        'rgba(220, 38, 38, 0.10)',    // red
+        'rgba(109, 40, 217, 0.18)',   // deep violet
+        'rgba(234, 88, 12, 0.10)',    // deep orange
+    ];
 
-        setTimeout(() => coin.remove(), 10000);
+    const sparkColors = [
+        'rgba(216, 180, 254, 0.95)',  // light purple
+        'rgba(253, 186, 116, 0.90)',  // light orange
+        'rgba(252, 165, 165, 0.80)',  // light red
+        'rgba(255, 255, 255, 0.70)',  // white
+        'rgba(251, 191, 36, 0.85)',   // yellow/gold
+    ];
+
+    function spawnOrb() {
+        const orb = document.createElement('div');
+        orb.className = 'glow-orb';
+        const size = 100 + Math.random() * 160;
+        orb.style.width    = size + 'px';
+        orb.style.height   = size + 'px';
+        orb.style.left     = (Math.random() * 110 - 5) + '%';
+        orb.style.bottom   = '-20%';
+        orb.style.background = orbColors[Math.floor(Math.random() * orbColors.length)];
+        orb.style.animationDuration = (20 + Math.random() * 16) + 's';
+        orb.style.animationDelay    = Math.random() * 5 + 's';
+        container.appendChild(orb);
+        setTimeout(() => orb.remove(), 40000);
     }
 
-    // Spawn coins continuously
-    setInterval(spawnCoin, 500);
-    
-    // Initial burst
-    for (let i = 0; i < 5; i++) {
-        setTimeout(spawnCoin, i * 100);
+    function spawnSpark() {
+        const spark = document.createElement('div');
+        spark.className = 'glow-spark';
+        const size = 2 + Math.random() * 4;
+        spark.style.width    = size + 'px';
+        spark.style.height   = size + 'px';
+        spark.style.left     = (Math.random() * 100) + '%';
+        spark.style.bottom   = '-5%';
+        spark.style.background = sparkColors[Math.floor(Math.random() * sparkColors.length)];
+        spark.style.animationDuration = (7 + Math.random() * 9) + 's';
+        spark.style.animationDelay    = Math.random() * 3 + 's';
+        container.appendChild(spark);
+        setTimeout(() => spark.remove(), 22000);
     }
+
+    // Initial population
+    for (let i = 0; i < 7; i++) spawnOrb();
+    for (let i = 0; i < 15; i++) spawnSpark();
+
+    setInterval(spawnOrb, 3500);
+    setInterval(spawnSpark, 700);
 }
 async function playAdAndTrack(adId, adNetwork) {
     try {
