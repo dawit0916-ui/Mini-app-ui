@@ -27,14 +27,26 @@ html, body {
     position: fixed;
     height: 100%;
     overflow: hidden;
-    background-image: 
-        linear-gradient(to bottom, rgba(8, 4, 28, 0.55), rgba(4, 2, 14, 0.60)),
-        url('/assets/images/bg.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('/assets/images/bg.png');
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8, 4, 28, 0.60), rgba(4, 2, 14, 0.65));
+    z-index: -1;
 }
 
 /* ============================================================
@@ -48,7 +60,7 @@ html, body {
     height: 100%;
     pointer-events: none;
     overflow: hidden;
-    z-index: 0;
+    z-index: 1;
 }
 
 .glow-orb {
@@ -60,10 +72,10 @@ html, body {
 }
 
 @keyframes floatOrb {
-    0%   { transform: translateY(100vh) scale(0.8); opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 0.5; }
-    100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+    0%   { transform: scale(0.8); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 0.6; }
+    100% { transform: scale(1.3) translate(30px, -40px); opacity: 0; }
 }
 
 .glow-spark {
@@ -73,15 +85,13 @@ html, body {
     animation: sparkFloat linear infinite;
     will-change: transform, opacity;
 }
-
 @keyframes sparkFloat {
-    0%   { transform: translateY(100vh) translateX(0px); opacity: 0; }
+    0%   { transform: translateX(0px) scale(1); opacity: 0; }
     15%  { opacity: 1; }
-    50%  { transform: translateY(50vh) translateX(18px); }
+    50%  { transform: translateX(12px) scale(1.2); }
     85%  { opacity: 0.9; }
-    100% { transform: translateY(-10vh) translateX(-12px); opacity: 0; }
+    100% { transform: translateX(-8px) scale(0.8); opacity: 0; }
 }
-
 /* ============================================================
    BOTTOM SHEET DRAWER — new reusable class system
    ============================================================ */
@@ -4686,7 +4696,7 @@ function initUSDTRain() {
         orb.style.width    = size + 'px';
         orb.style.height   = size + 'px';
         orb.style.left     = (Math.random() * 110 - 5) + '%';
-        orb.style.bottom   = '-20%';
+        orb.style.top   = (Math.random() * 100) + '%';
         orb.style.background = orbColors[Math.floor(Math.random() * orbColors.length)];
         orb.style.animationDuration = (20 + Math.random() * 16) + 's';
         orb.style.animationDelay    = Math.random() * 5 + 's';
@@ -4701,7 +4711,7 @@ function initUSDTRain() {
         spark.style.width    = size + 'px';
         spark.style.height   = size + 'px';
         spark.style.left     = (Math.random() * 100) + '%';
-        spark.style.bottom   = '-5%';
+        spark.style.top   = (Math.random() * 100) + '%';
         spark.style.background = sparkColors[Math.floor(Math.random() * sparkColors.length)];
         spark.style.animationDuration = (7 + Math.random() * 9) + 's';
         spark.style.animationDelay    = Math.random() * 3 + 's';
