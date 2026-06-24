@@ -900,22 +900,23 @@ main {
 <div class="glass p-6 rounded-3xl border-white/5 text-center mb-6">
     <h3 class="text-lg font-black uppercase tracking-tighter mb-1">Invite & Earn Commission 10%</h3>
     <p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-6">Commission starts after friend completes required tasks</p>
-    <img src="/assets/images/usdt-coin.png" 
-             alt="USDT" style="width: 70px; height: 70px; margin: 0 auto;">
-    <!-- Stats Grid with USDT Coin -->
+
+    <!-- Stats Grid -->
     <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; margin-bottom: 20px;">
-        
-        <!-- Active Team Count -->
         <div class="bg-white/5 p-4 rounded-2xl text-center">
             <p class="text-[8px] text-slate-500 uppercase font-black">Active Team</p>
             <p id="total-invited" class="text-2xl font-black text-white mt-1">0</p>
         </div>    
-
-        <!-- Available Commission -->
         <div class="bg-white/5 p-4 rounded-2xl text-center">
             <p class="text-[8px] text-slate-500 uppercase font-black">Available</p>
             <p id="earned-points" class="text-2xl font-black text-green-400 mt-1">0.00</p>
         </div>
+    </div>
+
+    <!-- Referral Link + Copy -->
+    <div class="flex items-center gap-2 mb-4">
+        <input id="ref-link-input" type="text" readonly class="flex-1 p-3 rounded-xl text-[10px] text-slate-300 glass" value="Loading...">
+        <button onclick="copyRefLink()" class="bg-blue-600 px-4 py-3 rounded-xl text-[10px] font-black uppercase text-white active:scale-95 transition-all flex-shrink-0">📋 Copy</button>
     </div>
 
     <!-- Invite Button -->
@@ -923,8 +924,8 @@ main {
         🚀 Invite Friends
     </button>
     <button onclick="openLeaderboardDrawer('invites')" class="w-full glass py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 mt-3 border-yellow-500/20 text-yellow-400 active:scale-95 transition-all">
-    🏆 View Invite Leaderboard
-</button>
+        🏆 View Invite Leaderboard
+    </button>
 </div>
 
 <!-- Team Progress (SEPARATE SECTION) -->
@@ -975,14 +976,14 @@ main {
         <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
         <p class="text-[10px] text-slate-400 uppercase font-black tracking-[0.2em] mb-2">Total Points</p>
         <div class="flex items-center justify-center gap-2">
-            <span class="text-3xl">🪙</span>
+            <img src="/assets/images/point-coin.png" alt="Points" class="w-8 h-8">
             <h2 id="profile-points" class="text-4xl font-black tracking-tighter text-white">0</h2>
             <span class="text-sm font-bold text-slate-400 uppercase">PTS</span>
         </div>
         <p class="text-[10px] text-green-400 font-bold mt-2">
             <span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block mr-1"></span>
-            ≈ <span id="profile-points-usdt">0.00</span> USDT
-        </p>
+            withdrawable USDT is <span id="profile-points-usdt">0.00</span> USDT
+       </p>
     </div>
 
     <!-- User Info Card -->
@@ -1010,7 +1011,7 @@ main {
             </div>
         </div>
 
-        <button onclick="switchTab('history', null)" class="w-full bg-white/5 p-3.5 rounded-xl flex justify-between items-center active:scale-[0.98] transition-all">
+        <button onclick="openHistoryDrawer()" class="w-full bg-white/5 p-3.5 rounded-xl flex justify-between items-center active:scale-[0.98] transition-all">
             <div class="flex items-center gap-2">
                 <span>🕓</span>
                 <span class="text-xs font-bold text-white">My Activity</span>
@@ -1648,6 +1649,19 @@ main {
         <div id="lb-list"></div>
     </div>
 </div>
+<div id="modal-history" class="sheet-backdrop" onclick="closeHistoryDrawer()">
+    <div class="sheet-drawer" onclick="event.stopPropagation()" style="max-height:85vh;">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div>
+                <div class="sheet-title">🕓 My Activity</div>
+                <div class="sheet-subtitle">Your recent task history</div>
+            </div>
+            <button class="sheet-close" onclick="closeHistoryDrawer()">✕</button>
+        </div>
+        <div id="history-list" class="space-y-3"></div>
+    </div>
+</div> 
 <div id="lucky-spin-modal" class="spin-modal-backdrop">
         <div class="spin-modal-container glass glow-blue">
           <div class="modal-game-arena flex-1 flex flex-col items-center justify-center relative w-full my-auto select-none min-h-[520px]">
@@ -2554,7 +2568,8 @@ function switchAdminPanel(panelId) {
     tg.HapticFeedback.selectionChanged();
 }
 
-
+function openHistoryDrawer() { document.getElementById('modal-history').classList.add('active'); loadUserHistory(); tg.HapticFeedback.impactOccurred('light'); }
+function closeHistoryDrawer() { document.getElementById('modal-history').classList.remove('active'); }
 // Example Support Ticket Function
 async function submitSupportTicket() {
     const msg = document.getElementById('support-msg').value;
@@ -2564,11 +2579,7 @@ async function submitSupportTicket() {
         method: 'POST',
         body: JSON.stringify({ message: msg })
     });
-    
-    if(res.success) {
-        showAppAlert("Ticket sent! We will reply via the bot.", 'success')
-        switchTab('home', document.getElementById('nav-home'));
-    }
+    if(res.success) { showAppAlert("Ticket sent! We will reply via the bot.", 'success')  switchTab('home', document.getElementById('nav-home')); }
 }
 async function saveSettings() {
     const isMaint = document.getElementById('set-maintenance').checked;
@@ -2589,21 +2600,7 @@ async function saveSettings() {
 }
 
 
-function toggleUtilityMenu() {
-    const menu = document.getElementById('utility-menu');
-    menu.classList.toggle('hidden');
-    tg.HapticFeedback.impactOccurred('light');
-}
 
-// Fixed: Only close if clicking outside the menu button AND the menu itself
-window.addEventListener('click', function(e) {
-    const menu = document.getElementById('utility-menu');
-    const menuBtn = document.querySelector('button[onclick="toggleUtilityMenu()"]');
-    
-    if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
-        menu.classList.add('hidden');
-    }
-});
 
 
 // Accordion Toggle Logic
@@ -2797,30 +2794,7 @@ function previewUploadedImage(input) {
         reader.readAsDataURL(file);
     }
 }
-function openSpinInfo() {
-    const overlay = document.getElementById('spin-info-overlay');
-    if (!overlay) return;
-    overlay.classList.add('show');
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-    }
-}
 
-function closeSpinInfo() {
-    const overlay = document.getElementById('spin-info-overlay');
-    if (!overlay) return;
-    // Smooth exit
-    overlay.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
-    overlay.style.opacity    = '0';
-    overlay.style.transform  = 'scale(0.97) translateY(6px)';
-    setTimeout(() => {
-        overlay.classList.remove('show');
-        overlay.style.cssText = '';   // reset for next open
-    }, 190);
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.selectionChanged();
-    }
-        }
 // Step 1: Global variable synchronization hooks
 let cachedUserProfile = null;
 let allTasks = [];
@@ -3116,6 +3090,8 @@ async function payoutAction(txId, action) {
 }
 // --- UPDATED REFERRAL LOGIC ---
 async function loadReferralData() {
+    const linkInput = document.getElementById('ref-link-input');
+    if (linkInput) linkInput.value = `https://t.me/EMBTasks_bot?start=${user.id}`;
     const listContainer = document.getElementById('friends-list');
     try {
         const data = await secureFetch('/api/secure/referrals');
