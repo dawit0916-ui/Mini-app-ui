@@ -843,11 +843,86 @@ main {
     -webkit-overflow-scrolling: touch;
     padding: 80px 20px 40px;
 }
-
+.loading-screen-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('/assets/images/bg.png');
+    background-size: cover;
+    background-position: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.loading-screen-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8,4,28,0.75), rgba(4,2,14,0.85));
+}
+.loading-screen-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.loading-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 40px;
+    width: 100%;
+    max-width: 360px;
+}
+.loading-logo-ring {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 2px solid rgba(59,130,246,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: 0 0 50px rgba(59,130,246,0.3), inset 0 0 30px rgba(59,130,246,0.1);
+    animation: loadingPulse 2.5s ease-in-out infinite;
+    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+}
+@keyframes loadingPulse {
+    0%, 100% { box-shadow: 0 0 50px rgba(59,130,246,0.3), inset 0 0 30px rgba(59,130,246,0.1); }
+    50% { box-shadow: 0 0 70px rgba(59,130,246,0.5), inset 0 0 40px rgba(59,130,246,0.2); }
+}
+.loading-logo-img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 4px 20px rgba(59,130,246,0.5)); }
+.loading-title { font-size: 26px; font-weight: 900; letter-spacing: 0.08em; color: #f8fafc; text-shadow: 0 0 20px rgba(59,130,246,0.5); margin-bottom: 12px; }
+.loading-divider { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.loading-dot-deco { width: 4px; height: 4px; border-radius: 50%; background: #3b82f6; }
+.loading-line-deco { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent); }
+.loading-tagline { font-size: 10px; font-weight: 800; letter-spacing: 0.25em; color: #64748b; text-transform: uppercase; margin-bottom: 36px; }
+.loading-progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+.loading-progress-fill { height: 100%; width: 0%; border-radius: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); box-shadow: 0 0 12px rgba(59,130,246,0.6); transition: width 0.4s ease; }
+.loading-status-text { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; }
     </style>
 </head>
 <body>
-    
+   <div id="loading-screen" class="loading-screen-overlay">
+    <div class="loading-content">
+        <div class="loading-logo-ring">
+            <img src="/assets/images/usdt-coin.png" alt="EMBT" class="loading-logo-img">
+        </div>
+        <h1 class="loading-title">EMBT VAULT</h1>
+        <div class="loading-divider">
+            <span class="loading-dot-deco"></span>
+            <span class="loading-line-deco"></span>
+            <span class="loading-dot-deco"></span>
+        </div>
+        <p class="loading-tagline">EARN · PLAY · WITHDRAW</p>
+        <div class="loading-progress-track">
+            <div id="loading-progress-fill" class="loading-progress-fill"></div>
+        </div>
+        <p id="loading-status-text" class="loading-status-text">Initializing...</p>
+    </div>
+</div> 
     <div class="px-6 py-4 flex justify-between items-center fixed top-0 left-0 right-0 z-[100] glass rounded-none border-b border-white/5">
     <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden cursor-pointer" id="user-pfp-container" onclick="switchTab('profile', null)">
@@ -1848,7 +1923,23 @@ tg.expand();
 if (tg.disableVerticalSwipes) {
     tg.disableVerticalSwipes();
 }
+function setLoadingProgress(percent, statusText) {
+    const fill = document.getElementById('loading-progress-fill');
+    const status = document.getElementById('loading-status-text');
+    if (fill) fill.style.width = percent + '%';
+    if (status && statusText) status.innerText = statusText;
+}
 
+function hideLoadingScreen() {
+    const loader = document.getElementById('loading-screen');
+    if (loader) {
+        setLoadingProgress(100, 'Ready!');
+        setTimeout(() => {
+            loader.classList.add('hidden');
+            setTimeout(() => loader.remove(), 500);
+        }, 300);
+    }
+        }
 // 🛑 IMPORTANT: REPLACE THIS WITH YOUR RENDER URL
   const RENDER_URL = "https://embt-gateway.onrender.com";
 let OWNER_ID = null;
@@ -2013,9 +2104,11 @@ function renderGlobalMaintenanceViewportScreen(meta) {
 
 // -- Decoupled Initialization --
 async function initApp() {
+    setLoadingProgress(10, 'Connecting...');   // ← add this line first
     await fetchAdminStatus();
+    setLoadingProgress(30, 'Verifying account...');   // ← add after fetchAdminStatus
     cachedUserProfile = null;
-     
+    
     // SAFE EXTRACT: Safely pull the Telegram user instance with a robust local fallback object
     const user = window.Telegram?.WebApp?.initDataUnsafe?.user || {
         first_name: "Gamer",
@@ -2070,6 +2163,7 @@ async function initApp() {
 
             if (activeProfile) {
                 cachedUserProfile = activeProfile;
+                setLoadingProgress(60, 'Loading your data...'); 
                 const balanceMainEl = document.getElementById('balance-main');
                 const balanceWalletEl = document.getElementById('balance-wallet');
 
@@ -2095,29 +2189,18 @@ async function initApp() {
     try {
         // 1. Run tasks initialization safely
         await loadAvailableTasks().catch(e => {
+            setLoadingProgress(85, 'Loading tasks...');   // ← add this
             alert("Task Loader Engine Error:\n" + e.message);
         });
     } catch(err) {
         console.warn("Tasks dropped:", err.message);
     }
 
-    try {
-        // 2. Run notification sync safely inside its own tracking box
-        await syncUserInbox().catch(e => {
-            alert("Inbox Engine Array Sync Error:\n" + e.message);
-        });
-    } catch(err) {
-        console.warn("Inbox synchronization dropped:", err.message);
-    }
 
     // ==========================================================================
     // LOADER CLEANUP REMAINING IN THE GLOBAL SEQUENCE
     // ==========================================================================
-    const loader = document.getElementById('loading-screen');
-    if (loader) {
-        loader.classList.add('hidden');
-        loader.style.display = 'none';
-    }
+    hideLoadingScreen();
     
 
     // Enable Native Pull-to-Refresh
