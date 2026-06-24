@@ -2664,7 +2664,9 @@ async function submitSupportTicket() {
         method: 'POST',
         body: JSON.stringify({ message: msg })
     });
-    if(res.success) { showAppAlert("Ticket sent! We will reply via the bot.", 'success')  switchTab('home', document.getElementById('nav-home')); }
+    if(res.success) {
+    showAppAlert("Ticket sent! We will reply via the bot.", 'success');
+    switchTab('home', document.getElementById('nav-home'));
 }
 async function saveSettings() {
     const isMaint = document.getElementById('set-maintenance').checked;
