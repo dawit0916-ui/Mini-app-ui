@@ -903,6 +903,97 @@ main {
 .loading-progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
 .loading-progress-fill { height: 100%; width: 0%; border-radius: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); box-shadow: 0 0 12px rgba(59,130,246,0.6); transition: width 0.4s ease; }
 .loading-status-text { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; }
+/* ── Verification Gate ── */
+#verify-gate {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    z-index: 5000;
+    background: rgba(0,0,0,0.55);
+}
+#verify-gate.hidden { display: none; }
+
+.verify-error-banner {
+    width: 100%; max-width: 420px;
+    background: rgba(58,10,10,0.95);
+    border: 1px solid #cc2222;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 14px;
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+}
+.verify-error-banner.visible {
+    opacity: 1; transform: translateY(0);
+    pointer-events: auto;
+}
+.verify-card {
+    width: 100%; max-width: 420px;
+    background: #12172b;
+    border-radius: 22px;
+    padding: 36px 24px 28px;
+    display: flex; flex-direction: column;
+    align-items: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+.verify-channel-row {
+    display: flex; align-items: center; gap: 14px;
+    background: #1a2038; border: 1px solid #2a3358;
+    border-radius: 14px; padding: 14px 16px;
+    text-decoration: none; color: #fff;
+    font-weight: 600; font-size: 15px;
+    cursor: pointer; width: 100%;
+    transition: background 0.15s;
+    margin-bottom: 10px;
+}
+.verify-channel-row:active { background: #1e2440; }
+.verify-channel-row.joined .verify-check {
+    background: #22c55e; border-color: #22c55e;
+}
+.verify-channel-row.joined .verify-check::after {
+    content: '';
+    width: 5px; height: 9px;
+    border: 2px solid #fff;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+}
+.verify-tg-badge {
+    width: 38px; height: 38px;
+    background: #2b5ea7; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.verify-check {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid #2a3358; background: transparent;
+    flex-shrink: 0; margin-left: auto;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.verify-btn {
+    width: 100%; height: 56px;
+    background: linear-gradient(135deg, #ff7a1a, #cc5500);
+    border: none; border-radius: 16px;
+    color: #fff; font-size: 18px; font-weight: 700;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 10px;
+    transition: opacity 0.15s;
+    margin-top: 4px;
+}
+.verify-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.verify-spinner {
+    width: 22px; height: 22px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: none;
+}
+.verify-btn.loading .verify-btn-text { display: none; }
+.verify-btn.loading .verify-spinner { display: block; }
+        
     </style>
 </head>
 <body>
@@ -911,7 +1002,7 @@ main {
         <div class="loading-logo-ring">
             <img src="/assets/images/dash-coin.png" alt="EMBT" class="loading-logo-img">
         </div>
-        <h1 class="loading-title">DASH</h1>
+        <h1 class="loading-title">DASH EARN</h1>
         <div class="loading-divider">
             <span class="loading-dot-deco"></span>
             <span class="loading-line-deco"></span>
@@ -924,6 +1015,53 @@ main {
         <p id="loading-status-text" class="loading-status-text">Initializing...</p>
     </div>
 </div> 
+<!-- ── VERIFICATION GATE ── -->
+<div id="verify-gate" class="hidden">
+    <div class="verify-error-banner" id="verify-error-banner">
+        <div style="width:42px;height:42px;background:#ff7a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🔥</div>
+        <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#ff4444;text-transform:uppercase">Not Verified</div>
+            <div style="font-size:14px;color:#fff;margin-top:2px">Must join our Social Media to verify yourself.</div>
+        </div>
+    </div>
+
+    <div class="verify-card">
+        <svg width="72" height="64" viewBox="0 0 100 90" style="margin-bottom:20px">
+            <defs><linearGradient id="tri" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffcc00"/><stop offset="100%" stop-color="#ff8800"/>
+            </linearGradient></defs>
+            <polygon points="50,5 95,85 5,85" fill="url(#tri)"/>
+            <rect x="46" y="30" width="8" height="28" rx="4" fill="#1a1a2e"/>
+            <circle cx="50" cy="68" r="5" fill="#1a1a2e"/>
+        </svg>
+
+        <div style="font-size:22px;font-weight:800;color:#fff;text-align:center;margin-bottom:6px">Verification Required</div>
+        <div style="font-size:14px;color:#ffa040;text-align:center;margin-bottom:26px">Must join Dash Social Media</div>
+
+        <a id="verify-row-channel" href="https://t.me/EMBTasks_botC" target="_blank"
+           class="verify-channel-row" onclick="verifyMarkClicked('channel')">
+            <div class="verify-tg-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+            </div>
+            <span style="flex:1">Dash Official Channel</span>
+            <div class="verify-check" id="verify-dot-channel"></div>
+        </a>
+
+        <a id="verify-row-group" href="https://t.me/EMBTasks_botG" target="_blank"
+           class="verify-channel-row" onclick="verifyMarkClicked('group')">
+            <div class="verify-tg-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+            </div>
+            <span style="flex:1">Dash Community Group</span>
+            <div class="verify-check" id="verify-dot-group"></div>
+        </a>
+
+        <button class="verify-btn" id="verify-btn" onclick="verifyCheckMembership()">
+            <span class="verify-btn-text">Verify</span>
+            <div class="verify-spinner"></div>
+        </button>
+    </div>
+</div>    
     <div class="px-6 py-4 flex justify-between items-center fixed top-0 left-0 right-0 z-[100] glass rounded-none border-b border-white/5">
     <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden cursor-pointer" id="user-pfp-container" onclick="switchTab('profile', null)">
@@ -5750,6 +5888,62 @@ window.switchAdminPanel = function(panelId) {
       initUSDTRain();
         // Start App
         initApp();
+
+       
+// ── VERIFICATION GATE ──────────────────────────────────────────────────────
+const _verifyClicked = { channel: false, group: false };
+
+function verifyMarkClicked(which) {
+    _verifyClicked[which] = true;
+    setTimeout(() => {
+        document.getElementById(`verify-row-${which}`).classList.add('joined');
+    }, 700);
+}
+
+async function verifyRunCheck() {
+    const gate   = document.getElementById('verify-gate');
+    const btn    = document.getElementById('verify-btn');
+    const banner = document.getElementById('verify-error-banner');
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+        const res  = await secureFetch('/api/verify-membership', {
+            method: 'POST',
+            body: JSON.stringify({})
+        });
+
+        if (res && res.verified) {
+            gate.classList.add('hidden');
+        } else {
+            banner.classList.add('visible');
+            if (res?.inChannel) document.getElementById('verify-row-channel').classList.add('joined');
+            if (res?.inGroup)   document.getElementById('verify-row-group').classList.add('joined');
+        }
+    } catch (e) {
+        console.error('Gate check error:', e);
+        banner.classList.add('visible');
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+function verifyCheckMembership() {
+    document.getElementById('verify-error-banner').classList.remove('visible');
+    verifyRunCheck();
+}
+
+// Hook into initApp so gate fires AFTER loading screen hides
+const _origInitApp = initApp;
+initApp = async function() {
+    await _origInitApp();
+    // Show gate immediately, then auto-check
+    const gate = document.getElementById('verify-gate');
+    gate.classList.remove('hidden');
+    setTimeout(verifyRunCheck, 400);
+};       
     </script>
 </body>
 </html>
