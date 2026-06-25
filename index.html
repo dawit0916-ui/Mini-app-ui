@@ -4459,8 +4459,12 @@ function showAppAlert(message, type = 'info', title = '') {
     _popupConfirmCallback = null;
     document.getElementById('app-popup-backdrop').classList.add('show');
     if (window.Telegram?.WebApp?.HapticFeedback) {
-        const hapticMap = { success: 'success', error: 'error', warning: 'warning', info: 'light' };
-        tg.HapticFeedback.notificationOccurred(hapticMap[type] || 'light');
+        const hapticMap = { success: 'success', error: 'error', warning: 'warning', info: 'success' };
+        try {
+            tg.HapticFeedback.notificationOccurred(hapticMap[type] || 'success');
+        } catch (hapticErr) {
+            console.warn('Haptic feedback skipped:', hapticErr);
+        }
     }
 }
 
@@ -5164,63 +5168,62 @@ function initUSDTRain() {
     setInterval(spawnOrb, 3500);
     setInterval(spawnSpark, 700);
 }
-async function playAdAndTrack(adId, adNetwork) {
-    try {
-        let watched = false;
+let _adsgramControllers = {}; // cache one controller per blockId
 
-        if (adNetwork === 'adgrams') {
-            // AdGrams integration
-            if (window.AdGrams && window.AdGrams.show) {
-                await new Promise((resolve) => {
-                    window.AdGrams.show({
-                        onClose: () => {
-                            watched = true;
-                            resolve();
-                        }
-                    });
-                });
-            } else {
-                showAppAlert('AdGrams not loaded', 'error');
-                return;
-            }
-        } else if (adNetwork === 'google_ads') {
-            // Google Ads / AdMob
-            // For web, you'd typically use Admob SDK
-            // This is a simplified placeholder
-            showAppAlert('Google Ads playing...', 'info');
-            await new Promise(r => setTimeout(r, 5000)); // Simulate 5s ad
-            watched = true;
+function getAdsgramController(blockId) {
+    if (!window.Adsgram) return null;
+    if (!_adsgramControllers[blockId]) {
+        _adsgramControllers[blockId] = window.Adsgram.init({ blockId });
+    }
+    return _adsgramControllers[blockId];
+}
+
+async function playAdAndTrack(adId, adNetwork, blockId) {
+    try {
+        if (!window.Adsgram) {
+            showAppAlert('Ad service is still loading, please try again in a moment.', 'warning');
+            return;
         }
 
-        if (watched) {
-            // Record the watch
-            const watchRes = await secureFetch('/api/secure/watch-ad', {
+        const controller = getAdsgramController(blockId);
+        if (!controller) {
+            showAppAlert('Failed to initialize ad.', 'error');
+            return;
+        }
+
+        await controller.show(); // resolves when user watches/closes (rewarded format counts as watched on resolve)
+
+        // Record the watch
+        const watchRes = await secureFetch('/api/secure/watch-ad', {
+            method: 'POST',
+            body: JSON.stringify({ adId })
+        });
+
+        if (watchRes && watchRes.success) {
+            showNotificationToast(`Watched ad! +${watchRes.reward} USDT`, 'success');
+
+            const claimRes = await secureFetch('/api/secure/claim-ad-reward', {
                 method: 'POST',
                 body: JSON.stringify({ adId })
             });
 
-            if (watchRes.success) {
-                showNotificationToast(`Watched ad! +${watchRes.reward} USDT`, 'success');
-                
-                // Claim reward
-                const claimRes = await secureFetch('/api/secure/claim-ad-reward', {
-                    method: 'POST',
-                    body: JSON.stringify({ adId })
-                });
-
-                if (claimRes.success) {
-                    // Update UI
-                    const balMain = document.getElementById('balance-main');
-                    if (balMain) balMain.innerText = claimRes.newBalance.toFixed(2);
-                    
-                    syncWalletBalances();
-                    loadAvailableTasks();
-                }
+            if (claimRes && claimRes.success) {
+                const balMain = document.getElementById('balance-main');
+                if (balMain) balMain.innerText = claimRes.newBalance.toFixed(2);
+                syncWalletBalances();
+                loadAdsWatchList(); // refresh the Earn > Watch & Earn list, not loadAvailableTasks
+            } else {
+                showAppAlert(claimRes?.error || 'Failed to claim reward.', 'error');
             }
+        } else {
+            showAppAlert(watchRes?.error || 'Failed to record ad watch.', 'error');
         }
+
     } catch (err) {
+        // AdsGram's controller.show() rejects with a result object when the user
+        // closes early or no ad is available — not a JS Error, so don't expect err.message
         console.error('Ad playback error:', err);
-        showAppAlert('Failed to play ad', 'error');
+        showAppAlert('No ad available right now. Please try again later.', 'error');
     }
 }
         async function createTestAds() {
@@ -5619,7 +5622,7 @@ async function loadAdsWatchList() {
                 <div class="text-3xl mb-2">👁️</div>
                 <p class="text-sm font-black text-white mb-1">+${ad.reward.toFixed(2)} USDT</p>
                 <p class="text-[9px] text-slate-500 uppercase font-bold mb-4">${ad.network === 'adgrams' ? 'AdGrams' : 'Google Ads'}</p>
-                <button onclick="playAdAndTrack('${ad.id}', '${ad.network}')"
+                <button onclick="playAdAndTrack('${ad.id}', '${ad.network}', '${ad.unitId}')"
                     class="w-full btn-premium py-3 rounded-xl text-[10px] font-black uppercase ${ad.claimed ? 'opacity-50 cursor-default' : ''}"
                     ${ad.claimed ? 'disabled' : ''}>
                     ${ad.claimed ? '✓ Claimed Today' : (ad.watched ? 'Claim Reward' : 'Watch Ad')}
