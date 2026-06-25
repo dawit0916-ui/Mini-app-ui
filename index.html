@@ -1016,7 +1016,7 @@ main {
     </div>
 </div> 
 <!-- ── VERIFICATION GATE ── -->
-<div id="verify-gate" class="hidden">
+<div id="verify-gate" >
     <div class="verify-error-banner" id="verify-error-banner">
         <div style="width:42px;height:42px;background:#ff7a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🔥</div>
         <div>
@@ -5909,7 +5909,7 @@ async function verifyRunCheck() {
     btn.disabled = true;
 
     try {
-        const res  = await secureFetch('/api/verify-membership', {
+        const res = await secureFetch('/api/verify-membership', {
             method: 'POST',
             body: JSON.stringify({})
         });
@@ -5935,15 +5935,13 @@ function verifyCheckMembership() {
     verifyRunCheck();
 }
 
-// Hook into initApp so gate fires AFTER loading screen hides
-const _origInitApp = initApp;
-initApp = async function() {
-    await _origInitApp();
-    // Show gate immediately, then auto-check
+// ── Show gate as soon as DOM is ready, before initApp runs ──
+document.addEventListener('DOMContentLoaded', () => {
     const gate = document.getElementById('verify-gate');
     gate.classList.remove('hidden');
-    setTimeout(verifyRunCheck, 400);
-};       
+    // Wait for loading screen to finish then check
+    setTimeout(verifyRunCheck, 1500);
+});
     </script>
 </body>
 </html>
