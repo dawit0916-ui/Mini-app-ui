@@ -5225,17 +5225,18 @@ async function playAdAndTrack(adId, adNetwork) {
 }
         async function createTestAds() {
     try {
-        const response = await fetch('https://embt-gateway.onrender.com/api/admin/create-test-ads', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
+        const data = await secureFetch('/api/admin/create-test-ads', {
+            method: 'POST'
         });
-        const data = await response.json();
         console.log('Test ads created:', data);
-        alert(`Created ${data.created} test ad units`);
+        if (data && data.success) {
+            showAppAlert(`Created ${data.created} test ad units`, 'success');
+        } else {
+            showAppAlert(data?.error || 'Failed to create test ads', 'error');
+        }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to create test ads');
+        console.error('Create test ads error:', error);
+        showAppAlert('Failed to create test ads', 'error');
     }
 }
 function openWalletModal() {
