@@ -371,6 +371,15 @@ main {
     box-shadow: 0 0 15px var(--neon-blue);
     animation: glow-pulse 2s infinite;
 }
+  .nav-active img {
+    filter: drop-shadow(0 0 8px rgba(134, 239, 172, 0.8)) 
+            drop-shadow(0 0 16px rgba(74, 222, 128, 0.4));
+    opacity: 1 !important;
+}
+
+.nav-active::after {
+    display: none;
+}
 /* Ensure the utility menu (three dots) stays on top of the fixed header */
 #utility-menu {
     position: fixed;
@@ -2384,9 +2393,10 @@ main {
     </div>
     <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 animate-pulse">🎯 Tap GO To Spin</p>
 </div>
- <button
-    class="relative left-0 px-8 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-100 hover:text-white active:scale-95 transition-all"
-    onclick="closeSpinModal()">❌ Close</button>
+ <button onclick="closeSpinModal()"
+    class="absolute top-4 left-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white active:scale-90 transition-all z-50">
+    ←
+</button>
               
 </div>
 </div>
@@ -2420,41 +2430,33 @@ main {
     
 <div id="toast-container"></div>
 
-
-
-        
-<nav class="fixed bottom-4 left-4 right-4 h-20 glass flex justify-around items-center px-4 z-[100] border border-white/10 glow-blue rounded-3×l">
-    <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn nav-active flex flex-col items-center gap-1 transition-all duration-300">
-        <div class="text-2xl">⚡</div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Vault</span>
-    </button>
-
-    <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
-        <div class="text-2xl">👥</div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Friends</span>
-    </button>
-
-    <button id="nav-earn" onclick="switchTab('earn', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
-        <div class="text-2xl">📺</div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Earn</span>
-    </button>
-
-
-    <button id="nav-games" onclick="switchTab('games', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
-        <div class="text-2xl">🎮</div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Games</span>
-    </button>
-
-    <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-1 text-slate-500 transition-all duration-300">
-        <div class="text-2xl">🙋</div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Me</span>
-    </button>
-
+       
+<nav class="fixed bottom-4 left-4 right-4 h-20 glass flex justify-around items-center px-4 z-[100] border border-white/10 glow-blue rounded-3xl">
     
-    <button id="nav-admin" onclick="switchTab('admin', this)" class="hidden nav-btn flex flex-col items-center gap-1 text-red-900/50 transition-all duration-300">
-        <div class="text-2xl">🔐</div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Admin</span>
+    <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn nav-active flex flex-col items-center transition-all duration-300">
+        <img src="/assets/images/nav-home.png" class="w-14 h-14 object-contain drop-shadow-lg">
     </button>
+
+    <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
+        <img src="/assets/images/nav-friends.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    </button>
+
+    <button id="nav-earn" onclick="switchTab('earn', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
+        <img src="/assets/images/nav-earn.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    </button>
+
+    <button id="nav-games" onclick="switchTab('games', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
+        <img src="/assets/images/nav-games.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    </button>
+
+    <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
+        <img src="/assets/images/nav-profile.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    </button>
+
+    <button id="nav-admin" onclick="switchTab('admin', this)" class="hidden nav-btn flex flex-col items-center transition-all duration-300">
+        <img src="/assets/images/nav-admin.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    </button>
+
 </nav>
     <script>
    
@@ -3140,23 +3142,26 @@ function switchTab(tabId, btn) {
     if(targetTab) targetTab.classList.add('active');
     window.scrollTo(0,0);
 
-    document.querySelectorAll('.nav-btn').forEach(b => {
-        b.classList.remove('nav-active');
-        b.classList.add('text-slate-500');
-    });
+    // Reset all nav buttons
+document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.remove('nav-active');
+    const img = b.querySelector('img');
+    if (img) img.classList.add('opacity-50');
+});
 
-    if (btn) {
-        btn.classList.add('nav-active');
-        btn.classList.remove('text-slate-500');
-    }
+// Activate selected
+if (btn) {
+    btn.classList.add('nav-active');
+    const img = btn.querySelector('img');
+    if (img) img.classList.remove('opacity-50');
+}
 
     tg.HapticFeedback.selectionChanged();
     
-    // --- ADD THESE TRIGGERS ---
     if(tabId === 'home') loadAvailableTasks();
     if(tabId === 'history') loadUserHistory();
-    if(tabId === 'friends') loadReferralData(); // Loads friends when tab opens
-    if(tabId === 'admin') loadAdminData();      // Loads admin stats when tab opens
+    if(tabId === 'friends') loadReferralData();
+    if(tabId === 'admin') loadAdminData();
     if(tabId === 'profile') loadUserProfileMetrics();
     if(tabId === 'wallet') syncWalletBalances();
 }
