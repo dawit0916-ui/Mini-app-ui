@@ -1459,7 +1459,10 @@ main {
             <span class="text-2xl">📑</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
         </button>
-            <button onclick="createTestAds()" style="...">Create Test Ads</button>
+        <button onclick="setupRealAds()" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-orange-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">📡</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Setup Real Ads</span>
+        </button>
     </div>
     
     <div id="panel-users" class="hidden space-y-6 pb-10">
@@ -5364,21 +5367,22 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
         showAppAlert('No ad available right now. Please try again later.', 'error');
     }
 }
-        async function createTestAds() {
-    try {
-        const data = await secureFetch('/api/admin/create-test-ads', {
-            method: 'POST'
-        });
-        console.log('Test ads created:', data);
-        if (data && data.success) {
-            showAppAlert(`Created ${data.created} test ad units`, 'success');
-        } else {
-            showAppAlert(data?.error || 'Failed to create test ads', 'error');
+async function setupRealAds() {
+    showAppConfirm("This will remove all test ads and create the real AdsGram ad. Continue?", async (ok) => {
+        if (!ok) return;
+        try {
+            const data = await secureFetch('/api/admin/ads/setup', { method: 'POST' });
+            console.log('Real ads created:', data);
+            if (data && data.success) {
+                showAppAlert(`Live! Created ${data.created} real ad unit(s).`, 'success');
+            } else {
+                showAppAlert(data?.error || 'Failed to create real ads', 'error');
+            }
+        } catch (error) {
+            console.error('Setup real ads error:', error);
+            showAppAlert('Failed to create real ads', 'error');
         }
-    } catch (error) {
-        console.error('Create test ads error:', error);
-        showAppAlert('Failed to create test ads', 'error');
-    }
+    });
 }
 function openWalletModal() {
     document.getElementById('wallet-modal-overlay').classList.add('show');
@@ -5755,18 +5759,40 @@ async function loadAdsWatchList() {
             return;
         }
 
-        container.innerHTML = res.ads.map(ad => `
-            <div class="glass p-5 flex flex-col items-center text-center border border-white/5 rounded-2xl">
-                <div class="text-3xl mb-2">👁️</div>
-                <p class="text-sm font-black text-white mb-1">+${ad.reward.toFixed(2)} USDT</p>
-                <p class="text-[9px] text-slate-500 uppercase font-bold mb-4">${ad.network === 'adgrams' ? 'AdGrams' : 'Google Ads'}</p>
+        container.innerHTML = res.ads.map(ad => {
+            const percent = Math.min(100, Math.round((ad.watchedToday / ad.dailyLimit) * 100));
+
+            if (ad.locked) {
+                return `
+                <div class="glass p-4 flex items-center gap-4 border border-white/5 rounded-2xl opacity-70">
+                    <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl shrink-0">⌛</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-black text-slate-400">+${ad.reward.toFixed(2)} USDT</p>
+                        <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mt-2">
+                            <div class="h-full bg-slate-500" style="width:100%"></div>
+                        </div>
+                        <span class="text-[9px] text-slate-500 mt-1 block">${ad.watchedToday}/${ad.dailyLimit} watched · resets at midnight</span>
+                    </div>
+                    <button disabled class="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center text-lg shrink-0">🔒</button>
+                </div>`;
+            }
+
+            return `
+            <div class="glass p-4 flex items-center gap-4 border border-white/5 rounded-2xl">
+                <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl shrink-0">👁️</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-black text-white">+${ad.reward.toFixed(2)} USDT</p>
+                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mt-2">
+                        <div class="h-full bg-orange-500 transition-all" style="width:${percent}%"></div>
+                    </div>
+                    <span class="text-[9px] text-slate-400 mt-1 block">${ad.watchedToday}/${ad.dailyLimit} watched · ${percent}%</span>
+                </div>
                 <button onclick="playAdAndTrack('${ad.id}', '${ad.network}', '${ad.unitId}')"
-                    class="w-full btn-premium py-3 rounded-xl text-[10px] font-black uppercase ${ad.claimed ? 'opacity-50 cursor-default' : ''}"
-                    ${ad.claimed ? 'disabled' : ''}>
-                    ${ad.claimed ? '✓ Claimed Today' : (ad.watched ? 'Claim Reward' : 'Watch Ad')}
+                    class="btn-premium px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shrink-0">
+                    ▶ Watch
                 </button>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
 
     } catch (e) {
         console.error("Ads list error:", e);
