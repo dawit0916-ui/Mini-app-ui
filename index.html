@@ -3024,8 +3024,8 @@ async function loadUserDirectory() {
                     <p class="text-[9px] font-bold text-slate-400">${u.username ? '@'+u.username : 'No Username'}</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black text-green-400">${(u.balance || 0).toFixed(2)} USDT</p>
-                    <p class="text-[8px] font-bold text-yellow-500">${(u.points || 0).toFixed(0)} pts</p>
+                    <p class="text-[10px] font-black text-green-400">${(u.balance || 0).toFixed(2)} DASH</p>
+                    <p class="text-[8px] font-bold text-yellow-500">${(u.points || 0).toFixed(0)} USDT</p>
                 </div>
             </div>
         `).join('');
@@ -3121,7 +3121,7 @@ updateHeaderBalances(
     result.newCoins   || cachedUserProfile?.coins   || 0
 );
 
-    showNotificationToast(`+${result.reward || ''} USDT earned! 🎉`, 'success');
+    showNotificationToast(`+${result.reward || ''} DASH earned! 🎉`, 'success');
 }
      else {
             showAppAlert(result.error || "Verification failed.", 'error', 'Not Joined Yet')
@@ -5618,7 +5618,7 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
         });
 
         if (watchRes && watchRes.success) {
-            showNotificationToast(`Watched ad! +${watchRes.reward} USDT`, 'success');
+            showNotificationToast(`Watched ad! +${watchRes.reward} DASH`, 'success');
 
             const claimRes = await secureFetch('/api/secure/claim-ad-reward', {
                 method: 'POST',
