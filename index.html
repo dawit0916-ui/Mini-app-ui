@@ -1122,11 +1122,45 @@ main {
 <main class="p-6 pt-24 pb-32">
 
     <div id="tab-home" class="tab-content active">
-    <div class="glass p-8 text-center glow-blue mb-8 relative overflow-hidden w-full mx-auto">
-    <div class="absolute -top-10 -left-10 -40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
-    <p class="text-xs text-slate-400 uppercase font-semibold tracking-[0.2em] mb-2">Balance🪙</p>
-    <h2 id="balance-main" class="text-5xl font-black tracking-tighter text-white mb-2">0.00</h2>
-    <p class="text-blue-400 font-bold text-sm">USDT</p>
+    <div class="glass p-6 text-center glow-blue mb-6 relative overflow-hidden w-full mx-auto">
+    <div class="absolute -top-10 -left-10 w-40 h-40 bg-orange-600/10 rounded-full blur-3xl"></div>
+    
+    <!-- DASH balance (main) -->
+    <div class="mb-4">
+        <p class="text-[9px] text-slate-400 uppercase font-black tracking-[0.2em] mb-1">DASH Balance</p>
+        <div class="flex items-center justify-center gap-2">
+            <img src="/assets/images/dash-coin.png" class="w-7 h-7 object-contain">
+            <h2 id="balance-main" class="text-4xl font-black tracking-tighter text-white">0</h2>
+        </div>
+        <p class="text-orange-400 font-black text-[10px] uppercase tracking-widest mt-1">DASH</p>
+    </div>
+
+    <!-- Divider -->
+    <div class="flex items-center gap-2 mb-4">
+        <div class="flex-1 h-px bg-white/5"></div>
+        <span class="text-[8px] text-slate-600 uppercase font-black tracking-widest">Earnings</span>
+        <div class="flex-1 h-px bg-white/5"></div>
+    </div>
+
+    <!-- USDT + TICKET mini stats -->
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-black/30 border border-emerald-500/15 rounded-xl p-2.5">
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Withdrawable</p>
+            <div class="flex items-center justify-center gap-1.5">
+                <img src="/assets/images/usdt-coin.png" class="w-4 h-4 object-contain">
+                <span id="home-usdt-val" class="text-sm font-black text-emerald-400">0.00</span>
+            </div>
+            <p class="text-[8px] text-emerald-600 font-black mt-0.5">USDT</p>
+        </div>
+        <div class="bg-black/30 border border-amber-500/15 rounded-xl p-2.5">
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Spin Tickets</p>
+            <div class="flex items-center justify-center gap-1.5">
+                <img src="/assets/images/spin-ticket.png" class="w-4 h-4 object-contain">
+                <span id="home-ticket-val" class="text-sm font-black text-amber-300">0</span>
+            </div>
+            <p class="text-[8px] text-amber-600 font-black mt-0.5">TICKETS</p>
+        </div>
+    </div>
 </div>
 <!-- Place this inside <div id="tab-home">, above <div id="task-list"> -->
 <div class="category-container mb-4" id="category-bar">
@@ -1341,20 +1375,44 @@ main {
 </div>
 <div id="tab-profile" class="tab-content">
     <!-- Top Balance Card -->
-    <div class="glass p-7 text-center glow-blue mb-6 relative overflow-hidden">
-        <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
-        <p class="text-[10px] text-slate-400 uppercase font-black tracking-[0.2em] mb-2">Total Points</p>
-        <div class="flex items-center justify-center gap-2">
-            <img src="/assets/images/point-coin.png" alt="Points" class="w-8 h-8">
-            <h2 id="profile-points" class="text-4xl font-black tracking-tighter text-white">0</h2>
-            <span class="text-sm font-bold text-slate-400 uppercase">PTS</span>
-        </div>
-        <p class="text-[10px] text-green-400 font-bold mt-2">
-            <span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block mr-1"></span>
-            withdrawable USDT is <span id="profile-points-usdt">0.00</span> USDT
-       </p>
+    <div class="glass p-6 text-center glow-blue mb-6 relative overflow-hidden">
+    <div class="absolute -top-10 -left-10 w-40 h-40 bg-emerald-600/10 rounded-full blur-3xl"></div>
+
+    <!-- Withdrawable USDT (from points field) -->
+    <p class="text-[9px] text-slate-400 uppercase font-black tracking-[0.2em] mb-1">Withdrawable Balance</p>
+    <div class="flex items-center justify-center gap-2 mb-1">
+        <img src="/assets/images/usdt-coin.png" class="w-8 h-8 object-contain">
+        <h2 id="profile-usdt" class="text-4xl font-black tracking-tighter text-white">0.00</h2>
+    </div>
+    <p class="text-emerald-400 font-black text-[10px] uppercase tracking-widest mb-4">USDT</p>
+
+    <!-- Divider -->
+    <div class="flex items-center gap-2 mb-4">
+        <div class="flex-1 h-px bg-white/5"></div>
+        <span class="text-[8px] text-slate-600 uppercase font-black tracking-widest">Also Holding</span>
+        <div class="flex-1 h-px bg-white/5"></div>
     </div>
 
+    <!-- DASH + TICKET -->
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-black/30 border border-orange-500/15 rounded-xl p-2.5">
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">DASH</p>
+            <div class="flex items-center justify-center gap-1.5">
+                <img src="/assets/images/dash-coin.png" class="w-4 h-4 object-contain">
+                <span id="profile-dash" class="text-sm font-black text-orange-300">0</span>
+            </div>
+            <p class="text-[8px] text-orange-600 font-black mt-0.5">Not Withdrawable</p>
+        </div>
+        <div class="bg-black/30 border border-amber-500/15 rounded-xl p-2.5">
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">TICKETS</p>
+            <div class="flex items-center justify-center gap-1.5">
+                <img src="/assets/images/spin-ticket.png" class="w-4 h-4 object-contain">
+                <span id="profile-tickets" class="text-sm font-black text-amber-300">0</span>
+            </div>
+            <p class="text-[8px] text-amber-600 font-black mt-0.5">Spin Currency</p>
+        </div>
+    </div>
+</div>
     <!-- User Info Card -->
     <div class="glass p-5 mb-6 border-white/5">
         <div class="flex items-center gap-4 mb-5">
@@ -1371,7 +1429,7 @@ main {
 
         <div class="bg-white/5 p-3.5 rounded-xl flex justify-between items-center mb-3">
             <div class="flex items-center gap-2">
-                <span class="text-slate-500 text-xs">#</span>
+                <span class="text-slate-500 text-xs">>></span>
                 <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Telegram ID</span>
             </div>
             <div class="flex items-center gap-2">
@@ -3793,9 +3851,20 @@ async function loadUserProfileMetrics() {
 
         const data = await secureFetch('/api/secure/profile');
         if (data) {
-            const pts = data.points || 0;
-            document.getElementById('profile-points').innerText = pts.toLocaleString(undefined, { maximumFractionDigits: 0 });
-            document.getElementById('profile-points-usdt').innerText = (pts * 0.001).toFixed(4);
+           // points field = USDT (withdrawable)
+const usdt    = parseFloat(data.points  || 0);
+// balance field = DASH
+const dash    = parseInt(data.balance   || 0);
+// coins field = TICKET
+const tickets = parseInt(data.coins     || 0);
+
+const profileUsdt    = document.getElementById('profile-usdt');
+const profileDash    = document.getElementById('profile-dash');
+const profileTickets = document.getElementById('profile-tickets');
+
+if (profileUsdt)    profileUsdt.innerText    = usdt.toFixed(2);
+if (profileDash)    profileDash.innerText    = dash.toLocaleString();
+if (profileTickets) profileTickets.innerText = tickets.toLocaleString();
 
             if (data.createdAt) {
                 document.getElementById('profile-joined').innerText =
@@ -6231,6 +6300,12 @@ function updateHeaderBalances(dash, usdt, tickets) {
     if (spinDash)   spinDash.innerText   = parseInt(dash    || 0).toLocaleString();
     if (spinUsdt)   spinUsdt.innerText   = parseFloat(usdt  || 0).toFixed(2);
     if (spinTicket) spinTicket.innerText = parseInt(tickets  || 0).toLocaleString();
+
+    // Keep home card mini stats in sync
+const homeDash   = document.getElementById('home-usdt-val');   // USDT mini stat
+const homeTicket = document.getElementById('home-ticket-val'); // TICKET mini stat
+if (homeDash)   homeDash.innerText   = parseFloat(usdt    || 0).toFixed(2);
+if (homeTicket) homeTicket.innerText = parseInt(tickets    || 0).toLocaleString();
 }
        
        // Start rain on load
