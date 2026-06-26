@@ -993,6 +993,12 @@ main {
 }
 .verify-btn.loading .verify-btn-text { display: none; }
 .verify-btn.loading .verify-spinner { display: block; }
+ /* Exchange tier selected state */
+.exchange-tier-btn.selected {
+    border-color: rgba(249, 115, 22, 0.6);
+    background: rgba(249, 115, 22, 0.08);
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.12);
+}
         
     </style>
 </head>
@@ -1062,30 +1068,56 @@ main {
         </button>
     </div>
 </div>    
-    <div class="px-6 py-4 flex justify-between items-center fixed top-0 left-0 right-0 z-[100] glass rounded-none border-b border-white/5">
-    <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden cursor-pointer" id="user-pfp-container" onclick="switchTab('profile', null)">
+    <div class="px-4 py-3 flex justify-between items-center fixed top-0 left-0 right-0 z-[100] glass rounded-none border-b border-white/5">
+    
+    <!-- LEFT: Avatar + Name -->
+    <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden cursor-pointer flex-shrink-0" 
+             id="user-pfp-container" onclick="switchTab('profile', null)">
             <img id="header-avatar" src="" alt="PFP" class="hidden w-full h-full object-cover">
-            
-            <span id="header-avatar-fallback" class="font-black text-sm uppercase">Dash</span>
+            <span id="header-avatar-fallback" class="font-black text-[10px] uppercase">D</span>
         </div>
-        
         <div>
-            <h1 id="user-name" class="font-extrabold text-lg leading-tight">Loading...</h1>
+            <h1 id="user-name" class="font-extrabold text-sm leading-tight">Loading...</h1>
             <div class="flex items-center gap-1">
-                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span class="text-[10px] text-slate-400 uppercase tracking-tighter">Active User</span>
+                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-[9px] text-slate-400 uppercase tracking-tighter">Active</span>
             </div>
         </div>
     </div>
-    
-    
-  <div class="flex items-center gap-2">
-    <div id="admin-badge" class="hidden glass px-3 py-1 border-red-500/30 text-red-400 text-[10px] font-black uppercase tracking-widest">Owner</div>
-    
-   </div>
+
+    <!-- RIGHT: Currency Pills -->
+    <div class="flex items-center gap-1.5">
+
+        <!-- DASH -->
+        <div class="flex items-center gap-1 bg-black/40 border border-orange-500/25 rounded-full px-2 py-1">
+            <img src="/assets/images/dash-coin.png" alt="DASH" class="w-4 h-4 object-contain">
+            <span id="header-dash-val" class="text-[10px] font-black text-orange-300">0</span>
+        </div>
+
+        <!-- USDT -->
+        <div class="flex items-center gap-1 bg-black/40 border border-emerald-500/25 rounded-full px-2 py-1">
+            <img src="/assets/images/usdt-coin.png" alt="USDT" class="w-4 h-4 object-contain">
+            <span id="header-usdt-val" class="text-[10px] font-black text-emerald-400">0.00</span>
+        </div>
+
+        <!-- TICKET -->
+        <div class="flex items-center gap-1 bg-black/40 border border-amber-500/25 rounded-full px-2 py-1 relative">
+            <img src="/assets/images/spin-ticket.png" alt="Ticket" class="w-4 h-4 object-contain">
+            <span id="header-ticket-val" class="text-[10px] font-black text-amber-300">0</span>
+            <button onclick="openExchangeDrawer()" 
+                class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-[9px] font-black text-white leading-none shadow-lg shadow-green-500/30 active:scale-90 transition-all">
+                +
+            </button>
+        </div>
+
+        <!-- Admin Badge -->
+        <div id="admin-badge" class="hidden bg-black/40 border border-red-500/30 text-red-400 text-[9px] font-black uppercase tracking-widest rounded-full px-2 py-1">
+            👑
+        </div>
 
     </div>
+</div>
     
 <main class="p-6 pt-24 pb-32">
 
@@ -1943,6 +1975,119 @@ main {
         <button onclick="submitSupportTicketFromDrawer()" class="sheet-btn-primary w-full">📩 Send Ticket</button>
     </div>
 </div>
+<!-- DASH → TICKET EXCHANGE DRAWER -->
+<div id="modal-exchange" class="sheet-backdrop" onclick="closeExchangeDrawer()">
+    <div class="sheet-drawer" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+
+        <div class="sheet-header">
+            <div>
+                <div class="sheet-title">⚡ Exchange DASH → TICKET</div>
+                <div class="sheet-subtitle">100 DASH = 1 TICKET</div>
+            </div>
+            <button class="sheet-close" onclick="closeExchangeDrawer()">✕</button>
+        </div>
+
+        <!-- Balance Row -->
+        <div class="flex items-center justify-between mb-5 bg-black/30 border border-white/5 rounded-2xl px-4 py-3">
+            <div class="flex items-center gap-2">
+                <img src="/assets/images/dash-coin.png" class="w-6 h-6 object-contain">
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Available DASH</p>
+                    <p id="exchange-dash-balance" class="text-sm font-black text-orange-300">0</p>
+                </div>
+            </div>
+            <div class="text-slate-600 text-lg">→</div>
+            <div class="flex items-center gap-2">
+                <img src="/assets/images/spin-ticket.png" class="w-6 h-6 object-contain">
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Current TICKETS</p>
+                    <p id="exchange-ticket-balance" class="text-sm font-black text-amber-300">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rate Info -->
+        <div class="bg-orange-500/8 border border-orange-500/20 rounded-xl px-4 py-2.5 mb-5 flex items-center gap-2">
+            <span class="text-base">💱</span>
+            <p class="text-[10px] text-orange-300 font-bold">Rate: <span class="font-black">100 DASH = 1 TICKET</span> · Non-reversible</p>
+        </div>
+
+        <!-- Preset Tiers -->
+        <p class="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3">Select Amount</p>
+        <div class="grid grid-cols-2 gap-3 mb-5">
+
+            <!-- Tier 1: 1000 → 10 -->
+            <button onclick="selectExchangeTier(1000, 10, this)"
+                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-orange-300">1,000</span>
+                </div>
+                <div class="text-slate-600 text-xs">↓</div>
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-amber-300">10</span>
+                </div>
+                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
+            </button>
+
+            <!-- Tier 2: 5000 → 50 -->
+            <button onclick="selectExchangeTier(5000, 50, this)"
+                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-orange-300">5,000</span>
+                </div>
+                <div class="text-slate-600 text-xs">↓</div>
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-amber-300">50</span>
+                </div>
+                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
+            </button>
+
+            <!-- Tier 3: 10000 → 100 -->
+            <button onclick="selectExchangeTier(10000, 100, this)"
+                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-orange-300">10,000</span>
+                </div>
+                <div class="text-slate-600 text-xs">↓</div>
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-amber-300">100</span>
+                </div>
+                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
+            </button>
+
+            <!-- Tier 4: 50000 → 500 -->
+            <button onclick="selectExchangeTier(50000, 500, this)"
+                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-orange-300">50,000</span>
+                </div>
+                <div class="text-slate-600 text-xs">↓</div>
+                <div class="flex items-center gap-1.5">
+                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
+                    <span class="text-sm font-black text-amber-300">500</span>
+                </div>
+                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
+            </button>
+
+        </div>
+
+        <!-- Confirm Button -->
+        <button id="exchange-confirm-btn" onclick="confirmExchange()" 
+            class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white/40 bg-white/5 border border-white/10 transition-all"
+            disabled>
+            Select a tier to exchange
+        </button>
+
+    </div>
+</div>    
     <div id="wallet-modal-overlay" class="wallet-modal-overlay">
     <div class="wallet-modal-body">
         <!-- Balance card -->
@@ -2470,17 +2615,24 @@ async function initApp() {
             }
 
             if (activeProfile) {
-                cachedUserProfile = activeProfile;
-                setLoadingProgress(60, 'Loading your data...'); 
-                const balanceMainEl = document.getElementById('balance-main');
-                const balanceWalletEl = document.getElementById('balance-wallet');
+    cachedUserProfile = activeProfile;
+    setLoadingProgress(60, 'Loading your data...');
 
-                if (balanceMainEl) balanceMainEl.innerText = activeProfile.balance.toFixed(2);
-                if (balanceWalletEl) balanceWalletEl.innerText = activeProfile.balance.toFixed(2);
-                if (document.getElementById('tab-profile') && !document.getElementById('tab-profile').classList.contains('hidden')) {
-                    loadUserProfileMetrics();
-                }
-                            }
+    // DASH = balance field (whole number, shown on home card)
+    const balanceMainEl = document.getElementById('balance-main');
+    if (balanceMainEl) balanceMainEl.innerText = parseInt(activeProfile.balance || 0).toLocaleString();
+
+    // Sync all three header pills
+    updateHeaderBalances(
+        activeProfile.balance,   // DASH
+        activeProfile.points,    // USDT (withdrawable)
+        activeProfile.coins      // TICKET
+    );
+
+    if (document.getElementById('tab-profile') && !document.getElementById('tab-profile').classList.contains('hidden')) {
+        loadUserProfileMetrics();
+    }
+}
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
@@ -2868,9 +3020,17 @@ if (result.success) {
     }
 
     // Update all balance display points safely
-    const newBal = parseFloat(result.newBalance || 0).toFixed(2);
-    const balMain = document.getElementById('balance-main');
-    if (balMain) balMain.innerText = newBal;
+    // newBalance = balance field = DASH
+const newDash = parseInt(result.newBalance || 0);
+const balMain = document.getElementById('balance-main');
+if (balMain) balMain.innerText = newDash.toLocaleString();
+
+// Pull fresh balances into header
+updateHeaderBalances(
+    result.newBalance || 0,
+    result.newPoints  || cachedUserProfile?.points  || 0,
+    result.newCoins   || cachedUserProfile?.coins   || 0
+);
 
     showNotificationToast(`+${result.reward || ''} USDT earned! 🎉`, 'success');
 }
@@ -4142,22 +4302,24 @@ async function executeSecureSpinState() {
                 }
 
                 // 🔥 FIXED: Direct explicit integration of new server balances into HTML DOM UI nodes
-                if (backendServerExecutionResult.newWalletBalance !== undefined) {
-                    const mBal = document.getElementById('balance-main');
-                    const wBal = document.getElementById('balance-wallet');
-                    if (mBal) mBal.innerText = backendServerExecutionResult.newWalletBalance.toFixed(2);
-                    if (wBal) wBal.innerText = backendServerExecutionResult.newWalletBalance.toFixed(2);
-                }
+                // After spin: newWalletBalance=DASH, newPointBalance=USDT, newCoinBalance=TICKET
+const newDash   = backendServerExecutionResult.newWalletBalance ?? cachedUserProfile?.balance ?? 0;
+const newUsdt   = backendServerExecutionResult.newPointBalance  ?? cachedUserProfile?.points  ?? 0;
+const newTicket = backendServerExecutionResult.newCoinBalance   ?? cachedUserProfile?.coins   ?? 0;
 
-                if (backendServerExecutionResult.newPointBalance !== undefined) {
-                    const pBal = document.getElementById('user-points-display');
-                    if (pBal) pBal.innerText = backendServerExecutionResult.newPointBalance.toLocaleString();
-                }
+// Update home card
+const mBal = document.getElementById('balance-main');
+if (mBal) mBal.innerText = parseInt(newDash).toLocaleString();
 
-                if (backendServerExecutionResult.newCoinBalance !== undefined) {
-                    const cBal = document.getElementById('user-spins-left-display');
-                    if (cBal) cBal.innerText = backendServerExecutionResult.newCoinBalance;
-                }
+// Sync header pills
+updateHeaderBalances(newDash, newUsdt, newTicket);
+
+// Update cached profile
+if (cachedUserProfile) {
+    cachedUserProfile.balance = newDash;
+    cachedUserProfile.points  = newUsdt;
+    cachedUserProfile.coins   = newTicket;
+}
 
                 // Call internal synchronization functions safely
                 if (typeof syncWalletBalances === "function") syncWalletBalances();
@@ -4312,7 +4474,13 @@ async function syncWalletBalances() {
         animateNumericalValueDisplayUpdate('asset-bal-usdt', extractedFiatCashUSDT, 2);
         animateNumericalValueDisplayUpdate('asset-bal-coins', extractedTokensCoins, 0);
         animateNumericalValueDisplayUpdate('asset-bal-points', extractedYieldPoints, 2);
-        
+            
+        // Sync header pills with new currency mapping
+updateHeaderBalances(
+    extractedFiatCashUSDT,   // DASH  (balance field)
+    extractedYieldPoints,    // USDT  (points field)
+    extractedTokensCoins     // TICKET (coins field)
+);
         // Extract invite stats and update corresponding unlock milestones
         const activeTeamInvitesCount = parseInt(targetDatasetProfileNode.total_invited || 0);
         processEcosystemReferralMilestonesState(activeTeamInvitesCount);
@@ -5908,8 +6076,163 @@ window.switchAdminPanel = function(panelId) {
         loadAdminYoutubeTaskList();
     }
 };
+// ==========================================================================
+// DASH → TICKET EXCHANGE DRAWER
+// ==========================================================================
 
-        
+let _selectedExchangeDash = 0;
+let _selectedExchangeTickets = 0;
+
+function openExchangeDrawer() {
+    // Sync balances from header pills
+    const dashBal  = parseInt(document.getElementById('header-dash-val')?.innerText?.replace(/,/g, '') || 0);
+    const ticketBal = parseInt(document.getElementById('header-ticket-val')?.innerText?.replace(/,/g, '') || 0);
+
+    document.getElementById('exchange-dash-balance').innerText   = dashBal.toLocaleString();
+    document.getElementById('exchange-ticket-balance').innerText = ticketBal.toLocaleString();
+
+    // Reset tier selection
+    _selectedExchangeDash    = 0;
+    _selectedExchangeTickets = 0;
+    resetExchangeUI();
+
+    document.getElementById('modal-exchange').classList.add('active');
+    tg.HapticFeedback.impactOccurred('light');
+}
+
+function closeExchangeDrawer() {
+    document.getElementById('modal-exchange').classList.remove('active');
+    resetExchangeUI();
+}
+
+function resetExchangeUI() {
+    // Deselect all tier buttons
+    document.querySelectorAll('.exchange-tier-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+
+    // Reset confirm button
+    const confirmBtn = document.getElementById('exchange-confirm-btn');
+    confirmBtn.disabled     = true;
+    confirmBtn.innerText    = 'Select a tier to exchange';
+    confirmBtn.className    = 'w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white/40 bg-white/5 border border-white/10 transition-all';
+}
+
+function selectExchangeTier(dashCost, ticketsGained, btnEl) {
+    const availableDash = parseInt(
+        document.getElementById('exchange-dash-balance')?.innerText?.replace(/,/g, '') || 0
+    );
+
+    // Check affordability
+    if (availableDash < dashCost) {
+        showAppAlert(
+            `You need ${dashCost.toLocaleString()} DASH but only have ${availableDash.toLocaleString()} DASH.`,
+            'warning',
+            'Not Enough DASH'
+        );
+        return;
+    }
+
+    // Update selection state
+    _selectedExchangeDash    = dashCost;
+    _selectedExchangeTickets = ticketsGained;
+
+    // Update tier button highlights
+    document.querySelectorAll('.exchange-tier-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    btnEl.classList.add('selected');
+
+    // Activate confirm button
+    const confirmBtn = document.getElementById('exchange-confirm-btn');
+    confirmBtn.disabled  = false;
+    confirmBtn.innerText = `Exchange ${dashCost.toLocaleString()} DASH → ${ticketsGained} TICKETS`;
+    confirmBtn.className = 'w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-gradient-to-r from-orange-600 to-amber-500 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all border-none';
+
+    tg.HapticFeedback.selectionChanged();
+}
+
+async function confirmExchange() {
+    if (!_selectedExchangeDash || !_selectedExchangeTickets) return;
+
+    showAppConfirm(
+        `Exchange ${_selectedExchangeDash.toLocaleString()} DASH for ${_selectedExchangeTickets} TICKETS?\n\nThis cannot be undone.`,
+        async (confirmed) => {
+            if (!confirmed) return;
+
+            const confirmBtn = document.getElementById('exchange-confirm-btn');
+            confirmBtn.disabled  = true;
+            confirmBtn.innerText = 'Processing...';
+
+            try {
+                const res = await secureFetch('/api/secure/exchange-dash', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        dashAmount:    _selectedExchangeDash,
+                        ticketsAmount: _selectedExchangeTickets
+                    })
+                });
+
+                if (res && res.success) {
+                    tg.HapticFeedback.notificationOccurred('success');
+
+                    // Update header pills instantly
+                    updateHeaderBalances(
+                        res.newDash,
+                        res.newUsdt,
+                        res.newTickets
+                    );
+
+                    // Update drawer balances
+                    document.getElementById('exchange-dash-balance').innerText   = parseInt(res.newDash).toLocaleString();
+                    document.getElementById('exchange-ticket-balance').innerText = parseInt(res.newTickets).toLocaleString();
+
+                    closeExchangeDrawer();
+
+                    showAppReward('coins', _selectedExchangeTickets);
+
+                } else {
+                    showAppAlert(res?.error || 'Exchange failed. Please try again.', 'error');
+                    confirmBtn.disabled  = false;
+                    confirmBtn.innerText = `Exchange ${_selectedExchangeDash.toLocaleString()} DASH → ${_selectedExchangeTickets} TICKETS`;
+                }
+
+            } catch (e) {
+                console.error('Exchange error:', e);
+                showAppAlert('Network error. Please try again.', 'error');
+                confirmBtn.disabled  = false;
+                confirmBtn.innerText = `Exchange ${_selectedExchangeDash.toLocaleString()} DASH → ${_selectedExchangeTickets} TICKETS`;
+            }
+        },
+        'warning',
+        'Confirm Exchange'
+    );
+}
+// ==========================================================================
+// HEADER BALANCE SYNC — maps DB fields to new currency names
+// balance  → DASH (whole number, not withdrawable)
+// points   → USDT (withdrawable, 2 decimals)
+// coins    → TICKET (whole number)
+// ==========================================================================
+function updateHeaderBalances(dash, usdt, tickets) {
+    const dashEl   = document.getElementById('header-dash-val');
+    const usdtEl   = document.getElementById('header-usdt-val');
+    const ticketEl = document.getElementById('header-ticket-val');
+
+    if (dashEl)   dashEl.innerText   = parseInt(dash    || 0).toLocaleString();
+    if (usdtEl)   usdtEl.innerText   = parseFloat(usdt  || 0).toFixed(2);
+    if (ticketEl) ticketEl.innerText = parseInt(tickets  || 0).toLocaleString();
+
+    // Also keep spin modal HUD in sync if it's open
+    const spinDash   = document.getElementById('spin-usdt-val');   // repurposed for DASH
+    const spinUsdt   = document.getElementById('spin-pts-val');    // repurposed for USDT
+    const spinTicket = document.getElementById('spin-coin-val');   // repurposed for TICKET
+
+    if (spinDash)   spinDash.innerText   = parseInt(dash    || 0).toLocaleString();
+    if (spinUsdt)   spinUsdt.innerText   = parseFloat(usdt  || 0).toFixed(2);
+    if (spinTicket) spinTicket.innerText = parseInt(tickets  || 0).toLocaleString();
+}
+       
        // Start rain on load
       initUSDTRain();
         // Start App
