@@ -2697,7 +2697,7 @@ function startTask(url, taskId, reward, duration) {
 }
 // --- Share Referral ---
 function shareInvite() {
-    const botUsername = "EMBTasks_bot"; // 🚩 CHANGE THIS
+    const botUsername = "Dashearn_bot"; // 🚩 CHANGE THIS
     const refLink = `https://t.me/${botUsername}?start=${user.id}`;
     const text = "💰 Join EMBT Vault and start earning USDT with me! It's free and easy.";
     
@@ -3486,7 +3486,7 @@ async function payoutAction(txId, action) {
 // --- UPDATED REFERRAL LOGIC ---
 async function loadReferralData() {
     const linkInput = document.getElementById('ref-link-input');
-    if (linkInput) linkInput.value = `https://t.me/EMBTasks_bot?start=${user.id}`;
+    if (linkInput) linkInput.value = `https://t.me/Dashearn_bot?start=${user.id}`;
     const listContainer = document.getElementById('friends-list');
     try {
         const data = await secureFetch('/api/secure/referrals');
