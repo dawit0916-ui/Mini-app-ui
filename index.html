@@ -4157,40 +4157,29 @@ let spinCtx = null;
 let isSpinningActive = false;
 let wheelRotationAngle = 0; 
 const WHEEL_SEGMENTS = [
-    // Index 0: 1.0% Odds - USDT REWARD
-    { text: "1 USDT", type: "USDT", color: "#e11d48", textClr: "#ffffff", iconUrl: "/assets/images/usdt-stack.png" },
-    
-    // Index 1: 45% Odds - POINTS
-    { text: "25 PTS", type: "POINTS", color: "#1e293b", textClr: "#ffffff", iconUrl: "/assets/images/point-coin.png" },
-    
-    // Index 2: 30% Odds - TRY AGAIN
-    { text: "TRY AGAIN", type: "EMPTY", color: "#334155", textClr: "#ffffff", iconUrl: "/assets/images/try-again.png" },
-    
-    // Index 3: 15% Odds - POINTS
-    { text: "100 PTS", type: "POINTS", color: "#581c87", textClr: "#ffffff", iconUrl: "/assets/images/point-stack.png" },
-    
-    // Index 4: 6% Odds - SPINS
-    { text: "1 SPIN", type: "SPINS", color: "#2563eb", textClr: "#ffffff", iconUrl: "/assets/images/spin-coin.png" },
-    
-    // Index 5: 2.5% Odds - POINTS
-    { text: "500 PTS", type: "POINTS", color: "#0f172a", textClr: "#ffffff", iconUrl: "/assets/images/point-stack.png" },
-    
-    // Index 6: 0.5% Odds - SAFETY BONUS
-    { text: "50 PTS", type: "POINTS", color: "#0f766e", textClr: "#ffffff", iconUrl: "/assets/images/point-stack.png" },
-    
-    // Index 7: 0.5% Odds - JACKPOT (Randomly picks between 3 types!)
-    { text: "🎉 JACKPOT!", type: "JACKPOT", color: "#ca8a04", textClr: "#ffffff", iconUrl: "/assets/images/jackpot-coin.png" }
+    { text: "0.07 USDT", type: "USDT",     color: "#065f46", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
+    { text: "50 DASH",   type: "DASH",     color: "#7c2d12", textClr: "#ffffff", iconUrl: "/assets/images/dash-coin.png" },
+    { text: "0.05 USDT", type: "USDT",     color: "#064e3b", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
+    { text: "TRY AGAIN", type: "EMPTY",    color: "#1e293b", textClr: "#ffffff", iconUrl: "/assets/images/try-again.png" },
+    { text: "0.1 USDT",  type: "USDT",     color: "#14532d", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
+    { text: "1 TICKET",  type: "TICKET",   color: "#1e1b4b", textClr: "#ffffff", iconUrl: "/assets/images/spin-ticket.png" },
+    { text: "TRY AGAIN", type: "EMPTY",    color: "#334155", textClr: "#ffffff", iconUrl: "/assets/images/try-again.png" },
+    { text: "JACKPOT!",  type: "JACKPOT",  color: "#ca8a04", textClr: "#ffffff", iconUrl: "/assets/images/jackpot-coin.png" },
+    { text: "0.01 USDT", type: "USDT",     color: "#022c22", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
+    { text: "25 DASH",   type: "DASH",     color: "#92400e", textClr: "#ffffff", iconUrl: "/assets/images/dash-coin.png" },
 ];
 // 🆕 ADD THIS MAPPING - Maps wheel index to reward amounts
 const spinAmountMap = {
-    0: '1.00',      // 1 USDT
-    1: '25',        // 25 Points
-    2: '0',         // Try Again
-    3: '100',       // 100 Points
-    4: '1',         // 1 Spin
-    5: '500',       // 500 Points
-    6: '50',        // 50 Points
-    7: '5000'       // Jackpot (varies)
+    0: '0.07',   // USDT
+    1: '50',     // DASH
+    2: '0.05',   // USDT
+    3: '0',      // TRY AGAIN
+    4: '0.1',    // USDT
+    5: '1',      // TICKET
+    6: '0',      // TRY AGAIN
+    7: '500',    // JACKPOT DASH
+    8: '0.01',   // USDT
+    9: '25',     // DASH
 };
 
 const totalSegmentsCount = WHEEL_SEGMENTS.length;
@@ -4454,14 +4443,16 @@ if (cachedUserProfile) {
                 if (typeof syncWalletBalances === "function") syncWalletBalances();
  // Map winning index to reward type
 const rewardTypeMap = {
-    0: 'usdt',
-    1: 'points',
-    2: 'tryagain',
-    3: 'points',
-    4: 'coins',
-    5: 'points',
-    6: 'points',
-    7: 'jackpot'
+    0: 'usdt',     // 0.07 USDT
+    1: 'dash',     // 50 DASH
+    2: 'usdt',     // 0.05 USDT
+    3: 'tryagain', // TRY AGAIN
+    4: 'usdt',     // 0.1 USDT
+    5: 'coins',    // 1 TICKET
+    6: 'tryagain', // TRY AGAIN
+    7: 'jackpot',  // JACKPOT
+    8: 'usdt',     // 0.01 USDT
+    9: 'dash',     // 25 DASH
 };
 
 let spinRewardType = rewardTypeMap[assignedWinningIndexTarget] || 'tryagain';
@@ -4957,7 +4948,7 @@ document.getElementById('app-popup-backdrop').addEventListener('click', function
 
 const REWARD_SVGS = {
     usdt: `<img src="/assets/images/usdt-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(31,229,217,0.3));">`,
-    
+    dash: `<img src="/assets/images/dash-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(249,115,22,0.3));">`,
     points: `<img src="/assets/images/point-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(99,102,241,0.3));">`,
     
     coins: `<img src="/assets/images/spin-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));">`,
@@ -5075,7 +5066,21 @@ const REWARD_CONFIGS = {
         progress: '#818cf8',
         duration: 5000,
         haptic:   'light'
-    }
+    },
+   dash: {
+    bg:       'rgba(20,8,2,0.98)',
+    border:   'rgba(249,115,22,0.4)',
+    shadow:   '0 0 50px rgba(249,115,22,0.18)',
+    labelClr: '#fed7aa',
+    label:    'DASH Earned',
+    amtClr:   '#f97316',
+    unitClr:  '#fb923c',
+    unit:     'DASH',
+    msg:      'Added to your DASH balance',
+    progress: '#f97316',
+    duration: 2000,
+    haptic:   'light'
+        }
 };
 
 let _rewardTimer = null;
