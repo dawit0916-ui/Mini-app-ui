@@ -360,21 +360,25 @@ main {
     margin-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
-.nav-active::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    width: 20px;
-    height: 4px;
-    background: var(--neon-blue);
-    border-radius: 10px;
-    box-shadow: 0 0 15px var(--neon-blue);
-    animation: glow-pulse 2s infinite;
-}
-  .nav-active img {
+/* Active nav — full brightness + green glow on icon, gold text */
+.nav-active img {
+    opacity: 1 !important;
     filter: drop-shadow(0 0 8px rgba(134, 239, 172, 0.8)) 
             drop-shadow(0 0 16px rgba(74, 222, 128, 0.4));
-    opacity: 1 !important;
+}
+
+.nav-active span {
+    color: #fde68a !important; /* amber-200 — matches gold medallion */
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
+/* Inactive nav */
+.nav-btn img {
+    transition: all 0.3s ease;
+}
+
+.nav-btn span {
+    transition: all 0.3s ease;
 }
 
 .nav-active::after {
@@ -2431,30 +2435,36 @@ main {
 <div id="toast-container"></div>
 
        
-<nav class="fixed bottom-4 left-4 right-4 h-20 glass flex justify-around items-center px-4 z-[100] border border-white/10 glow-blue rounded-3xl">
+<nav class="fixed bottom-4 left-4 right-4 h-24 glass flex justify-around items-center px-2 z-[100] border border-white/10 glow-blue rounded-3xl">
     
-    <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn nav-active flex flex-col items-center transition-all duration-300">
+    <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn nav-active flex flex-col items-center gap-0 transition-all duration-300">
         <img src="/assets/images/nav-home.png" class="w-14 h-14 object-contain drop-shadow-lg">
+        <span class="text-[8px] font-black uppercase tracking-wider text-yellow-300/80">Home</span>
     </button>
 
-    <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
-        <img src="/assets/images/nav-friends.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
+        <img src="/assets/images/nav-friends.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
+        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Friends</span>
     </button>
 
-    <button id="nav-earn" onclick="switchTab('earn', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
-        <img src="/assets/images/nav-earn.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    <button id="nav-earn" onclick="switchTab('earn', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
+        <img src="/assets/images/nav-earn.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
+        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Earn</span>
     </button>
 
-    <button id="nav-games" onclick="switchTab('games', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
-        <img src="/assets/images/nav-games.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    <button id="nav-games" onclick="switchTab('games', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
+        <img src="/assets/images/nav-games.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
+        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Games</span>
     </button>
 
-    <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center transition-all duration-300">
-        <img src="/assets/images/nav-profile.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
+        <img src="/assets/images/nav-profile.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
+        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">profile</span>
     </button>
 
-    <button id="nav-admin" onclick="switchTab('admin', this)" class="hidden nav-btn flex flex-col items-center transition-all duration-300">
-        <img src="/assets/images/nav-admin.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-50">
+    <button id="nav-admin" onclick="switchTab('admin', this)" class="hidden nav-btn flex flex-col items-center gap-0 transition-all duration-300">
+        <img src="/assets/images/nav-admin.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
+        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Admin</span>
     </button>
 
 </nav>
@@ -3142,18 +3152,22 @@ function switchTab(tabId, btn) {
     if(targetTab) targetTab.classList.add('active');
     window.scrollTo(0,0);
 
-    // Reset all nav buttons
+ // Reset all nav buttons
 document.querySelectorAll('.nav-btn').forEach(b => {
     b.classList.remove('nav-active');
     const img = b.querySelector('img');
-    if (img) img.classList.add('opacity-50');
+    if (img) { img.classList.add('opacity-40'); img.classList.remove('opacity-100'); }
+    const span = b.querySelector('span');
+    if (span) span.className = 'text-[8px] font-black uppercase tracking-wider text-slate-600';
 });
 
 // Activate selected
 if (btn) {
     btn.classList.add('nav-active');
     const img = btn.querySelector('img');
-    if (img) img.classList.remove('opacity-50');
+    if (img) { img.classList.remove('opacity-40'); }
+    const span = btn.querySelector('span');
+    if (span) span.className = 'text-[8px] font-black uppercase tracking-wider text-yellow-300/80';
 }
 
     tg.HapticFeedback.selectionChanged();
