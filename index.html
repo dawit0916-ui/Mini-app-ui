@@ -4270,41 +4270,31 @@ function renderWheelStaticFrameState() {
         // REFINED RADIUS PLACEMENT: Pulls the text outward toward the rim edge cleanly
         const textRadiusPlacement = exteriorOuterRadiusValue - 65;
         spinCtx.translate(textRadiusPlacement, 0);
-        
-        let absoluteTextAngle = (midSegmentAngle + wheelRotationAngle) % (2 * Math.PI);
-        if (absoluteTextAngle < 0) absoluteTextAngle += 2 * Math.PI;
-        
-        const isBottomHalf = absoluteTextAngle > 0 && absoluteTextAngle < Math.PI;
-        if (isBottomHalf) {
-            spinCtx.rotate(-Math.PI / 2);
-        } else {
-            spinCtx.rotate(Math.PI / 2);
-        }
-        
-        spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
-        spinCtx.textAlign = "center";
-        spinCtx.textBaseline = "middle";
-        
-        // Scale text size proportional to the canvas layout container scale rule
-        const textFontSize = Math.floor(spinCanvas.width * 0.042);
-        const subFontSize = Math.floor(spinCanvas.width * 0.024);
-        
-        // 1. Render Main Value Text String
-        spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-        spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, isBottomHalf ? 18 : -18);
-        
-        // 2. Render Sub-Category text label
-        if (WHEEL_SEGMENTS[i].type) {
-            spinCtx.fillStyle = "rgba(255, 255, 255, 0.55)";
-            spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
-            spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, isBottomHalf ? -2 : 2);
-        }
-        
-        // 3. Draw segment icon image if loaded
+        spinCtx.rotate(Math.PI / 2);
+
+spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
+spinCtx.textAlign = "center";
+spinCtx.textBaseline = "middle";
+
+const textFontSize = Math.floor(spinCanvas.width * 0.042);
+const subFontSize  = Math.floor(spinCanvas.width * 0.024);
+
+// Icon — fixed position toward the rim (negative Y = outward)
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
-    const iconSize = Math.floor(spinCanvas.width * 0.12);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, isBottomHalf ? -5 : 5, iconSize, iconSize);
+    const iconSize = Math.floor(spinCanvas.width * 0.10);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, -(iconSize + 30), iconSize, iconSize);
+}
+
+// Main value text
+spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
+spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, 10);
+
+// Sub-type label
+if (WHEEL_SEGMENTS[i].type) {
+    spinCtx.fillStyle = "rgba(255, 255, 255, 0.55)";
+    spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
+    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, 26);
 }
 
 spinCtx.restore();
@@ -4951,7 +4941,7 @@ const REWARD_SVGS = {
     dash: `<img src="/assets/images/dash-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(249,115,22,0.3));">`,
     points: `<img src="/assets/images/point-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(99,102,241,0.3));">`,
     
-    coins: `<img src="/assets/images/spin-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));">`,
+    coins: `<img src="/assets/images/spin-ticket.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));">`,
     
     tryagain: `<svg width="64" height="64" viewBox="0 0 64 64">
         <circle cx="32" cy="32" r="28" fill="rgba(51,65,85,0.5)" stroke="rgba(71,85,105,0.4)" stroke-width="1.5"/>
@@ -5002,11 +4992,11 @@ const REWARD_CONFIGS = {
         border:   'rgba(245,158,11,0.45)',
         shadow:   '0 0 50px rgba(245,158,11,0.18)',
         labelClr: '#fde68a',
-        label:    'Bonus Spin',
+        label:    'TiTicket',
         amtClr:   '#f59e0b',
         unitClr:  '#fbbf24',
-        unit:     'Free Spin',
-        msg:      'Extra spin credited',
+        unit:     'Ticket to Spin',
+        msg:      'Extra ticket credited',
         progress: '#f59e0b',
         duration: 5000,
         haptic:   'light'
@@ -5113,7 +5103,7 @@ if (type === 'usdt') {
                                 alt="Points" 
                                 style="width:72px;height:72px;">`;
 } else if (type === 'coins') {
-    iconWrap.innerHTML = `<img src="/assets/images/spin-coin.png" 
+    iconWrap.innerHTML = `<img src="/assets/images/spin-ticket.png" 
                                 alt="Coins" 
                                 style="width:72px;height:72px;">`;
 } else {
