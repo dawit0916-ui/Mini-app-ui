@@ -1027,7 +1027,7 @@ main {
             <span class="loading-line-deco"></span>
             <span class="loading-dot-deco"></span>
         </div>
-        <p class="loading-tagline">EARN · PLAY · WITHDRAW</p>
+        <p class="loading-tagline">EARN · WATCH · PLAY · WITHDRAW</p>
         <div class="loading-progress-track">
             <div id="loading-progress-fill" class="loading-progress-fill"></div>
         </div>
@@ -1036,51 +1036,42 @@ main {
 </div> 
 <!-- ── VERIFICATION GATE ── -->
 <div id="verify-gate" >
-    <div class="verify-error-banner" id="verify-error-banner">
-        <div style="width:42px;height:42px;background:#ff7a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🔥</div>
-        <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#ff4444;text-transform:uppercase">Not Verified</div>
-            <div style="font-size:14px;color:#fff;margin-top:2px">Must join our Social Media to verify yourself.</div>
+    <div class="verify-card" style="background: linear-gradient(160deg, rgba(28,14,52,0.98) 0%, rgba(10,4,28,0.99) 100%); border: 1px solid rgba(139,92,246,0.2); border-radius: 28px; box-shadow: 0 -8px 40px rgba(139,92,246,0.12);">
+        
+        <div style="width:64px;height:64px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;">
+            🔐
         </div>
-    </div>
 
-    <div class="verify-card">
-        <svg width="72" height="64" viewBox="0 0 100 90" style="margin-bottom:20px">
-            <defs><linearGradient id="tri" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ffcc00"/><stop offset="100%" stop-color="#ff8800"/>
-            </linearGradient></defs>
-            <polygon points="50,5 95,85 5,85" fill="url(#tri)"/>
-            <rect x="46" y="30" width="8" height="28" rx="4" fill="#1a1a2e"/>
-            <circle cx="50" cy="68" r="5" fill="#1a1a2e"/>
-        </svg>
-
-        <div style="font-size:22px;font-weight:800;color:#fff;text-align:center;margin-bottom:6px">Verification Required</div>
-        <div style="font-size:14px;color:#ffa040;text-align:center;margin-bottom:26px">Must join Dash Social Media</div>
+        <div style="font-size:18px;font-weight:900;color:#f8fafc;text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">Verification Required</div>
+        <div style="font-size:11px;color:#64748b;font-weight:700;text-align:center;margin-bottom:24px;text-transform:uppercase;letter-spacing:0.1em;">Join our channels to continue</div>
 
         <a id="verify-row-channel" href="https://t.me/EMBTasks_botC" target="_blank"
-           class="verify-channel-row" onclick="verifyMarkClicked('channel')">
-            <div class="verify-tg-badge">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+           class="verify-channel-row" onclick="verifyMarkClicked('channel')"
+           style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:14px 16px;margin-bottom:10px;">
+            <div class="verify-tg-badge" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#60a5fa"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
             </div>
-            <span style="flex:1">Dash Official Channel</span>
+            <span style="flex:1;font-size:13px;font-weight:700;color:#f1f5f9;">Dash Official Channel</span>
             <div class="verify-check" id="verify-dot-channel"></div>
         </a>
 
         <a id="verify-row-group" href="https://t.me/EMBTasks_botG" target="_blank"
-           class="verify-channel-row" onclick="verifyMarkClicked('group')">
-            <div class="verify-tg-badge">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+           class="verify-channel-row" onclick="verifyMarkClicked('group')"
+           style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:14px 16px;margin-bottom:20px;">
+            <div class="verify-tg-badge" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#60a5fa"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
             </div>
-            <span style="flex:1">Dash Community Group</span>
+            <span style="flex:1;font-size:13px;font-weight:700;color:#f1f5f9;">Dash Community Group</span>
             <div class="verify-check" id="verify-dot-group"></div>
         </a>
 
-        <button class="verify-btn" id="verify-btn" onclick="verifyCheckMembership()">
-            <span class="verify-btn-text">Verify</span>
+        <button class="verify-btn" id="verify-btn" onclick="verifyCheckMembership()"
+            style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:16px;height:52px;font-size:13px;font-weight:900;letter-spacing:0.06em;box-shadow:0 4px 20px rgba(124,58,237,0.3);">
+            <span class="verify-btn-text">→ Verify Access</span>
             <div class="verify-spinner"></div>
         </button>
     </div>
-</div>    
+</div>
     <div class="px-4 py-3 flex justify-between items-center fixed top-0 left-0 right-0 z-[100] glass rounded-none border-b border-white/5">
     
     <!-- LEFT: Avatar + Name -->
@@ -2953,7 +2944,7 @@ function startTask(url, taskId, reward, duration) {
 function shareInvite() {
     const botUsername = "Dashearn_bot"; // 🚩 CHANGE THIS
     const refLink = `https://t.me/${botUsername}?start=${user.id}`;
-    const text = "💰 Join EMBT Vault and start earning USDT with me! It's free and easy.";
+    const text = "💰 Join Dash earn Bot and start earning USDT with me! It's free and easy.";
     
     // Telegram's native sharing method
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`;
@@ -6405,9 +6396,8 @@ function verifyMarkClicked(which) {
 }
 
 async function verifyRunCheck() {
-    const gate   = document.getElementById('verify-gate');
-    const btn    = document.getElementById('verify-btn');
-    const banner = document.getElementById('verify-error-banner');
+    const gate = document.getElementById('verify-gate');
+    const btn  = document.getElementById('verify-btn');
 
     btn.classList.add('loading');
     btn.disabled = true;
@@ -6421,13 +6411,13 @@ async function verifyRunCheck() {
         if (res && res.verified) {
             gate.classList.add('hidden');
         } else {
-            banner.classList.add('visible');
+            showAppAlert("You must join both the channel and group before verifying.", 'warning', 'Not Verified Yet');
             if (res?.inChannel) document.getElementById('verify-row-channel').classList.add('joined');
             if (res?.inGroup)   document.getElementById('verify-row-group').classList.add('joined');
         }
     } catch (e) {
         console.error('Gate check error:', e);
-        banner.classList.add('visible');
+        showAppAlert("Could not connect to server. Please try again.", 'error', 'Connection Error');
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
@@ -6435,7 +6425,7 @@ async function verifyRunCheck() {
 }
 
 function verifyCheckMembership() {
-    document.getElementById('verify-error-banner').classList.remove('visible');
+    
     verifyRunCheck();
 }
 
