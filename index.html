@@ -4279,11 +4279,22 @@ spinCtx.textBaseline = "middle";
 const textFontSize = Math.floor(spinCanvas.width * 0.042);
 const subFontSize  = Math.floor(spinCanvas.width * 0.024);
 
-// Icon — fixed position toward the rim (negative Y = outward)
+// Main value text — now toward the rim (negative Y = outward)
+spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
+spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize + 30));
+
+// Sub-type label — just below the main text, still toward rim
+if (WHEEL_SEGMENTS[i].type) {
+    spinCtx.fillStyle = "rgba(255, 255, 255, 0.55)";
+    spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
+    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(subFontSize + 14));
+}
+
+// Icon — now toward the center (positive Y = inward)
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
     const iconSize = Math.floor(spinCanvas.width * 0.10);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, -(iconSize + 30), iconSize, iconSize);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, 10, iconSize, iconSize);
 }
 
 // Main value text
