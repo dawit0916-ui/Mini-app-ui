@@ -1201,41 +1201,82 @@ main {
 
 
 <div id="tab-friends" class="tab-content">
-    <!-- REFERRAL COMMISSION SECTION -->
-<div class="glass p-6 rounded-3xl border-white/5 text-center mb-6">
-    <h3 class="text-lg font-black uppercase tracking-tighter mb-1">Invite & Earn Commission 10%</h3>
-    <p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-6">Commission starts after friend completes required tasks</p>
 
-    <!-- Stats Grid -->
-    <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; margin-bottom: 20px;">
-        <div class="bg-white/5 p-4 rounded-2xl text-center">
-            <p class="text-[8px] text-slate-500 uppercase font-black">Active Team</p>
-            <p id="total-invited" class="text-2xl font-black text-white mt-1">0</p>
-        </div>    
-        <div class="bg-white/5 p-4 rounded-2xl text-center">
-            <p class="text-[8px] text-slate-500 uppercase font-black">Available</p>
-            <p id="earned-points" class="text-2xl font-black text-green-400 mt-1">0.00</p>
+<!-- HERO REFERRAL CARD -->
+<div class="relative overflow-hidden rounded-3xl mb-5" style="background: linear-gradient(135deg, rgba(124,58,237,0.25) 0%, rgba(79,70,229,0.15) 50%, rgba(249,115,22,0.1) 100%); border: 1px solid rgba(139,92,246,0.25);">
+    
+    <!-- Background glow -->
+    <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-orange-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative p-5">
+
+        <!-- Commission Badge Row -->
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-base font-black text-white uppercase tracking-tight">Invite & Earn</h3>
+                <p class="text-[10px] text-slate-400 font-bold mt-0.5">Friend completes tasks → you earn</p>
+            </div>
+            <div class="flex flex-col items-center bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl px-4 py-2 shadow-lg shadow-orange-500/25">
+                <span class="text-xl font-black text-white leading-none">10%</span>
+                <span class="text-[8px] font-black text-orange-100 uppercase tracking-widest">Commission</span>
+            </div>
         </div>
-    </div>
 
-    <!-- Referral Link + Copy -->
-    <div class="flex items-center gap-2 mb-4">
-        <input id="ref-link-input" type="text" readonly class="flex-1 p-3 rounded-xl text-[10px] text-slate-300 glass" value="Loading...">
-        <button onclick="copyRefLink()" class="bg-blue-600 px-4 py-3 rounded-xl text-[10px] font-black uppercase text-white active:scale-95 transition-all flex-shrink-0">📋 Copy</button>
-    </div>
+        <!-- Stats Row -->
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="bg-black/30 border border-white/8 rounded-2xl p-3 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Active Team</p>
+                <p id="total-invited" class="text-xl font-black text-white">0</p>
+                <p class="text-[8px] text-purple-400 font-bold mt-0.5">Members</p>
+            </div>
+            <div class="bg-black/30 border border-orange-500/20 rounded-2xl p-3 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Earned</p>
+                <p id="earned-points" class="text-xl font-black text-orange-300">0.00</p>
+                <p class="text-[8px] text-orange-600 font-bold mt-0.5">DASH</p>
+            </div>
+            <div class="bg-black/30 border border-blue-500/20 rounded-2xl p-3 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Required</p>
+                <p class="text-xl font-black text-blue-400">3</p>
+                <p class="text-[8px] text-blue-600 font-bold mt-0.5">Tasks</p>
+            </div>
+        </div>
 
-    <!-- Invite Button -->
-    <button onclick="shareInvite()" class="w-full btn-premium py-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2">
-        🚀 Invite Friends
-    </button>
-    <button onclick="openLeaderboardDrawer('invites')" class="w-full glass py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 mt-3 border-yellow-500/20 text-yellow-400 active:scale-95 transition-all">
-        🏆 View Invite Leaderboard
-    </button>
+        <!-- Referral Link -->
+        <div class="bg-black/40 border border-white/8 rounded-2xl p-3 flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 bg-blue-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#60a5fa"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            </div>
+            <input id="ref-link-input" type="text" readonly 
+                class="flex-1 bg-transparent text-[10px] text-slate-300 font-mono outline-none min-w-0"
+                value="Loading...">
+            <button onclick="copyRefLink()" 
+                class="flex-shrink-0 bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase text-white active:scale-95 transition-all">
+                📋 Copy
+            </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <button onclick="shareInvite()" 
+            class="w-full btn-premium py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 mb-2 active:scale-[0.98] transition-all">
+            🚀 Invite Friends
+        </button>
+        <button onclick="openLeaderboardDrawer('invites')" 
+            class="w-full py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all"
+            style="background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24;">
+            🏆 View Invite Leaderboard
+        </button>
+
+    </div>
 </div>
 
-<!-- Team Progress (SEPARATE SECTION) -->
-<h3 class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-4 px-2">Team Progress</h3>
+<!-- TEAM LIST -->
+<div class="flex items-center justify-between mb-3 px-1">
+    <h3 class="text-[10px] font-black uppercase text-slate-500 tracking-widest">Team Progress</h3>
+    <span class="text-[9px] text-slate-600 font-bold">3 tasks = active</span>
+</div>
 <div id="friends-list" class="space-y-3 mb-8"></div>
+
 </div>
 
 <div id="tab-earn" class="tab-content">
@@ -1513,13 +1554,30 @@ main {
     </button>
 </div>
 <div id="tab-admin" class="tab-content">
-    <div class="glass p-4 border-b-2 border-blue-500">
-    <p class="text-[5px] text-slate-500 uppercase font-bold tracking-widest">Total Users</p>
-    <h4 id="stat-users" class="text-2xl font-black">0</h4>
+    <div class="grid grid-cols-2 gap-3 mb-3">
+    <div class="glass p-4 rounded-2xl text-center border border-blue-500/20">
+        <div class="text-xl mb-1">👥</div>
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Users</p>
+        <h4 id="stat-users" class="text-xl font-black text-blue-400">0</h4>
+    </div>
+    <div class="glass p-4 rounded-2xl text-center border border-yellow-500/20">
+        <div class="text-xl mb-1">💰</div>
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Payouts</p>
+        <h4 id="stat-withdraws" class="text-xl font-black text-yellow-400">0</h4>
+    </div>
 </div>
-<div class="glass p-4 border-b-2 border-yellow-500">
-    <p class="text-[5px] text-slate-500 uppercase font-bold tracking-widest">Pending Payouts</p>
-    <h4 id="stat-withdraws" class="text-2xl font-black text-yellow-500">0</h4>
+<div class="grid grid-cols-2 gap-3 mb-5">
+    <div class="glass p-4 rounded-2xl text-center border border-green-500/20">
+        <div class="text-xl mb-1">📋</div>
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Tasks</p>
+        <h4 id="stat-tasks" class="text-xl font-black text-green-400">0</h4>
+    </div>
+    <div class="glass p-4 rounded-2xl text-center border border-emerald-500/20"
+         style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(0,0,0,0.3));">
+        <div class="text-xl mb-1">💵</div>
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Total USDT</p>
+        <h4 id="stat-total-usdt" class="text-xl font-black text-emerald-400">0.00</h4>
+    </div>
 </div>
         <div id="admin-hub-grid" class="grid grid-cols-2 gap-3 mb-6">
         <button onclick="switchAdminPanel('panel-task-manager')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-blue-500/20 hover:bg-white/5 active:scale-95 transition-all">
@@ -3753,6 +3811,8 @@ async function loadAdminData() {
 
         document.getElementById('stat-users').innerText = stats.users;
         document.getElementById('stat-withdraws').innerText = stats.pending;
+        document.getElementById('stat-tasks').innerText = stats.tasks || 0;
+        document.getElementById('stat-total-usdt').innerText = parseFloat(stats.totalUsdt || 0).toFixed(2);
         document.getElementById('set-maintenance').checked = stats.maintenance;
         document.getElementById('set-ref-bonus').value = stats.ref_bonus || 0.5;
         document.getElementById('set-ref-percent').value = stats.ref_percent || 10;
@@ -3879,21 +3939,64 @@ async function loadReferralData() {
             }
 
             return `
-    <div class="glass p-4 mb-3 border-l-2 ${isReady ? 'border-blue-500' : 'border-yellow-500/30'}">
-        <div class="flex justify-between items-center mb-3">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">${initial}</div>
-                <div>
-                    <p class="text-xs font-bold">${displayName}</p>
-                    <p class="text-[8px] font-black uppercase ${isReady ? 'text-blue-400' : 'text-yellow-500'}">${isReady ? 'Active' : 'Pending Verification'}</p>
+    <div class="relative overflow-hidden rounded-2xl p-4 mb-3"
+         style="background: ${isReady 
+            ? 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(0,0,0,0.3))' 
+            : 'linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,0,0,0.3))'};
+         border: 1px solid ${isReady ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'};">
+
+        <!-- Status glow -->
+        ${isReady ? '<div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>' : ''}
+
+        <div class="flex items-center gap-3">
+
+            <!-- Avatar -->
+            <div class="relative flex-shrink-0">
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black"
+                     style="background: linear-gradient(135deg, ${isReady ? '#065f46, #047857' : '#1e293b, #0f172a'}); border: 1px solid ${isReady ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'};">
+                    ${initial}
+                </div>
+                <!-- Online dot -->
+                <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-black"
+                     style="background: ${isReady ? '#10b981' : '#f59e0b'};"></div>
+            </div>
+
+            <!-- Name + status -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-1">
+                    <p class="text-sm font-black text-white truncate">${displayName}</p>
+                    <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+                        <img src="/assets/images/dash-coin.png" class="w-3.5 h-3.5 object-contain">
+                        <span class="text-xs font-black ${isReady ? 'text-orange-300' : 'text-slate-600'}">
+                            ${isReady ? '+' + Math.floor(f.commission_earned || 0) : '🔒'}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="w-full h-1.5 rounded-full overflow-hidden mb-1.5"
+                     style="background: rgba(255,255,255,0.05);">
+                    <div class="h-full rounded-full transition-all duration-700"
+                         style="width: ${progress}%; background: ${isReady 
+                            ? 'linear-gradient(90deg, #10b981, #34d399)' 
+                            : 'linear-gradient(90deg, #f59e0b, #fbbf24)'};
+                         box-shadow: ${isReady ? '0 0 8px rgba(16,185,129,0.4)' : '0 0 8px rgba(245,158,11,0.3)'};"></div>
+                </div>
+
+                <!-- Bottom row -->
+                <div class="flex items-center justify-between">
+                    <span class="text-[9px] font-black uppercase tracking-wider"
+                          style="color: ${isReady ? '#10b981' : '#f59e0b'};">
+                        ${isReady ? '✓ Active' : '⏳ Pending'}
+                    </span>
+                    <span class="text-[9px] font-bold text-slate-600">
+                        ${f.tasks_done || 0}/${tasksRequired} tasks
+                    </span>
                 </div>
             </div>
-            <p class="text-xs font-black">${isReady ? '+' + (f.commission_earned || 0).toFixed(2) : 'Locked'}</p>
+
         </div>
-                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500 transition-all duration-700" style="width: ${progress}%"></div>
-                    </div>
-                </div>`;
+    </div>`;
         }).join('');
 
         document.getElementById('total-invited').innerText = activeTotal;
@@ -4368,11 +4471,19 @@ if (!spinCanvas._initialized) {
         
         const midSegmentAngle = currentAngleRad + (segmentArcRadiantLength / 2);
         spinCtx.rotate(midSegmentAngle);
-        
-        // REFINED RADIUS PLACEMENT: Pulls the text outward toward the rim edge cleanly
-        const textRadiusPlacement = exteriorOuterRadiusValue * 0.72;
-        spinCtx.translate(textRadiusPlacement, 0);
-        spinCtx.rotate(Math.PI / 2);
+
+const textRadiusPlacement = exteriorOuterRadiusValue * 0.62;
+spinCtx.translate(textRadiusPlacement, 0);
+
+// Counter-rotate bottom half slices so text always reads outward
+const normalizedAngle = ((midSegmentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+const isBottomHalf = normalizedAngle > Math.PI / 2 && normalizedAngle < (3 * Math.PI / 2);
+
+if (isBottomHalf) {
+    spinCtx.rotate(-Math.PI / 2); // flip for bottom slices
+} else {
+    spinCtx.rotate(Math.PI / 2);  // normal for top slices
+}
 
 spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
 spinCtx.textAlign = "center";
