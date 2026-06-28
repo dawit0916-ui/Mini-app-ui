@@ -4579,34 +4579,34 @@ const midSegmentAngle = currentAngleRad + (segmentArcRadiantLength / 2);
 spinCtx.rotate(midSegmentAngle);
 spinCtx.translate(exteriorOuterRadiusValue * 0.65, 0);
 
-// Fix upside down text on bottom segments
-const normalizedAngle = ((midSegmentAngle % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
-const isBottomHalf = normalizedAngle > Math.PI;
+// Account for the -Math.PI/2 initial wheel offset
+const absoluteAngle = ((midSegmentAngle + wheelRotationAngle + (2 * Math.PI)) % (2 * Math.PI));
+const isBottomHalf = absoluteAngle > Math.PI;
 spinCtx.rotate(isBottomHalf ? -Math.PI / 2 : Math.PI / 2);
 
 spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
 spinCtx.textAlign = "center";
 spinCtx.textBaseline = "middle";
 
-const textFontSize = Math.floor(spinCanvas.width * 0.042);
-const subFontSize  = Math.floor(spinCanvas.width * 0.024);
+const textFontSize = Math.floor(spinCanvas.width * 0.036); // slightly smaller to prevent overlap
+const subFontSize  = Math.floor(spinCanvas.width * 0.020);
 
 // Main text
 spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize * 1.5));
+spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize * 1.2));
 
 // Sub label
 if (WHEEL_SEGMENTS[i].type) {
     spinCtx.fillStyle = "rgba(255,255,255,0.55)";
     spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
-    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(subFontSize * 0.8));
+    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(subFontSize * 0.5));
 }
 
 // Icon
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
-    const iconSize = Math.floor(spinCanvas.width * 0.10);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, iconSize * 0.15, iconSize, iconSize);
+    const iconSize = Math.floor(spinCanvas.width * 0.09);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, iconSize * 0.1, iconSize, iconSize);
 }
 
 spinCtx.restore();
