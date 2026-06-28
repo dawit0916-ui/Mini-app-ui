@@ -1514,23 +1514,27 @@ main {
         </button>
     </div>
 
-    
-
-    <!-- Action Buttons -->
-   <!-- Action Buttons -->
+<!-- Action Buttons -->
 <div class="grid grid-cols-3 gap-3 mb-6">
-    
-    <button onclick="switchTab('home', document.getElementById('nav-home'))" class="glass p-4 rounded-2xl flex flex-col items-center gap-2 border-yellow-500/20 active:scale-95 transition-all">
-        <img src="/assets/images/nav-home.png" class="w-10 h-10 object-contain drop-shadow-lg">
-        <span class="text-[10px] font-black uppercase text-yellow-400">Earn</span>
+    <button onclick="switchTab('home', document.getElementById('nav-home'))"
+        class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-yellow-500/20 active:scale-95 active:border-yellow-500/50 active:bg-yellow-500/5 transition-all duration-150">
+        <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(234,179,8,0.12),transparent_70%)] pointer-events-none"></div>
+        <img src="/assets/images/nav-home.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.4)] relative z-10">
+        <span class="text-[10px] font-black uppercase text-yellow-400 relative z-10 tracking-wider">Earn</span>
     </button>
-    <button onclick="openWalletModal()" class="glass p-5 rounded-2xl flex flex-col items-center gap-2 border-green-500/20 active:scale-95 transition-all">
-        <img src="/assets/images/icon-withdraw.png" class="w-12 h-12 object-contain drop-shadow-lg">
-        <span class="text-[10px] font-black uppercase text-green-400">Withdraw</span>
+
+    <button onclick="openWalletModal()"
+        class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 active:scale-95 active:border-green-500/50 active:bg-green-500/5 transition-all duration-150">
+        <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(34,197,94,0.12),transparent_70%)] pointer-events-none"></div>
+        <img src="/assets/images/icon-withdraw.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(34,197,94,0.4)] relative z-10">
+        <span class="text-[10px] font-black uppercase text-green-400 relative z-10 tracking-wider">Withdraw</span>
     </button>
-    <button onclick="switchTab('friends', document.getElementById('nav-friends'))" class="glass p-4 rounded-2xl flex flex-col items-center gap-2 border-purple-500/20 active:scale-95 transition-all">
-        <img src="/assets/images/nav-friends.png" class="w-10 h-10 object-contain drop-shadow-lg">
-        <span class="text-[10px] font-black uppercase text-purple-400">Refer</span>
+
+    <button onclick="switchTab('friends', document.getElementById('nav-friends'))"
+        class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-purple-500/20 active:scale-95 active:border-purple-500/50 active:bg-purple-500/5 transition-all duration-150">
+        <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(168,85,247,0.12),transparent_70%)] pointer-events-none"></div>
+        <img src="/assets/images/nav-friends.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] relative z-10">
+        <span class="text-[10px] font-black uppercase text-purple-400 relative z-10 tracking-wider">Refer</span>
     </button>
 </div>
 
@@ -1623,14 +1627,7 @@ main {
             <span class="text-2xl">🎧</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Support</span>
         </button>
-        <button onclick="switchAdminPanel('panel-daily-checkin')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
-            <span class="text-2xl">📅</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
-        </button>
-        <button onclick="switchAdminPanel('panel-user-task-approve')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
-            <span class="text-2xl">📑</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
-        </button>
+        
         <button onclick="setupRealAds()" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-orange-500/20 hover:bg-white/5 active:scale-95 transition-all">
             <span class="text-2xl">📡</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Setup Real Ads</span>
