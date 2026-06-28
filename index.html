@@ -1122,7 +1122,26 @@ main {
 
     </div>
 </div>
-    
+<!-- Pull to refresh indicator -->
+<div id="pull-indicator" style="
+    position: fixed;
+    top: 64px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-40px);
+    z-index: 99;
+    width: 32px;
+    height: 32px;
+    background: rgba(139,92,246,0.2);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+">↻</div>    
 <main class="p-6 pt-24 pb-32">
 
     <div id="tab-home" class="tab-content active">
@@ -2755,23 +2774,109 @@ async function initApp() {
     // ==========================================================================
     hideLoadingScreen();
     
+let _pullStartY = 0;
+let _pullRefreshing = false;
+const mainEl = document.querySelector('main');
+const pullIndicator = document.getElementById('pull-indicator');
 
-    // Enable Native Pull-to-Refresh
-    tg.offEvent('reloadVertical'); // Prevent duplicate event listeners on re-initialization
-    tg.onEvent('reloadVertical', function() {
-        tg.HapticFeedback.impactOccurred('high');
+mainEl.addEventListener('touchstart', (e) => {
+    _pullStartY = e.touches[0].clientY;
+}, { passive: true });
+
+mainEl.addEventListener('touchmove', (e) => {
+    const pullDistance = e.touches[0].clientY - _pullStartY;
+    
+    if (pullDistance > 0 && mainEl.scrollTop === 0 && !_pullRefreshing) {
+        const progress = Math.min(pullDistance / 80, 1);
+        
+        pullIndicator.style.opacity = progress;
+        pullIndicator.style.transform = `translateX(-50%) translateY(${-40 + (progress * 50)}px) rotate(${progress * 360}deg)`;
+    }
+}, { passive: true });
+
+mainEl.addEventListener('touchend', async (e) => {
+    const pullDistance = e.changedTouches[0].clientY - _pullStartY;
+
+    if (pullDistance > 80 && mainEl.scrollTop === 0 && !_pullRefreshing) {
+        _pullRefreshing = true;
+
+        // Lock arrow in spinning state
+        pullIndicator.style.opacity = '1';
+        pullIndicator.style.transform = 'translateX(-50%) translateY(10px)';
+        pullIndicator.style.animation = 'spin 0.6s linear infinite';
+
+        tg.HapticFeedback.impactOccurred('medium');
+
         const activeTab = document.querySelector('.tab-content.active')?.id.replace('tab-', '') || 'home';
-        
-        if (activeTab === 'home') loadAvailableTasks();
-        if (activeTab === 'friends') loadReferralData();
-        if (activeTab === 'history') loadUserHistory();
-        if (activeTab === 'profile') loadUserProfileMetrics();
-        
-        cachedUserProfile = null; 
-        initApp();
-    });
-}
 
+        // Tab specific refreshes
+        if (activeTab === 'home')    await loadAvailableTasks();
+        if (activeTab === 'friends') await loadReferralData();
+        if (activeTab === 'profile') await loadUserProfileMetrics();
+        if (activeTab === 'games')   updateSpinModalCoinsDisplay();
+        if (activeTab === 'earn')    await loadAdsWatchList();
+
+        // Full profile re-fetch and all balance sync
+        try {
+            const data = await secureFetch('/api/secure/profile');
+            const profile = (typeof data.balance === 'number') ? data : (data.profile || null);
+
+            if (profile) {
+                cachedUserProfile = profile;
+
+                // 1. Header pills
+                updateHeaderBalances(
+                    profile.balance,
+                    profile.points,
+                    profile.coins
+                );
+
+                // 2. Home main card
+                const balMain = document.getElementById('balance-main');
+                if (balMain) balMain.innerText = parseInt(profile.balance || 0).toLocaleString();
+
+                // 3. Home mini stats
+                const homeDash   = document.getElementById('home-usdt-val');
+                const homeTicket = document.getElementById('home-ticket-val');
+                if (homeDash)   homeDash.innerText   = parseFloat(profile.points  || 0).toFixed(2);
+                if (homeTicket) homeTicket.innerText = parseInt(profile.coins     || 0).toLocaleString();
+
+                // 4. Profile tab
+                const profileUsdt    = document.getElementById('profile-usdt');
+                const profileDash    = document.getElementById('profile-dash');
+                const profileTickets = document.getElementById('profile-tickets');
+                if (profileUsdt)    profileUsdt.innerText    = parseFloat(profile.points || 0).toFixed(2);
+                if (profileDash)    profileDash.innerText    = parseInt(profile.balance  || 0).toLocaleString();
+                if (profileTickets) profileTickets.innerText = parseInt(profile.coins    || 0).toLocaleString();
+
+                // 5. Wallet modal if open
+                const walletBal = document.getElementById('wallet-modal-balance');
+                const walletLbl = document.getElementById('wallet-balance-label');
+                if (walletBal) walletBal.innerText = parseFloat(profile.points || 0).toFixed(3);
+                if (walletLbl) walletLbl.innerText = parseFloat(profile.points || 0).toFixed(3);
+
+                // 6. Spin modal HUD
+                updateSpinModalCoinsDisplay();
+
+                // 7. Exchange drawer balances
+                const exchDash   = document.getElementById('exchange-dash-balance');
+                const exchTicket = document.getElementById('exchange-ticket-balance');
+                if (exchDash)   exchDash.innerText   = parseInt(profile.balance || 0).toLocaleString();
+                if (exchTicket) exchTicket.innerText = parseInt(profile.coins   || 0).toLocaleString();
+            }
+        } catch (e) {
+            console.error('Pull refresh balance sync error:', e);
+        }
+
+        _pullRefreshing = false;
+    }
+
+    // Reset indicator
+    pullIndicator.style.opacity = '0';
+    pullIndicator.style.transform = 'translateX(-50%) translateY(-40px)';
+    pullIndicator.style.animation = 'none';
+
+}, { passive: true });
 
 let currentEditingUserData = null; // Cache active user model locally
 let userDirectoryFilter = 'all';
@@ -4286,18 +4391,7 @@ const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
     const iconSize = Math.floor(spinCanvas.width * 0.10);
     spinCtx.drawImage(cachedIcon, -iconSize / 2, 10, iconSize, iconSize);
-}
-
-// Main value text
-spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, 10);
-
-// Sub-type label
-if (WHEEL_SEGMENTS[i].type) {
-    spinCtx.fillStyle = "rgba(255, 255, 255, 0.55)";
-    spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
-    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, 26);
-}
+        }
 
 spinCtx.restore();
     }
