@@ -4326,10 +4326,14 @@ function renderWheelStaticFrameState() {
     const displayRect = spinCanvas.getBoundingClientRect();
     const currentDisplayWidth = displayRect.width || 330; 
     
-    if (spinCanvas.width !== currentDisplayWidth * 2) {
-        spinCanvas.width = currentDisplayWidth * 2;
-        spinCanvas.height = currentDisplayWidth * 2;
-    }
+    // Only set once on init, not every render frame
+if (!spinCanvas._initialized) {
+    const displayRect = spinCanvas.getBoundingClientRect();
+    const currentDisplayWidth = displayRect.width || 330;
+    spinCanvas.width = currentDisplayWidth * 2;
+    spinCanvas.height = currentDisplayWidth * 2;
+    spinCanvas._initialized = true;
+}
     
     const centerPointAxis = spinCanvas.width / 2;
     const exteriorOuterRadiusValue = centerPointAxis - 8;
@@ -4374,10 +4378,11 @@ spinCtx.textBaseline = "middle";
 
 const textFontSize = Math.floor(spinCanvas.width * 0.042);
 const subFontSize  = Math.floor(spinCanvas.width * 0.024);
-
+const textY  = -(exteriorOuterRadiusValue * 0.25);
+const iconY  = exteriorOuterRadiusValue * 0.05;
 // Main value text — now toward the rim (negative Y = outward)
 spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize + 30));
+spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, textY);
 
 // Sub-type label — just below the main text, still toward rim
 if (WHEEL_SEGMENTS[i].type) {
@@ -4390,7 +4395,7 @@ if (WHEEL_SEGMENTS[i].type) {
 const cachedIcon = loadedSegmentIconsCache[i];
 if (cachedIcon) {
     const iconSize = Math.floor(spinCanvas.width * 0.10);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, 10, iconSize, iconSize);
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, iconY, iconSize, iconSize);
         }
 
 spinCtx.restore();
@@ -5707,52 +5712,60 @@ function getAdsgramController(blockId) {
     return _adsgramControllers[blockId];
 }
 
+let _adInProgress = false;
+
 async function playAdAndTrack(adId, adNetwork, blockId) {
+    if (_adInProgress) return; // prevent double trigger
+    _adInProgress = true;
+
     try {
         if (!window.Adsgram) {
             showAppAlert('Ad service is still loading.', 'warning');
+            _adInProgress = false;
             return;
         }
 
-        const controller = window.Adsgram.init({
-            blockId,
-            onReward: async () => {
-                // ✅ Only fires when user ACTUALLY earns the reward (watched fully)
-                const watchRes = await secureFetch('/api/secure/watch-ad', {
-                    method: 'POST',
-                    body: JSON.stringify({ adId })
-                });
+        const controller = window.Adsgram.init({ blockId });
 
-                if (watchRes && watchRes.success) {
-                    const claimRes = await secureFetch('/api/secure/claim-ad-reward', {
+        controller.show()
+            .then(async (result) => {
+                if (result.done) {
+                    const watchRes = await secureFetch('/api/secure/watch-ad', {
                         method: 'POST',
                         body: JSON.stringify({ adId })
                     });
 
-                    if (claimRes && claimRes.success) {
-                        showNotificationToast(`+${watchRes.reward} USDT earned!`, 'success');
-                        syncWalletBalances();
-                        loadAdsWatchList();
-                    }
-                }
-            },
-            onError: (result) => {
-                // Fired when ad fails or no fill
-                console.error('Ad error:', result);
-                showAppAlert('No ad available right now.', 'error');
-            },
-            onSkip: (result) => {
-                // ❌ User skipped — NO reward
-                console.log('Ad skipped, no reward.');
-                showAppAlert('You must watch the full ad to earn.', 'warning');
-            }
-        });
+                    if (watchRes && watchRes.success) {
+                        const claimRes = await secureFetch('/api/secure/claim-ad-reward', {
+                            method: 'POST',
+                            body: JSON.stringify({ adId })
+                        });
 
-        await controller.show();
+                        if (claimRes && claimRes.success) {
+                            showNotificationToast(`+${watchRes.reward} USDT earned!`, 'success');
+                            syncWalletBalances();
+                            loadAdsWatchList();
+                        }
+                    }
+                } else {
+                    showAppAlert('You must complete the ad to earn.', 'warning');
+                }
+            })
+            .catch((result) => {
+                if (result.error) {
+                    showAppAlert('No ad available right now.', 'error');
+                } else {
+                    showAppAlert('Complete the ad to earn your reward.', 'warning');
+                }
+            })
+            .finally(() => {
+                _adInProgress = false; // unlock after ad finishes either way
+            });
 
     } catch (err) {
         console.error('Ad playback error:', err);
         showAppAlert('No ad available right now.', 'error');
+        _adInProgress = false;
     }
 }
 async function setupRealAds() {
