@@ -9,7 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
    <!-- AdGrams SDK -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-
+<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
+    
     <style>
         :root {
             --neon-blue: #3b82f6;
@@ -4368,7 +4370,7 @@ if (!spinCanvas._initialized) {
         spinCtx.rotate(midSegmentAngle);
         
         // REFINED RADIUS PLACEMENT: Pulls the text outward toward the rim edge cleanly
-        const textRadiusPlacement = exteriorOuterRadiusValue - 65;
+        const textRadiusPlacement = exteriorOuterRadiusValue * 0.72;
         spinCtx.translate(textRadiusPlacement, 0);
         spinCtx.rotate(Math.PI / 2);
 
