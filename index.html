@@ -9,8 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
    <!-- AdGrams SDK -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
     
     <style>
         :root {
@@ -4613,36 +4611,36 @@ if (!spinCanvas._initialized) {
 const midSegmentAngle = currentAngleRad + (segmentArcRadiantLength / 2);
 spinCtx.rotate(midSegmentAngle);
 spinCtx.translate(exteriorOuterRadiusValue * 0.65, 0);
-
-// Account for the -Math.PI/2 initial wheel offset
-const absoluteAngle = ((midSegmentAngle + wheelRotationAngle + (2 * Math.PI)) % (2 * Math.PI));
-const isBottomHalf = absoluteAngle > Math.PI;
-spinCtx.rotate(isBottomHalf ? -Math.PI / 2 : Math.PI / 2);
+spinCtx.rotate(Math.PI / 2);
 
 spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
 spinCtx.textAlign = "center";
 spinCtx.textBaseline = "middle";
 
-const textFontSize = Math.floor(spinCanvas.width * 0.036); // slightly smaller to prevent overlap
+const textFontSize = Math.floor(spinCanvas.width * 0.036);
 const subFontSize  = Math.floor(spinCanvas.width * 0.020);
+const iconSize     = Math.floor(spinCanvas.width * 0.09);
 
-// Main text
-spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize * 1.2));
+// Layout from top to bottom: icon → sublabel → main text
+// All toward the rim (negative Y)
+
+// Icon at top
+const cachedIcon = loadedSegmentIconsCache[i];
+if (cachedIcon) {
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, -(iconSize + textFontSize + subFontSize + 12), iconSize, iconSize);
+}
 
 // Sub label
 if (WHEEL_SEGMENTS[i].type) {
     spinCtx.fillStyle = "rgba(255,255,255,0.55)";
     spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
-    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(subFontSize * 0.5));
+    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(textFontSize + subFontSize + 4));
 }
 
-// Icon
-const cachedIcon = loadedSegmentIconsCache[i];
-if (cachedIcon) {
-    const iconSize = Math.floor(spinCanvas.width * 0.09);
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, iconSize * 0.1, iconSize, iconSize);
-}
+// Main text closest to rim
+spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
+spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
+spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize * 0.5));
 
 spinCtx.restore();
     }
