@@ -1675,7 +1675,12 @@ main {
         <input id="new-user-coins" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="0">
     </div>
 </div>
-
+         <!-- Strike counter display -->
+<div id="inviter-strike-display" class="hidden bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-3 mb-2">
+    <p class="text-[9px] text-orange-400 font-black uppercase tracking-wider mb-1">⚠️ IP Guard Strikes</p>
+    <p id="inviter-strike-count" class="text-sm font-black text-orange-300">0 / 5</p>
+    <p class="text-[8px] text-slate-500 mt-1">Auto-ban triggers at 5 strikes</p>
+</div>
                 <div class="flex gap-3 pt-2">
                     <button id="btn-ban-toggle" onclick="toggleUserBanStatus()" class="flex-1 bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider border border-red-500/30 active:scale-95 transition-all">
                         Ban User
@@ -3063,7 +3068,16 @@ async function searchUser() {
             banBtn.innerHTML = "🪓 Ban User";
             banBtn.className = "flex-1 bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase";
         }
-
+          // Show strike count if inviter has any
+const strikeRes = await secureFetch(`/api/admin/user-strikes/${foundUser.user_id}`);
+const strikeDisplay = document.getElementById('inviter-strike-display');
+const strikeCount = document.getElementById('inviter-strike-count');
+if (strikeRes && strikeRes.strikes > 0) {
+    strikeDisplay.classList.remove('hidden');
+    strikeCount.innerText = `${strikeRes.strikes} / 5`;
+} else {
+    strikeDisplay.classList.add('hidden');
+}
         document.getElementById('admin-user-editor').classList.remove('hidden');
         tg.HapticFeedback.impactOccurred('light');
 
