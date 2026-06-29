@@ -1018,77 +1018,7 @@ main {
     </style>
 </head>
 <body>
-  <!-- ── BAN OVERLAY ── -->
-<div id="ban-overlay" class="hidden" style="
-    position: fixed; inset: 0; z-index: 999998;
-    background: #0a0010;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 28px; text-align: center;
-    font-family: 'Inter', sans-serif;
-">
-    <div style="max-width: 340px; width: 100%;">
 
-        <!-- Icon -->
-        <div style="margin: 0 auto 24px; width: 96px; height: 96px; position: relative;">
-            <img src="/assets/images/icon-ban.png" alt="Banned"
-                 style="width: 96px; height: 96px; object-fit: contain;
-                        filter: drop-shadow(0 0 24px rgba(239,68,68,0.5));
-                        animation: banPulse 2.5s ease-in-out infinite;">
-        </div>
-
-        <!-- Title -->
-        <h1 style="font-size: 28px; font-weight: 900; color: #ef4444;
-                   letter-spacing: 0.04em; margin-bottom: 10px;
-                   text-shadow: 0 0 20px rgba(239,68,68,0.4);">
-            Account Banned
-        </h1>
-
-        <!-- Reason -->
-        <p id="ban-reason-text" style="font-size: 14px; color: #94a3b8;
-            font-weight: 600; margin-bottom: 24px; line-height: 1.6;">
-            Your account has been suspended.
-        </p>
-
-        <!-- Help card -->
-        <div style="background: rgba(255,255,255,0.04);
-                    border: 1px solid rgba(255,255,255,0.08);
-                    border-radius: 18px; padding: 18px 20px;
-                    margin-bottom: 20px; text-align: left;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <span style="font-size: 20px;">✉️</span>
-                <span style="font-size: 13px; font-weight: 900; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.06em;">Need Help?</span>
-            </div>
-            <p style="font-size: 12px; color: #64748b; line-height: 1.7; margin: 0;">
-                If you believe this is a mistake, please contact our support team with your Telegram user ID and a detailed explanation. We review all appeals within 24 hours.
-            </p>
-        </div>
-
-        <!-- Contact button -->
-        <a href="https://t.me/DashearnSupport" target="_blank"
-           style="display: flex; align-items: center; justify-content: center; gap: 10px;
-                  width: 100%; padding: 16px;
-                  background: linear-gradient(135deg, #f97316, #ea580c);
-                  border-radius: 16px; text-decoration: none;
-                  color: #fff; font-size: 14px; font-weight: 900;
-                  letter-spacing: 0.04em; text-transform: uppercase;
-                  box-shadow: 0 8px 24px rgba(249,115,22,0.3);
-                  margin-bottom: 16px;">
-            💬 Contact Support
-        </a>
-
-        <p style="font-size: 10px; color: #334155; font-family: monospace;">
-            Support: @DashearnSupport
-        </p>
-    </div>
-</div>
-
-<style>
-@keyframes banPulse {
-    0%, 100% { filter: drop-shadow(0 0 16px rgba(239,68,68,0.4)); }
-    50%       { filter: drop-shadow(0 0 32px rgba(239,68,68,0.8)); }
-}
-</style>  
    <div id="loading-screen" class="loading-screen-overlay">
     <div class="loading-content">
         <div class="loading-logo-ring">
@@ -2764,7 +2694,7 @@ async function secureFetch(url, options = {}) {
     try {
         const response = await fetch(absoluteUrl, config);
 
-        // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
+        
         // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
 if (response.status === 503) {
     let maintenanceData = { maintenance: true };
@@ -2890,9 +2820,6 @@ async function initApp() {
         photo_url: ""
     };
     
-    // Safety check: Fallback validation for OWNER_ID checks if it is declared elsewhere
-    const currentOwnerId = typeof OWNER_ID !== 'undefined' ? OWNER_ID : 0;
-    
     // 1. Update UI IMMEDIATELY (Don't wait for server) using our validated user object
     const userNameEl = document.getElementById('user-name');
     if (userNameEl) {
@@ -2964,8 +2891,7 @@ async function initApp() {
 
     } catch (err) {
         console.error("Initialization pipeline caught an execution error:", err.message);
-        // 🔥 ADD AN INNER CRASH DETECTOR ALERT HERE FOR YOUR PHONE:
-        alert("Main Profile Fetch Crashed:\n" + err.message);
+        
     } 
 
     // ==========================================================================
@@ -2975,7 +2901,7 @@ async function initApp() {
         // 1. Run tasks initialization safely
         await loadAvailableTasks().catch(e => {
             setLoadingProgress(85, 'Loading tasks...');   // ← add this
-            alert("Task Loader Engine Error:\n" + e.message);
+            
         });
     } catch(err) {
         console.warn("Tasks dropped:", err.message);
@@ -3219,21 +3145,58 @@ async function toggleUserBanStatus() {
 }
 
 function showBanOverlay(reason) {
-    const overlay = document.getElementById('ban-overlay');
-    const reasonEl = document.getElementById('ban-reason-text');
+    // Remove any existing overlay
+    document.getElementById('ban-overlay')?.remove();
 
-    if (reasonEl && reason) reasonEl.innerText = reason;
+    const overlay = document.createElement('div');
+    overlay.id = 'ban-overlay';
+    overlay.style.cssText = `
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.92); padding: 24px;
+    `;
 
-    // Remove hidden class, force flex display
-    overlay.classList.remove('hidden');
-    overlay.style.display = 'flex';
+    overlay.innerHTML = `
+        <div style="
+            background: linear-gradient(135deg, #1a0a0a, #2d0f0f);
+            border: 1px solid #7f1d1d;
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+        ">
+            <div style="font-size: 48px; margin-bottom: 16px;">🚫</div>
+            <h2 style="color: #ef4444; font-size: 18px; font-weight: 900; margin-bottom: 8px;">
+                Account Suspended
+            </h2>
+            <p style="color: #fca5a5; font-size: 13px; margin-bottom: 24px; line-height: 1.5;">
+                ${reason || 'Your account has been suspended for violating our terms.'}
+            </p>
+            <a href="https://t.me/DashearnSupport" target="_blank" style="
+                display: block;
+                background: #7f1d1d;
+                color: #fca5a5;
+                padding: 12px;
+                border-radius: 12px;
+                font-size: 13px;
+                font-weight: 700;
+                text-decoration: none;
+            ">Contact Support</a>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
 
     // Hide everything else
-    document.getElementById('loading-screen')?.style && (document.getElementById('loading-screen').style.display = 'none');
-    document.getElementById('verify-gate') && (document.getElementById('verify-gate').style.display = 'none');
-    document.querySelector('main') && (document.querySelector('main').style.display = 'none');
-    document.querySelector('nav') && (document.querySelector('nav').style.display = 'none');
-    document.querySelector('header, .fixed.top-0') && document.querySelectorAll('.fixed.top-0').forEach(el => el.style.display = 'none');
+    document.getElementById('loading-screen')?.style && 
+        (document.getElementById('loading-screen').style.display = 'none');
+    document.getElementById('verify-gate') && 
+        (document.getElementById('verify-gate').style.display = 'none');
+    document.querySelector('main') && 
+        (document.querySelector('main').style.display = 'none');
+    document.querySelector('nav') && 
+        (document.querySelector('nav').style.display = 'none');
 }
 
 function getEmptyStateHTML(icon, title, subtitle) {
@@ -4468,49 +4431,6 @@ function toggleNotificationCenter() {
     }
 }
 
-/**
- * Fetches secure database announcements from your server and loads them into memory
- */
-async function syncUserInbox() {
-    try {
-        const remoteAlerts = await secureFetch('/api/secure/notifications');
-        if (remoteAlerts && Array.isArray(remoteAlerts)) {
-          
-            // Map payloads to uniform design schemes safely matching backend parameters
-            // ==========================================================================
-// ✅ REPLACE YOUR MAP MATRIX INSIDE syncUserInbox() WITH THIS:
-// ==========================================================================
-notifications = remoteAlerts.map(srvNotif => {
-    // Read the clean incoming type from our updated backend property
-    const incomingType = srvNotif.type || 'system';
-    
-    return {
-        // If it explicitly says 'system', route it to 'system'. Otherwise, it's 'personal'.
-        type: (incomingType === 'system') ? 'system' : 'personal',
-        title: srvNotif.title || 'Notification',
-        msg: srvNotif.message || srvNotif.msg || '',
-        read: srvNotif.read || false,
-        date: srvNotif.date || srvNotif.createdAt || new Date()
-    };
-});
-            
-            // Sync status badge dot context
-            const hasUnread = notifications.some(n => !n.read);
-            const unreadDot = document.getElementById('unread-dot');
-            if (unreadDot) {
-                if (hasUnread) unreadDot.classList.remove('hidden');
-                else unreadDot.classList.add('hidden');
-            }
-console.log("Current State Synchronized List Payload Array:", notifications);
-            renderFilteredNotifications();
-        }
-    } catch (e) {
-        // This will force your phone to show you exactly why the code is breaking!
-        alert("CRITICAL INBOX SYNC ERROR TRACE:\n" + e.message + "\n\nStack: " + e.stack);
-        console.error("Failed to sync application user data notifications records:", e);
-    }
-}
-
 
 /**
  * Creates a real-time floating user overlay card announcement
@@ -4982,9 +4902,10 @@ async function syncWalletBalances() {
         
         // Push interpolated mathematical animations metrics updates safely down to DOM visual slots
         animateNumericalValueDisplayUpdate('wallet-total-value', computedCombinedNetWorthUSDT, 2);
-        animateNumericalValueDisplayUpdate('asset-bal-usdt', extractedFiatCashUSDT, 2);
-        animateNumericalValueDisplayUpdate('asset-bal-coins', extractedTokensCoins, 0);
-        animateNumericalValueDisplayUpdate('asset-bal-points', extractedYieldPoints, 2);
+        // FIXED ✅
+        animateNumericalValueDisplayUpdate('asset-bal-usdt', extractedYieldPoints, 2);    // points = USDT
+        animateNumericalValueDisplayUpdate('asset-bal-coins', extractedTokensCoins, 0);   // coins = TICKET
+        animateNumericalValueDisplayUpdate('asset-bal-points', extractedFiatCashUSDT, 0); // balance = DASH;
             
         // Sync header pills with new currency mapping
 updateHeaderBalances(
@@ -5802,7 +5723,7 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
                         });
 
                         if (claimRes && claimRes.success) {
-                            showNotificationToast(`+${watchRes.reward} USDT earned!`, 'success');
+                            showNotificationToast(`+${watchRes.reward} DASH earned!`, 'success');
                             syncWalletBalances();
                             loadAdsWatchList();
                         }
