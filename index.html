@@ -4621,26 +4621,23 @@ const textFontSize = Math.floor(spinCanvas.width * 0.036);
 const subFontSize  = Math.floor(spinCanvas.width * 0.020);
 const iconSize     = Math.floor(spinCanvas.width * 0.09);
 
-// Layout from top to bottom: icon → sublabel → main text
-// All toward the rim (negative Y)
+// Main text — outer (negative Y = toward rim)
+spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
+spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
+spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize * 1.2));
 
-// Icon at top
-const cachedIcon = loadedSegmentIconsCache[i];
-if (cachedIcon) {
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, -(iconSize + textFontSize + subFontSize + 12), iconSize, iconSize);
-}
-
-// Sub label
+// Sub label — below main text, still outer
 if (WHEEL_SEGMENTS[i].type) {
     spinCtx.fillStyle = "rgba(255,255,255,0.55)";
     spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
-    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(textFontSize + subFontSize + 4));
+    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(subFontSize * 0.3));
 }
 
-// Main text closest to rim
-spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
-spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize * 0.5));
+// Icon — inward (positive Y = toward center)
+const cachedIcon = loadedSegmentIconsCache[i];
+if (cachedIcon) {
+    spinCtx.drawImage(cachedIcon, -iconSize / 2, subFontSize + 8, iconSize, iconSize);
+}
 
 spinCtx.restore();
     }
