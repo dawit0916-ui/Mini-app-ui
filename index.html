@@ -6414,9 +6414,10 @@ function getAdsgramController(blockId) {
 }
 
 let _adInProgress = false;
+let _adInProgress = false;
 
 async function playAdAndTrack(adId, adNetwork, blockId) {
-    if (_adInProgress) return; // prevent double trigger
+    if (_adInProgress) return;
     _adInProgress = true;
 
     try {
@@ -6426,41 +6427,68 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
             return;
         }
 
+        // 1. Create a pending session on the server BEFORE showing ad
+        const sessionRes = await secureFetch('/api/secure/ads/start-session', {
+            method: 'POST',
+            body: JSON.stringify({ adId })
+        });
+
+        if (!sessionRes || !sessionRes.success) {
+            showAppAlert(sessionRes?.error || 'Could not start ad session.', 'warning');
+            _adInProgress = false;
+            return;
+        }
+
+        const sessionId = sessionRes.sessionId;
+
+        // 2. Show the ad
         const controller = window.Adsgram.init({ blockId });
 
         controller.show()
             .then(async (result) => {
-                if (result.done) {
-                    const watchRes = await secureFetch('/api/secure/watch-ad', {
+                if (!result.done) {
+                    showAppAlert('Complete the ad to earn your reward.', 'warning');
+                    return;
+                }
+
+                // 3. Poll for S2S confirmation (max 8 seconds)
+                let confirmed = false;
+                for (let i = 0; i < 8; i++) {
+                    await new Promise(r => setTimeout(r, 1000));
+
+                    const claimRes = await secureFetch('/api/secure/ads/claim', {
                         method: 'POST',
-                        body: JSON.stringify({ adId })
+                        body: JSON.stringify({ sessionId })
                     });
 
-                    if (watchRes && watchRes.success) {
-                        const claimRes = await secureFetch('/api/secure/claim-ad-reward', {
-                            method: 'POST',
-                            body: JSON.stringify({ adId })
-                        });
-
-                        if (claimRes && claimRes.success) {
-                            showNotificationToast(`+${watchRes.reward} DASH earned!`, 'success');
-                            syncWalletBalances();
-                            loadAdsWatchList();
-                        }
+                    if (claimRes && claimRes.success) {
+                        confirmed = true;
+                        showNotificationToast(`+${claimRes.reward} DASH earned!`, 'success');
+                        updateHeaderBalances(
+                            claimRes.newBalance,
+                            claimRes.newPoints,
+                            claimRes.newCoins
+                        );
+                        loadAdsWatchList();
+                        break;
                     }
-                } else {
-                    showAppAlert('You must complete the ad to earn.', 'warning');
+
+                    // pending: true means S2S hasn't arrived yet, keep polling
+                    if (!claimRes?.pending) break;
+                }
+
+                if (!confirmed) {
+                    showAppAlert(
+                        'Reward pending confirmation. Pull to refresh in a moment.',
+                        'info'
+                    );
                 }
             })
-            .catch((result) => {
-                if (result.error) {
-                    showAppAlert('No ad available right now.', 'error');
-                } else {
-                    showAppAlert('Complete the ad to earn your reward.', 'warning');
-                }
+            .catch(() => {
+                showAppAlert('No ad available right now.', 'error');
             })
             .finally(() => {
-                _adInProgress = false; // unlock after ad finishes either way
+                _adInProgress = false;
             });
 
     } catch (err) {
