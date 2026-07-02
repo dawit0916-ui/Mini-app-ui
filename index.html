@@ -6992,34 +6992,69 @@ let currentYoutubeTask = null;     // the task object currently open in detail v
 /* ============================================================
    EARN HUB NAVIGATION
    ============================================================ */
-function openEarnSection(section) {
-    document.getElementById('earn-hub-view').classList.add('hidden');
-    ['earn-section-youtube', 'earn-section-youtube-detail', 'earn-section-ads', 'earn-section-normal'].forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-    });
+// Replace existing openEarnSection(...) with this
+function openEarnSection(section, task) {
+  // hide the hub view if present
+  document.getElementById('earn-hub-view')?.classList.add('hidden');
 
-    currentEarnSection = section;
-    tg.HapticFeedback.selectionChanged();
+  // known section -> element id map
+  const map = {
+    'ads': 'earn-section-ads',
+    'fast': 'earn-section-fast',
+    'normal': 'earn-section-normal',
+    'youtube': 'earn-section-youtube',
+    'youtube-detail': 'earn-section-youtube-detail'
+  };
 
-    if (section === 'youtube') {
-        document.getElementById('earn-section-youtube').classList.remove('hidden');
-        loadYoutubeTasks();
-    } else if (section === 'ads') {
-        document.getElementById('earn-section-ads').classList.remove('hidden');
-        loadAdsWatchList();
-    } else if (section === 'fast') {
-    document.getElementById('earn-section-fast').classList.remove('hidden');
+  // hide all known sections first (defensive)
+  Object.values(map).forEach(id => document.getElementById(id)?.classList.add('hidden'));
+
+  const targetId = map[section];
+  if (!targetId) {
+    console.warn('openEarnSection: unknown section', section);
+    return;
+  }
+
+  const targetEl = document.getElementById(targetId);
+  if (!targetEl) {
+    console.warn('openEarnSection: target element not found', targetId);
+    return;
+  }
+
+  // show the chosen section
+  targetEl.classList.remove('hidden');
+
+  // call associated loader functions if they exist
+  if (section === 'ads' && typeof loadAdsWatchList === 'function') {
+    loadAdsWatchList();
+  } else if (section === 'fast' && typeof loadFastTaskWidget === 'function') {
     loadFastTaskWidget();
-}
-}
+  } else if (section === 'normal' && typeof loadAvailableTasks === 'function') {
+    loadAvailableTasks();
+  } else if (section === 'youtube' && typeof loadYoutubeList === 'function') {
+    // safe-call if you have a youtube loader named differently adjust accordingly
+    loadYoutubeList();
+  }
 
+  // If a task detail needs opening, call handler if present
+  if (task && typeof openTaskDetail === 'function') {
+    try { openTaskDetail(task); } catch (e) { console.error('openTaskDetail error', e); }
+  }
+}
 function closeEarnSection() {
-    ['earn-section-youtube', 'earn-section-youtube-detail', 'earn-section-ads', 'earn-section-fast'].forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-    });
-    document.getElementById('earn-hub-view').classList.remove('hidden');
-    currentEarnSection = null;
-    tg.HapticFeedback.selectionChanged();
+  const ids = [
+    'earn-section-youtube',
+    'earn-section-youtube-detail',
+    'earn-section-ads',
+    'earn-section-normal',
+    'earn-section-fast'
+  ];
+
+  ids.forEach(id => {
+    document.getElementById(id)?.classList.add('hidden');
+  });
+
+  document.getElementById('earn-hub-view')?.classList.remove('hidden');
 }
 
 /* ============================================================
@@ -7329,51 +7364,71 @@ async function onFastTaskReward() {
 }
 
 async function loadFastTaskAdminPanel() {
-    try {
-        const data = await secureFetch('/api/admin/fast-task/config');
-        if (!data || !data.success) return showAppAlert('Failed to load Fast Task config.', 'error');
-
-        const cfg = data.config;
-        document.getElementById('ft-block-id').value = cfg.blockId || '';
-        document.getElementById('ft-min-reward').value = cfg.minReward;
-        document.getElementById('ft-max-reward').value = cfg.maxReward;
-        document.getElementById('ft-daily-limit').value = cfg.dailyLimit;
-        document.getElementById('ft-enabled').checked = cfg.enabled;
-    } catch (e) {
-        showAppAlert('Network error loading Fast Task config.', 'error');
+  try {
+    const data = await secureFetch('/api/admin/fast-task/config');
+    if (!data || !data.success) {
+      return showAppAlert('Failed to load Fast Task config.', 'error');
     }
+
+    const cfg = data.config || {};
+
+    const elBlockId = document.getElementById('ft-block-id');
+    const elMin = document.getElementById('ft-min-reward');
+    const elMax = document.getElementById('ft-max-reward');
+    const elDaily = document.getElementById('ft-daily-limit');
+    const elEnabled = document.getElementById('ft-enabled');
+
+    if (elBlockId) elBlockId.value = cfg.blockId || '';
+    if (elMin) elMin.value = (cfg.minReward ?? '') + '';
+    if (elMax) elMax.value = (cfg.maxReward ?? '') + '';
+    if (elDaily) elDaily.value = (cfg.dailyLimit ?? '') + '';
+    if (elEnabled) elEnabled.checked = !!cfg.enabled;
+  } catch (e) {
+    showAppAlert('Network error loading Fast Task config.', 'error');
+    console.error('loadFastTaskAdminPanel error', e);
+  }
 }
 
+// Replace existing saveFastTaskConfig() with this (null-safe)
 async function saveFastTaskConfig() {
-    const blockId = document.getElementById('ft-block-id').value.trim();
-    const minReward = parseInt(document.getElementById('ft-min-reward').value);
-    const maxReward = parseInt(document.getElementById('ft-max-reward').value);
-    const dailyLimit = parseInt(document.getElementById('ft-daily-limit').value);
-    const enabled = document.getElementById('ft-enabled').checked;
+  const elBlockId = document.getElementById('ft-block-id');
+  const elMin = document.getElementById('ft-min-reward');
+  const elMax = document.getElementById('ft-max-reward');
+  const elDaily = document.getElementById('ft-daily-limit');
+  const elEnabled = document.getElementById('ft-enabled');
 
-    if (isNaN(minReward) || isNaN(maxReward) || minReward < 0 || maxReward < minReward) {
-        return showAppAlert('Min/Max reward range is invalid.', 'warning');
-    }
-    if (isNaN(dailyLimit) || dailyLimit < 0) {
-        return showAppAlert('Daily limit must be 0 or higher.', 'warning');
-    }
+  const blockId = elBlockId ? elBlockId.value.trim() : '';
+  const minReward = elMin ? parseInt(elMin.value, 10) : NaN;
+  const maxReward = elMax ? parseInt(elMax.value, 10) : NaN;
+  const dailyLimit = elDaily ? parseInt(elDaily.value, 10) : NaN;
+  const enabled = !!(elEnabled && elEnabled.checked);
 
-    try {
-        const res = await secureFetch('/api/admin/fast-task/config', {
-            method: 'POST',
-            body: JSON.stringify({ blockId, minReward, maxReward, dailyLimit, enabled })
-        });
+  if (isNaN(minReward) || isNaN(maxReward) || minReward < 0 || maxReward < minReward) {
+    return showAppAlert('Min/Max reward range is invalid.', 'warning');
+  }
+  if (isNaN(dailyLimit) || dailyLimit < 0) {
+    return showAppAlert('Daily limit must be 0 or higher.', 'warning');
+  }
 
-        if (res && res.success) {
-            tg.HapticFeedback.notificationOccurred('success');
-            showAppAlert('Fast Task config updated!', 'success');
-        } else {
-            showAppAlert(res?.error || 'Failed to update.', 'error');
-        }
-    } catch (e) {
-        showAppAlert('Network error. Try again.', 'error');
+  try {
+    const res = await secureFetch('/api/admin/fast-task/config', {
+      method: 'POST',
+      body: JSON.stringify({ blockId, minReward, maxReward, dailyLimit, enabled })
+    });
+
+    if (res && res.success) {
+      if (typeof tg?.HapticFeedback?.notificationOccurred === 'function') {
+        try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) { /* ignore */ }
+      }
+      showAppAlert('Fast Task config updated!', 'success');
+    } else {
+      showAppAlert(res?.error || 'Failed to update.', 'error');
     }
-}        
+  } catch (e) {
+    showAppAlert('Network error. Try again.', 'error');
+    console.error('saveFastTaskConfig error', e);
+  }
+}
 /* ============================================================
    ADMIN: YOUTUBE TASK MANAGER
    ============================================================ */
