@@ -4080,7 +4080,9 @@ if (btn) {
     if(tabId === 'admin') loadAdminData();
     if(tabId === 'profile') loadUserProfileMetrics();
     if(tabId === 'wallet') syncWalletBalances();
-    if(tabId === 'reminders') loadReminderStats();
+    if(tabId === 'reminders') {
+    loadReminderConfig();  // ✅ FIX: Load toggle config FIRST (which also loads stats)
+}
         
     
 }
@@ -4364,28 +4366,30 @@ function previewUploadedImage(input) {
     }
 }
 // ============ REMINDERS FUNCTIONS ============
-
 async function toggleReminders() {
     const isEnabled = document.getElementById('remindersToggle').checked;
     try {
-        const response = await fetch('/api/admin/reminder-config/toggle', {
+        // ✅ FIX 1: Use secureFetch() instead of fetch()
+        const response = await secureFetch('/api/admin/reminder-config/toggle', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-telegram-init-data': getTelegramInitData()
-            },
             body: JSON.stringify({ enabled: isEnabled })
         });
 
-        const data = await response.json();
-        if (data.success) {
+        // ✅ FIX 2: Add response validation
+        if (!response) {
+            throw new Error('No response from server');
+        }
+
+        if (response.success) {
             showAlert(`✅ Reminders ${isEnabled ? 'enabled' : 'disabled'}`, 'success');
             updateReminderStatus(isEnabled);
         } else {
-            showAlert('Failed to toggle reminders', 'error');
+            throw new Error(response.error || 'Failed to toggle reminders');
         }
     } catch (err) {
-        showAlert('Error: ' + err.message, 'error');
+        // ✅ FIX 3: Revert checkbox on error
+        document.getElementById('remindersToggle').checked = !isEnabled;
+        showAlert('❌ Error: ' + err.message, 'error');
     }
 }
 
@@ -4438,6 +4442,12 @@ async function uploadReminderImage() {
         return;
     }
 
+    // ✅ FIX 1: Validate file size before reading
+    if (file.size > 5 * 1024 * 1024) {
+        showAlert('❌ Image too large. Maximum 5MB allowed.', 'error');
+        return;
+    }
+
     const btnText = document.getElementById('uploadBtnText');
     const btnLoader = document.getElementById('uploadBtnLoader');
     btnText.style.display = 'none';
@@ -4446,93 +4456,135 @@ async function uploadReminderImage() {
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
-            const response = await fetch('/api/admin/reminder-config', {
+            // ✅ FIX 2: Use secureFetch() instead of fetch()
+            const response = await secureFetch('/api/admin/reminder-config', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-telegram-init-data': getTelegramInitData()
-                },
-                body: JSON.stringify({
-                    imageBase64: e.target.result
-                })
+                body: JSON.stringify({ imageBase64: e.target.result })
             });
 
-            const data = await response.json();
-            if (data.success) {
+            // ✅ FIX 3: Add response validation
+            if (!response) {
+                throw new Error('No response from server');
+            }
+
+            if (response.success) {
                 showAlert('✅ Reminder image uploaded successfully!', 'success');
                 document.getElementById('imageInput').value = '';
                 document.getElementById('imagePreview').style.display = 'none';
-                loadReminderStats();
+                // ✅ FIX 4: Reload stats to show new image
+                loadReminderConfig();
             } else {
-                showAlert('❌ ' + data.error, 'error');
+                throw new Error(response.error || 'Failed to upload image');
             }
         } catch (err) {
-            showAlert('❌ Error: ' + err.message, 'error');
-        } finally {
+            showAlert('❌ Upload error: ' + err.message, 'error');
+} finally {
             btnText.style.display = 'inline';
             btnLoader.style.display = 'none';
         }
     };
     reader.readAsDataURL(file);
 }
-
 async function loadReminderStats() {
     try {
-        const response = await fetch('/api/admin/reminder-stats', {
-            headers: {
-                'x-telegram-init-data': getTelegramInitData()
-            }
-        });
+        // ✅ FIX 1: Use secureFetch() instead of fetch()
+        const response = await secureFetch('/api/admin/reminder-stats', {});
 
-        const data = await response.json();
-        if (data.success) {
-            document.getElementById('awaitingCount').textContent = data.usersAwaitingReminder || 0;
-            document.getElementById('recentCount').textContent = data.recentReminders?.length || 0;
-
-            const html = data.recentReminders && data.recentReminders.length > 0
-                ? `<table class="table">
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Last Sent</th>
-                            <th>Count</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.recentReminders.map(r => `
-                            <tr>
-                                <td><code>${r.user_id}</code></td>
-                                <td>${new Date(r.last_sent).toLocaleString()}</td>
-                                <td><span class="badge badge-success">${r.count}</span></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>`
-                : `<div class="empty-state"><div class="empty-state-icon">📭</div><p>No recent reminders</p></div>`;
-
-            document.getElementById('recentRemindersContainer').innerHTML = html;
+        // ✅ FIX 2: Add response validation
+        if (!response) {
+            throw new Error('No response from server');
         }
+
+        if (!response.success) {
+            throw new Error(response.error || 'Failed to load reminder statistics');
+        }
+
+        // ✅ FIX 3: Update stats with proper defaults
+        const awaitingCount = response.usersAwaitingReminder || 0;
+        const recentReminders = response.recentReminders || [];
+        
+        document.getElementById('awaitingCount').textContent = awaitingCount;
+        document.getElementById('recentCount').textContent = recentReminders.length;
+
+        // ✅ FIX 4: Better table rendering with error handling
+        const html = recentReminders.length > 0
+            ? `<table class="table">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Last Sent</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${recentReminders.map(r => {
+                        try {
+                            return `
+                                <tr>
+                                    <td><code>${r.user_id || 'Unknown'}</code></td>
+                                    <td>${r.last_sent ? new Date(r.last_sent).toLocaleString() : 'Never'}</td>
+                                    <td><span class="badge badge-success">${r.count || 0}</span></td>
+                                </tr>
+                            `;
+                        } catch (e) {
+                            console.error('Error rendering reminder row:', e);
+                            return '';
+                        }
+                    }).join('')}
+                </tbody>
+            </table>`
+            : `<div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <p>No recent reminders sent yet</p>
+              </div>`;
+
+        document.getElementById('recentRemindersContainer').innerHTML = html;
     } catch (err) {
+        // ✅ FIX 5: Show error to user
         console.error('Error loading reminder stats:', err);
+        showAlert('❌ Error loading reminder stats: ' + err.message, 'error');
+        document.getElementById('recentRemindersContainer').innerHTML = 
+            `<div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <p>Failed to load reminders: ${err.message}</p>
+              </div>`;
     }
 }
 
 async function loadReminderConfig() {
     try {
-        const response = await fetch('/api/admin/reminder-config', {
-            headers: {
-                'x-telegram-init-data': getTelegramInitData()
-            }
-        });
+        // ✅ FIX 1: Use secureFetch() instead of fetch()
+        const response = await secureFetch('/api/admin/reminder-config', {});
 
-        const data = await response.json();
-        if (data.success) {
-            document.getElementById('remindersToggle').checked = data.enabled;
-            updateReminderStatus(data.enabled);
-            loadReminderStats();
+        // ✅ FIX 2: Add response validation
+        if (!response) {
+            throw new Error('No response from server');
         }
+
+        if (!response.success) {
+            throw new Error(response.error || 'Failed to load reminder configuration');
+        }
+
+        // ✅ FIX 3: Update UI with toggle status
+        const toggleElement = document.getElementById('remindersToggle');
+        if (toggleElement) {
+            toggleElement.checked = response.enabled || false;
+            updateReminderStatus(response.enabled || false);
+        }
+
+        // ✅ FIX 4: Load stats after config
+        await loadReminderStats();
     } catch (err) {
+        // ✅ FIX 5: Show error to user
         console.error('Error loading reminder config:', err);
+        showAlert('❌ Error loading reminder config: ' + err.message, 'error');
+        
+        // ✅ FIX 6: Reset UI to safe state
+        const toggleElement = document.getElementById('remindersToggle');
+        if (toggleElement) {
+            toggleElement.checked = false;
+            updateReminderStatus(false);
+        }
     }
 }
 
