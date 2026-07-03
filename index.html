@@ -635,7 +635,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #0a0628;  /* Your dark purple color */
+    background-color: #1a0e3f;  /* Your dark purple color */
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 .loading-screen-overlay::before {
@@ -823,7 +823,20 @@ main {
     border-color: #667eea;
 }
 .image-preview { display: none; }
-.image-preview.show { display: block; }        
+.image-preview.show { display: block; }  
+ adsgram-task {
+    display: block;
+    width: 100% !important;
+    min-width: 100% !important;
+}
+
+#fast-task-widget-mount,
+#fast-task-widget-mount > *,
+#fast-task-widget-mount iframe {
+    width: 100% !important;
+    min-width: unset !important;
+    max-width: 100% !important;
+}       
     </style>
 </head>
 <body>
@@ -1184,8 +1197,8 @@ main {
         <p id="fast-task-remaining" class="text-[10px] text-slate-400 font-bold shrink-0"></p>
     </div>
 
-    <div id="fast-task-widget-mount" class="glass p-2 border-white/5 rounded-2xl min-h-[200px] flex items-center justify-center">
-        <p class="text-center text-[10px] text-slate-500 py-6">Loading offers...</p>
+    <div id="fast-task-widget-mount" class="w-full overflow-hidden">
+        <p class="text-center text-[10px] text-slate-500 py-6">Loading tasks...</p>
     </div>
 </div>
 
@@ -5574,7 +5587,7 @@ async function loadFastTaskWidget() {
         _fastTaskConfigCache = cfg;
 
         if (!cfg.enabled) {
-            mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">Fast Tasks are currently unavailable. Check back soon.</p>';
+            mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">Fast Tasks are currently unavailable.</p>';
             return;
         }
 
@@ -5590,119 +5603,26 @@ async function loadFastTaskWidget() {
         }
 
         if (cfg.dailyLimit && cfg.claimsRemainingToday === 0) {
-            mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">You\'ve reached today\'s Fast Task limit. Come back tomorrow!</p>';
+            mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">Daily limit reached. Come back tomorrow!</p>';
             return;
         }
 
-        // ─────────────────────────────────────────────────────
-        // RENDER CARD-BASED FAST TASK (NOT bare adsgram widget)
-        // ─────────────────────────────────────────────────────
-        mount.innerHTML = `
-            <div class="glass p-0 rounded-3xl border border-white/10 overflow-hidden">
-                <!-- Banner/Hero Image -->
-                <div class="relative w-full h-40 bg-gradient-to-b from-purple-600/20 to-transparent flex items-center justify-center">
-                    <div class="absolute inset-0 opacity-30 bg-[url('data:image/svg+xml,...')]"></div>
-                    <div class="text-5xl">⚡</div>
-                </div>
-
-                <!-- Content -->
-                <div class="p-5">
-                    <!-- Reward Badge -->
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-sm font-black uppercase tracking-widest text-white">Quick Tasks</h3>
-                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Complete offers to earn</p>
-                        </div>
-                        <div class="glass-badge px-3 py-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10">
-                            <span class="text-[9px] font-black text-orange-400 uppercase tracking-widest">
-                                 +${cfg.minReward || '50'} DASH
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Description -->
-                    <p class="text-[11px] text-slate-300 leading-relaxed mb-5">
-                        Complete quick offers and earn rewards instantly. Simple tasks, real rewards.
-                    </p>
-
-                    <!-- Action Button -->
-                    <button 
-                        onclick="openFastTaskModal()" 
-                        class="w-full btn-premium py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all">
-                        ⚡ Start Task →
-                    </button>
-                </div>
-            </div>
-
-            <!-- Hidden adsgram widget (for actual reward handling) -->
-            <div id="fast-task-adsgram-container" style="display: none;"></div>
-        `;
+        // Mount widget DIRECTLY — no wrapper card, no modal
+        // The adsgram-task element renders its own offer UI natively
+        mount.innerHTML = '';
+        const widget = document.createElement('adsgram-task');
+        widget.setAttribute('data-block-id', cfg.blockId);
+        widget.addEventListener('reward', onFastTaskReward);
+        widget.addEventListener('error', () => showAppAlert('No task available right now.', 'warning'));
+        mount.appendChild(widget);
 
     } catch (err) {
         console.error('Fast task widget load error:', err);
-        mount.innerHTML = '<p class="text-center text-[10px] text-red-400 py-6">Network error loading Fast Tasks.</p>';
+        mount.innerHTML = '<p class="text-center text-[10px] text-red-400 py-6">Network error.</p>';
     }
 }
 
-// ─────────────────────────────────────────────────────
-// MODAL HANDLER (opens adsgram in modal overlay)
-// ─────────────────────────────────────────────────────
-function openFastTaskModal() {
-    if (!_fastTaskConfigCache || !_fastTaskConfigCache.blockId) {
-        showAppAlert('Fast Tasks not configured.', 'error');
-        return;
-    }
 
-    // Create modal backdrop
-    const modal = document.createElement('div');
-    modal.id = 'fast-task-modal';
-    modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4';
-    modal.onclick = (e) => {
-        if (e.target === modal) closeFastTaskModal();
-    };
-
-    // Modal content
-    modal.innerHTML = `
-        <div class="glass rounded-3xl max-w-sm w-full max-h-[90vh] overflow-hidden border border-white/10 relative">
-            <!-- Close Button -->
-            <button 
-                onclick="closeFastTaskModal()" 
-                class="absolute top-4 right-4 w-10 h-10 glass flex items-center justify-center rounded-xl z-10 text-white hover:bg-white/10 active:scale-90 transition-all">
-                ✕
-            </button>
-
-            <!-- Adsgram Widget Container -->
-            <div id="fast-task-adsgram-mount" class="w-full"></div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Mount adsgram widget inside modal
-    const container = document.getElementById('fast-task-adsgram-mount');
-    const widget = document.createElement('adsgram-task');
-    widget.setAttribute('data-block-id', _fastTaskConfigCache.blockId);
-    widget.addEventListener('reward', onFastTaskReward);
-    widget.addEventListener('error', (e) => {
-        console.error('Adsgram error:', e);
-        showAppAlert('Error loading task. Try again.', 'error');
-        closeFastTaskModal();
-    });
-    widget.addEventListener('close', closeFastTaskModal);
-
-    container.appendChild(widget);
-
-    tg.HapticFeedback.impactOccurred('light');
-}
-
-function closeFastTaskModal() {
-    const modal = document.getElementById('fast-task-modal');
-    if (modal) {
-        modal.style.opacity = '0';
-        modal.style.transform = 'scale(0.95)';
-        setTimeout(() => modal.remove(), 200);
-    }
-}
 
 async function onFastTaskReward() {
     try {
