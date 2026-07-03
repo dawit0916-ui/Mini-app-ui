@@ -826,26 +826,22 @@ main {
 }
 .image-preview { display: none; }
 .image-preview.show { display: block; }  
- adsgram-task {
+adsgram-task {
     display: block !important;
     width: 100% !important;
-    min-width: 100% !important;
-    min-height: 500px !important;
 }
 
-#fast-task-widget-mount {
+adsgram-task::part(container),
+adsgram-task::part(wrapper) {
     width: 100% !important;
-    min-height: 500px !important;
-    overflow: visible !important;
 }
 
-#fast-task-widget-mount > *,
-#fast-task-widget-mount iframe {
-    width: 100% !important;
-    min-width: unset !important;
-    max-width: 100% !important;
-    min-height: 500px !important;
-    height: auto !important;
+adsgram-task {
+    --adsgram-task-button-width: 100%;
+    --adsgram-task-icon-size: 64px;
+    --adsgram-task-font-size: 14px;
+    --adsgram-task-icon-border-radius: 16px;
+    --adsgram-task-icon-title-gap: 12px;
 }
     </style>
 </head>
