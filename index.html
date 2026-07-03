@@ -5622,8 +5622,7 @@ async function loadFastTaskWidget() {
         mount.innerHTML = '';
         const widget = document.createElement('adsgram-task');
 widget.setAttribute('data-block-id', cfg.blockId);
-widget.setAttribute('data-debug', 'true');
-widget.setAttribute('data-debug-console', 'true');
+
 widget.addEventListener('reward', onFastTaskReward);
 widget.addEventListener('onError', () => showAppAlert('No task available right now.', 'warning'));
 widget.addEventListener('onBannerNotFound', () => {
@@ -5665,7 +5664,7 @@ async function onFastTaskReward() {
                 remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
             }
 
-            closeFastTaskModal();
+            
         } else if (result && result.dailyLimitReached) {
             showAppAlert('You\'ve reached today\'s Fast Task limit. Come back tomorrow!', 'warning');
         }
