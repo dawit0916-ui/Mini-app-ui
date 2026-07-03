@@ -509,116 +509,7 @@ main {
 .skeleton-text { height: 12px; width: 60%; margin-bottom: 8px; }
 .skeleton-btn { height: 32px; width: 80px; }
 
-        /* ==========================================================================
-   PRODUCTION GRADE LUCKY SPIN ISOLATED MODAL STYLING FRAMEWORK
-   ========================================================================== */
 
-.spin-modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh;
-    background: rgba(4, 2, 14, 0.96);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    z-index: 2000; /* Forces absolute display above existing bottom tab elements */
-    display: none;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.spin-modal-backdrop.show {
-    display: flex;
-    opacity: 1;
-}
-
-.spin-modal-container {
-    width: 92%;
-    height: 88%;
-    max-width: 390px;
-    max-height: 620px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    background: radial-gradient(circle at center, rgba(30, 27, 75, 0.6) 0%, rgba(3, 7, 18, 0.9) 100%);
-}
-
-/* Perfect Canvas Scaling Containers for Android & Mobile Screen Boundaries */
-.game-layer-container {
-    position: relative;
-    width: 290px;
-    height: 290px;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
-}
-
-.game-layer-container canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-    display: block;
-    z-index: 10;
-}
-
-/* Premium Casino Centered Solid Input Interactive Node Button Control */
-.center-spin-btn-core {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    background: radial-gradient(circle at center, #f59e0b 0%, #d97706 50%, #b45309 100%);
-    border: 3px solid #0f172a;
-    color: #ffffff;
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4);
-    cursor: pointer;
-    z-index: 40;
-    transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.center-spin-btn-core:active {
-    transform: translate(-50%, -50%) scale(0.92);
-}
-
-.center-spin-btn-core:disabled {
-    background: radial-gradient(circle at center, #475569 0%, #334155 100%);
-    color: #94a3b8;
-    box-shadow: none;
-    cursor: not-allowed;
-}
-
-/* Precision Floating Crystal Pointer Target Element Overlay Node */
-.crystal-pointer {
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 22px;
-    height: 28px;
-    background: linear-gradient(to bottom, #ffffff 0%, #3b82f6 100%);
-    clip-path: polygon(50% 100%, 0% 20%, 50% 0%, 100% 20%);
-    filter: drop-shadow(0 4px 10px rgba(59, 130, 246, 0.6));
-    z-index: 50;
-}
 
         /* ==========================================================================
    CUSTOM IN-APP POPUP SYSTEM
@@ -729,134 +620,14 @@ main {
     transition: all 0.2s ease;
 }
 .popup-btn-cancel:active { transform: scale(0.97); }
-        /* ==========================================================================
-   SHOW APP REWARD POPUP SYSTEM
-   ========================================================================== */
-#reward-popup-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 9500;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(4, 2, 14, 0.75);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-#reward-popup-backdrop.show {
-    display: flex;
-}
-#reward-popup-card {
-    border-radius: 28px;
-    padding: 28px 24px 20px;
-    width: 240px;
-    text-align: center;
-    position: relative;
-    border: 1px solid transparent;
-}
-#reward-icon-wrap {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: rewardDrop 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@keyframes rewardDrop {
-    0%   { opacity: 0; transform: translateY(-60px) rotate(0deg);   }
-    60%  { opacity: 1; transform: translateY(6px)   rotate(270deg); }
-    80%  { transform: translateY(-4px) rotate(330deg); }
-    100% { opacity: 1; transform: translateY(0px)   rotate(360deg); }
-}
-#reward-popup-card {
-    animation: rewardCardPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-@keyframes rewardCardPop {
-    from { opacity: 0; transform: scale(0.85); }
-    to   { opacity: 1; transform: scale(1); }
-}
-.reward-type-label {
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-}
-.reward-amount-text {
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: -1px;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-.reward-unit-text {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-}
-.reward-sub-msg {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #475569;
-    margin-bottom: 14px;
-}
-#reward-progress-bar {
-    width: 100%;
-    height: 3px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 4px;
-    overflow: hidden;
-}
-#reward-progress-fill {
-    height: 100%;
-    border-radius: 4px;
-    width: 100%;
-}
-#reward-progress-fill.draining {
-    transition: width linear;
-}
 
-/* Confetti particles for jackpot */
-.confetti-particle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 2px;
-    pointer-events: none;
-    animation: confettiFall linear forwards;
-}
-@keyframes confettiFall {
-    0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
-    100% { opacity: 0; transform: translateY(140px) rotate(540deg) scale(0.5); }
-    }
 .lb-tab-btn { background: transparent; color: #64748b; }
 .lb-tab-btn.active {
     background: var(--neon-blue);
     color: white;
     box-shadow: 0 0 15px rgba(59,130,246,0.4);
 }
-.wallet-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(160deg, rgba(10,4,28,0.99) 0%, rgba(4,2,14,0.99) 100%);
-    z-index: 7000;
-    display: none;
-    flex-direction: column;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-}
-.wallet-modal-overlay.show { display: flex; opacity: 1; }
-.wallet-modal-body {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 80px 20px 40px;
-}
+
 .loading-screen-overlay {
     position: fixed;
     inset: 0;
@@ -864,7 +635,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('/assets/images/bg.png');
+    background-image: #f8fafc;
     background-size: cover;
     background-position: center;
     transition: opacity 0.5s ease, visibility 0.5s ease;
@@ -1012,7 +783,49 @@ main {
     background: rgba(249, 115, 22, 0.08);
     box-shadow: 0 0 16px rgba(249, 115, 22, 0.12);
 }
-        
+/* Toggle Switch - if you don't have one */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #374151;
+    transition: 0.3s;
+    border-radius: 34px;
+    border: 1px solid #4b5563;
+}
+.switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px; bottom: 4px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+.switch input:checked + .slider {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+}
+.switch input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* Image Upload */
+.image-upload { transition: all 0.2s; }
+.image-upload.drag-over {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+}
+.image-preview { display: none; }
+.image-preview.show { display: block; }        
     </style>
 </head>
 <body>
@@ -1028,7 +841,7 @@ main {
             <span class="loading-line-deco"></span>
             <span class="loading-dot-deco"></span>
         </div>
-        <p class="loading-tagline">EARN · WATCH · PLAY · WITHDRAW</p>
+        <p class="loading-tagline">EARN · WATCH · GROW · TOGETHER</p>
         <div class="loading-progress-track">
             <div id="loading-progress-fill" class="loading-progress-fill"></div>
         </div>
@@ -1100,21 +913,6 @@ main {
             <span id="header-dash-val" class="text-[10px] font-black text-orange-300">0</span>
         </div>
 
-        <!-- USDT -->
-        <div class="flex items-center gap-1 bg-black/40 border border-emerald-500/25 rounded-full px-2 py-1">
-            <img src="/assets/images/usdt-coin.png" alt="USDT" class="w-4 h-4 object-contain">
-            <span id="header-usdt-val" class="text-[10px] font-black text-emerald-400">0.00</span>
-        </div>
-
-        <!-- TICKET -->
-        <div class="flex items-center gap-1 bg-black/40 border border-amber-500/25 rounded-full px-2 py-1 relative">
-            <img src="/assets/images/spin-ticket.png" alt="Ticket" class="w-4 h-4 object-contain">
-            <span id="header-ticket-val" class="text-[10px] font-black text-amber-300">0</span>
-            <button onclick="openExchangeDrawer()" 
-                class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-[9px] font-black text-white leading-none shadow-lg shadow-green-500/30 active:scale-90 transition-all">
-                +
-            </button>
-        </div>
 
         <!-- Admin Badge -->
         <div id="admin-badge" class="hidden bg-black/40 border border-red-500/30 text-red-400 text-[9px] font-black uppercase tracking-widest rounded-full px-2 py-1">
@@ -1173,25 +971,7 @@ main {
         <div class="flex-1 h-px bg-white/5"></div>
     </div>
 
-    <!-- USDT + TICKET mini stats -->
-    <div class="grid grid-cols-2 gap-3">
-        <div class="bg-black/30 border border-emerald-500/15 rounded-xl p-2.5">
-            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Withdrawable</p>
-            <div class="flex items-center justify-center gap-1.5">
-                <img src="/assets/images/usdt-coin.png" class="w-4 h-4 object-contain">
-                <span id="home-usdt-val" class="text-sm font-black text-emerald-400">0.00</span>
-            </div>
-            <p class="text-[8px] text-emerald-600 font-black mt-0.5">USDT</p>
-        </div>
-        <div class="bg-black/30 border border-amber-500/15 rounded-xl p-2.5">
-            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Spin Tickets</p>
-            <div class="flex items-center justify-center gap-1.5">
-                <img src="/assets/images/spin-ticket.png" class="w-4 h-4 object-contain">
-                <span id="home-ticket-val" class="text-sm font-black text-amber-300">0</span>
-            </div>
-            <p class="text-[8px] text-amber-600 font-black mt-0.5">TICKETS</p>
-        </div>
-    </div>
+    
 </div>
 <!-- Place this inside <div id="tab-home">, above <div id="task-list"> -->
 <div class="category-container mb-4" id="category-bar">
@@ -1412,43 +1192,7 @@ main {
 </div>
 
 </div>    
-     <div id="tab-games" class="tab-content">
-        <div class="mb-4">
-            <h2 class="text-xl font-black tracking-wide text-white">Game Arena</h2>
-            <p class="text-xs text-slate-400">Play games to multiply your points and Win USDT </p>
-        </div>
-
-        <div class="relative overflow-hidden rounded-2xl border border-blue-500/30 bg-indigo-950/20 p-5 backdrop-blur-xl shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 hover:border-blue-400/50">
-            <div class="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-blue-500/10 blur-xl"></div>
-            
-            <div class="flex items-start justify-between">
-                <div class="space-y-1">
-                    <span class="inline-flex items-center rounded-full bg-blue-500/20 px-2.5 py-0.5 text-xs font-semibold text-blue-400 border border-blue-500/30">
-                        LIVE NOW
-                    </span>
-                    <h3 class="text-lg font-bold text-white mt-1 flex items-center gap-2">
-                        🎡 Lucky Spin Wheel
-                    </h3>
-                    <p class="text-xs text-slate-300 max-w-[200px]">
-                        Spend 10 Tickets to spin the wheel and win up to <span class="text-yellow-400 font-bold">1 USDT</span>!
-                    </p>
-                </div>
-                
-                <div class="relative flex h-16 w-16 items-center justify-center rounded-full border-4 border-dashed border-blue-500/40 animate-[spin_20s_linear_infinite]">
-                    <div class="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center text-white text-xs font-black">🎡</div>
-                </div>
-            </div>
-
-            <div class="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
-                <div class="flex items-center gap-1.5">
-                   <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
-                   <span class="text-xs text-slate-400">Cost: <span class="font-black text-amber-300">1 TICKET</span> / spin</span>
-                </div>
-                <button class="btn-premium px-5 py-2.5 rounded-xl font-bold text-xs" onclick="openSpinModal()">Play</button>
-            </div>
-        </div>
-</div>
-</div>
+ 
 <div id="tab-profile" class="tab-content">
     <!-- Top Balance Card -->
     <div class="glass p-6 text-center glow-blue mb-6 relative overflow-hidden">
@@ -1561,12 +1305,7 @@ main {
         <span class="text-[10px] font-black uppercase text-yellow-400 relative z-10 tracking-wider">Earn</span>
     </button>
 
-    <button onclick="openWalletModal()"
-        class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 active:scale-95 active:border-green-500/50 active:bg-green-500/5 transition-all duration-150">
-        <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(34,197,94,0.12),transparent_70%)] pointer-events-none"></div>
-        <img src="/assets/images/icon-withdraw.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(34,197,94,0.4)] relative z-10">
-        <span class="text-[10px] font-black uppercase text-green-400 relative z-10 tracking-wider">Withdraw</span>
-    </button>
+    
 
     <button onclick="switchTab('friends', document.getElementById('nav-friends'))"
         class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-purple-500/20 active:scale-95 active:border-purple-500/50 active:bg-purple-500/5 transition-all duration-150">
@@ -1576,14 +1315,7 @@ main {
     </button>
 </div>
 
-    <!-- Play Games Banner -->
-    <button onclick="switchTab('games', document.getElementById('nav-games'))" class="w-full btn-premium p-5 rounded-2xl flex items-center gap-4 mb-6 active:scale-[0.98] transition-all">
-        <img src="/assets/images/nav-games.png" class="w-12 h-12 object-contain drop-shadow-lg flex-shrink-0">
-        <div class="text-left">
-            <p class="font-black text-sm uppercase">Play Games</p>
-            <p class="text-[10px] text-blue-100/80 font-bold">Earn more points</p>
-        </div>
-    </button>
+    
     <button onclick="openLeaderboardDrawer('points')" class="w-full glass py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 mb-4 border-yellow-500/20 text-yellow-400 active:scale-95 transition-all">
     🏆 View Dash Leaderboard
    </button>
@@ -1597,72 +1329,78 @@ main {
 </div>
 <!-- REMINDERS TAB -->
 <div id="tab-reminders" class="tab-content">
-    <div class="card">
-        <h2>🔔 Reminder System Configuration</h2>
-        
-        <div class="toggle-switch">
-            <label>Enable Reminders:</label>
+    <!-- Reminder System Toggle -->
+    <div class="glass p-6 mb-6 rounded-3xl border border-white/10">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-widest text-white mb-1">🔔 Reminder System</h3>
+                <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Enable welcome message detection</p>
+            </div>
             <label class="switch">
                 <input type="checkbox" id="remindersToggle" onchange="toggleReminders()">
                 <span class="slider"></span>
             </label>
-            <span id="reminderStatus" style="color: #666; font-size: 14px;"></span>
+        </div>
+        <div id="reminderStatus" class="mt-4 text-[10px] text-slate-500 font-bold uppercase tracking-wider"></div>
+    </div>
+
+    <!-- Upload Reminder Image -->
+    <div class="glass p-6 mb-6 rounded-3xl border border-white/10">
+        <h3 class="text-sm font-black uppercase tracking-widest text-white mb-1">📸 Upload Reminder Image</h3>
+        <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider mb-6">Sent when user deletes welcome message</p>
+
+        <div class="image-upload relative border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:border-white/40 transition-all cursor-pointer mb-6" 
+             id="imageUpload" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+            <div class="text-4xl mb-3">📷</div>
+            <p class="text-[12px] font-black text-purple-400 uppercase tracking-widest mb-2">Drop image or click</p>
+            <p class="text-[10px] text-slate-500 uppercase font-bold">PNG, JPG (Max 5MB)</p>
+            <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect(event)" class="hidden">
         </div>
 
-        <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
-
-        <h3 style="margin-bottom: 15px; color: #333; font-size: 1.1em;">📸 Upload Reminder Image</h3>
-        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-            Image will be sent after 6 hours when user deletes welcome message.
-        </p>
-
-        <div class="image-upload" id="imageUpload" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-            <div style="font-size: 2em; margin-bottom: 10px;">📷</div>
-            <p style="margin-bottom: 10px; color: #667eea; font-weight: 600;">Drop image here or click to upload</p>
-            <p style="font-size: 12px; color: #999;">PNG, JPG (Max 5MB)</p>
-            <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect(event)">
+        <div class="image-preview hidden mb-6" id="imagePreview">
+            <img id="previewImg" src="" alt="Preview" class="w-full max-h-48 object-cover rounded-2xl border border-white/10">
+            <p class="mt-3 text-[10px] text-slate-400 font-bold" id="previewText"></p>
         </div>
 
-        <div class="image-preview" id="imagePreview" style="display: none;">
-            <img id="previewImg" src="" alt="Preview">
-            <p style="margin-top: 10px; color: #666; font-size: 14px;" id="previewText"></p>
-        </div>
-
-        <button class="btn btn-primary" onclick="uploadReminderImage()" style="margin-top: 20px; width: 100%;">
-            <span id="uploadBtnText">⬆️ Upload Reminder Image</span>
-            <span id="uploadBtnLoader" class="loading" style="display: none; margin-left: 10px;"></span>
+        <button class="w-full btn-premium py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest" onclick="uploadReminderImage()">
+            <span id="uploadBtnText">⬆️ Upload Image</span>
+            <span id="uploadBtnLoader" class="loading hidden ml-2"></span>
         </button>
     </div>
 
-    <!-- Reminder Stats -->
-    <div class="card">
-        <h2>📊 Reminder Statistics</h2>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Users Awaiting Reminder</h3>
-                <div class="value" id="awaitingCount">0</div>
+    <!-- Reminder Statistics -->
+    <div class="glass p-6 mb-6 rounded-3xl border border-white/10">
+        <h3 class="text-sm font-black uppercase tracking-widest text-white mb-5">📊 Statistics</h3>
+        
+        <div class="grid grid-cols-3 gap-3 mb-6">
+            <div class="glass-inner p-4 rounded-2xl border border-white/5 text-center">
+                <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-2">Awaiting</p>
+                <div class="text-2xl font-black text-cyan-400" id="awaitingCount">0</div>
             </div>
-            <div class="stat-card">
-                <h3>Recent Reminders Sent</h3>
-                <div class="value" id="recentCount">0</div>
+            <div class="glass-inner p-4 rounded-2xl border border-white/5 text-center">
+                <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-2">Sent</p>
+                <div class="text-2xl font-black text-green-400" id="recentCount">0</div>
             </div>
-            <div class="stat-card">
-                <h3>System Status</h3>
-                <div class="value" id="systemStatus" style="font-size: 1.5em;">🟢</div>
+            <div class="glass-inner p-4 rounded-2xl border border-white/5 text-center">
+                <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-2">Status</p>
+                <div class="text-2xl font-black" id="systemStatus">🟢</div>
             </div>
         </div>
 
-        <button class="btn btn-secondary" onclick="loadReminderStats()" style="margin-top: 15px;">
+        <button class="w-full glass py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white border border-white/10 hover:border-white/20 active:scale-95 transition-all"
+                onclick="loadReminderStats()">
             🔄 Refresh Stats
         </button>
     </div>
 
-    <!-- Recent Reminders -->
-    <div class="card">
-        <h2>📜 Recent Reminder Activity</h2>
-        <div id="recentRemindersContainer"></div>
+    <!-- Recent Reminder Activity -->
+    <div class="glass p-6 rounded-3xl border border-white/10">
+        <h3 class="text-sm font-black uppercase tracking-widest text-white mb-4">📜 Recent Activity</h3>
+        <div id="recentRemindersContainer" class="space-y-3">
+            <p class="text-[10px] text-slate-500 text-center py-6 uppercase font-bold">Loading activity...</p>
+        </div>
     </div>
-</div>    
+</div>
 <div id="tab-admin" class="tab-content">
     <div class="grid grid-cols-4 gap-2 mb-5">
     <div class="glass p-3 rounded-2xl text-center border border-blue-500/20">
@@ -1670,22 +1408,13 @@ main {
         <p class="text-[7px] text-slate-500 uppercase font-black tracking-wider mb-0.5">Users</p>
         <h4 id="stat-users" class="text-base font-black text-blue-400">0</h4>
     </div>
-    <div class="glass p-3 rounded-2xl text-center border border-yellow-500/20">
-        <div class="text-base mb-1">💰</div>
-        <p class="text-[7px] text-slate-500 uppercase font-black tracking-wider mb-0.5">Payouts</p>
-        <h4 id="stat-withdraws" class="text-base font-black text-yellow-400">0</h4>
-    </div>
+    
     <div class="glass p-3 rounded-2xl text-center border border-green-500/20">
         <div class="text-base mb-1">📋</div>
         <p class="text-[7px] text-slate-500 uppercase font-black tracking-wider mb-0.5">Tasks</p>
         <h4 id="stat-tasks" class="text-base font-black text-green-400">0</h4>
     </div>
-    <div class="glass p-3 rounded-2xl text-center border border-emerald-500/20"
-         style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(0,0,0,0.3));">
-        <div class="text-base mb-1">💵</div>
-        <p class="text-[7px] text-slate-500 uppercase font-black tracking-wider mb-0.5">USDT</p>
-        <h4 id="stat-total-usdt" class="text-base font-black text-emerald-400">0.00</h4>
-    </div>
+    
  </div>
     
         <div id="admin-hub-grid" class="grid grid-cols-2 gap-3 mb-6">
@@ -1721,10 +1450,7 @@ main {
             <span class="text-2xl">👑</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Admins</span>
         </button>
-        <button onclick="switchAdminPanel('panel-notifications')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-cyan-500/20 hover:bg-white/5 active:scale-95 transition-all opacity-50">
-            <span class="text-2xl">🔔</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Alerts</span>
-        </button>
+        
         <button onclick="switchAdminPanel('panel-console')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
             <span class="text-2xl">🖥</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
@@ -1761,8 +1487,7 @@ main {
                     <p class="text-[11px] text-slate-400">Editing User ID: <span id="edit-user-display-id" class="text-white font-bold"></span></p>
                     <div class="flex justify-between text-xs flex-wrap gap-1">
                         <span>DASH: <b id="edit-user-balance" class="text-orange-400">0</b></span>
-                        <span>USDT: <b id="edit-user-points" class="text-emerald-400">0.00</b></span>
-                        <span>TICKETS: <b id="edit-user-coins" class="text-amber-400">0</b></span>
+                        
                     </div>
                 </div>
 
@@ -1771,14 +1496,7 @@ main {
         <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">DASH (balance field)</p>
         <input id="new-user-balance" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="0">
     </div>
-    <div>
-        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">USDT (points field)</p>
-        <input id="new-user-points" type="number" step="0.001" class="w-full p-3 rounded-xl text-xs glass" placeholder="0.000">
-    </div>
-    <div>
-        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">TICKETS (coins field)</p>
-        <input id="new-user-coins" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="0">
-    </div>
+    
 </div>
          <!-- Strike counter display -->
 <div id="inviter-strike-display" class="hidden bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-3 mb-2">
@@ -1957,52 +1675,7 @@ main {
         </div>
     </div>
 </div>
-<div id="panel-notifications" class="hidden space-y-6 pb-10">
-    <div class="flex items-center gap-3 mb-4">
-        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
-        <div>
-            <h3 class="text-sm font-black uppercase tracking-widest text-cyan-400">Alerts & Targeting</h3>
-            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Send targeted mini-app system or personal inbox alerts</p>
-        </div>
-    </div>
 
-    <div class="glass p-5 border-cyan-500/20">
-        <h3 class="text-[10px] font-black uppercase text-cyan-400 mb-4 tracking-widest">Create Targeted Notification</h3>
-        
-        <div class="space-y-3">
-            <input id="notif-title" type="text" placeholder="Notification Title..." class="w-full p-3 rounded-xl text-xs glass">
-            <textarea id="notif-msg" rows="3" placeholder="Message content details here... (HTML supported)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
-            
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Tab Destination</p>
-                    <select id="notif-type-select" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
-                        <option value="system">System Tab</option>
-                        <option value="personal">Personal Tab</option>
-                    </select>
-                </div>
-                <div>
-                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Target Group</p>
-                    <select id="notif-target-select" onchange="toggleTargetIdField()" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
-                        <option value="all">All Users (Global)</option>
-                        <option value="new_members">New Members Only</option>
-                        <option value="all_members">All Verified Members</option>
-                        <option value="specific_member">Specific Member ID</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="notif-user-id-container" class="hidden">
-                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Target Telegram User ID</p>
-                <input id="notif-target-userid" type="number" placeholder="Enter Telegram User ID..." class="w-full p-3 rounded-xl text-xs glass">
-            </div>
-
-            <button id="btn-send-notif" onclick="dispatchAdminNotification()" class="w-full bg-cyan-600/20 text-cyan-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-cyan-500/30 transition-all active:scale-95 mt-2">
-                📢 Dispatch Notification
-            </button>
-        </div>
-    </div>
-</div>
 <div id="panel-admins" class="hidden space-y-6 pb-10">
     <div class="flex items-center gap-3 mb-4">
         <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
@@ -2301,111 +1974,6 @@ main {
         </div>
     </div>
 
-    <!-- 💰 WITHDRAWAL SETTINGS ────────────────────────────────────────────── -->
-    <div class="glass p-5 border-emerald-500/20">
-        <h3 class="text-[10px] font-black uppercase text-emerald-400 mb-4 tracking-[0.2em]">💰 Withdrawal Rules</h3>
-        
-        <div class="space-y-3">
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <p class="text-[8px] text-slate-500 mb-1 ml-1 uppercase font-black">Minimum Amount</p>
-                    <input id="set-withdraw-min" type="number" step="0.01" class="w-full p-3 rounded-xl text-xs glass" placeholder="1.00">
-                    <span class="text-[8px] text-emerald-600">USDT</span>
-                </div>
-                <div>
-                    <p class="text-[8px] text-slate-500 mb-1 ml-1 uppercase font-black">Maximum Amount</p>
-                    <input id="set-withdraw-max" type="number" step="0.01" class="w-full p-3 rounded-xl text-xs glass" placeholder="1000.00">
-                    <span class="text-[8px] text-emerald-600">USDT</span>
-                </div>
-                <div>
-                    <p class="text-[8px] text-slate-500 mb-1 ml-1 uppercase font-black">Transaction Fee</p>
-                    <input id="set-withdraw-fee" type="number" step="0.1" class="w-full p-3 rounded-xl text-xs glass" placeholder="0">
-                    <span class="text-[8px] text-emerald-600">%</span>
-                </div>
-                <div>
-                    <p class="text-[8px] text-slate-500 mb-1 ml-1 uppercase font-black">Daily Limit</p>
-                    <input id="set-withdraw-daily-limit" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="5">
-                    <span class="text-[8px] text-emerald-600">requests/day</span>
-                </div>
-            </div>
-            <button onclick="saveWithdrawalSettings()" class="w-full bg-emerald-600/20 text-emerald-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/30 active:scale-95">
-                💾 Update Withdrawal Rules
-            </button>
-        </div>
-    </div>
-
-    <!-- 🎡 SPIN ECONOMY ──────────────────────────────────────────────────── -->
-     <div class="glass p-5 border-indigo-500/20">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-[10px] font-black uppercase text-indigo-400 tracking-[0.2em]">🎡 Spin Economy</h3>
-            <button onclick="loadSpinEconomyPanel()" class="text-[10px] text-blue-400 font-bold hover:text-blue-300">Refresh</button>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 mb-4">
-            <div class="bg-black/30 border border-indigo-500/15 rounded-xl p-2.5">
-                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Total Spins</p>
-                <p id="se-total-spins" class="text-base font-black text-white">0</p>
-            </div>
-            <div class="bg-black/30 border border-emerald-500/15 rounded-xl p-2.5">
-                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">USDT Paid</p>
-                <p id="se-usdt-paid" class="text-base font-black text-emerald-400">0.00</p>
-            </div>
-            <div class="bg-black/30 border border-orange-500/15 rounded-xl p-2.5">
-                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">DASH Paid</p>
-                <p id="se-dash-paid" class="text-base font-black text-orange-300">0</p>
-            </div>
-            <div class="bg-black/30 border border-blue-500/15 rounded-xl p-2.5">
-                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Payout Ratio</p>
-                <p id="se-payout-ratio" class="text-base font-black text-blue-400">0%</p>
-            </div>
-        </div>
-
-        <div class="bg-indigo-500/8 border border-indigo-500/20 rounded-xl px-4 py-3 mb-4">
-            <div class="flex justify-between items-center mb-1.5">
-                <p class="text-[9px] text-indigo-300 font-black uppercase tracking-wider">USDT Pool Probability</p>
-                <p id="se-current-prob" class="text-xs font-black text-indigo-300">0%</p>
-            </div>
-            <div class="w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
-                <div id="se-prob-bar" class="h-full bg-indigo-500 transition-all" style="width:0%"></div>
-            </div>
-            <p class="text-[8px] text-slate-500 mt-2">Auto-adjusts between Min/Max to maintain target payout rate.</p>
-        </div>
-
-        <div class="space-y-3 pt-2 border-t border-white/5">
-            <div>
-                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Target: 1 USDT every N spins</p>
-                <input id="se-target-n" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="30">
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Min Probability</p>
-                    <input id="se-min-prob" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="15">
-                </div>
-                <div>
-                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Max Probability</p>
-                    <input id="se-max-prob" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="60">
-                </div>
-            </div>
-            <div>
-                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Max Spins Per User Per Day (0 = unlimited)</p>
-                <input id="se-max-spins-day" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass" placeholder="50">
-            </div>
-            <button onclick="saveSpinEconomyConfig()" class="w-full bg-indigo-600/20 text-indigo-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-500/30 active:scale-95">
-                💾 Update Spin Economy
-            </button>
-        </div>
-    </div>
-
-    <!-- Recent Spins Log -->
-    <div class="glass p-5 border-purple-500/10">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">📜 Recent Spins</h3>
-            <button onclick="loadSpinLogTable()" class="text-[10px] text-blue-400 font-bold">Refresh</button>
-        </div>
-        <div id="se-recent-logs" class="space-y-1.5 max-h-96 overflow-y-auto">
-            <p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>
-        </div>
-    </div>
 
     <!-- Whitelisted Users -->
     <div class="glass p-5 border-purple-500/20">
@@ -2479,205 +2047,8 @@ main {
         <button onclick="submitSupportTicketFromDrawer()" class="sheet-btn-primary w-full">📩 Send Ticket</button>
     </div>
 </div>
-<!-- DASH → TICKET EXCHANGE DRAWER -->
-<div id="modal-exchange" class="sheet-backdrop" onclick="closeExchangeDrawer()">
-    <div class="sheet-drawer" onclick="event.stopPropagation()">
-        <div class="sheet-handle"></div>
 
-        <div class="sheet-header">
-            <div>
-                <div class="sheet-title">⚡ Exchange DASH → TICKET</div>
-                <div class="sheet-subtitle">100 DASH = 1 TICKET</div>
-            </div>
-            <button class="sheet-close" onclick="closeExchangeDrawer()">✕</button>
-        </div>
 
-        <!-- Balance Row -->
-        <div class="flex items-center justify-between mb-5 bg-black/30 border border-white/5 rounded-2xl px-4 py-3">
-            <div class="flex items-center gap-2">
-                <img src="/assets/images/dash-coin.png" class="w-6 h-6 object-contain">
-                <div>
-                    <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Available DASH</p>
-                    <p id="exchange-dash-balance" class="text-sm font-black text-orange-300">0</p>
-                </div>
-            </div>
-            <div class="text-slate-600 text-lg">→</div>
-            <div class="flex items-center gap-2">
-                <img src="/assets/images/spin-ticket.png" class="w-6 h-6 object-contain">
-                <div>
-                    <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Current TICKETS</p>
-                    <p id="exchange-ticket-balance" class="text-sm font-black text-amber-300">0</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Rate Info -->
-        <div class="bg-orange-500/8 border border-orange-500/20 rounded-xl px-4 py-2.5 mb-5 flex items-center gap-2">
-            <span class="text-base">💱</span>
-            <p class="text-[10px] text-orange-300 font-bold">Rate: <span class="font-black">100 DASH = 1 TICKET</span> · Non-reversible</p>
-        </div>
-
-        <!-- Preset Tiers -->
-        <p class="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3">Select Amount</p>
-        <div class="grid grid-cols-2 gap-3 mb-5">
-
-            <!-- Tier 1: 1000 → 10 -->
-            <button onclick="selectExchangeTier(1000, 10, this)"
-                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-orange-300">1,000</span>
-                </div>
-                <div class="text-slate-600 text-xs">↓</div>
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-amber-300">10</span>
-                </div>
-                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
-            </button>
-
-            <!-- Tier 2: 5000 → 50 -->
-            <button onclick="selectExchangeTier(5000, 50, this)"
-                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-orange-300">5,000</span>
-                </div>
-                <div class="text-slate-600 text-xs">↓</div>
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-amber-300">50</span>
-                </div>
-                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
-            </button>
-
-            <!-- Tier 3: 10000 → 100 -->
-            <button onclick="selectExchangeTier(10000, 100, this)"
-                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-orange-300">10,000</span>
-                </div>
-                <div class="text-slate-600 text-xs">↓</div>
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-amber-300">100</span>
-                </div>
-                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
-            </button>
-
-            <!-- Tier 4: 50000 → 500 -->
-            <button onclick="selectExchangeTier(50000, 500, this)"
-                class="exchange-tier-btn bg-black/40 border border-orange-500/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 active:scale-95 transition-all">
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/dash-coin.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-orange-300">50,000</span>
-                </div>
-                <div class="text-slate-600 text-xs">↓</div>
-                <div class="flex items-center gap-1.5">
-                    <img src="/assets/images/spin-ticket.png" class="w-5 h-5 object-contain">
-                    <span class="text-sm font-black text-amber-300">500</span>
-                </div>
-                <span class="text-[8px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">Tickets</span>
-            </button>
-
-        </div>
-
-        <!-- Confirm Button -->
-        <button id="exchange-confirm-btn" onclick="confirmExchange()" 
-            class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white/40 bg-white/5 border border-white/10 transition-all"
-            disabled>
-            Select a tier to exchange
-        </button>
-
-    </div>
-</div>    
-    <div id="wallet-modal-overlay" class="wallet-modal-overlay">
-    <div class="wallet-modal-body">
-
-        <!-- USDT Balance Card (from points field) -->
-        <div class="glass p-7 text-center glow-blue mb-5 relative overflow-hidden">
-            <div class="absolute -top-10 -left-10 w-40 h-40 bg-emerald-600/10 rounded-full blur-3xl"></div>
-            <p class="text-[10px] text-slate-400 uppercase font-black tracking-[0.2em] mb-2">Withdrawable Balance</p>
-            <div class="flex items-center justify-center gap-2">
-                <img src="/assets/images/usdt-coin.png" class="w-8 h-8 object-contain">
-                <h2 id="wallet-modal-balance" class="text-4xl font-black tracking-tighter text-white">0.000</h2>
-            </div>
-            <p class="text-emerald-400 font-black text-xs mt-1 uppercase tracking-widest">USDT</p>
-            <p class="text-[9px] text-slate-500 mt-2">Earned from Lucky Spin only</p>
-        </div>
-
-        <!-- DASH info banner (non-withdrawable) -->
-        <div class="bg-orange-500/8 border border-orange-500/20 rounded-xl p-3 mb-5 flex items-center gap-3">
-            <img src="/assets/images/dash-coin.png" class="w-7 h-7 object-contain flex-shrink-0">
-            <div>
-                <p class="text-[10px] font-black text-orange-300 uppercase tracking-wider">DASH is not withdrawable</p>
-                <p class="text-[9px] text-slate-500 mt-0.5">Use DASH → TICKET exchange to convert your DASH</p>
-            </div>
-        </div>
-
-        <!-- Back arrow + title row -->
-        <div class="glass p-4 rounded-3xl border-white/5 flex items-center gap-4 mb-5">
-            <button onclick="closeWalletModal()" 
-                class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-lg active:scale-90 transition-all flex-shrink-0">‹</button>
-            <div>
-                <h3 class="text-base font-black text-white">Withdraw USDT</h3>
-                <p class="text-[10px] text-slate-400 font-bold">Cash out your spin earnings</p>
-            </div>
-        </div>
-
-        <!-- Info banner -->
-        <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl mb-5 text-[10px] font-bold flex items-center gap-2">
-            <span>✅</span> Funds are sent directly to your BEP20 wallet.
-        </div>
-
-        <!-- Gateway -->
-        <p class="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-2">Gateway</p>
-        <div class="glass p-4 rounded-2xl border-white/5 flex items-center gap-3 mb-5">
-            <img src="/assets/images/usdt-coin.png" class="w-9 h-9 rounded-full object-contain">
-            <div>
-                <p class="text-sm font-black text-white">USDT BEP20</p>
-                <p class="text-[10px] text-slate-500">Direct to your BSC wallet</p>
-            </div>
-        </div>
-
-        <!-- Wallet address -->
-        <p class="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-2">BEP20 Wallet Address</p>
-        <input id="wallet-address-input" type="text" 
-            class="w-full p-3.5 rounded-xl text-xs glass mb-1" 
-            placeholder="Enter BEP20 wallet address (0x...)">
-        <p class="text-[9px] text-slate-500 mb-5">Must start with 0x and be exactly 42 chars. Wrong address = lost funds.</p>
-
-        <!-- Amount -->
-        <p class="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-2">Enter Amount (USDT)</p>
-        <div class="glass p-4 rounded-2xl border-white/5 mb-5">
-            <div class="flex justify-between items-center mb-2">
-                <input id="wallet-amount-input" type="number" step="0.001" 
-                    class="bg-transparent text-xl font-black text-white outline-none w-2/3" 
-                    placeholder="0.000">
-                <button onclick="setMaxWalletAmount()" 
-                    class="bg-emerald-600 px-4 py-1.5 rounded-xl text-[10px] font-black text-white active:scale-95 transition-all">
-                    MAX
-                </button>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <img src="/assets/images/usdt-coin.png" class="w-3.5 h-3.5 object-contain">
-                <p class="text-[10px] text-slate-500">Balance: <span id="wallet-balance-label" class="text-emerald-400 font-black">0.000</span> USDT</p>
-            </div>
-        </div>
-
-        <button id="btn-wallet-withdraw" onclick="submitWalletWithdraw()" 
-            class="w-full bg-emerald-600 py-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 mb-6 active:scale-[0.98] transition-all">
-            ↓ WITHDRAW USDT
-        </button>
-
-        <!-- Recent withdrawals -->
-        <p class="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3">Recent Withdrawals</p>
-        <div id="wallet-modal-history"></div>
-
-    </div>
-</div>
-</div>
 <!-- LEADERBOARD DRAWER -->
 <div id="modal-leaderboard" class="sheet-backdrop" onclick="closeLeaderboardDrawer()">
     <div class="sheet-drawer" onclick="event.stopPropagation()" style="max-height:88vh;">
@@ -2713,148 +2084,10 @@ main {
         <div id="history-list" class="space-y-3"></div>
     </div>
 </div> 
-<div id="lucky-spin-modal" class="spin-modal-backdrop">
-        <div class="spin-modal-container glass glow-blue">
-          <div class="modal-game-arena flex-1 flex flex-col items-center justify-center relative w-full my-auto select-none min-h-[520px]">
-    
-<!-- CURRENCY HUD: Left edge -->
-<div class="absolute left-[-12px] top-20 w-16 z-20">
-    <div class="bg-black/50 border border-white/8 p-1 rounded-lg flex flex-col gap-0.5">
 
-        <!-- DASH -->
-        <div class="flex items-center gap-1 px-0.5 py-0.5 bg-white/5 rounded border border-orange-500/20">
-            <img src="/assets/images/dash-coin.png" alt="DASH" class="w-4 h-4 rounded object-cover flex-shrink-0" 
-                 style="filter: drop-shadow(0 1px 2px rgba(249,115,22,0.3));">
-            <div class="min-w-0">
-                <p class="text-[4px] text-orange-300 font-black uppercase tracking-tight leading-none">DASH</p>
-                <p class="text-[7px] font-black text-white" id="spin-usdt-val">0</p>
-            </div>
-        </div>
-
-        <!-- USDT (withdrawable, from points field) -->
-        <div class="flex items-center gap-1 px-0.5 py-0.5 bg-white/5 rounded border border-emerald-500/20">
-            <img src="/assets/images/usdt-coin.png" alt="USDT" class="w-4 h-4 rounded object-cover flex-shrink-0"
-                 style="filter: drop-shadow(0 1px 2px rgba(16,185,129,0.3));">
-            <div class="min-w-0">
-                <p class="text-[4px] text-emerald-300 font-black uppercase tracking-tight leading-none">USDT</p>
-                <p class="text-[7px] font-black text-white" id="spin-pts-val">0.00</p>
-            </div>
-        </div>
-
-        <!-- TICKET -->
-        <div class="flex items-center gap-1 px-0.5 py-0.5 bg-white/5 rounded border border-amber-500/20">
-            <img src="/assets/images/spin-ticket.png" alt="Ticket" class="w-4 h-4 rounded object-cover flex-shrink-0"
-                 style="filter: drop-shadow(0 1px 2px rgba(245,158,11,0.3));">
-            <div class="min-w-0">
-                <p class="text-[4px] text-amber-300 font-black uppercase tracking-tight leading-none">TICKET</p>
-                <p class="text-[7px] font-black text-white" id="spin-coin-val">0</p>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- CENTER: Title with Bouncing Crown & Info Icon -->
-<div class="w-full max-w-xs flex flex-col items-center mx-auto relative z-10 mb-2">
-  <!-- Expanded Title Box -->
-  <div class="relative bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-900 border-y-2 border-yellow-400 px-6 py-2 rounded-lg shadow-[0_6px_25px_rgba(0,0,0,0.7)] text-center w-full">
-    <div class="absolute left-[-10px] top-1/2 -translate-y-1/2 w-3 h-5 bg-yellow-500 rounded-l-sm skew-y-12"></div>
-    
-    <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight">
-      Lucky Spin
-    </h2>
-    <p class="text-[8px] font-bold text-yellow-300/80 uppercase tracking-widest mt-1">Win Exciting Prizes</p>
-    
-    <div class="absolute right-[-10px] top-1/2 -translate-y-1/2 w-3 h-5 bg-yellow-500 rounded-r-sm -skew-y-12"></div>
-  </div>
-<!-- Bouncing Crown -->
-  <div class="text-5xl mb-2 filter drop-shadow-[0_3px_8px_rgba(245,158,11,0.6)] animate-[bounce_3s_infinite_ease-in-out]">👑</div>
-
-</div>
-
-    <div id="canvas-mount-target" class="game-layer-container relative w-[300px] h-[300px] rounded-full p-2 bg-gradient-to-tr from-amber-400 via-yellow-400 via-amber-600 to-yellow-300 shadow-[0_0_50px_rgba(245,158,11,0.5),inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-amber-900/60 flex items-center justify-center box-border">
-        
-        <div class="absolute inset-2 rounded-full border-[2px] border-amber-950/40 bg-gradient-to-b from-transparent to-black/20 pointer-events-none z-20"></div>
-        
-     <div class="absolute top-[-20px] left-1/2 -translate-x-1/2 z-50">
-    <svg width="44" height="54" viewBox="0 0 44 54" class="drop-shadow-lg">
-        
-        <!-- Gold Border -->
-        <path
-            d="M22 52
-               L8 24
-               C4 16 6 4 22 4
-               C38 4 40 16 36 24
-               Z"
-            fill="#F4C430"/>
-
-        <!-- Red Body -->
-        <path
-            d="M22 47
-               L11 24
-               C8 17 10 8 22 8
-               C34 8 36 17 33 24
-               Z"
-            fill="#FF4D6D"/>
-
-        <!-- Center Gold Circle -->
-        <circle
-            cx="22"
-            cy="18"
-            r="6"
-            fill="#FFD700"
-            stroke="#FFF4B0"
-            stroke-width="1.5"/>
-
-        <!-- Shine -->
-        <circle
-            cx="19"
-            cy="15"
-            r="2"
-            fill="rgba(255,255,255,0.7)"/>
-
-    </svg>
-</div>
-        <canvas id="wheel-canvas" width="640" height="640" class="w-full h-full rounded-full z-10 aspect-square object-contain pointer-events-none"></canvas>
-
-        <button id="spin-trigger-btn" onclick="executeSecureSpinState()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[74px] h-[74px] rounded-full z-40 bg-gradient-to-b from-yellow-300 via-amber-500 to-amber-700 border-[4px] border-yellow-200 shadow-[0_4px_12px_rgba(0,0,0,0.5),0_0_20px_rgba(245,158,11,0.7),inset_0_1px_3px_rgba(255,255,255,0.6)] flex flex-col items-center justify-center transition-all duration-200 active:scale-90 focus:outline-none select-none group">
-            <div class="absolute inset-0.5 rounded-full border border-amber-800/30 pointer-events-none"></div>
-            <span class="font-black text-white text-base tracking-wider uppercase leading-none filter drop-shadow-[0_2px_2px_rgba(146,64,14,0.8)]">Go!</span>
-        </button>
-        
-    </div>
-    
-    <div class="flex flex-col items-center gap-1 mt-6 select-none">
-    <div class="flex items-center gap-1.5 bg-black/40 border border-amber-500/20 rounded-full px-3 py-1.5">
-        <img src="/assets/images/spin-ticket.png" class="w-3.5 h-3.5 object-contain">
-        <span class="text-[10px] font-black text-amber-300 uppercase tracking-widest">1 TICKET per spin</span>
-    </div>
-      <p id="spin-remaining-today" class="text-[9px] font-bold text-slate-500 mt-1"></p>  
-    <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 animate-pulse">🎯 Tap GO To Spin</p>
-</div>
- <button onclick="closeSpinModal()"
-    class="absolute top-4 left-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white active:scale-90 transition-all z-50">
-    ←
-</button>
-              
-</div>
-</div>
                                                                                                                                         </div>
 </main>
 
-    <!-- REWARD POPUP -->
-<div id="reward-popup-backdrop" onclick="closeRewardPopup()">
-    <div id="reward-popup-card" onclick="event.stopPropagation()">
-        <div id="reward-icon-wrap"></div>
-        <div id="reward-type-label" class="reward-type-label"></div>
-        <div id="reward-amount-text" class="reward-amount-text"></div>
-        <div id="reward-unit-text" class="reward-unit-text"></div>
-        <div id="reward-sub-msg" class="reward-sub-msg"></div>
-        <div id="reward-progress-bar">
-            <div id="reward-progress-fill"></div>
-        </div>
-    </div>
-</div>
     <!-- CUSTOM IN-APP POPUP -->
 <div id="app-popup-backdrop">
     <div id="app-popup-card">
@@ -2885,11 +2118,6 @@ main {
     <button id="nav-earn" onclick="switchTab('earn', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
         <img src="/assets/images/nav-earn.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
         <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Earn</span>
-    </button>
-
-    <button id="nav-games" onclick="switchTab('games', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="/assets/images/nav-games.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
-        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Games</span>
     </button>
 
     <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
@@ -3277,7 +2505,7 @@ mainEl.addEventListener('touchend', async (e) => {
     if (activeTab === 'home')    await loadAvailableTasks();
     if (activeTab === 'friends') await loadReferralData();
     if (activeTab === 'profile') await loadUserProfileMetrics();
-    if (activeTab === 'games')   updateSpinModalCoinsDisplay();
+    
     if (activeTab === 'earn')    await loadAdsWatchList();
 
     try {
@@ -3348,16 +2576,10 @@ async function searchUser() {
         // Sync editor text display fields
         document.getElementById('edit-user-display-id').innerText = foundUser.user_id;
         document.getElementById('edit-user-balance').innerText = parseFloat(foundUser.balance).toFixed(4);
-        document.getElementById('edit-user-points').innerText = parseFloat(foundUser.points || 0).toFixed(2);
-        document.getElementById('edit-user-coins').innerText = parseFloat(foundUser.coins || 0).toFixed(2);
-
-
+        
         // Populate editable input value fields
         document.getElementById('new-user-balance').value = foundUser.balance;
-        document.getElementById('new-user-points').value = foundUser.points || 0;
-        document.getElementById('new-user-coins').value = foundUser.coins || 0;
-
-
+        
         // Set state of Ban Button dynamically
         const banBtn = document.getElementById('btn-ban-toggle');
         if (foundUser.is_banned) {
@@ -3688,113 +2910,7 @@ function filterUserDirectory(filterType) {
     
     loadUserDirectory();
 }
-async function loadSpinEconomyPanel() {
-    try {
-        const data = await secureFetch('/api/admin/spin-economy/stats');
-        if (!data || !data.success) return showAppAlert("Failed to load spin economy stats.", 'error');
 
-        document.getElementById('se-total-spins').innerText = data.totalSpins.toLocaleString();
-        document.getElementById('se-usdt-paid').innerText   = data.totalUsdtAwarded.toFixed(2);
-        document.getElementById('se-dash-paid').innerText   = data.totalDashAwarded.toLocaleString();
-
-        const ratioText = (data.payoutRatio === null) ? '—' : (data.payoutRatio * 100).toFixed(0) + '%';
-        document.getElementById('se-payout-ratio').innerText = ratioText;
-
-        const probPercent = data.currentUsdtProbabilityMass * 100;
-        document.getElementById('se-current-prob').innerText = probPercent.toFixed(1) + '%';
-        document.getElementById('se-prob-bar').style.width = probPercent + '%';
-
-        document.getElementById('se-target-n').value = data.targetUsdtPerSpin > 0 ? Math.round(1 / data.targetUsdtPerSpin) : 30;
-        document.getElementById('se-min-prob').value = (data.minUsdtProbability * 100).toFixed(0);
-        document.getElementById('se-max-prob').value = (data.maxUsdtProbability * 100).toFixed(0);
-        document.getElementById('se-max-spins-day').value = data.maxSpinsPerDay;
-
-    } catch (e) {
-        console.error("Spin economy load error:", e);
-        showAppAlert("Network error loading spin economy.", 'error');
-    }
-}
-
-async function saveSpinEconomyConfig() {
-    const n        = parseFloat(document.getElementById('se-target-n').value);
-    const minP     = parseFloat(document.getElementById('se-min-prob').value);
-    const maxP     = parseFloat(document.getElementById('se-max-prob').value);
-    const maxSpins = parseFloat(document.getElementById('se-max-spins-day').value);
-
-    if (!n || n <= 0) return showAppAlert("Please enter a valid spin count (e.g. 30).", 'warning');
-    if (isNaN(minP) || isNaN(maxP) || minP < 0 || maxP > 100 || minP >= maxP) {
-        return showAppAlert("Min/Max probability must be 0-100 with Min less than Max.", 'warning');
-    }
-    if (isNaN(maxSpins) || maxSpins < 0) {
-        return showAppAlert("Max Spins/Day must be 0 or higher.", 'warning');
-    }
-
-    try {
-        const res = await secureFetch('/api/admin/spin-economy/config', {
-            method: 'POST',
-            body: JSON.stringify({
-                targetUsdtPerSpin:  1 / n,
-                minUsdtProbability: minP / 100,
-                maxUsdtProbability: maxP / 100,
-                maxSpinsPerDay:     maxSpins
-            })
-        });
-
-        if (res && res.success) {
-            tg.HapticFeedback.notificationOccurred('success');
-            showAppAlert("Spin economy config updated!", 'success');
-            loadSpinEconomyPanel();
-        } else {
-            showAppAlert(res?.error || "Failed to update config.", 'error');
-        }
-    } catch (e) {
-        showAppAlert("Network error. Try again.", 'error');
-    }
-}
-async function loadSpinLogTable() {
-    const container = document.getElementById('se-recent-logs');
-    if (!container) return;
-    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
-
-    try {
-        const data = await secureFetch('/api/admin/spin-economy/recent-logs?limit=50');
-        if (!data || !data.success) {
-            container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load logs.</p>';
-            return;
-        }
-        if (data.logs.length === 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No spins logged yet.</p>';
-            return;
-        }
-
-        const TYPE_COLORS = {
-            usdt: 'text-emerald-400', jackpot_usdt: 'text-emerald-400',
-            dash: 'text-orange-300', jackpot_dash: 'text-orange-300',
-            ticket: 'text-amber-300', jackpot_ticket: 'text-amber-300',
-            tryagain: 'text-slate-500'
-        };
-
-        container.innerHTML = data.logs.map(l => {
-            const time = new Date(l.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const clr = TYPE_COLORS[l.rewardType] || 'text-slate-400';
-            const amountLabel = l.rewardAmount ? `+${l.rewardAmount}` : '—';
-            const probPct = (l.usdtProbabilityUsed * 100).toFixed(1);
-            return `
-                <div class="flex justify-between items-center p-2.5 bg-white/[0.02] border border-white/5 rounded-xl mb-1.5">
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-white truncate">${l.displayName}</p>
-                        <p class="text-[8px] text-slate-500 font-mono">${time} · idx ${l.winningIndex} · p=${probPct}%${l.isNewUserBonus ? ' · <span class="text-indigo-400">NEW</span>' : ''}</p>
-                    </div>
-                    <span class="text-[11px] font-black ${clr} shrink-0 ml-2">${amountLabel} ${l.rewardType.replace('jackpot_', 'JP-').toUpperCase()}</span>
-                </div>
-            `;
-        }).join('');
-
-    } catch (e) {
-        console.error("Spin log table error:", e);
-        container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Network error.</p>';
-    }
-}        
 // 2. Fixed Route Isolation Engine
 async function loadUserDirectory() {
     const listContainer = document.getElementById('admin-user-directory-list');
@@ -3940,36 +3056,6 @@ async function saveIPGuardSettings() {
     }
 }
 
-// Save withdrawal settings
-async function saveWithdrawalSettings() {
-    const minWd = parseFloat(document.getElementById('set-withdraw-min').value);
-    const maxWd = parseFloat(document.getElementById('set-withdraw-max').value);
-    const fee = parseFloat(document.getElementById('set-withdraw-fee').value);
-    const dailyLimit = parseInt(document.getElementById('set-withdraw-daily-limit').value);
-    
-    if (isNaN(minWd) || isNaN(maxWd) || minWd > maxWd) {
-        return showAppAlert("Please enter valid min/max amounts.", 'warning');
-    }
-    
-    try {
-        const res = await secureFetch('/api/admin/settings', {
-            method: 'POST',
-            body: JSON.stringify({
-                withdraw_min: minWd,
-                withdraw_max: maxWd,
-                withdraw_fee_percent: fee || 0,
-                withdraw_daily_limit: dailyLimit || 10
-            })
-        });
-        
-        if (res.success) {
-            showAppAlert("Withdrawal settings updated!", 'success');
-        }
-    } catch (e) {
-        showAppAlert("Failed to save withdrawal settings.", 'error');
-    }
-}
-
 // Update referral settings (already exists, enhanced)
 async function saveRefSettings() {
     const bonus = parseFloat(document.getElementById('set-ref-bonus').value);
@@ -4012,10 +3098,7 @@ function loadAdminSettings() {
             document.getElementById('set-ref-threshold').value = data.settings?.ref_tasks_required || 3;
             document.getElementById('set-autoban-threshold').value = data.settings?.ip_guard_autoban_threshold || 5;
             document.getElementById('set-strike-reset-days').value = data.settings?.strike_reset_days || 30;
-            document.getElementById('set-withdraw-min').value = data.settings?.withdraw_min || 1;
-            document.getElementById('set-withdraw-max').value = data.settings?.withdraw_max || 1000;
-            document.getElementById('set-withdraw-fee').value = data.settings?.withdraw_fee_percent || 0;
-            document.getElementById('set-withdraw-daily-limit').value = data.settings?.withdraw_daily_limit || 5;
+            
         }
     }).catch(err => console.error('Failed to load settings:', err));
 }
@@ -4143,7 +3226,7 @@ function switchAdminPanel(panelId) {
         'panel-payouts', 
         'panel-proofs', 
         'panel-admins', 
-        'panel-notifications',
+        
         'panel-console',
         'panel-support',
         'panel-ad-manager'
@@ -4660,9 +3743,7 @@ function showAlert(message, type = 'info') {
     }, 5000);
 }
 
-function getTelegramInitData() {
-    return window.Telegram?.WebApp?.initData || localStorage.getItem('tma_init_data') || '';
-}
+
 
 // Load reminder config on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -5063,71 +4144,6 @@ async function loadReferralData() {
     }
 }
 
-// Dynamically show or hide specific user id configuration row
-function toggleTargetIdField() {
-    const targetType = document.getElementById('notif-target-select').value;
-    const idContainer = document.getElementById('notif-user-id-container');
-    
-    if (targetType === 'specific_member') {
-        idContainer.classList.remove('hidden');
-    } else {
-        idContainer.classList.add('hidden');
-    }
-}
-
-// Post administrative structural distribution options to database endpoint
-async function dispatchAdminNotification() {
-    const title = document.getElementById('notif-title').value;
-    const message = document.getElementById('notif-msg').value;
-    const type = document.getElementById('notif-type-select').value;
-    const targetType = document.getElementById('notif-target-select').value;
-    const targetUserId = document.getElementById('notif-target-userid').value;
-
-    if (!title || !message) return showAppAlert("Please complete Title and Message fields.", 'warning'); 
-    if (targetType === 'specific_member' && !targetUserId) return showAppAlert("Please specify a Target User ID.", 'warning');
-    const payload = { title, message, type, targetType, targetUserId };
-
-    const btn = document.getElementById('btn-send-notif');
-    btn.disabled = true;
-    btn.innerText = "PROCESSING DISPATCH...";
-
-    try {
-        const res = await secureFetch('/api/admin/notifications/send', {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
-
-        if (res.success) {
-
-    tg.HapticFeedback.notificationOccurred('success');
-
-    showNotificationToast(
-        "✅ Targeted system notification deployed successfully!",
-        'success'
-    );
-            
-            // Clear input states
-            document.getElementById('notif-title').value = '';
-            document.getElementById('notif-msg').value = '';
-            document.getElementById('notif-target-userid').value = '';
-            document.getElementById('notif-target-select').value = 'all';
-            toggleTargetIdField();
-        } else {
-            showNotificationToast(
-    "🚨 Error dispatching alert: " + res.error,
-    'error'
-);
-        }
-    } catch(e) {
-        showNotificationToast(
-    "⚠️ Failed to contact server gateway.",
-    'error'
-);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "📢 Dispatch Notification";
-    }
-}
         
 async function loadUserProfileMetrics() {
     try {
@@ -5247,39 +4263,6 @@ async function submitSupportTicketFromDrawer() {
     }
 }
 
-// ==========================================================================
-// UNIFIED NOTIFICATION SUITE (GATEWAY SYSTEM & LOCAL TOASTS)
-// ==========================================================================
-
-// Single, clean global state variables
-let notifications = [
-    { type: 'system', title: 'System Active', msg: 'Welcome to the premium vault.', read: true, date: new Date() }
-];
-let currentNotifTab = 'personal';
-
-/**
- * Toggles visibility of the modal box interface view wrapper
- */
-function toggleNotificationCenter() {
-    const el = document.getElementById('notification-center');
-    const dot = document.getElementById('unread-dot');
-    
-    if (!el) return console.error("Notification center view wrapper container missing.");
-    
-    if (el.style.display === 'none' || el.style.display === '') {
-    el.style.display = 'flex';
-    el.classList.add('active');
-} else {
-    el.style.display = 'none';
-    el.classList.remove('active');
-    }
-    
-    if (el.classList.contains('active')) {
-        if (dot) dot.classList.add('hidden'); // Hide red indicator dot on modal activation
-        switchNotifTab(currentNotifTab);
-    }
-}
-
 
 /**
  * Creates a real-time floating user overlay card announcement
@@ -5305,367 +4288,7 @@ function pushNotification(title, msg, type = 'system') {
     // Live update the list elements if center layout is open
     renderFilteredNotifications();
 }
-// Update spin modal coins display
-function updateSpinModalCoinsDisplay() {
-    // Pull from header pills (always up to date)
-    const dash   = document.getElementById('header-dash-val')?.innerText   || '0';
-    const usdt   = document.getElementById('header-usdt-val')?.innerText   || '0.00';
-    const ticket = document.getElementById('header-ticket-val')?.innerText || '0';
-
-    // DASH → spin-usdt-val (repurposed id)
-    const spinDash = document.getElementById('spin-usdt-val');
-    if (spinDash) spinDash.innerText = dash;
-
-    // USDT → spin-pts-val (repurposed id)
-    const spinUsdt = document.getElementById('spin-pts-val');
-    if (spinUsdt) spinUsdt.innerText = usdt;
-
-    // TICKET → spin-coin-val (repurposed id)
-    const spinTicket = document.getElementById('spin-coin-val');
-    if (spinTicket) spinTicket.innerText = ticket;
-}
-
-/* ==========================================================================
-   PRODUCTION ENGINE LOGIC: ASSET-PRELOADED CORE ARCHITECTURE WITH ICONS
-   ========================================================================== */
-
-let spinCanvas = null;
-let spinCtx = null;
-let isSpinningActive = false;
-let wheelRotationAngle = 0; 
-const WHEEL_SEGMENTS = [
-    { text: "0.07 USDT", type: "USDT",     color: "#065f46", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
-    { text: "50 DASH",   type: "DASH",     color: "#7c2d12", textClr: "#ffffff", iconUrl: "/assets/images/dash-coin.png" },
-    { text: "0.05 USDT", type: "USDT",     color: "#064e3b", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
-    { text: "TRY AGAIN", type: "EMPTY",    color: "#1e293b", textClr: "#ffffff", iconUrl: "/assets/images/try-again.png" },
-    { text: "0.1 USDT",  type: "USDT",     color: "#14532d", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
-    { text: "1 TICKET",  type: "TICKET",   color: "#1e1b4b", textClr: "#ffffff", iconUrl: "/assets/images/spin-ticket.png" },
-    { text: "TRY AGAIN", type: "EMPTY",    color: "#334155", textClr: "#ffffff", iconUrl: "/assets/images/try-again.png" },
-    { text: "JACKPOT!",  type: "JACKPOT",  color: "#ca8a04", textClr: "#ffffff", iconUrl: "/assets/images/jackpot-coin.png" },
-    { text: "0.01 USDT", type: "USDT",     color: "#022c22", textClr: "#ffffff", iconUrl: "/assets/images/usdt-coin.png" },
-    { text: "25 DASH",   type: "DASH",     color: "#92400e", textClr: "#ffffff", iconUrl: "/assets/images/dash-coin.png" },
-];
-// 🆕 ADD THIS MAPPING - Maps wheel index to reward amounts
-const spinAmountMap = {
-    0: '0.07',   // USDT
-    1: '50',     // DASH
-    2: '0.05',   // USDT
-    3: '0',      // TRY AGAIN
-    4: '0.1',    // USDT
-    5: '1',      // TICKET
-    6: '0',      // TRY AGAIN
-    7: '500',    // JACKPOT DASH
-    8: '0.01',   // USDT
-    9: '25',     // DASH
-};
-
-const totalSegmentsCount = WHEEL_SEGMENTS.length;
-const segmentArcRadiantLength = (2 * Math.PI) / totalSegmentsCount;
-
-// Cache object to store loaded HTMLImageElements
-const loadedSegmentIconsCache = {};
-
-// 2. Preloader Engine: Loops through config and boots up image assets into memory
-function preloadWheelIconAssets() {
-    WHEEL_SEGMENTS.forEach((segment, index) => {
-        if (segment.iconUrl) {
-            const imgInstance = new Image();
-            imgInstance.src = segment.iconUrl;
-            imgInstance.onload = () => {
-                // Store inside cache once asset successfully streams down
-                loadedSegmentIconsCache[index] = imgInstance;
-                // Force a redraw once loaded so wheel isn't blank on cold launch
-                if (spinCtx) renderWheelStaticFrameState();
-            };
-            imgInstance.onerror = () => {
-                console.warn(`Failed to preload asset icon at pathway: ${segment.iconUrl}`);
-            };
-        }
-    });
-}
-
-// Trigger image preloading immediately when script evaluates
-preloadWheelIconAssets();
-
-function initializeWheelCanvasContext() {
-    // Look up the canvas hardcoded element hook directly
-    spinCanvas = document.getElementById('wheel-canvas');
-    if (!spinCanvas) return console.error("Canvas element 'wheel-canvas' not found in DOM.");
-
-    spinCtx = spinCanvas.getContext('2d');
     
-    // Set initial canvas position shifted by -90 deg so slice 0 starts perfectly centered at 12 o'clock
-    wheelRotationAngle = -Math.PI / 2 - (segmentArcRadiantLength / 2);
-    
-    renderWheelStaticFrameState();
-}
-
-function renderWheelStaticFrameState() {
-    if (!spinCtx || !spinCanvas) return;
-    
-    // --- DYNAMIC SCALING RATIO SYSTEM ---
-    const displayRect = spinCanvas.getBoundingClientRect();
-    const currentDisplayWidth = displayRect.width || 330; 
-    
-    // Only set once on init, not every render frame
-if (!spinCanvas._initialized) {
-    const displayRect = spinCanvas.getBoundingClientRect();
-    const currentDisplayWidth = displayRect.width || 330;
-    spinCanvas.width = currentDisplayWidth * 2;
-    spinCanvas.height = currentDisplayWidth * 2;
-    spinCanvas._initialized = true;
-}
-    
-    const centerPointAxis = spinCanvas.width / 2;
-    const exteriorOuterRadiusValue = centerPointAxis - 8;
-    
-    // Wipe layout dirty frames clean
-    spinCtx.clearRect(0, 0, spinCanvas.width, spinCanvas.height);
-    
-    spinCtx.save();
-    spinCtx.translate(centerPointAxis, centerPointAxis);
-    spinCtx.rotate(wheelRotationAngle); 
-
-    for (let i = 0; i < totalSegmentsCount; i++) {
-        const currentAngleRad = i * segmentArcRadiantLength;
-
-        // Draw colored slice wedge background
-        spinCtx.beginPath();
-        spinCtx.fillStyle = WHEEL_SEGMENTS[i].color || "#1e1b4b";
-        spinCtx.moveTo(0, 0);
-        spinCtx.arc(0, 0, exteriorOuterRadiusValue, currentAngleRad, currentAngleRad + segmentArcRadiantLength);
-        spinCtx.lineTo(0, 0);
-        spinCtx.fill();
-        
-        // Premium subtle segment split separator lines
-        spinCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-        spinCtx.lineWidth = 2;
-        spinCtx.stroke();
-        
-        // Typography Vector Transformation
-        spinCtx.save();
-
-const midSegmentAngle = currentAngleRad + (segmentArcRadiantLength / 2);
-spinCtx.rotate(midSegmentAngle);
-spinCtx.translate(exteriorOuterRadiusValue * 0.65, 0);
-spinCtx.rotate(Math.PI / 2);
-
-spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
-spinCtx.textAlign = "center";
-spinCtx.textBaseline = "middle";
-
-const textFontSize = Math.floor(spinCanvas.width * 0.036);
-const subFontSize  = Math.floor(spinCanvas.width * 0.020);
-const iconSize     = Math.floor(spinCanvas.width * 0.09);
-
-// Main text — outer (negative Y = toward rim)
-spinCtx.fillStyle = WHEEL_SEGMENTS[i].textClr || "#FFFFFF";
-spinCtx.font = `bold ${textFontSize}px 'Inter', sans-serif`;
-spinCtx.fillText(WHEEL_SEGMENTS[i].text || "", 0, -(textFontSize * 1.2));
-
-// Sub label — below main text, still outer
-if (WHEEL_SEGMENTS[i].type) {
-    spinCtx.fillStyle = "rgba(255,255,255,0.55)";
-    spinCtx.font = `800 ${subFontSize}px 'Inter', sans-serif`;
-    spinCtx.fillText(WHEEL_SEGMENTS[i].type, 0, -(subFontSize * 0.3));
-}
-
-// Icon — inward (positive Y = toward center)
-const cachedIcon = loadedSegmentIconsCache[i];
-if (cachedIcon) {
-    spinCtx.drawImage(cachedIcon, -iconSize / 2, subFontSize + 8, iconSize, iconSize);
-}
-
-spinCtx.restore();
-    }
-    
-    spinCtx.restore();
-}
-
-/* ==========================================================================
-   PRODUCTION UTILITY: MODAL OPEN AND DYNAMIC BALANCE HUD SYNC ENGINE
-   ========================================================================== */
-function openSpinModal() {
-    const targetModalNode = document.getElementById('lucky-spin-modal');
-    if (!targetModalNode) return console.error("Target element 'lucky-spin-modal' not located in DOM.");
-
-    updateSpinModalCoinsDisplay();
-
-    const remainingLabel = document.getElementById('spin-remaining-today');
-    if (remainingLabel) remainingLabel.innerText = '';
-
-    targetModalNode.classList.add('show');
-
-    setTimeout(() => {
-        initializeWheelCanvasContext();
-    }, 150); 
-}
-function closeSpinModal() {
-    if (isSpinningActive) {
-        showAppAlert("Please wait until the spin finishes.", 'warning');
-        return;
-    }
-    const targetModalNode = document.getElementById('lucky-spin-modal');
-    if (targetModalNode) targetModalNode.classList.remove('show');
-}
-
-
-async function executeSecureSpinState() {
-    if (isSpinningActive) return;
-
-    const actionTriggerNodeButton = document.getElementById('spin-trigger-btn');
-    if (!actionTriggerNodeButton) return console.error("Spin trigger button context missing.");
-
-    actionTriggerNodeButton.disabled = true;
-    isSpinningActive = true;
-
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-    }
-
-    const cooldownTimer = document.getElementById('spin-cooldown-timer');
-    if (cooldownTimer) cooldownTimer.innerText = "⏳ VALIDATING REQUEST WITH SERVER...";
-
-    try {
-        const backendServerExecutionResult = await secureFetch('/api/secure/lucky-spin', { method: 'POST' });
-
-        if (!backendServerExecutionResult || !backendServerExecutionResult.success || backendServerExecutionResult.error) {
-            if (window.Telegram?.WebApp) {
-                showAppAlert(backendServerExecutionResult?.error || "Transaction verification failed.", 'error')
-            }
-            if (cooldownTimer) cooldownTimer.innerText = "❌ TRANSACTION REJECTED";
-            actionTriggerNodeButton.disabled = false;
-            isSpinningActive = false;
-            return;
-        }
-      const remainingLabel = document.getElementById('spin-remaining-today');
-        if (remainingLabel && backendServerExecutionResult.spinsRemainingToday !== null && backendServerExecutionResult.spinsRemainingToday !== undefined) {
-            remainingLabel.innerText = `${backendServerExecutionResult.spinsRemainingToday} spins left today`;
-        }
-        const assignedWinningIndexTarget = parseInt(backendServerExecutionResult.winningIndex ?? backendServerExecutionResult.index);
-        if (isNaN(assignedWinningIndexTarget)) {
-            throw new Error("Invalid or missing winning index from server response.");
-        }
-
-        // --- CLOCKWISE MATH CORRECTION BALANCING LOGIC ---
-        // 1. Establish structural base offset (-90 degrees) to treat 12 o'clock as zero alignment
-        const baseZeroPointerOffset = -Math.PI / 2;
-
-        // 🔥 FIXED: Corrected clockwise tracking computation matrix so Index 0 lands perfectly on Index 0
-        const invertedIndexClockwiseTarget = (totalSegmentsCount - assignedWinningIndexTarget - 1 + totalSegmentsCount) % totalSegmentsCount;
-
-        // 3. Center Target Offset: Half a segment size added to land directly in the middle of the wedge
-        const sliceCenterTargetOffset = segmentArcRadiantLength / 2;
-
-        // 4. Final structural destination point calculation
-        const targetedLandingCoordinates = baseZeroPointerOffset + (invertedIndexClockwiseTarget * segmentArcRadiantLength) + sliceCenterTargetOffset;
-
-        // 5. Build full rotational velocity spin revolutions momentum (8 complete circles)
-        const totalSpinRevolutionsAngle = 8 * (2 * Math.PI);
-
-        // 6. Formulate absolute endpoint rotation state target
-        const finalAbsoluteTerminalRotationAngleCoordinate = totalSpinRevolutionsAngle + targetedLandingCoordinates;
-
-        let timestampStartReferenceFrame = null;
-        const completeAnimationDurationTimeRequirementLimit = 4500; // Smooth 4.5 second spin action
-
-        function animationEngineTickFrameSequence(timestampCurrentFrame) {
-            if (!timestampStartReferenceFrame) timestampStartReferenceFrame = timestampCurrentFrame;
-            const animationElapsedDurationTime = timestampCurrentFrame - timestampStartReferenceFrame;
-            const completeProgressRatioDelta = Math.min(animationElapsedDurationTime / completeAnimationDurationTimeRequirementLimit, 1);
-
-            // Premium ease-out quartic easing calculation formula curve
-            const physicsDecelerationDecayModifierValue = 1 - Math.pow(1 - completeProgressRatioDelta, 4);
-            
-            // Increment rotation values positively to spin clockwise
-            wheelRotationAngle = (physicsDecelerationDecayModifierValue * finalAbsoluteTerminalRotationAngleCoordinate);
-
-            renderWheelStaticFrameState();
-
-            if (animationElapsedDurationTime < completeAnimationDurationTimeRequirementLimit) {
-                requestAnimationFrame(animationEngineTickFrameSequence);
-            } else {
-                isSpinningActive = false;
-                actionTriggerNodeButton.disabled = false;
-                if (cooldownTimer) cooldownTimer.innerText = "🎉 WINNING PAYOUT CONFIRMED SYNCED";
-                
-                if (window.Telegram?.WebApp?.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                }
-
-                // 🔥 FIXED: Direct explicit integration of new server balances into HTML DOM UI nodes
-                // After spin: newWalletBalance=DASH, newPointBalance=USDT, newCoinBalance=TICKET
-const newDash   = backendServerExecutionResult.newWalletBalance ?? cachedUserProfile?.balance ?? 0;
-const newUsdt   = backendServerExecutionResult.newPointBalance  ?? cachedUserProfile?.points  ?? 0;
-const newTicket = backendServerExecutionResult.newCoinBalance   ?? cachedUserProfile?.coins   ?? 0;
-
-// Update home card
-const mBal = document.getElementById('balance-main');
-if (mBal) mBal.innerText = parseInt(newDash).toLocaleString();
-
-// Sync header pills
-updateHeaderBalances(newDash, newUsdt, newTicket);
-
-// Update cached profile
-if (cachedUserProfile) {
-    cachedUserProfile.balance = newDash;
-    cachedUserProfile.points  = newUsdt;
-    cachedUserProfile.coins   = newTicket;
-}
-
-                // Call internal synchronization functions safely
-                if (typeof syncWalletBalances === "function") syncWalletBalances();
- // Map winning index to reward type
-const rewardTypeMap = {
-    0: 'usdt',     // 0.07 USDT
-    1: 'dash',     // 50 DASH
-    2: 'usdt',     // 0.05 USDT
-    3: 'tryagain', // TRY AGAIN
-    4: 'usdt',     // 0.1 USDT
-    5: 'coins',    // 1 TICKET
-    6: 'tryagain', // TRY AGAIN
-    7: 'jackpot',  // JACKPOT
-    8: 'usdt',     // 0.01 USDT
-    9: 'dash',     // 25 DASH
-};
-
-const SERVER_TO_DISPLAY_TYPE = {
-    usdt: 'usdt',
-    dash: 'dash',
-    ticket: 'coins',
-    tryagain: 'tryagain',
-    jackpot_usdt: 'jackpot_usdt',
-    jackpot_dash: 'dash',        // reuse existing DASH styling for a DASH jackpot
-    jackpot_ticket: 'jackpot_coin'
-};
-
-const spinRewardType = SERVER_TO_DISPLAY_TYPE[backendServerExecutionResult.rewardType] || 'tryagain';
-const spinDisplayAmount = backendServerExecutionResult.rewardAmount;
-
-showAppReward(spinRewardType, spinDisplayAmount);
-        }
-}
-        requestAnimationFrame(animationEngineTickFrameSequence);
-
-    } catch (err) {
-        console.error("Spin failure:", err);
-        if (window.Telegram?.WebApp) {
-            showAppAlert("An error occurred during verification.", 'error')
-        }
-        if (cooldownTimer) cooldownTimer.innerText = "❌ ERROR";
-        actionTriggerNodeButton.disabled = false;
-        isSpinningActive = false;
-    }
-        }
-/* ==========================================================================
-   VANILLA JAVASCRIPT SYSTEM ENGINE: ECOSYSTEM WALLET LOGIC ARCHITECTURE
-   ========================================================================== */
-
-let activeLedgerCategoryFilter = 'pending';
-let isWalletTransactionLockActive = false;
-let selectedTierInviteThresholdTarget = 0;
-let selectedTierFiatAllocationValue = 0;
-
 // Centralized Toast Context Notification Router Handler
 function showNotificationToast(messageText, notificationType = 'info') {
     const parentContainer = document.getElementById('toast-container');
@@ -5860,257 +4483,8 @@ function closeAppPopup() {
 document.getElementById('app-popup-backdrop').addEventListener('click', function(e) {
     if (e.target === this) closeAppPopup();
 });
-                            // ==========================================================================
-// SHOW APP REWARD POPUP SYSTEM
-// ==========================================================================
-
-const REWARD_SVGS = {
-    usdt: `<img src="/assets/images/usdt-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(31,229,217,0.3));">`,
-    dash: `<img src="/assets/images/dash-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(249,115,22,0.3));">`,
-    points: `<img src="/assets/images/point-coin.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(99,102,241,0.3));">`,
     
-    coins: `<img src="/assets/images/spin-ticket.png" style="width:72px;height:72px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));">`,
-    
-    tryagain: `<svg width="64" height="64" viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r="28" fill="rgba(51,65,85,0.5)" stroke="rgba(71,85,105,0.4)" stroke-width="1.5"/>
-        <path d="M20 32 A12 12 0 1 1 32 44" fill="none" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
-        <polygon points="18,24 26,27 20,34" fill="#64748b"/>
-    </svg>`,
-    
-    jackpot: `<img src="/assets/images/jackpot-usdt-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));">`,
-    
-    jackpot_usdt: `<img src="/assets/images/jackpot-usdt-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));">`,
-    
-    jackpot_coin: `<img src="/assets/images/jackpot-spin-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));transform:scale(1.2);">`,
-    
-    jackpot_point: `<img src="/assets/images/jackpot-point-coin.png" style="width:80px;height:80px;filter:drop-shadow(0 8px 20px rgba(251,191,36,0.4));transform:scale(1.2);">`
-};
-
-const REWARD_CONFIGS = {
-    usdt: {
-        bg:       'rgba(10,25,18,0.98)',
-        border:   'rgba(16,185,129,0.4)',
-        shadow:   '0 0 50px rgba(16,185,129,0.18)',
-        labelClr: '#6ee7b7',
-        label:    'Reward Earned',
-        amtClr:   '#10b981',
-        unitClr:  '#34d399',
-        unit:     'USDT',
-        msg:      'Credited to your wallet',
-        progress: '#10b981',
-        duration: 2500,
-        haptic:   'light'
-    },
-    points: {
-        bg:       'rgba(10,10,28,0.98)',
-        border:   'rgba(99,102,241,0.4)',
-        shadow:   '0 0 50px rgba(99,102,241,0.15)',
-        labelClr: '#c4b5fd',
-        label:    'Points Earned',
-        amtClr:   '#818cf8',
-        unitClr:  '#a5b4fc',
-        unit:     'Points',
-        msg:      'Added to your points balance',
-        progress: '#818cf8',
-        duration: 2000,
-        haptic:   'light'
-    },
-    coins: {
-        bg:       'rgba(20,14,4,0.98)',
-        border:   'rgba(245,158,11,0.45)',
-        shadow:   '0 0 50px rgba(245,158,11,0.18)',
-        labelClr: '#fde68a',
-        label:    'TiTicket',
-        amtClr:   '#f59e0b',
-        unitClr:  '#fbbf24',
-        unit:     'Ticket to Spin',
-        msg:      'Extra ticket credited',
-        progress: '#f59e0b',
-        duration: 5000,
-        haptic:   'light'
-    },
-    tryagain: {
-        bg:       'rgba(8,10,16,0.98)',
-        border:   'rgba(71,85,105,0.3)',
-        shadow:   '0 0 20px rgba(0,0,0,0.5)',
-        labelClr: '#64748b',
-        label:    'Better Luck!',
-        amtClr:   '#475569',
-        unitClr:  '#334155',
-        unit:     'Try Again',
-        msg:      'Spin again for your chance',
-        progress: '#475569',
-        duration: 1500,
-        haptic:   'light'
-    },
-    jackpot_usdt: {
-        bg:       'rgba(18,12,2,0.99)',
-        border:   'rgba(251,191,36,0.6)',
-        shadow:   '0 0 70px rgba(251,191,36,0.25)',
-        labelClr: '#fde68a',
-        label:    '🎉 USDT JACKPOT!',
-        amtClr:   '#fbbf24',
-        unitClr:  '#f59e0b',
-        unit:     'USDT',
-        msg:      'Grand prize — incredible win!',
-        progress: '#fbbf24',
-        duration: 5000,
-        haptic:   'light'
-    },
-    jackpot_coin: {
-        bg:       'rgba(18,12,2,0.99)',
-        border:   'rgba(251,191,36,0.6)',
-        shadow:   '0 0 70px rgba(251,191,36,0.25)',
-        labelClr: '#fde68a',
-        label:    '🎉 COIN JACKPOT!',
-        amtClr:   '#f59e0b',
-        unitClr:  '#fbbf24',
-        unit:     'COIN',
-        msg:      'Grand prize — incredible win!',
-        progress: '#f59e0b',
-        duration: 5000,
-        haptic:   'light'
-        },
-    jackpot_point: {
-        bg:       'rgba(18,12,2,0.99)',
-        border:   'rgba(251,191,36,0.6)',
-        shadow:   '0 0 70px rgba(251,191,36,0.25)',
-        labelClr: '#c4b5fd',
-        label:    '🎉 Points JACKPOT!',
-        amtClr:   '#818cf8',
-        unitClr:  '#a5b4fc',
-        unit:     'Point',
-        msg:      'Grand prize — incredible win!',
-        progress: '#818cf8',
-        duration: 5000,
-        haptic:   'light'
-    },
-   dash: {
-    bg:       'rgba(20,8,2,0.98)',
-    border:   'rgba(249,115,22,0.4)',
-    shadow:   '0 0 50px rgba(249,115,22,0.18)',
-    labelClr: '#fed7aa',
-    label:    'DASH Earned',
-    amtClr:   '#f97316',
-    unitClr:  '#fb923c',
-    unit:     'DASH',
-    msg:      'Added to your DASH balance',
-    progress: '#f97316',
-    duration: 2000,
-    haptic:   'light'
-        }
-};
-
-let _rewardTimer = null;
-
-function showAppReward(type, amount) {
-    const config = REWARD_CONFIGS[type] || REWARD_CONFIGS.tryagain;
-
-    // Clear any existing timer
-    if (_rewardTimer) clearTimeout(_rewardTimer);
-
-    // Set card styles
-    const card = document.getElementById('reward-popup-card');
-    card.style.background   = config.bg;
-    card.style.borderColor  = config.border;
-    card.style.border       = '1px solid ' + config.border;
-    card.style.boxShadow    = config.shadow;
-
-    // Inject icon — reset animation by replacing element
-    // Inject icon — reset animation by replacing element
-const iconWrap = document.getElementById('reward-icon-wrap');
-iconWrap.style.animation = 'none';
-
-// 🆕 SHOW CORRECT COIN IMAGE
-if (type === 'usdt') {
-    iconWrap.innerHTML = `<img src="/assets/images/usdt-coin.png" 
-                                alt="USDT" 
-                                style="width:72px;height:72px;">`;
-} else if (type === 'points') {
-    iconWrap.innerHTML = `<img src="/assets/images/point-coin.png" 
-                                alt="Points" 
-                                style="width:72px;height:72px;">`;
-} else if (type === 'coins') {
-    iconWrap.innerHTML = `<img src="/assets/images/spin-ticket.png" 
-                                alt="Coins" 
-                                style="width:72px;height:72px;">`;
-} else {
-    iconWrap.innerHTML = REWARD_SVGS[type] || REWARD_SVGS.tryagain;
-}
-    void iconWrap.offsetWidth; // force reflow
-    iconWrap.style.animation = '';
-
-    // Reset card animation
-    card.style.animation = 'none';
-    void card.offsetWidth;
-    card.style.animation = '';
-
-    // Set text content
-    document.getElementById('reward-type-label').innerText  = config.label;
-    document.getElementById('reward-type-label').style.color = config.labelClr;
-
-    const amountDisplay = (amount !== undefined && amount !== null)
-        ? (type === 'tryagain' ? '' : '+' + amount)
-        : '';
-    document.getElementById('reward-amount-text').innerText = amountDisplay;
-    document.getElementById('reward-amount-text').style.color = config.amtClr;
-
-    document.getElementById('reward-unit-text').innerText = config.unit;
-    document.getElementById('reward-unit-text').style.color = config.unitClr;
-
-    document.getElementById('reward-sub-msg').innerText = config.msg;
-
-    // Progress bar
-    const fill = document.getElementById('reward-progress-fill');
-    fill.style.background  = config.progress;
-    fill.style.width       = '100%';
-    fill.style.transition  = 'none';
-    void fill.offsetWidth;
-    fill.style.transition  = `width ${config.duration}ms linear`;
-    fill.style.width       = '0%';
-
-    // Haptic
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('light');
-    }
-
-    // Show backdrop
-    document.getElementById('reward-popup-backdrop').classList.add('show');
-
-    // Jackpot confetti
-    if (type === 'jackpot') spawnConfetti();
-
-    // Auto close
-    _rewardTimer = setTimeout(() => closeRewardPopup(), config.duration);
-}
-
-function closeRewardPopup() {
-    document.getElementById('reward-popup-backdrop').classList.remove('show');
-    if (_rewardTimer) {
-        clearTimeout(_rewardTimer);
-        _rewardTimer = null;
-    }
-    // Clean up confetti
-    document.querySelectorAll('.confetti-particle').forEach(p => p.remove());
-}
-
-function spawnConfetti() {
-    const backdrop = document.getElementById('reward-popup-backdrop');
-    const colors = ['#fbbf24','#f59e0b','#fde68a','#ffffff','#fb923c','#facc15'];
-    for (let i = 0; i < 28; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'confetti-particle';
-        dot.style.left            = Math.random() * 100 + '%';
-        dot.style.top             = Math.random() * 40 + '%';
-        dot.style.background      = colors[Math.floor(Math.random() * colors.length)];
-        dot.style.animationDuration = (0.8 + Math.random() * 1.4) + 's';
-        dot.style.animationDelay  = (Math.random() * 0.6) + 's';
-        dot.style.width           = (4 + Math.random() * 5) + 'px';
-        dot.style.height          = (4 + Math.random() * 5) + 'px';
-        backdrop.appendChild(dot);
-        setTimeout(() => dot.remove(), 3000);
-    }
-    }
+        
         // ==========================================================================
 // DEV CONSOLE PANEL ENGINE
 // ==========================================================================
@@ -6784,105 +5158,7 @@ async function setupRealAds() {
         }
     });
 }
-function openWalletModal() {
-    document.getElementById('wallet-modal-overlay').classList.add('show');
-    loadWalletModalData();
-    tg.HapticFeedback.impactOccurred('light');
-}
-function closeWalletModal() {
-    document.getElementById('wallet-modal-overlay').classList.remove('show');
-}
-
-async function loadWalletModalData() {
-    try {
-        const data = await secureFetch('/api/secure/profile');
-        const profile = (typeof data.balance === 'number') ? data : (data.profile || null);
-        if (profile) {
-            // points field = USDT (the only withdrawable currency)
-            const withdrawable = parseFloat(profile.points || 0).toFixed(3);
-            document.getElementById('wallet-modal-balance').innerText = withdrawable;
-            document.getElementById('wallet-balance-label').innerText = withdrawable;
-            document.getElementById('wallet-amount-input').dataset.max = profile.points || 0;
-        }
-    } catch (e) { console.error(e); }
-    loadWalletModalHistory();
-}
-
-function setMaxWalletAmount() {
-    const input = document.getElementById('wallet-amount-input');
-    input.value = parseFloat(input.dataset.max || 0).toFixed(3);
-}
-
-async function submitWalletWithdraw() {
-    const amount = parseFloat(document.getElementById('wallet-amount-input').value);
-    const address = document.getElementById('wallet-address-input').value.trim();
-    const btn = document.getElementById('btn-wallet-withdraw');
-
-    if (isNaN(amount) || amount <= 0) return showAppAlert("Please enter a valid amount.", 'warning');
-    if (!address || address.length < 8) return showAppAlert("Please enter a valid wallet address.", 'warning');
-
-    btn.disabled = true;
-    btn.innerText = "PROCESSING...";
-
-    try {
-        const res = await secureFetch('/api/secure/wallet/withdraw-usdt', {
-    method: 'POST',
-    body: JSON.stringify({ amount, cryptoAddress: address, network: 'BEP20' })
-});
-
-if (res.success) {
-    tg.HapticFeedback.notificationOccurred('success');
-    showAppAlert(`Withdrawal request submitted! TX: ${res.txId}`, 'success');
-    document.getElementById('wallet-amount-input').value = '';
-
-    // res.newBalance here = new points value = USDT
-    const newUsdt = parseFloat(res.newBalance || 0).toFixed(3);
-    document.getElementById('wallet-modal-balance').innerText = newUsdt;
-    document.getElementById('wallet-balance-label').innerText = newUsdt;
-
-    // Sync header pill
-    updateHeaderBalances(
-        cachedUserProfile?.balance || 0,  // DASH unchanged
-        res.newBalance || 0,              // USDT updated
-        cachedUserProfile?.coins   || 0   // TICKET unchanged
-    );
-
-    loadWalletModalHistory();
-} else {
-            showAppAlert(res.error || "Withdrawal failed.", 'error');
-        }
-    } catch (e) {
-        showAppAlert("Network error. Try again.", 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "↓ WITHDRAW";
-    }
-}
-
-async function loadWalletModalHistory() {
-    const container = document.getElementById('wallet-modal-history');
-    if (!container) return;
-    container.innerHTML = '<div class="skeleton h-14 w-full rounded-xl"></div>';
-    try {
-        const data = await secureFetch('/api/secure/wallet/history?status=pending');
-        const list = (data && data.history) ? data.history.filter(h => h.txType === 'WITHDRAWAL') : [];
-        if (list.length === 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No recent withdrawals.</p>';
-            return;
-        }
-        container.innerHTML = list.map(w => `
-            <div class="glass p-3 flex justify-between items-center mb-2 border-white/5">
-                <div>
-                    <p class="text-xs font-bold text-white">${(w.amount || 0).toFixed(3)} USDT</p>
-                    <p class="text-[9px] text-slate-500">${new Date(w.timestamp).toLocaleDateString()}</p>
-                </div>
-                <span class="text-[9px] font-black uppercase text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded">Pending</span>
-            </div>
-        `).join('');
-    } catch (e) {
-        container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load history.</p>';
-    }
-}
+    
 let currentLeaderboardType = 'points';
 
 function openLeaderboardDrawer(defaultType = 'points') {
@@ -7031,9 +5307,8 @@ function openEarnSection(section, task) {
     loadFastTaskWidget();
   } else if (section === 'normal' && typeof loadAvailableTasks === 'function') {
     loadAvailableTasks();
-  } else if (section === 'youtube' && typeof loadYoutubeList === 'function') {
-    // safe-call if you have a youtube loader named differently adjust accordingly
-    loadYoutubeList();
+  } else if (section === 'youtube' && typeof loadYoutubeTasks === 'function') {
+    loadYoutubeTasks();
   }
 
   // If a task detail needs opening, call handler if present
@@ -7537,138 +5812,8 @@ window.switchAdminPanel = function(panelId) {
         loadAdminYoutubeTaskList();
     }
 };
-// ==========================================================================
-// DASH → TICKET EXCHANGE DRAWER
-// ==========================================================================
 
-let _selectedExchangeDash = 0;
-let _selectedExchangeTickets = 0;
 
-function openExchangeDrawer() {
-    // Sync balances from header pills
-    const dashBal  = parseInt(document.getElementById('header-dash-val')?.innerText?.replace(/,/g, '') || 0);
-    const ticketBal = parseInt(document.getElementById('header-ticket-val')?.innerText?.replace(/,/g, '') || 0);
-
-    document.getElementById('exchange-dash-balance').innerText   = dashBal.toLocaleString();
-    document.getElementById('exchange-ticket-balance').innerText = ticketBal.toLocaleString();
-
-    // Reset tier selection
-    _selectedExchangeDash    = 0;
-    _selectedExchangeTickets = 0;
-    resetExchangeUI();
-
-    document.getElementById('modal-exchange').classList.add('active');
-    tg.HapticFeedback.impactOccurred('light');
-}
-
-function closeExchangeDrawer() {
-    document.getElementById('modal-exchange').classList.remove('active');
-    resetExchangeUI();
-}
-
-function resetExchangeUI() {
-    // Deselect all tier buttons
-    document.querySelectorAll('.exchange-tier-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-
-    // Reset confirm button
-    const confirmBtn = document.getElementById('exchange-confirm-btn');
-    confirmBtn.disabled     = true;
-    confirmBtn.innerText    = 'Select a tier to exchange';
-    confirmBtn.className    = 'w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white/40 bg-white/5 border border-white/10 transition-all';
-}
-
-function selectExchangeTier(dashCost, ticketsGained, btnEl) {
-    const availableDash = parseInt(
-        document.getElementById('exchange-dash-balance')?.innerText?.replace(/,/g, '') || 0
-    );
-
-    // Check affordability
-    if (availableDash < dashCost) {
-        showAppAlert(
-            `You need ${dashCost.toLocaleString()} DASH but only have ${availableDash.toLocaleString()} DASH.`,
-            'warning',
-            'Not Enough DASH'
-        );
-        return;
-    }
-
-    // Update selection state
-    _selectedExchangeDash    = dashCost;
-    _selectedExchangeTickets = ticketsGained;
-
-    // Update tier button highlights
-    document.querySelectorAll('.exchange-tier-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    btnEl.classList.add('selected');
-
-    // Activate confirm button
-    const confirmBtn = document.getElementById('exchange-confirm-btn');
-    confirmBtn.disabled  = false;
-    confirmBtn.innerText = `Exchange ${dashCost.toLocaleString()} DASH → ${ticketsGained} TICKETS`;
-    confirmBtn.className = 'w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-gradient-to-r from-orange-600 to-amber-500 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all border-none';
-
-    tg.HapticFeedback.selectionChanged();
-}
-
-async function confirmExchange() {
-    if (!_selectedExchangeDash || !_selectedExchangeTickets) return;
-
-    showAppConfirm(
-        `Exchange ${_selectedExchangeDash.toLocaleString()} DASH for ${_selectedExchangeTickets} TICKETS?\n\nThis cannot be undone.`,
-        async (confirmed) => {
-            if (!confirmed) return;
-
-            const confirmBtn = document.getElementById('exchange-confirm-btn');
-            confirmBtn.disabled  = true;
-            confirmBtn.innerText = 'Processing...';
-
-            try {
-                const res = await secureFetch('/api/secure/exchange-dash', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        dashAmount:    _selectedExchangeDash,
-                        ticketsAmount: _selectedExchangeTickets
-                    })
-                });
-
-                if (res && res.success) {
-                    tg.HapticFeedback.notificationOccurred('success');
-
-                    // Update header pills instantly
-                    updateHeaderBalances(
-                        res.newDash,
-                        res.newUsdt,
-                        res.newTickets
-                    );
-
-                    // Update drawer balances
-                    document.getElementById('exchange-dash-balance').innerText   = parseInt(res.newDash).toLocaleString();
-                    document.getElementById('exchange-ticket-balance').innerText = parseInt(res.newTickets).toLocaleString();
-
-                    closeExchangeDrawer();
-
-                    showAppReward('coins', _selectedExchangeTickets);
-
-                } else {
-                    showAppAlert(res?.error || 'Exchange failed. Please try again.', 'error');
-                    confirmBtn.disabled  = false;
-                    confirmBtn.innerText = `Exchange ${_selectedExchangeDash.toLocaleString()} DASH → ${_selectedExchangeTickets} TICKETS`;
-                }
-
-            } catch (e) {
-                console.error('Exchange error:', e);
-                showAppAlert('Network error. Please try again.', 'error');
-                confirmBtn.disabled  = false;
-                confirmBtn.innerText = `Exchange ${_selectedExchangeDash.toLocaleString()} DASH → ${_selectedExchangeTickets} TICKETS`;
-            }
-        },
-        'warning',
-        'Confirm Exchange'
-    );
-}
 // ==========================================================================
 // HEADER BALANCE SYNC — maps DB fields to new currency names
 // balance  → DASH (whole number, not withdrawable)
@@ -7684,20 +5829,11 @@ function updateHeaderBalances(dash, usdt, tickets) {
     if (usdtEl)   usdtEl.innerText   = parseFloat(usdt  || 0).toFixed(2);
     if (ticketEl) ticketEl.innerText = parseInt(tickets  || 0).toLocaleString();
 
-    // Also keep spin modal HUD in sync if it's open
-    const spinDash   = document.getElementById('spin-usdt-val');   // repurposed for DASH
-    const spinUsdt   = document.getElementById('spin-pts-val');    // repurposed for USDT
-    const spinTicket = document.getElementById('spin-coin-val');   // repurposed for TICKET
-
-    if (spinDash)   spinDash.innerText   = parseInt(dash    || 0).toLocaleString();
-    if (spinUsdt)   spinUsdt.innerText   = parseFloat(usdt  || 0).toFixed(2);
-    if (spinTicket) spinTicket.innerText = parseInt(tickets  || 0).toLocaleString();
+    
 
     // Keep home card mini stats in sync
 const homeDash   = document.getElementById('home-usdt-val');   // USDT mini stat
-const homeTicket = document.getElementById('home-ticket-val'); // TICKET mini stat
 if (homeDash)   homeDash.innerText   = parseFloat(usdt    || 0).toFixed(2);
-if (homeTicket) homeTicket.innerText = parseInt(tickets    || 0).toLocaleString();
 }
        
        // Start rain on load
