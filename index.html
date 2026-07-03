@@ -5619,7 +5619,7 @@ async function loadFastTaskWidget() {
         mount.innerHTML = '';
 const widget = document.createElement('adsgram-task');
 widget.setAttribute('data-block-id', cfg.blockId);
-widget.setAttribute('data-debug', 'true'); // remove when live
+
 widget.addEventListener('reward', onFastTaskReward);
 widget.addEventListener('onBannerNotFound', () => {
     mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">No tasks available right now.</p>';
