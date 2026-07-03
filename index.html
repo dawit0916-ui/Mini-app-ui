@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
    <!-- AdGrams SDK -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<script src="https://sad.adsgram.ai/js/sad-task.min.js"></script>    
+
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
     <style>
@@ -5621,10 +5621,15 @@ async function loadFastTaskWidget() {
         // The adsgram-task element renders its own offer UI natively
         mount.innerHTML = '';
         const widget = document.createElement('adsgram-task');
-        widget.setAttribute('data-block-id', cfg.blockId);
-        widget.addEventListener('reward', onFastTaskReward);
-        widget.addEventListener('error', () => showAppAlert('No task available right now.', 'warning'));
-        mount.appendChild(widget);
+widget.setAttribute('data-block-id', cfg.blockId);
+widget.setAttribute('data-debug', 'true');
+widget.setAttribute('data-debug-console', 'true');
+widget.addEventListener('reward', onFastTaskReward);
+widget.addEventListener('onError', () => showAppAlert('No task available right now.', 'warning'));
+widget.addEventListener('onBannerNotFound', () => {
+    mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">No tasks available right now. Check back soon.</p>';
+});
+mount.appendChild(widget);
 
     } catch (err) {
         console.error('Fast task widget load error:', err);
