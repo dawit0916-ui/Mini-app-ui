@@ -1835,36 +1835,42 @@ adsgram-task {
             <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Live app logs & errors</p>
         </div>
     </div>
-
+<div class="flex gap-2 mb-2">
+    <button id="con-tab-frontend" onclick="conSwitchMainTab('frontend')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white transition-all">📱 Frontend</button>
+    <div id="con-view-frontend">
     <!-- Toolbar -->
     <div class="glass p-3 border-white/5 flex flex-wrap gap-2 items-center">
-        <span class="text-[10px] font-black text-green-400 tracking-widest">⬛ CONSOLE</span>
-        <div id="con-filter-btns" class="flex gap-1 flex-wrap">
-            <button onclick="conFilter('all',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black bg-slate-600 text-white">ALL</button>
-            <button onclick="conFilter('log',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">LOG</button>
-            <button onclick="conFilter('info',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">INFO</button>
-            <button onclick="conFilter('warn',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">WARN</button>
-            <button onclick="conFilter('error',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">ERROR</button>
-        </div>
-        <input id="con-search" oninput="conRender()" placeholder="Search..." class="flex-1 min-w-[80px] p-1.5 rounded-lg text-[10px] glass text-white outline-none border border-white/10">
-        <button onclick="conTogglePause()" id="con-pause-btn" class="px-2 py-1 border border-white/20 rounded text-[9px] font-black text-slate-400">⏸</button>
-        <button onclick="conClear()" class="px-2 py-1 border border-red-500/30 rounded text-[9px] font-black text-red-400">✕ Clear</button>
+        ... (unchanged, everything you already have) ...
     </div>
-    <!-- Stats bar -->
     <div id="con-stats" class="flex gap-3 px-2 text-[9px] text-slate-500 font-bold"></div>
-    <!-- Log entries -->
     <div id="con-entries" class="glass border-white/5 rounded-2xl overflow-hidden" style="max-height:420px;overflow-y:auto;font-family:'JetBrains Mono',monospace;">
-        <div class="flex flex-col items-center justify-center py-16 text-slate-600">
-            <span class="text-2xl mb-2">◌</span>
-            <span class="text-[10px] font-bold">No logs yet — trigger some actions</span>
-        </div>
+        ...
     </div>
-    <!-- Footer -->
     <div class="flex justify-between text-[9px] text-slate-600 font-bold px-2">
         <span>Intercepting: log · info · warn · error · debug · uncaught · unhandledrejection</span>
         <span id="con-error-count" class="text-slate-600">✓ no errors</span>
     </div>
+</div>
+
+<div id="con-view-backend" class="hidden space-y-3">
+    <div class="glass p-3 border-red-500/20">
+        <p class="text-[9px] text-red-400 font-black uppercase tracking-wider mb-1">⚠️ Full server access — arbitrary code execution</p>
+        <p class="text-[9px] text-slate-500">Runs as async JS on your live Render server. Logged to admin activity.</p>
     </div>
+
+    <textarea id="con-backend-code" rows="8" class="w-full p-3 rounded-xl text-xs glass" style="font-family:'JetBrains Mono',monospace;" placeholder="// example:
+const count = await require('mongoose').model('User').countDocuments();
+console.log('Users:', count);
+return count;"></textarea>
+
+    <button onclick="conRunBackend()" id="con-backend-run-btn" class="w-full bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-500/30 active:scale-95 transition-all">
+        ▶ Execute on Server
+    </button>
+
+    <div id="con-backend-output" class="glass border-white/5 rounded-2xl p-3" style="max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;">
+        <p class="text-slate-600 text-[10px]">Output will appear here...</p>
+    </div>
+</div>
 <div id="panel-broadcast" class="hidden space-y-6 pb-10">
     <div class="flex items-center gap-3 mb-4">
         <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
@@ -4609,6 +4615,72 @@ function conClear() {
 }
 
 _conListeners.push(conRender);
+function conSwitchMainTab(which) {
+    document.getElementById('con-view-frontend').classList.toggle('hidden', which !== 'frontend');
+    document.getElementById('con-view-backend').classList.toggle('hidden', which !== 'backend');
+
+    document.getElementById('con-tab-frontend').className = which === 'frontend'
+        ? 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white transition-all'
+        : 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all';
+
+    document.getElementById('con-tab-backend').className = which === 'backend'
+        ? 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white transition-all'
+        : 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all';
+}
+
+async function conRunBackend() {
+    const codeInput = document.getElementById('con-backend-code');
+    const outputEl = document.getElementById('con-backend-output');
+    const runBtn = document.getElementById('con-backend-run-btn');
+    const code = codeInput.value.trim();
+
+    if (!code) return showAppAlert("Enter code to run.", 'warning');
+
+    showAppConfirm("This executes arbitrary code on your live server. Continue?", async (ok) => {
+        if (!ok) return;
+
+        runBtn.disabled = true;
+        runBtn.innerText = "⌛ Running...";
+        outputEl.innerHTML = '<p class="text-slate-500 text-[10px]">Executing...</p>';
+
+        try {
+            const res = await secureFetch('/api/admin/console/eval', {
+                method: 'POST',
+                body: JSON.stringify({ code })
+            });
+
+            let html = '';
+
+            if (res.logs && res.logs.length > 0) {
+                html += res.logs.map(l => {
+                    const isError = l.startsWith('[error]');
+                    const isWarn = l.startsWith('[warn]');
+                    const color = isError ? '#f38ba8' : (isWarn ? '#f9e2af' : '#89b4fa');
+                    return `<div style="color:${color};padding:2px 0;white-space:pre-wrap;word-break:break-all;">${l}</div>`;
+                }).join('');
+            }
+
+            if (res.result !== undefined) {
+                html += `<div style="color:#a6e3a1;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);margin-top:6px;white-space:pre-wrap;word-break:break-all;"><b>Return:</b> ${res.result}</div>`;
+            }
+
+            if (res.error) {
+                html += `<div style="color:#f38ba8;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);margin-top:6px;white-space:pre-wrap;word-break:break-all;"><b>Error:</b> ${res.error}</div>`;
+            }
+
+            if (!html) html = '<p class="text-slate-500 text-[10px]">No output.</p>';
+
+            outputEl.innerHTML = html;
+            tg.HapticFeedback.notificationOccurred(res.error ? 'error' : 'success');
+
+        } catch (e) {
+            outputEl.innerHTML = `<div style="color:#f38ba8;">Network error: ${e.message}</div>`;
+        } finally {
+            runBtn.disabled = false;
+            runBtn.innerText = "▶ Execute on Server";
+        }
+    }, 'error', 'Confirm Execution', 'Run It', 'Cancel');
+}      
  async function loadAdminRegistry() {
     const registryList = document.getElementById('admin-registry-list');
     const activityLog = document.getElementById('admin-activity-log');
