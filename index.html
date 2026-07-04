@@ -1827,7 +1827,7 @@ adsgram-task {
         <p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>
     </div>
 </div>    
-<div id="panel-console" class="hidden space-y-4 pb-10">
+ <div id="panel-console" class="hidden space-y-4 pb-10">
     <div class="flex items-center gap-3 mb-4">
         <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
         <div>
@@ -1835,40 +1835,58 @@ adsgram-task {
             <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Live app logs & errors</p>
         </div>
     </div>
-<div class="flex gap-2 mb-2">
-    <button id="con-tab-frontend" onclick="conSwitchMainTab('frontend')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white transition-all">📱 Frontend</button>
+
+    <div class="flex gap-2 mb-2">
+        <button id="con-tab-frontend" onclick="conSwitchMainTab('frontend')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white transition-all">📱 Frontend</button>
+        <button id="con-tab-backend" onclick="conSwitchMainTab('backend')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all">🖥 Backend</button>
+    </div>
+
     <div id="con-view-frontend">
-    <!-- Toolbar -->
-    <div class="glass p-3 border-white/5 flex flex-wrap gap-2 items-center">
-        ... (unchanged, everything you already have) ...
+        <!-- Toolbar -->
+        <div class="glass p-3 border-white/5 flex flex-wrap gap-2 items-center">
+            <span class="text-[10px] font-black text-green-400 tracking-widest">⬛ CONSOLE</span>
+            <div id="con-filter-btns" class="flex gap-1 flex-wrap">
+                <button onclick="conFilter('all',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black bg-slate-600 text-white">ALL</button>
+                <button onclick="conFilter('log',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">LOG</button>
+                <button onclick="conFilter('info',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">INFO</button>
+                <button onclick="conFilter('warn',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">WARN</button>
+                <button onclick="conFilter('error',this)" class="con-lvl-btn px-2 py-1 rounded text-[9px] font-black text-slate-400">ERROR</button>
+            </div>
+            <input id="con-search" oninput="conRender()" placeholder="Search..." class="flex-1 min-w-[80px] p-1.5 rounded-lg text-[10px] glass text-white outline-none border border-white/10">
+            <button onclick="conTogglePause()" id="con-pause-btn" class="px-2 py-1 border border-white/20 rounded text-[9px] font-black text-slate-400">⏸</button>
+            <button onclick="conClear()" class="px-2 py-1 border border-red-500/30 rounded text-[9px] font-black text-red-400">✕ Clear</button>
+        </div>
+        <div id="con-stats" class="flex gap-3 px-2 text-[9px] text-slate-500 font-bold"></div>
+        <div id="con-entries" class="glass border-white/5 rounded-2xl overflow-hidden" style="max-height:420px;overflow-y:auto;font-family:'JetBrains Mono',monospace;">
+            <div class="flex flex-col items-center justify-center py-16 text-slate-600">
+                <span class="text-2xl mb-2">◌</span>
+                <span class="text-[10px] font-bold">No logs yet — trigger some actions</span>
+            </div>
+        </div>
+        <div class="flex justify-between text-[9px] text-slate-600 font-bold px-2">
+            <span>Intercepting: log · info · warn · error · debug · uncaught · unhandledrejection</span>
+            <span id="con-error-count" class="text-slate-600">✓ no errors</span>
+        </div>
     </div>
-    <div id="con-stats" class="flex gap-3 px-2 text-[9px] text-slate-500 font-bold"></div>
-    <div id="con-entries" class="glass border-white/5 rounded-2xl overflow-hidden" style="max-height:420px;overflow-y:auto;font-family:'JetBrains Mono',monospace;">
-        ...
-    </div>
-    <div class="flex justify-between text-[9px] text-slate-600 font-bold px-2">
-        <span>Intercepting: log · info · warn · error · debug · uncaught · unhandledrejection</span>
-        <span id="con-error-count" class="text-slate-600">✓ no errors</span>
-    </div>
-</div>
 
-<div id="con-view-backend" class="hidden space-y-3">
-    <div class="glass p-3 border-red-500/20">
-        <p class="text-[9px] text-red-400 font-black uppercase tracking-wider mb-1">⚠️ Full server access — arbitrary code execution</p>
-        <p class="text-[9px] text-slate-500">Runs as async JS on your live Render server. Logged to admin activity.</p>
-    </div>
+    <div id="con-view-backend" class="hidden space-y-3">
+        <div class="glass p-3 border-red-500/20">
+            <p class="text-[9px] text-red-400 font-black uppercase tracking-wider mb-1">⚠️ Full server access — arbitrary code execution</p>
+            <p class="text-[9px] text-slate-500">Runs as async JS on your live Render server. Logged to admin activity.</p>
+        </div>
 
-    <textarea id="con-backend-code" rows="8" class="w-full p-3 rounded-xl text-xs glass" style="font-family:'JetBrains Mono',monospace;" placeholder="// example:
+        <textarea id="con-backend-code" rows="8" class="w-full p-3 rounded-xl text-xs glass" style="font-family:'JetBrains Mono',monospace;" placeholder="// example:
 const count = await require('mongoose').model('User').countDocuments();
 console.log('Users:', count);
 return count;"></textarea>
 
-    <button onclick="conRunBackend()" id="con-backend-run-btn" class="w-full bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-500/30 active:scale-95 transition-all">
-        ▶ Execute on Server
-    </button>
+        <button onclick="conRunBackend()" id="con-backend-run-btn" class="w-full bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-500/30 active:scale-95 transition-all">
+            ▶ Execute on Server
+        </button>
 
-    <div id="con-backend-output" class="glass border-white/5 rounded-2xl p-3" style="max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;">
-        <p class="text-slate-600 text-[10px]">Output will appear here...</p>
+        <div id="con-backend-output" class="glass border-white/5 rounded-2xl p-3" style="max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;">
+            <p class="text-slate-600 text-[10px]">Output will appear here...</p>
+        </div>
     </div>
 </div>
 <div id="panel-broadcast" class="hidden space-y-6 pb-10">
