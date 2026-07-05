@@ -4982,9 +4982,19 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
 
         // 2. Arm the blur listener BEFORE showing the ad
         let blurDetected = false;
-        function onBlur() { blurDetected = true; }
-        window.addEventListener('blur', onBlur, { once: true });
 
+function onBlur() { 
+    blurDetected = true;
+    console.log('[Ad] Blur detected - swiped away');
+}
+
+function onFocus() { 
+    blurDetected = true;
+    console.log('[Ad] Focus regained - returned from redirect');
+}
+
+window.addEventListener('blur', onBlur);
+window.addEventListener('focus', onFocus);
         // 3. Show the ad
         const controller = window.Adsgram.init({ blockId });
 
@@ -4992,7 +5002,8 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
             .then(async (result) => {
                 // Disarm blur listener whether ad succeeded or not
                 window.removeEventListener('blur', onBlur);
-
+                window.removeEventListener('focus', onFocus);
+      
                 if (!result.done) {
     showAppAlert('Complete the full ad to earn your reward.', 'warning');
     return;
