@@ -827,24 +827,27 @@ main {
 .image-preview { display: none; }
 .image-preview.show { display: block; }  
 adsgram-task {
-    display: block !important;
-    width: 100% !important;
-    --adsgram-task-icon-size: 80px;
-    --adsgram-task-font-size: 14px;
-    --adsgram-task-icon-border-radius: 16px;
-    --adsgram-task-icon-title-gap: 14px;
-    --adsgram-task-button-width: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px;
 }
 
-/* Card wrapper */
-#fast-task-widget-mount adsgram-task {
-    background: rgba(30, 41, 59, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    padding: 20px;
-    overflow: hidden;
+/* Adsgram renders icon+title in its shadow DOM as a row by default —
+   force it to stack vertically and center the icon */
+adsgram-task::part(icon) {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+adsgram-task {
+    --adsgram-task-icon-size: 96px;
+    --adsgram-task-font-size: 14px;
+    --adsgram-task-icon-border-radius: 20px;
+    --adsgram-task-icon-title-gap: 12px;
+    --adsgram-task-button-width: 100%;
 }
     </style>
 </head>
