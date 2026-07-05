@@ -3925,7 +3925,7 @@ async function loadAdminData() {
         document.getElementById('set-ref-percent').value = stats.ref_percent || 10;
 
         loadAdminTaskList();
-        loadPendingWithdrawals();
+        
     } catch (e) { console.error('loadAdminData error:', e.message || e); }
 }
 
