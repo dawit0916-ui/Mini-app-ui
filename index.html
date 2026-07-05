@@ -4994,14 +4994,18 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
                 window.removeEventListener('blur', onBlur);
 
                 if (!result.done) {
-                    showAppAlert('Complete the full ad to earn your reward.', 'warning');
-                    return;
-                }
+    showAppAlert('Complete the full ad to earn your reward.', 'warning');
+    return;
+}
 
-                // 4. result.done === true from AdsGram SDK = trusted signal
-                //    blurDetected = extra proof they tapped CTA
-                //    Pay immediately — don't wait for S2S
-                const claimRes = await secureFetch('/api/secure/ads/claim', {
+// 4. Require blur detection (proof they tapped CTA)
+if (!blurDetected) {
+    showAppAlert('Tap the button in the ad to earn your reward.', 'warning');
+    return;
+}
+
+// All checks passed — claim reward
+const claimRes = await secureFetch('/api/secure/ads/claim', {
                     method: 'POST',
                     body: JSON.stringify({
                         sessionId,
@@ -5552,9 +5556,7 @@ async function loadAdsWatchList() {
                             <span class="text-[9px] text-slate-500">
                                 ${ad.watchedThisPeriod}/${ad.watchesPerReset} this period
                             </span>
-                            <span class="text-[9px] text-slate-600">
-                                ${resetsPerDay}x resets/day · max ${maxPerDay}/day
-                            </span>
+                            
                         </div>
                     </div>
                     <button disabled 
@@ -5577,9 +5579,7 @@ async function loadAdsWatchList() {
                         <span class="text-[9px] text-slate-400">
                             ${ad.watchedThisPeriod}/${ad.watchesPerReset} this period
                         </span>
-                        <span class="text-[9px] text-slate-600">
-                            ${resetsPerDay}x resets/day · max ${maxPerDay}/day
-                        </span>
+                        
                     </div>
                 </div>
                 <button onclick="playAdAndTrack('${ad.id}', '${ad.network}', '${ad.unitId}')"
