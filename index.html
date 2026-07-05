@@ -3987,19 +3987,17 @@ async function saveRefSettings() {
 async function loadAdminData() {
     try {
         const stats = await secureFetch('/api/admin/stats');
-        if(stats.error) return showAppAlert("Access Denied.", 'error')
+        if (stats.error) return showAppAlert(stats.error, 'error', 'Stats Load Failed');
 
         document.getElementById('stat-users').innerText = stats.users;
-        document.getElementById('stat-withdraws').innerText = stats.pending;
         document.getElementById('stat-tasks').innerText = stats.tasks || 0;
-        document.getElementById('stat-total-usdt').innerText = parseFloat(stats.totalUsdt || 0).toFixed(2);
         document.getElementById('set-maintenance').checked = stats.maintenance;
         document.getElementById('set-ref-bonus').value = stats.ref_bonus || 0.5;
         document.getElementById('set-ref-percent').value = stats.ref_percent || 10;
 
         loadAdminTaskList();
         loadPendingWithdrawals();
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('loadAdminData error:', e.message || e); }
 }
 
 // --- ADMIN: MANAGE TASKS ---
@@ -4527,7 +4525,37 @@ function closeAppPopup() {
 document.getElementById('app-popup-backdrop').addEventListener('click', function(e) {
     if (e.target === this) closeAppPopup();
 });
-    
+function showAppReward(type, amount) {
+    const cfg = {
+        label: 'DASH',
+        color: '#fb923c',
+        bg: 'rgba(249,115,22,0.1)',
+        border: 'rgba(249,115,22,0.3)'
+    };
+
+    const iconWrap = document.getElementById('app-popup-icon-wrap');
+    iconWrap.innerHTML = `<img src="/assets/images/dash-coin.png" style="width:32px;height:32px;object-fit:contain;">`;
+    iconWrap.style.cssText = `width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:${cfg.bg};border:1px solid ${cfg.border};`;
+
+    document.getElementById('app-popup-title').innerText = 'Reward Earned!';
+    document.getElementById('app-popup-message').innerText = `+${amount} ${cfg.label} added to your balance.`;
+    document.getElementById('app-popup-card').style.borderColor = cfg.border;
+    document.getElementById('app-popup-card').style.boxShadow = `0 0 40px ${cfg.bg}`;
+
+    const confirmBtn = document.getElementById('app-popup-confirm-btn');
+    confirmBtn.innerText = 'Awesome!';
+    confirmBtn.style.background = `linear-gradient(135deg, ${cfg.color}, ${cfg.color}dd)`;
+    confirmBtn.style.color = '#ffffff';
+    confirmBtn.onclick = closeAppPopup;
+
+    document.getElementById('app-popup-cancel-btn').classList.add('hidden');
+
+    document.getElementById('app-popup-backdrop').classList.add('show');
+
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    }
+}    
         
         // ==========================================================================
 // DEV CONSOLE PANEL ENGINE
