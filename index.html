@@ -5660,7 +5660,7 @@ widget.innerHTML = `
     <!-- REWARD SLOT -->
     <div slot="reward" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10">
         <img src="/assets/images/dash-coin.png" class="w-4 h-4 object-contain">
-        <span style="font-size:11px;font-weight:900;color:#fb923c;text-transform:uppercase;letter-spacing:0.08em;">
+        <span style="font-size:7px;font-weight:900;color:#fb923c;text-transform:uppercase;letter-spacing:0.08em;">
             +${cfg.minReward}–${cfg.maxReward} DASH
         </span>
     </div>
@@ -5743,9 +5743,8 @@ async function onFastTaskReward() {
             if (balMain) balMain.innerText = parseInt(newDash).toLocaleString();
 
             updateHeaderBalances(
-                newDash,
-                cachedUserProfile?.points || 0,
-                cachedUserProfile?.coins || 0
+                newDash
+                
             );
 
             showAppReward('dash', result.reward);
@@ -5756,7 +5755,7 @@ async function onFastTaskReward() {
             }
 
             // Reload widget to show next available task
-             setTimeout(() => loadFastTaskWidget(), 800);
+             setTimeout(() => loadFastTaskWidget(), 200);
         } else if (result && result.dailyLimitReached) {
             showAppAlert('You\'ve reached today\'s Fast Task limit. Come back tomorrow!', 'warning');
         }
