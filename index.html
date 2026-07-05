@@ -52,34 +52,6 @@ body::after {
     z-index: -1;
 }
 
-/* ============================================================
-   GLOWING LIGHTS — tuned to purple/orange bg palette
-   ============================================================ */
-#usdt-rain-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.glow-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(70px);
-    animation: floatOrb linear infinite;
-    will-change: transform, opacity;
-}
-
-@keyframes floatOrb {
-    0%   { transform: scale(0.8); opacity: 0; }
-    20%  { opacity: 1; }
-    80%  { opacity: 0.6; }
-    100% { transform: scale(1.3) translate(30px, -40px); opacity: 0; }
-}
 
 .glow-spark {
     position: absolute;
@@ -4969,66 +4941,7 @@ async function resolveTicket() {
         }
     }, 'info', 'Resolve Ticket', 'Yes, Resolve', 'Cancel');
 }
-        // Initialize USDT Rain Animation
-// Initialize Glowing Lights Background
-function initUSDTRain() {
-    const container = document.getElementById('usdt-rain-bg');
-    if (!container) return;
 
-    // Pulled from your bg image palette
-    const orbColors = [
-        'rgba(139, 92, 246, 0.20)',   // purple
-        'rgba(249, 115, 22, 0.14)',   // orange
-        'rgba(220, 38, 38, 0.10)',    // red
-        'rgba(109, 40, 217, 0.18)',   // deep violet
-        'rgba(234, 88, 12, 0.10)',    // deep orange
-    ];
-
-    const sparkColors = [
-        'rgba(216, 180, 254, 0.95)',  // light purple
-        'rgba(253, 186, 116, 0.90)',  // light orange
-        'rgba(252, 165, 165, 0.80)',  // light red
-        'rgba(255, 255, 255, 0.70)',  // white
-        'rgba(251, 191, 36, 0.85)',   // yellow/gold
-    ];
-
-    function spawnOrb() {
-        const orb = document.createElement('div');
-        orb.className = 'glow-orb';
-        const size = 100 + Math.random() * 160;
-        orb.style.width    = size + 'px';
-        orb.style.height   = size + 'px';
-        orb.style.left     = (Math.random() * 110 - 5) + '%';
-        orb.style.top   = (Math.random() * 100) + '%';
-        orb.style.background = orbColors[Math.floor(Math.random() * orbColors.length)];
-        orb.style.animationDuration = (20 + Math.random() * 16) + 's';
-        orb.style.animationDelay    = Math.random() * 5 + 's';
-        container.appendChild(orb);
-        setTimeout(() => orb.remove(), 40000);
-    }
-
-    function spawnSpark() {
-        const spark = document.createElement('div');
-        spark.className = 'glow-spark';
-        const size = 2 + Math.random() * 4;
-        spark.style.width    = size + 'px';
-        spark.style.height   = size + 'px';
-        spark.style.left     = (Math.random() * 100) + '%';
-        spark.style.top   = (Math.random() * 100) + '%';
-        spark.style.background = sparkColors[Math.floor(Math.random() * sparkColors.length)];
-        spark.style.animationDuration = (7 + Math.random() * 9) + 's';
-        spark.style.animationDelay    = Math.random() * 3 + 's';
-        container.appendChild(spark);
-        setTimeout(() => spark.remove(), 22000);
-    }
-
-    // Initial population
-    for (let i = 0; i < 7; i++) spawnOrb();
-    for (let i = 0; i < 15; i++) spawnSpark();
-
-    setInterval(spawnOrb, 3500);
-    setInterval(spawnSpark, 700);
-}
 let _adsgramControllers = {}; // cache one controller per blockId
 
 function getAdsgramController(blockId) {
@@ -5831,7 +5744,8 @@ async function onFastTaskReward() {
                 remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
             }
 
-            
+            // Reload widget to show next available task
+             setTimeout(() => loadFastTaskWidget(), 800);
         } else if (result && result.dailyLimitReached) {
             showAppAlert('You\'ve reached today\'s Fast Task limit. Come back tomorrow!', 'warning');
         }
@@ -6022,9 +5936,7 @@ function updateHeaderBalances(dash, usdt, tickets) {
     const dashEl   = document.getElementById('header-dash-val');
     if (dashEl)   dashEl.innerText   = parseInt(dash    || 0).toLocaleString();
 }
-       
-       // Start rain on load
-      initUSDTRain();
+
         // Start App
         initApp();
 
