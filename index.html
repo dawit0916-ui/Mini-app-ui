@@ -9,9 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
    <!-- AdGrams SDK -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+<script src='//libtl.com/sdk.js' data-zone='11246134' data-sdk='show_11246134'></script>
+    
     <style>
         :root {
             --neon-blue: #3b82f6;
@@ -1164,6 +1163,7 @@ adsgram-task {
     </div>
 
     <!-- ===== SUB-PAGE: FAST TASKS (Adsgram Task block) ===== -->
+<!-- ===== SUB-PAGE: FAST TASKS ===== -->
 <div id="earn-section-fast" class="hidden">
     <div class="flex items-center gap-3 mb-5">
         <button onclick="closeEarnSection()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
@@ -1181,9 +1181,7 @@ adsgram-task {
         <p id="fast-task-remaining" class="text-[10px] text-slate-400 font-bold shrink-0"></p>
     </div>
 
-    <div id="fast-task-widget-mount" class="w-full overflow-hidden">
-        <p class="text-center text-[10px] text-slate-500 py-6">Loading tasks...</p>
-    </div>
+    <div id="fast-task-widget-mount" class="w-full"></div>
 </div>
 
 </div>    
@@ -5608,7 +5606,6 @@ async function loadAdsWatchList() {
 /* ============================================================
    FAST TASK WIDGET - CARD-BASED LAYOUT (MATCHING ADS STYLE)
    ============================================================ */
-
 let _fastTaskWidgetMounted = false;
 let _fastTaskConfigCache = null;
 
@@ -5648,86 +5645,20 @@ async function loadFastTaskWidget() {
         }
 
         mount.innerHTML = '';
-const widget = document.createElement('adsgram-task');
-widget.setAttribute('data-block-id', cfg.blockId);
-
-widget.addEventListener('reward', onFastTaskReward);
-widget.addEventListener('onBannerNotFound', () => {
-    mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">No tasks available right now.</p>';
-});
-
-widget.innerHTML = `
-    <!-- REWARD SLOT -->
-    <div slot="reward" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10">
-        <img src="/assets/images/dash-coin.png" class="w-4 h-4 object-contain">
-        <span style="font-size:7px;font-weight:900;color:#fb923c;text-transform:uppercase;letter-spacing:0.08em;">
-            +${cfg.minReward}–${cfg.maxReward} DASH
-        </span>
-    </div>
-
-    <!-- BUTTON SLOT -->
-    <button slot="button" style="
-        width: 100%;
-        padding: 16px;
-        border-radius: 16px;
-        border: none;
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: white;
-        font-size: 12px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(59,130,246,0.35);
-    ">
-        ⚡ Start Task →
-    </button>
-
-    <!-- CLAIM SLOT (shown after go, before reward confirmed) -->
-    <div slot="claim" style="
-        width: 100%;
-        padding: 16px;
-        border-radius: 16px;
-        background: rgba(16,185,129,0.15);
-        border: 1px solid rgba(16,185,129,0.3);
-        color: #10b981;
-        font-size: 12px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        text-align: center;
-        cursor: pointer;
-    ">
-        ✅ Claim Reward
-    </div>
-
-    <!-- DONE SLOT (shown after reward received) -->
-    <div slot="done" style="
-        width: 100%;
-        padding: 16px;
-        border-radius: 16px;
-        background: rgba(100,116,139,0.15);
-        border: 1px solid rgba(100,116,139,0.2);
-        color: #64748b;
-        font-size: 12px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        text-align: center;
-    ">
-        ✓ Completed
-    </div>
-`;
-
-mount.appendChild(widget);
+        const widget = document.createElement('adsgram-task');
+        widget.setAttribute('data-block-id', cfg.blockId);
+        widget.setAttribute('data-debug', 'false');
+        widget.addEventListener('reward', onFastTaskReward);
+        widget.addEventListener('onBannerNotFound', () => {
+            renderMonietagFallback();
+        });
+        mount.appendChild(widget);
 
     } catch (err) {
         console.error('Fast task widget load error:', err);
         mount.innerHTML = '<p class="text-center text-[10px] text-red-400 py-6">Network error.</p>';
     }
 }
-
-
 
 async function onFastTaskReward() {
     try {
@@ -5743,8 +5674,9 @@ async function onFastTaskReward() {
             if (balMain) balMain.innerText = parseInt(newDash).toLocaleString();
 
             updateHeaderBalances(
-                newDash
-                
+                newDash,
+                cachedUserProfile?.points || 0,
+                cachedUserProfile?.coins || 0
             );
 
             showAppReward('dash', result.reward);
@@ -5754,13 +5686,69 @@ async function onFastTaskReward() {
                 remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
             }
 
-            // Reload widget to show next available task
-             setTimeout(() => loadFastTaskWidget(), 200);
+            // Reload widget after 2s
+            setTimeout(() => {
+                loadFastTaskWidget();
+            }, 2000);
+
         } else if (result && result.dailyLimitReached) {
             showAppAlert('You\'ve reached today\'s Fast Task limit. Come back tomorrow!', 'warning');
         }
     } catch (err) {
         console.error('Fast task reward handling error:', err);
+    }
+}
+
+async function renderMonietagFallback(attemptedFormat = null) {
+    const mount = document.getElementById('fast-task-widget-mount');
+    
+    let nextFormat = 'interstitial';
+    if (attemptedFormat === 'interstitial') {
+        nextFormat = 'popup';
+    }
+    
+    mount.innerHTML = `
+        <button onclick="tryMonietagAd('${nextFormat}')" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-300 text-[10px] font-black uppercase tracking-widest border border-purple-500/30 active:scale-95 transition-all">
+             Watch Fast Ad → +100-1000 DASH
+        </button>
+    `;
+}
+
+async function tryMonietagAd(format) {
+    try {
+        let adPromise;
+        
+        if (format === 'interstitial') {
+            adPromise = show_11246134();
+        } else if (format === 'popup') {
+            adPromise = show_11246134('pop');
+        }
+        
+        await adPromise;
+        
+        const result = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
+        
+        if (result && result.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showAppReward('dash', result.reward);
+            
+            const remainingLabel = document.getElementById('fast-task-remaining');
+            if (remainingLabel && result.claimsRemainingToday !== null) {
+                remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
+            }
+            
+            setTimeout(() => {
+                loadFastTaskWidget();
+            }, 2000);
+        }
+    } catch (err) {
+        console.error(`Monetag ${format} failed:`, err);
+        
+        if (format === 'interstitial') {
+            renderMonietagFallback('interstitial');
+        } else {
+            loadFastTaskWidget();
+        }
     }
 }
 
