@@ -750,12 +750,7 @@ main {
 }
 .verify-btn.loading .verify-btn-text { display: none; }
 .verify-btn.loading .verify-spinner { display: block; }
- /* Exchange tier selected state */
-.exchange-tier-btn.selected {
-    border-color: rgba(249, 115, 22, 0.6);
-    background: rgba(249, 115, 22, 0.08);
-    box-shadow: 0 0 16px rgba(249, 115, 22, 0.12);
-}
+ 
 /* Toggle Switch - if you don't have one */
 .switch {
     position: relative;
@@ -799,29 +794,7 @@ main {
 }
 .image-preview { display: none; }
 .image-preview.show { display: block; }  
-adsgram-task {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 14px;
-}
 
-/* Adsgram renders icon+title in its shadow DOM as a row by default —
-   force it to stack vertically and center the icon */
-adsgram-task::part(icon) {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 8px;
-}
-
-adsgram-task {
-    --adsgram-task-icon-size: 96px;
-    --adsgram-task-font-size: 14px;
-    --adsgram-task-icon-border-radius: 20px;
-    --adsgram-task-icon-title-gap: 12px;
-    --adsgram-task-button-width: 100%;
-}
     </style>
 </head>
 <body>
@@ -1164,7 +1137,6 @@ adsgram-task {
         </div>
     </div>
 
-    <!-- ===== SUB-PAGE: FAST TASKS (Adsgram Task block) ===== -->
 <!-- ===== SUB-PAGE: FAST TASKS ===== -->
 <div id="earn-section-fast" class="hidden">
     <div class="flex items-center gap-3 mb-5">
@@ -1183,7 +1155,21 @@ adsgram-task {
         <p id="fast-task-remaining" class="text-[10px] text-slate-400 font-bold shrink-0"></p>
     </div>
 
-    <div id="fast-task-widget-mount" class="w-full"></div>
+    <!-- Two Row Buttons -->
+    <div class="space-y-3">
+        <!-- Button 1: Adsgram Tasks -->
+        <div class="space-y-2">
+            <button onclick="loadAndShowAdsgram()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600/30 to-cyan-600/30 text-blue-300 text-[10px] font-black uppercase tracking-widest border border-blue-500/30 active:scale-95 transition-all">
+                🚀 Try Adsgram Tasks → +100-1000 DASH
+            </button>
+            <div id="adsgram-container" class="w-full"></div>
+        </div>
+
+        <!-- Button 2: Monetag Ads -->
+        <button onclick="launchMonietagSequence()" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-300 text-[10px] font-black uppercase tracking-widest border border-purple-500/30 active:scale-95 transition-all">
+            💜 Watch Monetag Ads → +100-1000 DASH
+        </button>
+    </div>
 </div>
 
 </div>    
@@ -5611,27 +5597,26 @@ async function loadAdsWatchList() {
 let _fastTaskWidgetMounted = false;
 let _fastTaskConfigCache = null;
 
-async function loadFastTaskWidget() {
-    const mount = document.getElementById('fast-task-widget-mount');
+async function loadAndShowAdsgram() {
+    const container = document.getElementById('adsgram-container');
     const remainingLabel = document.getElementById('fast-task-remaining');
-    if (!mount) return;
-
+    
     try {
         const cfg = await secureFetch('/api/secure/fast-task-config');
         if (!cfg || !cfg.success) {
-            mount.innerHTML = '<p class="text-center text-[10px] text-red-400 py-6">Failed to load Fast Tasks.</p>';
+            container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Failed to load config.</p>';
             return;
         }
 
         _fastTaskConfigCache = cfg;
 
         if (!cfg.enabled) {
-            mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">Fast Tasks are currently unavailable.</p>';
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Fast Tasks disabled.</p>';
             return;
         }
 
         if (!cfg.blockId) {
-            mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">Fast Tasks not configured yet.</p>';
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Not configured yet.</p>';
             return;
         }
 
@@ -5642,24 +5627,25 @@ async function loadFastTaskWidget() {
         }
 
         if (cfg.dailyLimit && cfg.claimsRemainingToday === 0) {
-            mount.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-6">Daily limit reached. Come back tomorrow!</p>';
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Daily limit reached. Come back tomorrow!</p>';
             return;
         }
 
-        mount.innerHTML = '';
+        // Mount widget
+        container.innerHTML = '';
         const widget = document.createElement('adsgram-task');
         widget.setAttribute('data-block-id', cfg.blockId);
         widget.setAttribute('data-debug', 'true');
         widget.setAttribute('data-debug-console', 'true');
         widget.addEventListener('reward', onFastTaskReward);
         widget.addEventListener('onBannerNotFound', () => {
-            renderMonietagFallback();
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">No tasks available right now. Come back later.</p>';
         });
-        mount.appendChild(widget);
+        container.appendChild(widget);
 
     } catch (err) {
-        console.error('Fast task widget load error:', err);
-        mount.innerHTML = '<p class="text-center text-[10px] text-red-400 py-6">Network error.</p>';
+        console.error('Adsgram load error:', err);
+        container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Network error.</p>';
     }
 }
 
@@ -5689,46 +5675,25 @@ async function onFastTaskReward() {
                 remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
             }
 
-            // Reload widget after 2s
+            // Reload after 2s
             setTimeout(() => {
-                loadFastTaskWidget();
+                loadAndShowAdsgram();
             }, 2000);
 
         } else if (result && result.dailyLimitReached) {
-            showAppAlert('You\'ve reached today\'s Fast Task limit. Come back tomorrow!', 'warning');
+            showAppAlert('Daily limit reached!', 'warning');
         }
     } catch (err) {
-        console.error('Fast task reward handling error:', err);
+        console.error('Reward error:', err);
     }
 }
 
-async function renderMonietagFallback(attemptedFormat = null) {
-    const mount = document.getElementById('fast-task-widget-mount');
-    
-    let nextFormat = 'interstitial';
-    if (attemptedFormat === 'interstitial') {
-        nextFormat = 'popup';
-    }
-    
-    mount.innerHTML = `
-        <button onclick="tryMonietagAd('${nextFormat}')" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-300 text-[10px] font-black uppercase tracking-widest border border-purple-500/30 active:scale-95 transition-all">
-             Watch Fast Ad → +100-1000 DASH
-        </button>
-    `;
-}
-
-async function tryMonietagAd(format) {
+async function launchMonietagSequence() {
     try {
-        let adPromise;
+        // Try Interstitial first
+        await show_11246134();
         
-        if (format === 'interstitial') {
-            adPromise = show_11246134();
-        } else if (format === 'popup') {
-            adPromise = show_11246134('pop');
-        }
-        
-        await adPromise;
-        
+        // Credit DASH
         const result = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
         
         if (result && result.success) {
@@ -5740,18 +5705,36 @@ async function tryMonietagAd(format) {
                 remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
             }
             
+            // After 2s, try Popup
             setTimeout(() => {
-                loadFastTaskWidget();
+                tryMonietagPopup();
             }, 2000);
         }
     } catch (err) {
-        console.error(`Monetag ${format} failed:`, err);
+        console.error('Monetag Interstitial failed:', err);
+        // If Interstitial fails, try Popup
+        tryMonietagPopup();
+    }
+}
+
+async function tryMonietagPopup() {
+    try {
+        await show_11246134('pop');
         
-        if (format === 'interstitial') {
-            renderMonietagFallback('interstitial');
-        } else {
-            loadFastTaskWidget();
+        const result = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
+        
+        if (result && result.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showAppReward('dash', result.reward);
+            
+            const remainingLabel = document.getElementById('fast-task-remaining');
+            if (remainingLabel && result.claimsRemainingToday !== null) {
+                remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
+            }
         }
+    } catch (err) {
+        console.error('Monetag Popup failed:', err);
+        showAppAlert('No ads available right now.', 'warning');
     }
 }
 
