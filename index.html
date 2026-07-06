@@ -5649,7 +5649,8 @@ async function loadFastTaskWidget() {
         mount.innerHTML = '';
         const widget = document.createElement('adsgram-task');
         widget.setAttribute('data-block-id', cfg.blockId);
-        widget.setAttribute('data-debug', 'false');
+        widget.setAttribute('data-debug', 'true');
+        widget.setAttribute('data-debug-console', 'true');
         widget.addEventListener('reward', onFastTaskReward);
         widget.addEventListener('onBannerNotFound', () => {
             renderMonietagFallback();
