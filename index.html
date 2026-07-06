@@ -1313,7 +1313,11 @@ main {
         <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider mb-6">Sent when user deletes welcome message</p>
 
         <div class="image-upload relative border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:border-white/40 transition-all cursor-pointer mb-6" 
-             id="imageUpload" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+     id="imageUpload" 
+     ondrop="handleDrop(event)" 
+     ondragover="handleDragOver(event)" 
+     ondragleave="handleDragLeave(event)"
+     onclick="document.getElementById('imageInput').click()">
             <div class="text-4xl mb-3">📷</div>
             <p class="text-[12px] font-black text-purple-400 uppercase tracking-widest mb-2">Drop image or click</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold">PNG, JPG (Max 5MB)</p>
@@ -3469,7 +3473,7 @@ async function toggleReminders() {
         }
 
         if (response.success) {
-            showAlert(`✅ Reminders ${isEnabled ? 'enabled' : 'disabled'}`, 'success');
+            showAppAlert(`✅ Reminders ${isEnabled ? 'enabled' : 'disabled'}`, 'success');
             updateReminderStatus(isEnabled);
         } else {
             throw new Error(response.error || 'Failed to toggle reminders');
@@ -3477,7 +3481,7 @@ async function toggleReminders() {
     } catch (err) {
         // ✅ FIX 3: Revert checkbox on error
         document.getElementById('remindersToggle').checked = !isEnabled;
-        showAlert('❌ Error: ' + err.message, 'error');
+        showAppAlert('❌ Error: ' + err.message, 'error');
     }
 }
 
@@ -3506,7 +3510,7 @@ function handleImageSelect(e) {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-        showAlert('❌ Image too large. Max 5MB', 'error');
+        showAppAlert('Image too large. Maximum 5MB allowed.', 'error', '❌ File Too Large');
         return;
     }
 
@@ -3514,25 +3518,22 @@ function handleImageSelect(e) {
     reader.onload = (event) => {
         const preview = document.getElementById('imagePreview');
         const img = document.getElementById('previewImg');
-        const text = document.getElementById('previewText');
-
+        
         img.src = event.target.result;
-        text.textContent = file.name;
-        preview.style.display = 'block';
+        preview.classList.remove('hidden');
     };
     reader.readAsDataURL(file);
 }
-
 async function uploadReminderImage() {
     const file = document.getElementById('imageInput').files[0];
     if (!file) {
-        showAlert('❌ Please select an image', 'error');
+        showAppAlert('❌ Please select an image', 'error');
         return;
     }
 
     // ✅ FIX 1: Validate file size before reading
     if (file.size > 5 * 1024 * 1024) {
-        showAlert('❌ Image too large. Maximum 5MB allowed.', 'error');
+        showAppAlert('❌ Image too large. Maximum 5MB allowed.', 'error');
         return;
     }
 
@@ -3556,7 +3557,7 @@ async function uploadReminderImage() {
             }
 
             if (response.success) {
-                showAlert('✅ Reminder image uploaded successfully!', 'success');
+                showAppAlert('✅ Reminder image uploaded successfully!', 'success');
                 document.getElementById('imageInput').value = '';
                 document.getElementById('imagePreview').style.display = 'none';
                 // ✅ FIX 4: Reload stats to show new image
@@ -3565,7 +3566,7 @@ async function uploadReminderImage() {
                 throw new Error(response.error || 'Failed to upload image');
             }
         } catch (err) {
-            showAlert('❌ Upload error: ' + err.message, 'error');
+            showAppAlert('❌ Upload error: ' + err.message, 'error');
 } finally {
             btnText.style.display = 'inline';
             btnLoader.style.display = 'none';
@@ -3630,7 +3631,7 @@ async function loadReminderStats() {
     } catch (err) {
         // ✅ FIX 5: Show error to user
         console.error('Error loading reminder stats:', err);
-        showAlert('❌ Error loading reminder stats: ' + err.message, 'error');
+        showAppAlert('❌ Error loading reminder stats: ' + err.message, 'error');
         document.getElementById('recentRemindersContainer').innerHTML = 
             `<div class="empty-state">
                 <div class="empty-state-icon">⚠️</div>
@@ -3665,7 +3666,7 @@ async function loadReminderConfig() {
     } catch (err) {
         // ✅ FIX 5: Show error to user
         console.error('Error loading reminder config:', err);
-        showAlert('❌ Error loading reminder config: ' + err.message, 'error');
+        showAppAlert('❌ Error loading reminder config: ' + err.message, 'error');
         
         // ✅ FIX 6: Reset UI to safe state
         const toggleElement = document.getElementById('remindersToggle');
@@ -3691,16 +3692,6 @@ function updateReminderStatus(enabled) {
     }
 }
 
-function showAlert(message, type = 'info') {
-    const alertId = `${type}Alert`;
-    const alertEl = document.getElementById(alertId);
-    alertEl.textContent = message;
-    alertEl.classList.add('show');
-    
-    setTimeout(() => {
-        alertEl.classList.remove('show');
-    }, 5000);
-}
 
 
 
