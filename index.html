@@ -3262,10 +3262,6 @@ async function saveSettings() {
     }
 }
 
-
-
-
-
 // Accordion Toggle Logic
 function toggleAccordion(id) {
     const el = document.getElementById(id);
@@ -3303,7 +3299,7 @@ async function addNewTask() {
         method: 'POST',
         body: JSON.stringify(taskData)
     });
-
+console.log(res);
     if (res.success) {
         tg.HapticFeedback.notificationOccurred('success');
         showAppAlert("Task deployed successfully!", 'success')
@@ -3327,8 +3323,9 @@ async function addNewTask() {
             showAppAlert("Error: " + res.error, 'error')
         }
     } catch (e) {
-        showAppAlert("Failed to connect to server.", 'error')
-    }
+    console.error(e);
+    showAppAlert(e.message || "Failed to connect to server.", "error");
+}
 }
 
 // Logic to dynamically add a new category option to the dropdown
@@ -5626,8 +5623,7 @@ async function loadAndShowAdsgram() {
         container.innerHTML = '';
         const widget = document.createElement('adsgram-task');
         widget.setAttribute('data-block-id', cfg.blockId);
-        widget.setAttribute('data-debug', 'true');
-        widget.setAttribute('data-debug-console', 'true');
+
         widget.addEventListener('reward', onFastTaskReward);
         widget.addEventListener('onBannerNotFound', () => {
             container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">No tasks available right now. Come back later.</p>';
@@ -5696,10 +5692,10 @@ async function launchMonietagSequence() {
                 remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
             }
             
-            // After 2s, try Popup
+            // After (7)2s, try Popup
             setTimeout(() => {
                 tryMonietagPopup();
-            }, 2000);
+            }, 7000);
         }
     } catch (err) {
         console.error('Monetag Interstitial failed:', err);
