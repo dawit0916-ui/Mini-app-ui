@@ -1514,53 +1514,54 @@ main {
             </div>
         </div>
 
-        <div class="glass p-5 border-white/5">
-            <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">Deploy New Task</h3>
-            
-            <div class="space-y-3">
-                <input id="new-task-title" type="text" placeholder="Task Name (e.g. Follow on X)" class="w-full p-3 rounded-xl text-xs glass">
-                <input id="new-task-link" type="text" placeholder="URL (https://...)" class="w-full p-3 rounded-xl text-xs glass">
-                <textarea id="new-task-desc" rows="2" placeholder="Instructions (e.g. Follow, then enter your @username below)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
-                
-                <div class="space-y-1">
-    <p class="text-[8px] text-slate-500 uppercase font-black ml-1">Task Icon (Optional)</p>
-    <div class="relative flex items-center justify-center w-full p-4 border border-dashed border-white/20 rounded-xl bg-black/20 hover:bg-white/5 transition-all">
-        <input id="new-task-image-file" type="file" accept="image/*" onchange="previewUploadedImage(this)" class="absolute inset-0 opacity-0 cursor-pointer z-10">
-        <div class="text-center flex items-center gap-3" id="upload-placeholder">
-            <span class="text-xl">🖼️</span>
-            <span class="text-xs font-bold text-slate-400" id="upload-text">Upload Image File</span>
-        </div>
-        <img id="new-task-image-preview" src="" class="hidden w-10 h-10 rounded-xl object-cover border border-white/10 ml-auto">
-    </div>
-</div>
-                <div class="flex gap-2">
-                    <select id="new-task-category" class="flex-1 p-3 rounded-xl text-xs glass text-slate-400">
-                        <option value="Crypto">Crypto</option>
-                        <option value="Airdrop">Airdrop</option>
-                        <option value="Education">Education</option>
-                    </select>
-                    <input id="new-task-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-1/3 p-3 rounded-xl text-xs glass">
+<div class="glass p-5 border-white/5">
+    <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">Deploy New Task</h3>
+    
+    <form id="task-add-form" onsubmit="return false;" class="space-y-3">
+        <input id="task-add-title" type="text" placeholder="Task Name (e.g. Follow on X)" class="w-full p-3 rounded-xl text-xs glass">
+        <input id="task-add-link" type="text" placeholder="URL (https://...)" class="w-full p-3 rounded-xl text-xs glass">
+        <textarea id="task-add-desc" rows="2" placeholder="Instructions (e.g. Follow, then enter your @username below)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
+        
+        <div class="space-y-1">
+            <p class="text-[8px] text-slate-500 uppercase font-black ml-1">Task Icon (Optional)</p>
+            <div class="relative flex items-center justify-center w-full p-4 border border-dashed border-white/20 rounded-xl bg-black/20 hover:bg-white/5 transition-all">
+                <input id="task-add-image-file" type="file" accept="image/*" onchange="previewUploadedImage(this)" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+                <div class="text-center flex items-center gap-3" id="task-add-upload-placeholder">
+                    <span class="text-xl">🖼️</span>
+                    <span class="text-xs font-bold text-slate-400" id="task-add-upload-text">Upload Image File</span>
                 </div>
-
-                <div class="bg-white/5 p-3 rounded-xl">
-                    <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Verification Method</p>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="verify-type" value="auto" checked class="accent-blue-500">
-                            <span class="text-[10px] font-bold">Auto (Telegram)</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="verify-type" value="manual" class="accent-indigo-500">
-                            <span class="text-[10px] font-bold">Manual (Proof)</span>
-                        </label>
-                    </div>
-                </div>
-
-                <button onclick="addNewTask()" class="w-full btn-premium py-3 rounded-xl text-xs font-bold mt-2">
-                    🚀 Launch Task
-                </button>
+                <img id="task-add-image-preview" src="" class="hidden w-10 h-10 rounded-xl object-cover border border-white/10 ml-auto">
             </div>
         </div>
+
+        <div class="flex gap-2">
+            <select id="task-add-category" class="flex-1 p-3 rounded-xl text-xs glass text-slate-400">
+                <option value="Crypto">Crypto</option>
+                <option value="Airdrop">Airdrop</option>
+                <option value="Education">Education</option>
+            </select>
+            <input id="task-add-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-1/3 p-3 rounded-xl text-xs glass">
+        </div>
+
+        <div class="bg-white/5 p-3 rounded-xl">
+            <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Verification Method</p>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="task-add-verify-type" value="auto" checked class="accent-blue-500">
+                    <span class="text-[10px] font-bold">Auto (Telegram)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="task-add-verify-type" value="manual" class="accent-indigo-500">
+                    <span class="text-[10px] font-bold">Manual (Proof)</span>
+                </label>
+            </div>
+        </div>
+
+        <button type="button" onclick="addNewTask()" class="w-full btn-premium py-3 rounded-xl text-xs font-bold mt-2">
+            🚀 Launch Task
+        </button>
+    </form>
+</div>
         
         <div class="glass p-5 border-white/5">
             <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em]">Active Tasks</h3>
@@ -3271,63 +3272,87 @@ function toggleAccordion(id) {
 
 // Admin: Add Task Function
 async function addNewTask() {
-  try{
-    const title = document.getElementById('new-task-title').value;
-    const link = document.getElementById('new-task-link').value;
-    const desc = document.getElementById('new-task-desc').value;
-    
-    // <-- GRABS INSTANT IMAGE BASE64 DATA AS STRING
-    const previewEl = document.getElementById('new-task-image-preview');
-    const imageString = previewEl.getAttribute('data-base64') || ""; 
-    
-    const reward = document.getElementById('new-task-reward').value;
-    const category = document.getElementById('new-task-category').value;
-    const type = document.querySelector('input[name="verify-type"]:checked').value;
+  try {
+    const titleEl = document.getElementById('task-add-title');
+    const linkEl = document.getElementById('task-add-link');
+    const descEl = document.getElementById('task-add-desc');
+    const previewEl = document.getElementById('task-add-image-preview');
+    const rewardEl = document.getElementById('task-add-reward');
+    const categoryEl = document.getElementById('task-add-category');
+    const typeEl = document.querySelector('input[name="task-add-verify-type"]:checked');
 
-    if (!title || !link || !reward) return showAppAlert("Title, Link, and Reward are required.", 'warning')
-    const taskData = {
-        title,
-        url: link,
-        description: desc,
-        image: imageString, // <-- SEND DATA PACKET DIRECTLY TO DATABASE
-        reward: parseFloat(reward),
-        category,
-        type
-    };
+    if (!titleEl || !linkEl || !descEl || !previewEl || !rewardEl || !categoryEl || !typeEl) {
+        console.error('addNewTask: missing expected form element', {
+            titleEl, linkEl, descEl, previewEl, rewardEl, categoryEl, typeEl
+        });
+        return showAppAlert("Form is not fully loaded. Please reload the page.", 'error');
+    }
+
+    const title = titleEl.value;
+    const link = linkEl.value;
+    const desc = descEl.value;
+    const imageString = previewEl.getAttribute('data-base64') || "";
+    const reward = rewardEl.value;
+    const category = categoryEl.value;
+    const type = typeEl.value;
+
+    if (!title || !link || !reward) return showAppAlert("Title, Link, and Reward are required.", 'warning');
+
+    const taskData = { title, url: link, description: desc, image: imageString, reward: parseFloat(reward), category, type };
 
     const res = await secureFetch('/api/admin/tasks/add', {
         method: 'POST',
         body: JSON.stringify(taskData)
     });
-console.log(res);
+    console.log(res);
+
     if (res.success) {
         tg.HapticFeedback.notificationOccurred('success');
-        showAppAlert("Task deployed successfully!", 'success')
-        
-        // Clear basic fields
-        ['new-task-title', 'new-task-link', 'new-task-desc', 'new-task-reward'].forEach(id => {
-            document.getElementById(id).value = '';
+        showAppAlert("Task deployed successfully!", 'success');
+
+        ['task-add-title', 'task-add-link', 'task-add-desc', 'task-add-reward'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
         });
-        
-        // <-- RESET THE FILE UPLOADER COMPONENT COMPLETELY
-        document.getElementById('new-task-image-file').value = '';
+
+        const fileEl = document.getElementById('task-add-image-file');
+        if (fileEl) fileEl.value = '';
         previewEl.removeAttribute('data-base64');
         previewEl.src = '';
         previewEl.classList.add('hidden');
-        document.getElementById('upload-text').innerText = "Upload Image File";
-        document.getElementById('upload-text').className = "text-xs font-bold text-slate-400";
-        
-        loadAdminTaskList();
-        
-        } else {
-            showAppAlert("Error: " + res.error, 'error')
+
+        const uploadTextEl = document.getElementById('task-add-upload-text');
+        if (uploadTextEl) {
+            uploadTextEl.innerText = "Upload Image File";
+            uploadTextEl.className = "text-xs font-bold text-slate-400";
         }
-    } catch (e) {
+
+        loadAdminTaskList();
+    } else {
+        showAppAlert("Error: " + res.error, 'error');
+    }
+  } catch (e) {
     console.error(e);
     showAppAlert(e.message || "Failed to connect to server.", "error");
+  }
 }
-}
+function previewUploadedImage(input) {
+    const file = input.files[0];
+    const textSpan = document.getElementById('task-add-upload-text');
+    const previewImg = document.getElementById('task-add-image-preview');
+    if (!file || !textSpan || !previewImg) return;
 
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewImg.setAttribute('data-base64', e.target.result);
+        previewImg.src = e.target.result;
+        previewImg.classList.remove('hidden');
+        textSpan.innerText = file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name;
+        textSpan.className = "text-xs font-bold text-green-400";
+        tg.HapticFeedback.impactOccurred('light');
+    };
+    reader.readAsDataURL(file);
+}
 // Logic to dynamically add a new category option to the dropdown
 function updateCategoryDropdown(categoryName) {
     const dropdown = document.getElementById('new-task-category');
@@ -3432,28 +3457,8 @@ function filterTasks(category, btn) {
     
     loadAvailableTasks(); // Refresh list based on filter
 }
-// Converts file to Base64 data string instantly on select
-function previewUploadedImage(input) {
-    const file = input.files[0];
-    const textSpan = document.getElementById('upload-text');
-    const previewImg = document.getElementById('new-task-image-preview');
-    
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Save the data string straight into the preview element's custom attribute
-            previewImg.setAttribute('data-base64', e.target.result);
-            previewImg.src = e.target.result;
-            previewImg.classList.remove('hidden');
-            
-            // Shorten filename text for neatness
-            textSpan.innerText = file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name;
-            textSpan.className = "text-xs font-bold text-green-400";
-            tg.HapticFeedback.impactOccurred('light');
-        };
-        reader.readAsDataURL(file);
-    }
-}
+
+
 // ============ REMINDERS FUNCTIONS ============
 async function toggleReminders() {
     const isEnabled = document.getElementById('remindersToggle').checked;
@@ -3941,7 +3946,6 @@ showAppConfirm("Delete this task permanently?", async (ok) => {
     await secureFetch(`/api/admin/tasks/delete/${id}`, { method: 'DELETE' });
     loadAdminTaskList();
     showAppAlert("Task removed successfully.", 'success');
-    await logAdminAction(db, { adminId, adminName, action: 'task_deleted', description: `Deleted task: ${taskId}` });
 });
 }
 async function sendBroadcast() {
@@ -3964,8 +3968,7 @@ async function sendBroadcast() {
                 if (res.success) {
                     showAppAlert(`Broadcast started! Sending to ${res.total} users.`, 'success')
                     document.getElementById('broadcast-msg').value = '';
-                    await logAdminAction(db, { adminId, adminName, action: 'broadcast_sent', description: `Sent broadcast to ${recipientCount} users` });
-                }
+}
             } catch (e) {
                 showAppAlert("Broadcast error. Check server logs.", 'error')
             } finally {
