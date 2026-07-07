@@ -10,8 +10,7 @@
    <!-- AdGrams SDK -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <script src='//libtl.com/sdk.js' data-zone='11246134' data-sdk='show_11246134'></script>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+
     
     <style>
         :root {
@@ -436,44 +435,42 @@ main {
 /* Toast Popup Container Styling */
 #toast-container {
     position: fixed !important;
-    top: 24px !important; /* Brought up slightly to sit nicely over the app UI */
+    top: 24px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: 90% !important;
     max-width: 350px !important;
-    z-index: 999999 !important; /* Dominates the 2000-level modal backdrop layout */
-    pointer-events: none !important; /* Allows underlying app elements to still be clicked */
+    z-index: 999999 !important;
+    pointer-events: none !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 8px !important;
-}
-
-/* Individual Toast Cards */
+        }
+/* Shared layout rules only — colors/shadows/animation are set per-toast inline in JS */
 .toast {
     width: 100% !important;
-    z-index: 999999 !important; /* Force internal hardware layering hierarchy */
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 
-                0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
-    animation: slideInTop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-}
-
-/* Smooth Slide and Drop Physics */
+    z-index: 999999 !important;
+    pointer-events: none;
+        }
 @keyframes slideInTop {
-    from { 
-        opacity: 0; 
-        transform: translateY(-25px) scale(0.95); 
+    from {
+        opacity: 0;
+        transform: translateY(-25px) scale(0.95);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0) scale(1); 
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
         }
-
-/* Shimmer Animation */
+        
+@keyframes toastDrain {
+    from { width: 100%; }
+    to   { width: 0%; }
+}
 @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
-        }
+}
 .skeleton {
     background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
     background-size: 200% 100%;
@@ -970,7 +967,7 @@ main {
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h3 class="text-base font-black text-white uppercase tracking-tight">Invite & Earn</h3>
-                <p class="text-[8px] text-slate-400 font-bold mt-0.5">Friend completes tasks → you earn invite Bonus and </p>
+                <p class="text-[9px] text-slate-400 font-bold mt-0.5">Friend completes tasks → you earn </p>
             </div>
             <div class="flex flex-col items-center bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl px-4 py-2 shadow-lg shadow-orange-500/25">
                 <span class="text-xl font-black text-white leading-none">10%</span>
@@ -981,9 +978,9 @@ main {
         <!-- Stats Row -->
         <div class="grid grid-cols-3 gap-2 mb-4">
             <div class="bg-black/30 border border-white/8 rounded-2xl p-3 text-center">
-                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Active Team</p>
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Active</p>
                 <p id="total-invited" class="text-xl font-black text-white">0</p>
-                <p class="text-[8px] text-purple-400 font-bold mt-0.5">Members</p>
+                <p class="text-[8px] text-purple-400 font-bold mt-0.5">Friends</p>
             </div>
             <div class="bg-black/30 border border-orange-500/20 rounded-2xl p-3 text-center">
                 <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Earned</p>
@@ -1040,7 +1037,7 @@ main {
     <div id="earn-hub-view">
         <div class="mb-4">
             <h2 class="text-xl font-black tracking-wide text-white">Earn Center</h2>
-            <p class="text-xs text-slate-400">Pick a way to earn USDT</p>
+            <p class="text-xs text-slate-400">Pick a way to earn DASH</p>
         </div>
 
         <!-- Banner: YouTube Tasks -->
@@ -1076,7 +1073,7 @@ main {
         <div class="w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center text-2xl shrink-0">⚡</div>
         <div class="flex-1 min-w-0">
             <h3 class="text-base font-black text-white">Fast AD Tasks</h3>
-            <p class="text-[11px] text-slate-400 truncate">This offers 100 — 1000 DASH in seconds</p>
+            <p class="text-[11px] text-slate-400 truncate">Get in seconds</p>
         </div>
         <span class="text-slate-500 text-lg">›</span>
     </div>
@@ -1142,7 +1139,7 @@ main {
     <div class="flex items-center gap-3 mb-5">
         <button onclick="closeEarnSection()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
         <div>
-            <h3 class="text-sm font-black uppercase tracking-widest text-blue-400">Fast Tasks</h3>
+            <h3 class="text-sm font-black uppercase tracking-widest text-blue-400">Fast AD Tasks</h3>
             <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Complete quick offers to earn DASH</p>
         </div>
     </div>
@@ -1150,26 +1147,40 @@ main {
     <div class="bg-blue-500/8 border border-blue-500/20 rounded-xl px-4 py-2.5 mb-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <span class="text-base">🎯</span>
-            <p class="text-[10px] text-blue-300 font-bold">Random DASH per completed task</p>
+            <p class="text-[10px] text-blue-300 font-bold">Earn DASH per completed task</p>
         </div>
         <p id="fast-task-remaining" class="text-[10px] text-slate-400 font-bold shrink-0"></p>
     </div>
 
     <!-- Two Row Buttons -->
-    <div class="space-y-3">
-        <!-- Button 1: Adsgram Tasks -->
-        <div class="space-y-2">
-            <button onclick="loadAndShowAdsgram()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600/30 to-cyan-600/30 text-blue-300 text-[10px] font-black uppercase tracking-widest border border-blue-500/30 active:scale-95 transition-all">
-                🚀 Try Adsgram Tasks → +100-1000 DASH
-            </button>
-            <div id="adsgram-container" class="w-full"></div>
+  <div class="space-y-3">
+    <!-- Row 1: Adsgram Tasks -->
+    <div class="glass p-4 flex items-center gap-4 border border-blue-500/20 rounded-2xl">
+        <div class="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center text-2xl shrink-0">⚡</div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-black text-white">Try Fast Tasks</p>
+            <p class="text-[10px] text-blue-300/70 font-bold truncate">+100–1000 DASH per task</p>
         </div>
-
-        <!-- Button 2: Monetag Ads -->
-        <button onclick="launchMonietagSequence()" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-300 text-[10px] font-black uppercase tracking-widest border border-purple-500/30 active:scale-95 transition-all">
-            💜 Watch Monetag Ads → +100-1000 DASH
+        <button onclick="loadAndShowAdsgram()"
+            class="shrink-0 bg-white text-slate-900 px-5 py-2 rounded-full text-[11px] font-black uppercase active:scale-95 transition-all">
+            load 👇
         </button>
     </div>
+    <div id="adsgram-container" class="w-full"></div>
+
+    <!-- Row 2: Monetag Ads -->
+    <div class="glass p-4 flex items-center gap-4 border border-purple-500/20 rounded-2xl">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center text-2xl shrink-0">⚡</div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-black text-white">Watch Fast Ads</p>
+            <p class="text-[10px] text-purple-300/70 font-bold truncate">+100–1000 DASH per view</p>
+        </div>
+        <button onclick="launchMonietagSequence()"
+            class="shrink-0 bg-white text-slate-900 px-5 py-2 rounded-full text-[11px] font-black uppercase active:scale-95 transition-all">
+            claim
+        </button>
+    </div>
+</div>
 </div>
 
 </div>    
@@ -1540,7 +1551,7 @@ main {
                 <option value="Airdrop">Airdrop</option>
                 <option value="Education">Education</option>
             </select>
-            <input id="task-add-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-1/3 p-3 rounded-xl text-xs glass">
+            <input id="task-add-reward" type="number" step="50" placeholder="Amount" class="w-1/3 p-3 rounded-xl text-xs glass">
         </div>
 
         <div class="bg-white/5 p-3 rounded-xl">
@@ -1586,8 +1597,8 @@ main {
             <input id="new-yt-url" type="text" placeholder="YouTube URL (https://youtube.com/...)" class="w-full p-3 rounded-xl text-xs glass">
             <textarea id="new-yt-instructions" rows="2" placeholder="Instructions for user (e.g. Watch the full video, the code appears at 0:45)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
             <div class="flex gap-2">
-                <input id="new-yt-code" type="text" placeholder="Hidden Code (e.g. EMBT2026)" class="flex-1 p-3 rounded-xl text-xs glass">
-                <input id="new-yt-reward" type="number" step="0.01" placeholder="Reward USDT" class="w-1/3 p-3 rounded-xl text-xs glass">
+                <input id="new-yt-code" type="text" placeholder="Hidden Code" class="flex-1 p-3 rounded-xl text-xs glass">
+                <input id="new-yt-reward" type="number" step="50" placeholder="Amount " class="w-1/3 p-3 rounded-xl text-xs glass">
             </div>
             <button onclick="addNewYoutubeTask()" class="w-full bg-red-600 py-3 rounded-xl text-xs font-bold mt-2">
                 🚀 Launch YouTube Task
@@ -2319,55 +2330,52 @@ function renderGlobalMaintenanceViewportScreen(meta) {
     }
 }
 
-
-// -- Decoupled Initialization --
+        
 async function initApp() {
-    setLoadingProgress(10, 'Connecting...');   // ← add this line first
-    await fetchAdminStatus();
-    setLoadingProgress(30, 'Verifying account...');   // ← add after fetchAdminStatus
-    cachedUserProfile = null;
-    
-    // SAFE EXTRACT: Safely pull the Telegram user instance with a robust local fallback object
-    const user = window.Telegram?.WebApp?.initDataUnsafe?.user || {
-        first_name: "Gamer",
-        username: "User",
-        id: 0,
-        photo_url: ""
-    };
-    
-    // 1. Update UI IMMEDIATELY (Don't wait for server) using our validated user object
-    const userNameEl = document.getElementById('user-name');
-    if (userNameEl) {
-        userNameEl.innerText = user.first_name || user.username || "User";
+    try {
+        setLoadingProgress(10, 'Connecting...');
+        await fetchAdminStatus();
+
+        setLoadingProgress(20, 'Verifying account...');
+        cachedUserProfile = null;
+
+        const user = window.Telegram?.WebApp?.initDataUnsafe?.user || {
+            first_name: "Gamer",
+            username: "User",
+            id: 0,
+            photo_url: ""
+        };
+
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+            userNameEl.innerText = user.first_name || user.username || "User";
         }
 
-    // ─── 👤 INJECT REAL PFP IN THE PINNED HEADER IMMEDIATELY ───
-    const headerImg = document.getElementById('header-avatar');
-    const headerFallback = document.getElementById('header-avatar-fallback');
+        const headerImg = document.getElementById('header-avatar');
+        const headerFallback = document.getElementById('header-avatar-fallback');
+        if (headerImg && headerFallback) {
+            if (user.photo_url) {
+                headerImg.src = user.photo_url;
+                headerImg.classList.remove('hidden');
+                headerFallback.classList.add('hidden');
+            } else {
+                headerImg.classList.add('hidden');
+                headerFallback.classList.remove('hidden');
+                headerFallback.innerText = user.first_name ? user.first_name.charAt(0).toUpperCase() : "E";
+            }
+        }
 
-    if (user.photo_url) {
-        headerImg.src = user.photo_url;
-        headerImg.classList.remove('hidden');
-        headerFallback.classList.add('hidden');
-    } else {
-        headerImg.classList.add('hidden');
-        headerFallback.classList.remove('hidden');
-        headerFallback.innerText = user.first_name ? user.first_name.charAt(0).toUpperCase() : "E";
-    }
+        if (isCurrentUserAdmin) {
+            document.getElementById('admin-badge')?.classList.remove('hidden');
+            document.getElementById('nav-admin')?.classList.remove('hidden');
+            const alertsBtn = document.querySelector('button[onclick="switchAdminPanel(\'panel-notifications\')"]');
+            if (alertsBtn) alertsBtn.classList.remove('opacity-50');
+        }
 
-    // 2. Show Admin features if applicable
-    if (isCurrentUserAdmin) {
-        document.getElementById('admin-badge').classList.remove('hidden');
-        document.getElementById('nav-admin').classList.remove('hidden');
-        const alertsBtn = document.querySelector('button[onclick="switchAdminPanel(\'panel-notifications\')"]');
-        if(alertsBtn) alertsBtn.classList.remove('opacity-50');
-    }
-
-    // 3. Main Operational Wrapper with Fail-Safe UI Recovery
-    try {
-        // Fetch profile data safely
+        // 3. Fetch profile
+        setLoadingProgress(35, 'Loading your profile...');
         const data = await secureFetch('/api/secure/profile');
-        
+
         if (data && !data.error) {
             let activeProfile = null;
             if (typeof data.balance === 'number') {
@@ -2377,57 +2385,47 @@ async function initApp() {
             }
 
             if (activeProfile) {
-               if (activeProfile.is_banned) {
-        showBanOverlay('Your account has been suspended for violating our terms.');
-        hideLoadingScreen();
-        return;
-    } 
-    cachedUserProfile = activeProfile;
-    setLoadingProgress(60, 'Loading your data...');
+                if (activeProfile.is_banned) {
+                    showBanOverlay('Your account has been suspended for violating our terms.');
+                    return;
+                }
 
-    // DASH = balance field (whole number, shown on home card)
-    const balanceMainEl = document.getElementById('balance-main');
-    if (balanceMainEl) balanceMainEl.innerText = parseInt(activeProfile.balance || 0).toLocaleString();
+                cachedUserProfile = activeProfile;
 
-    // Sync all three header pills
-    updateHeaderBalances(
-        activeProfile.balance,   // DASH
-        activeProfile.points,    // USDT (withdrawable)
-        activeProfile.coins      // TICKET
-    );
+                const balanceMainEl = document.getElementById('balance-main');
+                if (balanceMainEl) balanceMainEl.innerText = parseInt(activeProfile.balance || 0).toLocaleString();
 
-    if (document.getElementById('tab-profile') && !document.getElementById('tab-profile').classList.contains('hidden')) {
-        loadUserProfileMetrics();
-    }
-}
+                updateHeaderBalances(activeProfile.balance);
+            }
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
 
+        // 4. Load everything the app needs, in parallel where safe
+        setLoadingProgress(55, 'Loading tasks...');
+        await loadAvailableTasks();
+
+        setLoadingProgress(70, 'Loading your team...');
+        await loadReferralData();
+
+        setLoadingProgress(85, 'Loading your stats...');
+        await loadUserProfileMetrics();
+
+        // Admin-only data — only fetched if the user is actually an admin
+        if (isCurrentUserAdmin) {
+            setLoadingProgress(92, 'Loading admin data...');
+            await loadAdminData().catch(e => console.warn('Admin data load failed:', e.message));
+        }
+
+        setLoadingProgress(100, 'Ready!');
+
     } catch (err) {
         console.error("Initialization pipeline caught an execution error:", err.message);
-        
-    } 
-
-    // ==========================================================================
-    // ✅ MOVED HERE: RUNS INDEPENDENTLY OF THE PROFILE SERVER REQUEST SUCCESS
-    // ==========================================================================
-    try {
-        // 1. Run tasks initialization safely
-        await loadAvailableTasks().catch(e => {
-            setLoadingProgress(85, 'Loading tasks...');   // ← add this
-            
-        });
-    } catch(err) {
-        console.warn("Tasks dropped:", err.message);
+    } finally {
+        hideLoadingScreen();
     }
 
-
-    // ==========================================================================
-    // LOADER CLEANUP REMAINING IN THE GLOBAL SEQUENCE
-    // ==========================================================================
-    hideLoadingScreen();
-        }   
+    // pull-to-refresh setup continues below, unchanged
 let _pullStartY = 0;
 let _pullRefreshing = false;
 const mainEl = document.querySelector('main');
@@ -2621,9 +2619,7 @@ async function updateUserMetrics() {
             body: JSON.stringify({
                 // Changed from 'userId' to match backend 'target_user_id' parameter
                 target_user_id: currentEditingUserId,
-                balance: parseFloat(newBalance),
-                points: parseFloat(newPoints),
-                coins: parseFloat(newCoins)
+                balance: parseFloat(newBalance)
             })
         });
 
@@ -2632,8 +2628,7 @@ async function updateUserMetrics() {
             showAppAlert("User metrics synchronized successfully.", 'success')
             
             document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(4);
-            document.getElementById('edit-user-points').innerText = parseFloat(newPoints).toFixed(2);
-            document.getElementById('edit-user-coins').innerText = parseFloat(newCoins).toFixed(2);
+;
             
             // Refresh main background list views implicitly
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
@@ -2859,8 +2854,8 @@ function copyRefLink() {
     
     // Telegram native notification
     navigator.clipboard.writeText(input.value);
-    pushNotification("System Alert", "Referral link copied to clipboard successfully!", "system");
-        }
+    showNotificationToast("Referral link copied to clipboard successfully!", "success");
+  }
  async function addNewCategory() {
     const input = document.getElementById('new-category-name');
     const name = input.value.trim();
@@ -2922,17 +2917,19 @@ async function loadUserDirectory() {
         }
 
         listContainer.innerHTML = users.map(u => `
-            <div onclick="document.getElementById('search-user-id').value='${u.user_id}'; searchUser();" class="glass p-3 flex justify-between items-center border-l-2 ${u.is_banned ? 'border-red-500 bg-red-500/5' : 'border-slate-500/40'} active:scale-[0.99] transition-all cursor-pointer">
-                <div>
-                    <p class="text-xs font-bold text-white">ID: ${u.user_id}</p>
-                    <p class="text-[9px] font-bold text-slate-400">${u.username ? '@'+u.username : 'No Username'}</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-[10px] font-black text-green-400">${(u.balance || 0).toFixed(2)} DASH</p>
-                    <p class="text-[8px] font-bold text-yellow-500">${(u.points || 0).toFixed(0)} USDT</p>
-                </div>
+    <div onclick="document.getElementById('search-user-id').value='${u.user_id}'; searchUser();" class="glass p-3 flex justify-between items-center border-l-2 ${u.is_banned ? 'border-red-500 bg-red-500/5' : 'border-slate-500/40'} active:scale-[0.99] transition-all cursor-pointer">
+        <div>
+            <div class="flex items-center gap-1.5">
+                <p class="text-xs font-bold text-white">${u.first_name || (u.username ? '@' + u.username : 'ID: ' + u.user_id)}</p>
+                ${u.whitelisted ? '<span class="text-[10px]" title="Whitelisted">✅</span>' : ''}
             </div>
-        `).join('');
+            <p class="text-[9px] font-bold text-slate-400">ID: ${u.user_id}${u.username ? ' · @' + u.username : ''}</p>
+        </div>
+        <div class="text-right">
+            <p class="text-[10px] font-black text-green-400">${(u.balance || 0).toFixed(2)} DASH</p>
+        </div>
+    </div>
+`).join('');
 
     } catch (e) {
         console.error("Directory Render Crash:", e);
@@ -2956,7 +2953,7 @@ async function loadAdminTaskList() {
         <div class="glass p-3 flex justify-between items-center border-white/5">
             <div>
                 <p class="text-xs font-bold">${t.title}</p>
-                <p class="text-[9px] text-green-400">${t.reward} USDT</p>
+                <p class="text-[9px] text-green-400">${t.reward} DASH</p>
             </div>
             <button onclick="deleteTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase">Delete</button>
         </div>
@@ -4188,61 +4185,62 @@ async function submitSupportTicketFromDrawer() {
         showAppAlert(res.error || "Failed to send ticket.", 'error');
     }
 }
-
-
-/**
- * Creates a real-time floating user overlay card announcement
- */
-function pushNotification(title, msg, type = 'system') {
-    // Save to unified state array
-    notifications.unshift({ type, title, msg, read: false, date: new Date() });
-    
-    const unreadDot = document.getElementById('unread-dot');
-    if (unreadDot) unreadDot.classList.remove('hidden');
-    
-    // Create UI overlay toast elements dynamically
-    const toast = document.createElement('div');
-    toast.className = `toast glass p-4 rounded-2xl border-l-4 ${type === 'system' ? 'border-blue-500' : 'border-green-500'} mb-2 shadow-2xl transition-all duration-300`;
-    toast.innerHTML = `<h5 class="text-[10px] font-black uppercase text-white">${title}</h5><p class="text-xs text-slate-300">${msg}</p>`;
-    
-    const toastContainer = document.getElementById('toast-container');
-    if (toastContainer) toastContainer.appendChild(toast);
-    
-    // Automatically fade element down 4 seconds later
-    setTimeout(() => toast.remove(), 4000);
-
-    // Live update the list elements if center layout is open
-    renderFilteredNotifications();
-}
-    
-// Centralized Toast Context Notification Router Handler
 function showNotificationToast(messageText, notificationType = 'info') {
     const parentContainer = document.getElementById('toast-container');
     if (!parentContainer) return console.error("Toast anchor element missing from DOM mapping framework!");
-    
+    const THEMES = {
+        success: { icon: '🎉', border: 'rgba(16,185,129,0.35)', bg: 'rgba(6,78,59,0.55)', text: '#6ee7b7', iconBg: 'rgba(16,185,129,0.15)', bar: '#10b981' },
+        error:   { icon: '🚨', border: 'rgba(239,68,68,0.35)',  bg: 'rgba(69,10,10,0.55)', text: '#fca5a5', iconBg: 'rgba(239,68,68,0.15)',  bar: '#ef4444' },
+        warning: { icon: '⚠️', border: 'rgba(245,158,11,0.35)', bg: 'rgba(69,26,3,0.55)',  text: '#fcd34d', iconBg: 'rgba(245,158,11,0.15)', bar: '#f59e0b' },
+        info:    { icon: 'ℹ️', border: 'rgba(59,130,246,0.35)', bg: 'rgba(8,15,40,0.6)',   text: '#93c5fd', iconBg: 'rgba(59,130,246,0.15)', bar: '#3b82f6' }
+    };
+    const theme = THEMES[notificationType] || THEMES.info;
+    const DURATION = 3500;
     const toastNode = document.createElement('div');
-    toastNode.className = `toast glass p-4 rounded-xl mb-2 text-xs font-bold border flex items-center gap-2 shadow-2xl z-[5000] animate-[slideInTop_0.3s_ease_forwards]`;
-    
-    if (notificationType === 'success') {
-        toastNode.className += " border-emerald-500/30 bg-emerald-950/80 text-emerald-400";
-        toastNode.innerHTML = `🎉 ${messageText}`;
-    } else if (notificationType === 'error') {
-        toastNode.className += " border-red-500/30 bg-red-950/80 text-red-400";
-        toastNode.innerHTML = `🚨 ${messageText}`;
-    } else {
-        toastNode.className += " border-blue-500/30 bg-slate-900/90 text-blue-400";
-        toastNode.innerHTML = `ℹ️ ${messageText}`;
-    }
-    
+    toastNode.className = 'toast';
+    toastNode.style.cssText = `
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        border-radius: 16px;
+        border: 1px solid ${theme.border};
+        background: ${theme.bg};
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.35), 0 0 24px ${theme.border};
+        animation: slideInTop 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+    `;
+    toastNode.innerHTML = `
+        <div style="
+            width: 34px; height: 34px; border-radius: 12px;
+            background: ${theme.iconBg};
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        ">${theme.icon}</div>
+        <p style="
+            flex: 1; margin: 0; font-size: 12px; font-weight: 700;
+            color: #f1f5f9; line-height: 1.4;
+        ">${messageText}</p>
+        <div style="
+            position: absolute; bottom: 0; left: 0; height: 2.5px;
+            background: ${theme.bar};
+            width: 100%;
+            box-shadow: 0 0 8px ${theme.bar};
+            animation: toastDrain ${DURATION}ms linear forwards;
+        "></div>
+    `;
     parentContainer.appendChild(toastNode);
     setTimeout(() => {
+        toastNode.style.transition = 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1)';
         toastNode.style.opacity = '0';
-        toastNode.style.transform = 'translateY(-10px)';
-        toastNode.style.transition = 'all 0.4s ease';
-        setTimeout(() => toastNode.remove(), 400);
-    }, 3500);
+        toastNode.style.transform = 'translateY(-12px) scale(0.96)';
+        setTimeout(() => toastNode.remove(), 350);
+    }, DURATION);
 }
-
 // Numerical interpolation counters for smooth value updating animations
 function animateNumericalValueDisplayUpdate(domElementId, terminalTargetValue, fixedPrecisionPointsCount = 2) {
     const UIObjectNode = document.getElementById(domElementId);
@@ -4458,7 +4456,17 @@ let _conListeners = [];
                 id: Date.now() + Math.random(),
                 level,
                 time: new Date().toLocaleTimeString('en-US', { hour12: false }),
-                message: args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')
+                message: args.map(a => {
+                    if (a instanceof Error) return a.stack || `${a.name}: ${a.message}`;
+                    if (typeof a === 'object' && a !== null) {
+                        try {
+                            return JSON.stringify(a, null, 2);
+                        } catch (circularErr) {
+                            return '[Unserializable Object]';
+                        }
+                    }
+                    return String(a);
+                }).join(' ')
             };
             _conHistory.push(entry);
             if (_conHistory.length > 500) _conHistory.shift();
@@ -4683,9 +4691,7 @@ async function conStartBackendStream() {
             registryList.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No admins found</p>';
         } else {
             registryList.innerHTML = admins.map(a => {
-                const lastSeen = a.last_active
-                    ? new Date(a.last_active).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    : 'Never';
+                const lastSeen = formatLastActive(a.last_active);
                 const isOnline = a.last_active && (Date.now() - new Date(a.last_active)) < 300000; // 5 min
 
                 return `
@@ -4752,7 +4758,28 @@ async function conStartBackendStream() {
         registryList.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load registry.</p>';
     }
 }
+function formatLastActive(timestamp) {
+    if (!timestamp) return 'Never';
 
+    const date = new Date(timestamp);
+    const now = Date.now();
+    const diffMs = now - date;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHr / 24);
+    const diffWeeks = Math.floor(diffDays / 7);
+
+    if (diffSec < 60) return 'Just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffWeeks === 1) return '1 week ago';
+    if (diffWeeks < 5) return `${diffWeeks} weeks ago`;
+
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined });
+}
 // Helper: human-readable time ago
 function getTimeAgo(date) {
     const seconds = Math.floor((Date.now() - date) / 1000);
@@ -5695,10 +5722,6 @@ async function launchMonietagSequence() {
                 remainingLabel.innerText = `${result.claimsRemainingToday} left today`;
             }
             
-            // After (7)2s, try Popup
-            setTimeout(() => {
-                tryMonietagPopup();
-            }, 7000);
         }
     } catch (err) {
         console.error('Monetag Interstitial failed:', err);
@@ -5855,7 +5878,7 @@ async function loadAdminYoutubeTaskList() {
             <div class="glass p-3 flex justify-between items-center border-white/5">
                 <div class="min-w-0">
                     <p class="text-xs font-bold truncate">${t.title}</p>
-                    <p class="text-[9px] text-green-400">+${t.reward} USDT · ${(t.claimedBy || []).length} claimed</p>
+                    <p class="text-[9px] text-green-400">+${t.reward} DASH · ${(t.claimedBy || []).length} claimed</p>
                     <p class="text-[9px] text-slate-500 font-mono">Code: ${t.code}</p>
                 </div>
                 <button onclick="deleteYoutubeTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase shrink-0">Delete</button>
