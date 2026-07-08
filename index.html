@@ -2628,7 +2628,6 @@ async function updateUserMetrics() {
             showAppAlert("User metrics synchronized successfully.", 'success')
             
             document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(4);
-;
             
             // Refresh main background list views implicitly
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
