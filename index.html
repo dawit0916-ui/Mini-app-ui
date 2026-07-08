@@ -1184,7 +1184,7 @@ main {
 </div>
 
 </div>    
- <div id="tab-levels" class="tab-content hidden">
+ <div id="tab-levels" class="tab-content">
     <div class="tab-header">
         <h1>🏆 Levels</h1>
     </div>
@@ -2143,9 +2143,10 @@ return count;"></textarea>
         <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Earn</span>
     </button>
      <!-- Add this to your nav alongside other tabs -->
-<button  id="nav-item" onclick="switchTab('levels', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E" alt="Levels">
-</button>
+    <button  id="nav-item" onclick="switchTab('levels', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
+        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Levels</span>    
+    </button>
     <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
         <img src="/assets/images/nav-profile.png" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
         <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">profile</span>
