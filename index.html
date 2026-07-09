@@ -5139,12 +5139,6 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
     _adInProgress = true;
 
     try {
-        if (!window.Adsgram) {
-            showAppAlert('Ad service is still loading.', 'warning');
-            _adInProgress = false;
-            return;
-        }
-
         // 1. Create pending session server-side
         const sessionRes = await secureFetch('/api/secure/ads/start-session', {
             method: 'POST',
@@ -5159,62 +5153,104 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
 
         const sessionId = sessionRes.sessionId;
 
-        // 2. Arm the blur listener BEFORE showing the ad
+        // ===== MONETAG ADS =====
+        if (adNetwork === 'monetag') {
+            let adPromise;
+            
+            if (blockId === 'pop') {
+                adPromise = show_11246134('pop');
+            } else {
+                adPromise = show_11246134();
+            }
+
+            adPromise
+                .then(async () => {
+                    // Monetag ad completed — claim reward
+                    const claimRes = await secureFetch('/api/secure/ads/claim', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            sessionId,
+                            clientDone: true,
+                            blurDetected: true  // Monetag auto-confirms
+                        })
+                    });
+
+                    if (claimRes && claimRes.success) {
+                        tg.HapticFeedback.notificationOccurred('success');
+                        showNotificationToast(`+${claimRes.reward} DASH earned! 🎉`, 'success');
+                        updateHeaderBalances(claimRes.newBalance, claimRes.newPoints, claimRes.newCoins);
+                        loadAdsWatchList();
+                    } else {
+                        showAppAlert(claimRes?.error || 'Claim failed.', 'error');
+                    }
+                })
+                .catch(() => {
+                    showAppAlert('No ad available right now.', 'error');
+                })
+                .finally(() => {
+                    _adInProgress = false;
+                });
+
+            return;
+        }
+
+        // ===== ADSGRAM ADS (existing code) =====
+        if (!window.Adsgram) {
+            showAppAlert('Ad service is still loading.', 'warning');
+            _adInProgress = false;
+            return;
+        }
+
         let blurDetected = false;
 
-function onBlur() { 
-    blurDetected = true;
-    console.log('[Ad] Blur detected - swiped away');
-}
+        function onBlur() { 
+            blurDetected = true;
+            console.log('[Ad] Blur detected');
+        }
 
-function onFocus() { 
-    blurDetected = true;
-    console.log('[Ad] Focus regained - returned from redirect');
-}
+        function onFocus() { 
+            blurDetected = true;
+            console.log('[Ad] Focus regained');
+        }
 
-window.addEventListener('blur', onBlur);
-window.addEventListener('focus', onFocus);
-        // 3. Show the ad
+        window.addEventListener('blur', onBlur);
+        window.addEventListener('focus', onFocus);
+
         const controller = window.Adsgram.init({ blockId });
 
         controller.show()
             .then(async (result) => {
-                // Disarm blur listener whether ad succeeded or not
                 window.removeEventListener('blur', onBlur);
                 window.removeEventListener('focus', onFocus);
       
                 if (!result.done) {
-    showAppAlert('Complete the full ad to earn your reward.', 'warning');
-    return;
-}
+                    showAppAlert('Complete the full ad to earn your reward.', 'warning');
+                    _adInProgress = false;
+                    return;
+                }
 
-// 4. Require blur detection (proof they tapped CTA)
-if (!blurDetected) {
-    showAppAlert('Tap the button in the ad to earn your reward.', 'warning');
-    return;
-}
+                if (!blurDetected) {
+                    showAppAlert('Tap the button in the ad to earn your reward.', 'warning');
+                    _adInProgress = false;
+                    return;
+                }
 
-// All checks passed — claim reward
-const claimRes = await secureFetch('/api/secure/ads/claim', {
+                const claimRes = await secureFetch('/api/secure/ads/claim', {
                     method: 'POST',
                     body: JSON.stringify({
                         sessionId,
                         clientDone: true,
-                        blurDetected   // sent for audit logging only
+                        blurDetected
                     })
                 });
 
                 if (claimRes && claimRes.success) {
                     tg.HapticFeedback.notificationOccurred('success');
                     showNotificationToast(`+${claimRes.reward} DASH earned! 🎉`, 'success');
-                    updateHeaderBalances(
-                        claimRes.newBalance,
-                        claimRes.newPoints,
-                        claimRes.newCoins
-                    );
+                    updateHeaderBalances(claimRes.newBalance, claimRes.newPoints, claimRes.newCoins);
                     loadAdsWatchList();
                 } else {
-                    showAppAlert(claimRes?.error || 'Claim failed. Try again.', 'error');
+                    showAppAlert(claimRes?.error || 'Claim failed.', 'error');
                 }
             })
             .catch(() => {
