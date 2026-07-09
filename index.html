@@ -5155,14 +5155,12 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
 
         // ===== MONETAG ADS =====
         if (adNetwork === 'monetag') {
-            let adPromise;
-            
-            if (blockId === 'pop') {
-                adPromise = show_11246134('pop');
-            } else {
-                adPromise = show_11246134();
-            }
-
+            const ymid = `monetag_${sessionId}`;  // Unique ID
+    
+    let adPromise = blockId === 'pop' 
+        ? show_11246134('pop', { ymid })
+        : show_11246134({ ymid });
+                 
             adPromise
                 .then(async () => {
                     // Monetag ad completed — claim reward
