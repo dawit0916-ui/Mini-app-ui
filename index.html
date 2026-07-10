@@ -1149,9 +1149,9 @@ main {
 
     
 
-           <button onclick="switchTab('levels'); setTimeout(() => showLevelUpgradeDrawer(nextLevelNumber), 300);" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm">
-                🎁 Upgrade to Next Level 
-            </button>
+           <button onclick="switchTab('levels'); setTimeout(() => { secureFetch('/api/secure/user/level').then(r => showLevelUpgradeDrawer((r.level || 0) + 1)); }, 300);" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm">
+    🎁 Upgrade to Next Level 
+</button>
     </div>
     <!-- User Info Card -->
 <div class="glass p-5 mb-6 border-white/5">
