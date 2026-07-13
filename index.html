@@ -1111,21 +1111,110 @@ main {
     
 
 </div>    
+<!-- =============== TAB-LEVELS (COMPLETE IMPLEMENTATION) =============== -->
 <div id="tab-levels" class="tab-content">
-    <!-- Current Level Card - EXACTLY like profile's top card -->
-    <div class="glass p-6 mb-6 rounded-3xl border border-white/10 text-center">
-        <h3 class="text-sm font-black uppercase tracking-widest text-white mb-4">🏆 Your Level</h3>
-        <div class="text-6xl font-bold text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text mb-2" id="currentLevelDisplay">0</div>
-        <p class="text-white/80 mb-4" id="currentLevelName">Free User</p>
-          
-             <button onclick="showLevelUpgradeDrawer(nextLevelNumber)" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm">
-                🎁 Upgrade to Next Level 
-            </button>
+    
+    <!-- ===== CURRENT LEVEL HERO CARD ===== -->
+    <div class="glass p-6 mb-6 rounded-3xl border border-white/10 text-center relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl"></div>
+        
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">🏆 Your Current Level</p>
+        
+        <div class="flex items-center justify-center gap-2 mb-4">
+            <span id="currentLevelEmoji" class="text-4xl">🚀</span>
+            <div>
+                <div class="text-5xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="currentLevelDisplay">1</div>
+                <p class="text-xs text-slate-400 font-bold mt-1" id="currentLevelName">Hustler</p>
+            </div>
+        </div>
+
+        <!-- Level Progress Info -->
+        <div class="bg-white/5 rounded-xl p-3 mb-4 text-center">
+            <p class="text-[9px] text-slate-500 mb-1">DAILY TASK LIMIT</p>
+            <p class="text-lg font-black text-orange-300" id="dailyLimitDisplay">1/day</p>
+        </div>
+
+        <!-- Upgrade Button -->
+        <button onclick="showLevelUpgradeDrawer()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
+            🎁 Upgrade to Next Level 
+        </button>
     </div>
-    <!-- All Levels Grid - directly in tab-content -->
-    <div id="levelsGrid" class="grid grid-cols-2 gap-3">
-        <!-- Populated by JS -->
+
+    <!-- ===== LEVELS GRID (10 LEVELS) ===== -->
+    <div class="mb-4">
+        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">All Levels</h3>
+        <div id="levelsGrid" class="grid grid-cols-2 gap-3">
+            <!-- Populated by loadLevels() -->
+        </div>
     </div>
+
+    <!-- ===== LEVEL DETAIL DRAWER (Hidden by default) ===== -->
+    <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
+        <div class="glass rounded-t-3xl border-t border-white/10 max-h-[85vh] overflow-y-auto pb-6">
+            <!-- Header -->
+            <div class="sticky top-0 glass rounded-t-3xl border-b border-white/10 p-5 flex items-center justify-between bg-opacity-95">
+                <div>
+                    <h3 id="drawerLevelName" class="text-sm font-black uppercase tracking-widest text-purple-400">Level 1</h3>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Price: <span id="drawerLevelPrice">10,000</span> DASH</p>
+                </div>
+                <button onclick="toggleLevelDetail()" class="w-8 h-8 glass rounded-lg flex items-center justify-center text-lg font-black active:scale-90 transition-all">✕</button>
+            </div>
+
+            <!-- Level Card Display -->
+            <div class="p-5">
+                <div class="glass p-6 rounded-2xl border border-white/10 text-center mb-5">
+                    <p class="text-5xl mb-2" id="drawerLevelEmoji">🚀</p>
+                    <h2 id="drawerLevelTitle" class="text-2xl font-black text-white mb-1">Hustler</h2>
+                    <p id="drawerLevelDesc" class="text-xs text-slate-400">Entry Level • Start Your Journey</p>
+                </div>
+
+                <!-- Features Unlocked at This Level -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">✨ Features Unlocked</h4>
+                    <div id="drawerFeaturesGrid" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Rewards & Benefits -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">💰 Rewards & Benefits</h4>
+                    <div class="space-y-2">
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Daily Task Reward</span>
+                            <span id="drawerDailyReward" class="text-sm font-black text-orange-300">500 DASH</span>
+                        </div>
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Task Daily Limit</span>
+                            <span id="drawerDailyLimit" class="text-sm font-black text-cyan-400">1/day</span>
+                        </div>
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Referral Commission</span>
+                            <span id="drawerCommission" class="text-sm font-black text-green-400">5%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upgrade Path -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">📈 Upgrade Path</h4>
+                    <div class="glass p-4 rounded-xl border border-white/5 text-center">
+                        <p class="text-xs text-slate-400 mb-2">Next Level Requires</p>
+                        <p class="text-lg font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="drawerNextPrice">20,000 DASH</p>
+                    </div>
+                </div>
+
+                <!-- Purchase Button -->
+                <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
+                    🎁 Upgrade Now
+                </button>
+                <button onclick="toggleLevelDetail()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 <div id="tab-profile" class="tab-content">
     <!-- Top Balance Card -->
@@ -1149,7 +1238,7 @@ main {
 
     
 
-           <button onclick="switchTab('levels'); setTimeout(() => { secureFetch('/api/secure/user/level').then(r => showLevelUpgradeDrawer((r.level || 0) + 1)); }, 300);" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm">
+           <button onclick="upgradeToNextLevel()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
     🎁 Upgrade to Next Level 
 </button>
     </div>
@@ -2027,8 +2116,8 @@ return count;"></textarea>
         <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Earn</span>
     </button>
      <!-- Add this to your nav alongside other tabs -->
-    <button  id="nav-item" onclick="switchTab('levels', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
+    <button id="nav-item" onclick="switchTab('levels', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
+        <span class="text-5xl drop-shadow-lg opacity-40 hover:opacity-60 transition-opacity">🚀</span>
         <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Levels</span>    
     </button>
     <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
@@ -2714,277 +2803,292 @@ function getEmptyStateHTML(icon, title, subtitle) {
         </div>
     `;
 }
-let allLevels = [];
-let expandedLevelId = null;  // Track which level is expanded
 
+// Level Configuration (matches backend)
+const LEVEL_CONFIG = [
+    {
+        level: 1,
+        name: 'Hustler',
+        emoji: '🚀',
+        price: 10000,
+        dailyReward: 500,
+        dailyLimit: 1,
+        commission: 5,
+        description: 'Entry Level • Start Your Journey',
+        features: ['Access to task platform']
+    },
+    {
+        level: 2,
+        name: 'Authority',
+        emoji: '📈',
+        price: 20000,
+        dailyReward: 700,
+        dailyLimit: 1,
+        commission: 5,
+        description: 'Growing Your Authority',
+        features: ['Daily Tasks Unlocked', 'Secret Word + Emoji Reaction']
+    },
+    {
+        level: 3,
+        name: 'Creator',
+        emoji: '✨',
+        price: 30000,
+        dailyReward: 900,
+        dailyLimit: 1,
+        commission: 10,
+        description: 'Unleash Your Creativity',
+        features: ['Custom Tasks', 'Weekly Tasks', 'Advanced Settings']
+    },
+    {
+        level: 4,
+        name: 'Content King',
+        emoji: '👑',
+        price: 40000,
+        dailyReward: 1100,
+        dailyLimit: 1,
+        commission: 10,
+        description: 'Master Content Creation',
+        features: ['Monthly Tasks', 'Content Analytics', 'Scheduling Tools']
+    },
+    {
+        level: 5,
+        name: 'Power User',
+        emoji: '⚡',
+        price: 50000,
+        dailyReward: 1200,
+        dailyLimit: 2,
+        commission: 15,
+        description: 'Unlock Premium Features',
+        features: ['3-Month Tasks', 'Whitelist Access', 'Analytics Dashboard', 'Ad Multiplier (1.5x-2.5x)']
+    },
+    {
+        level: 6,
+        name: 'Master Tactician',
+        emoji: '🎯',
+        price: 60000,
+        dailyReward: 1250,
+        dailyLimit: 2,
+        commission: 15,
+        description: 'Strategic Advantage',
+        features: ['Task Scheduling', 'Advanced Automation', 'Priority Queue']
+    },
+    {
+        level: 7,
+        name: 'Influencer',
+        emoji: '📺',
+        price: 70000,
+        dailyReward: 1300,
+        dailyLimit: 2,
+        commission: 20,
+        description: 'Become an Influencer',
+        features: ['YouTube Task Priority', 'Influencer Badge', 'Exclusive Opportunities']
+    },
+    {
+        level: 8,
+        name: 'Empire Builder',
+        emoji: '🏛️',
+        price: 80000,
+        dailyReward: 1350,
+        dailyLimit: 2,
+        commission: 20,
+        description: 'Build Your Empire',
+        features: ['Team Management', 'Bulk Operations', 'Custom Workflows']
+    },
+    {
+        level: 9,
+        name: 'Legend Candidate',
+        emoji: '🌟',
+        price: 90000,
+        dailyReward: 1375,
+        dailyLimit: 2,
+        commission: 25,
+        description: 'Almost There',
+        features: ['Priority Support', 'VIP Status', 'Exclusive Rewards']
+    },
+    {
+        level: 10,
+        name: 'Legend',
+        emoji: '👸',
+        price: 100000,
+        dailyReward: 1400,
+        dailyLimit: 2,
+        commission: 25,
+        description: 'The Ultimate Level',
+        features: ['All Features Unlocked', 'VIP Special', 'Exclusive Events', 'Custom Rewards']
+    }
+];
+
+// Load and display all levels
 async function loadLevels() {
     try {
-        const res = await secureFetch('/api/admin/levels/config');
-        allLevels = res.levels || [];
-        
+        // Fetch current user level
         const userRes = await secureFetch('/api/secure/user/level');
-        const userLevel = userRes.level || 0;
-        
-        // Update current level display
-        document.getElementById('currentLevelDisplay').textContent = userLevel;
-        const currentLevelName = allLevels.find(l => l.level === userLevel)?.name || 'Free User';
-        document.getElementById('currentLevelName').textContent = currentLevelName;
-        
-        // Render grid WITH expandable detail view
-        const grid = document.getElementById('levelsGrid');
-        grid.innerHTML = '';
-        
-        // Add all level cards
-        allLevels.forEach(level => {
-            const isOwned = userLevel >= level.level;
-            const isNext = userLevel + 1 === level.level;
-            
-            const card = document.createElement('div');
-            card.className = `glass rounded-2xl border ${isOwned ? 'border-green-500/50' : 'border-white/10'} p-4 cursor-pointer transition-all active:scale-95`;
-            card.onclick = () => toggleLevelDetail(level.level);
-            card.innerHTML = `
-                <div class="text-sm text-white/60">Level ${level.level}</div>
-                <div class="text-lg font-bold text-white mb-1">${level.name}</div>
-                <div class="text-xs text-white/50 mb-2">${level.cost.toLocaleString()} DASH</div>
-                ${isOwned ? '<div class="text-green-400 text-xs">✓ Owned</div>' : ''}
-                ${isNext ? '<div class="text-cyan-400 text-xs animate-pulse">Next Level</div>' : ''}
+        const currentLevel = userRes?.level || 1;
+        const userBalance = userRes?.balance || 0;
+
+        // Update hero card
+        const currentConfig = LEVEL_CONFIG[currentLevel - 1];
+        document.getElementById('currentLevelDisplay').textContent = currentLevel;
+        document.getElementById('currentLevelName').textContent = currentConfig.name;
+        document.getElementById('currentLevelEmoji').textContent = currentConfig.emoji;
+        document.getElementById('dailyLimitDisplay').textContent = `${currentConfig.dailyLimit}/day`;
+
+        // Render levels grid
+        const levelsGrid = document.getElementById('levelsGrid');
+        levelsGrid.innerHTML = '';
+
+        LEVEL_CONFIG.forEach((level, idx) => {
+            const isUnlocked = currentLevel > level.level;
+            const isCurrent = currentLevel === level.level;
+            const canAfford = userBalance >= level.price;
+            const isNextLevel = level.level === currentLevel + 1;
+
+            const levelCard = document.createElement('button');
+            levelCard.onclick = () => showLevelDetails(level);
+            levelCard.className = `glass p-4 rounded-2xl border transition-all active:scale-95 flex flex-col items-center gap-2 ${
+                isCurrent ? 'border-purple-500/50 bg-purple-500/10' :
+                isUnlocked ? 'border-green-500/30 bg-green-500/5' :
+                isNextLevel ? 'border-blue-500/30 bg-blue-500/5' :
+                'border-white/5'
+            }`;
+
+            const badgeHTML = isCurrent ? '✅ CURRENT' : 
+                             isUnlocked ? '✓ UNLOCKED' :
+                             isNextLevel ? '→ NEXT' : '🔒 LOCKED';
+
+            levelCard.innerHTML = `
+                <p class="text-2xl">${level.emoji}</p>
+                <h4 class="text-[10px] font-black uppercase text-white tracking-wider">${level.name}</h4>
+                <p class="text-[8px] text-slate-400 font-bold">${level.price.toLocaleString()} DASH</p>
+                <span class="text-[7px] font-black uppercase tracking-widest ${
+                    isCurrent ? 'text-purple-400' :
+                    isUnlocked ? 'text-green-400' :
+                    isNextLevel ? 'text-blue-400' : 'text-slate-500'
+                }">${badgeHTML}</span>
             `;
-            grid.appendChild(card);
+            levelsGrid.appendChild(levelCard);
         });
-        
-        // Add detail view section (shown when level is clicked)
-        const detailWrapper = document.createElement('div');
-        detailWrapper.id = 'levelDetailView';
-        detailWrapper.className = 'mt-6';
-        detailWrapper.innerHTML = '';
-        grid.parentElement.appendChild(detailWrapper);
-        
-    } catch (err) {
-        console.error('Load levels error:', err);
+
+    } catch (error) {
+        console.error('Error loading levels:', error);
         showAppAlert('Failed to load levels', 'error');
     }
 }
 
-// REPLACE toggleLevelDetail function with this:
-function toggleLevelDetail(levelNum) {
-    const level = allLevels.find(l => l.level === levelNum);
-    if (!level) return;
-    
-    const detailView = document.getElementById('levelDetailView');
-    
-    // If clicking the same level, collapse it
-    if (expandedLevelId === levelNum) {
-        detailView.innerHTML = '';
-        expandedLevelId = null;
-        return;
-    }
-    
-    // Expand the clicked level
-    expandedLevelId = levelNum;
-    
-    detailView.innerHTML = `
-        <div class="glass p-6 rounded-2xl border border-cyan-500/30 bg-cyan-500/5">
-            <!-- Close button -->
-            <button onclick="toggleLevelDetail(null)" class="float-right text-slate-400 hover:text-white text-lg">✕</button>
-            
-            <!-- Level info -->
-            <div class="mb-4">
-                <h3 class="text-xl font-black text-white mb-1">Level ${level.level}: ${level.name}</h3>
-                <p class="text-sm text-slate-400">Cost: <span class="text-cyan-400 font-bold">${level.cost.toLocaleString()} DASH</span></p>
-            </div>
-            
-            <!-- Features -->
-            <div class="mb-4">
-                <p class="text-xs font-black uppercase text-slate-500 mb-2">📋 Features Unlocked</p>
-                <div class="space-y-1">
-                    ${level.features.map(f => `
-                        <div class="text-sm text-slate-300 pl-3 border-l border-cyan-500/30">
-                            ✓ ${f}
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-            
-            <!-- Daily rewards -->
-            <div class="mb-4 bg-green-500/10 border border-green-500/20 rounded-xl p-3">
-                <p class="text-xs font-black text-green-400 uppercase mb-1">💰 Daily Task Reward</p>
-                <p class="text-2xl font-black text-white">${level.daily_task_reward} DASH</p>
-            </div>
-            
-            <!-- Purchase button - CALLS NEW DRAWER -->
-            <button onclick="showLevelUpgradeDrawer(${level.level})" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm">
-                🎁 Upgrade to Level ${level.level}
-            </button>
+// Show level detail drawer
+function showLevelDetails(levelConfig) {
+    const drawer = document.getElementById('levelDetailDrawer');
+    const nextLevel = LEVEL_CONFIG[Math.min(levelConfig.level, 9)];
+
+    // Update drawer content
+    document.getElementById('drawerLevelName').textContent = levelConfig.name;
+    document.getElementById('drawerLevelPrice').textContent = levelConfig.price.toLocaleString();
+    document.getElementById('drawerLevelEmoji').textContent = levelConfig.emoji;
+    document.getElementById('drawerLevelTitle').textContent = levelConfig.name;
+    document.getElementById('drawerLevelDesc').textContent = levelConfig.description;
+    document.getElementById('drawerDailyReward').textContent = levelConfig.dailyReward.toLocaleString() + ' DASH';
+    document.getElementById('drawerDailyLimit').textContent = levelConfig.dailyLimit + '/day';
+    document.getElementById('drawerCommission').textContent = levelConfig.commission + '%';
+    document.getElementById('drawerNextPrice').textContent = nextLevel.price.toLocaleString() + ' DASH';
+
+    // Update features grid
+    const featuresGrid = document.getElementById('drawerFeaturesGrid');
+    featuresGrid.innerHTML = levelConfig.features.map(feature => `
+        <div class="glass p-3 rounded-xl border border-white/5 flex items-center gap-2">
+            <span class="text-sm">✨</span>
+            <span class="text-xs text-slate-300">${feature}</span>
         </div>
-    `;
-    
-    // Smooth scroll to detail
-    detailView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    `).join('');
+
+    // Store current level for purchase
+    window.selectedLevelForPurchase = levelConfig;
+
+    // Show drawer
+    drawer.classList.remove('hidden');
 }
 
-// KEEP showLevelDetails as is:
-function showLevelDetails(levelNum) {
-    toggleLevelDetail(levelNum);
+// Toggle level detail drawer
+function toggleLevelDetail() {
+    const drawer = document.getElementById('levelDetailDrawer');
+    drawer.classList.toggle('hidden');
 }
 
-// ADD these NEW functions after showLevelDetails:
-async function showLevelUpgradeDrawer(levelNum) {
-    const level = allLevels.find(l => l.level === levelNum);
-    if (!level) return;
-    
-    const detailView = document.getElementById('levelDetailView');
-    
-    // Show loading state
-    detailView.innerHTML = `
-        <div class="glass p-6 rounded-2xl border border-cyan-500/30 text-center">
-            <p class="text-slate-400">Loading...</p>
-        </div>
-    `;
-    
+// Process level purchase
+async function processPurchaseLevel() {
+    if (!window.selectedLevelForPurchase) return;
+
+    const level = window.selectedLevelForPurchase;
+    const btn = document.getElementById('drawerPurchaseBtn');
+    const originalText = btn.textContent;
+
     try {
-        // Fetch user data
+        btn.disabled = true;
+        btn.textContent = '⏳ Processing...';
+
+        const response = await secureFetch('/api/secure/level/purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level: level.level })
+        });
+
+        if (!response.success) {
+            showAppAlert(response.message || 'Purchase failed', 'error');
+            btn.textContent = originalText;
+            btn.disabled = false;
+            return;
+        }
+
+        // Success!
+        showAppReward(`🎉 Upgraded to ${level.name}!`, `+${level.dailyReward} DASH/day reward unlocked for Daily Task!`);
+        
+        // Close drawer and reload
+        toggleLevelDetail();
+        await new Promise(r => setTimeout(r, 500));
+        await loadLevels();
+        await updateHeaderBalances();
+
+    } catch (error) {
+        console.error('Purchase error:', error);
+        showAppAlert('Error processing purchase', 'error');
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+// Initialize levels on tab switch
+function initializeLevelsTab() {
+    loadLevels();
+}
+// Upgrade to next level - called from Profile tab
+async function upgradeToNextLevel() {
+    try {
+        // Fetch current user level
         const userRes = await secureFetch('/api/secure/user/level');
-        const userLevel = userRes.level || 0;
-        const userProfileRes = await secureFetch('/api/secure/user/profile');
-        const profile = (typeof userProfileRes.balance === 'number') ? userProfileRes : (userProfileRes.profile || null);
-        const balance = profile?.balance || 0;
+        const currentLevel = userRes?.level || 1;
+        const nextLevelNumber = Math.min(currentLevel + 1, 10); // Cap at level 10
         
-        const isOwned = userLevel >= levelNum;
-        const hasBalance = balance >= level.cost;
+        // Find the next level config
+        const nextLevelConfig = LEVEL_CONFIG.find(l => l.level === nextLevelNumber);
         
-        if (isOwned) {
-            detailView.innerHTML = `
-                <div class="glass p-6 rounded-2xl border border-green-500/30 bg-green-500/5">
-                    <button onclick="toggleLevelDetail(null)" class="float-right text-slate-400 hover:text-white text-lg">✕</button>
-                    
-                    <div class="text-center">
-                        <p class="text-3xl mb-2">✓</p>
-                        <h3 class="text-lg font-black text-green-400 mb-4">Already Owned</h3>
-                        <p class="text-slate-300 mb-6">You already have access to Level ${levelNum}: ${level.name}</p>
-                        
-                        <button onclick="toggleLevelDetail(null)" class="w-full btn-primary py-2 rounded-xl font-black uppercase text-sm">
-                            Back
-                        </button>
-                    </div>
-                </div>
-            `;
+        if (!nextLevelConfig) {
+            showAppAlert('Max level reached!', 'info');
             return;
         }
         
-        // Show upgrade confirmation drawer
-        detailView.innerHTML = `
-            <div class="glass p-6 rounded-2xl border ${hasBalance ? 'border-cyan-500/30' : 'border-red-500/30'} ${hasBalance ? 'bg-cyan-500/5' : 'bg-red-500/5'}">
-                <button onclick="toggleLevelDetail(null)" class="float-right text-slate-400 hover:text-white text-lg">✕</button>
-                
-                <!-- Header -->
-                <div class="mb-6 text-center">
-                    <h2 class="text-2xl font-black text-white mb-2">🎁 Confirm Purchase</h2>
-                    <p class="text-cyan-400 font-bold">Level ${levelNum}: ${level.name}</p>
-                </div>
-                
-                <!-- Cost & Balance Check -->
-                <div class="mb-6 space-y-3">
-                    <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl">
-                        <span class="text-slate-400">Level Cost</span>
-                        <span class="text-white font-black">${level.cost.toLocaleString()} DASH</span>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl">
-                        <span class="text-slate-400">Your Balance</span>
-                        <span class="text-white font-black">${balance.toLocaleString()} DASH</span>
-                    </div>
-                    ${hasBalance ? '' : '<div class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm font-bold text-center">❌ Insufficient Balance</div>'}
-                </div>
-                
-                <!-- Features Preview -->
-                <div class="mb-6">
-                    <p class="text-xs font-black uppercase text-slate-500 mb-3">📋 You will unlock</p>
-                    <div class="space-y-2">
-                        ${level.features.map(f => `
-                            <div class="flex items-center gap-2 text-sm text-slate-300">
-                                <span class="text-green-400">✓</span>
-                                <span>${f}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <!-- Daily Reward -->
-                <div class="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-center">
-                    <p class="text-xs text-green-400 font-black uppercase mb-1">Daily Reward</p>
-                    <p class="text-3xl font-black text-white">${level.daily_task_reward}</p>
-                    <p class="text-xs text-green-400">DASH per task</p>
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="flex gap-3">
-                    <button onclick="toggleLevelDetail(null)" class="flex-1 btn-secondary py-3 rounded-xl font-black uppercase text-sm">
-                        Cancel
-                    </button>
-                    <button onclick="processPurchaseLevel(${levelNum})" ${!hasBalance ? 'disabled' : ''} class="flex-1 btn-premium py-3 rounded-xl font-black uppercase text-sm ${!hasBalance ? 'opacity-50 cursor-not-allowed' : ''}">
-                        ${hasBalance ? '✓ Confirm' : '✗ No Balance'}
-                    </button>
-                </div>
-            </div>
-        `;
+        // Switch to levels tab
+        switchTab('levels', document.getElementById('nav-item'));
         
-        detailView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Wait for tab transition, then load and show details
+        await new Promise(r => setTimeout(r, 300));
+        await loadLevels();
+        showLevelDetails(nextLevelConfig);
         
-    } catch (err) {
-        console.error('Upgrade drawer error:', err);
-        detailView.innerHTML = `
-            <div class="glass p-6 rounded-2xl border border-red-500/30 text-center">
-                <p class="text-red-400 mb-4">Error loading upgrade</p>
-                <button onclick="toggleLevelDetail(null)" class="w-full btn-primary py-2 rounded-xl font-black text-sm">Back</button>
-            </div>
-        `;
+    } catch (error) {
+        console.error('Error upgrading to next level:', error);
+        showAppAlert('Failed to load level info', 'error');
     }
 }
-
-async function processPurchaseLevel(levelNum) {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.innerText = '⏳ Processing...';
-    
-    try {
-        const purchaseRes = await secureFetch('/api/secure/level/purchase', {
-            method: 'POST',
-            body: JSON.stringify({ level: levelNum })
-        });
-        
-        if (purchaseRes.success) {
-            // Success animation
-            const detailView = document.getElementById('levelDetailView');
-            detailView.innerHTML = `
-                <div class="glass p-6 rounded-2xl border border-green-500/30 bg-green-500/5 text-center animate-pulse">
-                    <p class="text-4xl mb-2">🎉</p>
-                    <h3 class="text-xl font-black text-green-400 mb-2">Purchase Successful!</h3>
-                    <p class="text-slate-300 mb-6">Welcome to Level ${levelNum}!</p>
-                </div>
-            `;
-            
-            // Update UI
-            await updateHeaderBalances();
-            await loadLevels();
-            
-            // Show alert
-            setTimeout(() => {
-                showAppAlert(`🎉 Welcome to Level ${levelNum}!`, 'success');
-            }, 500);
-        } else {
-            showAppAlert(purchaseRes.error || 'Purchase failed', 'error');
-            btn.disabled = false;
-            btn.innerText = '✓ Confirm';
-        }
-    } catch (err) {
-        console.error('Purchase error:', err);
-        showAppAlert('Purchase error: ' + err.message, 'error');
-        btn.disabled = false;
-        btn.innerText = '✓ Confirm';
-    }
-}
-
-
-        // Track tasks currently in progress
+// Track tasks currently in progress
 let activeTasks = {};
         
 function startTask(url, taskId, reward, duration) {
