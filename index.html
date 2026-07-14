@@ -1038,18 +1038,17 @@ main {
             </div>
         </button>
 
-        <!-- Banner: Fast Tasks -->
-<button onclick="openEarnSection('fast')" class="w-full text-left relative overflow-hidden rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-950/40 to-indigo-950/20 p-5 mb-4 backdrop-blur-xl active:scale-[0.98] transition-all">
-    <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-blue-500/15 blur-xl"></div>
-    <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center text-2xl shrink-0">⚡</div>
-        <div class="flex-1 min-w-0">
-            <h3 class="text-base font-black text-white">Fast AD Tasks</h3>
-            <p class="text-[11px] text-slate-400 truncate">Get in seconds</p>
-        </div>
-        <span class="text-slate-500 text-lg">›</span>
-    </div>
-</button>
+       <button onclick="openEarnSection('daily')" class="w-full text-left relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-blue-950/20 p-5 mb-4 backdrop-blur-xl active:scale-[0.98] transition-all">
+          <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-cyan-500/15 blur-xl"></div>
+          <div class="flex items-center gap-4">
+             <div class="w-14 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/20 flex items-center justify-center text-2xl shrink-0">📝</div>
+             <div class="flex-1 min-w-0">
+                 <h3 class="text-base font-black text-white">Daily Tasks</h3>
+                 <p class="text-[11px] text-slate-400 truncate" id="dailyTasksRewardPreview">Secret Word + Emoji Reaction</p>
+             </div>
+             <span class="text-slate-500 text-lg">›</span>
+         </div>
+      </button>
     </div>
 
     <!-- ===== SUB-PAGE: YOUTUBE TASKS LIST ===== -->
@@ -1106,8 +1105,102 @@ main {
         </div>
     </div>
 
-<!-- ===== SUB-PAGE: FAST TASKS ===== -->
-<div id="earn-section-fast" class="hidden">deleted</div>
+<<div id="earn-section-daily" class="hidden">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-5">
+        <button onclick="closeEarnSection()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-cyan-400">📝 Daily Tasks</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Complete Secret Word + Emoji Task</p>
+        </div>
+    </div>
+ 
+    <!-- Level-Locked Message (if not unlocked) -->
+    <div id="dailyTaskLockedMessage" class="hidden glass p-5 rounded-2xl border border-yellow-500/30 mb-5">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🔒</span>
+            <div>
+                <p class="text-sm font-black text-yellow-400 mb-1">Daily Tasks Locked</p>
+                <p class="text-[11px] text-yellow-300/70">Upgrade to Level 2 to unlock daily tasks and earn <span id="levelTwoReward">700</span> DASH per day!</p>
+            </div>
+        </div>
+    </div>
+ 
+    <!-- Daily Task Card (When Unlocked) -->
+    <div id="dailyTaskCard" class="hidden">
+        <!-- Task Info Header -->
+        <div class="glass p-4 rounded-2xl border border-cyan-500/20 mb-4">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <h4 class="text-sm font-black text-cyan-400">Today's Daily Task</h4>
+                    <p class="text-[10px] text-slate-500">Complete to earn your daily reward</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] text-slate-500 mb-1">Completions</p>
+                    <p class="text-lg font-black text-cyan-400" id="dailyCompletionCount">0</p>
+                </div>
+            </div>
+ 
+            <!-- Progress Bar (Daily Limit) -->
+            <div class="w-full bg-black/30 rounded-full h-2 overflow-hidden">
+                <div id="dailyProgressBar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p class="text-[9px] text-slate-500 mt-2 text-center" id="dailyLimitText">0/1 Completed Today</p>
+        </div>
+ 
+        <!-- Secret Word Task -->
+        <div class="glass p-5 rounded-2xl border border-white/5 mb-4">
+            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">🔤 Secret Word Challenge</h4>
+            
+            <div class="bg-white/5 rounded-xl p-4 mb-4 text-center">
+                <p class="text-[10px] text-slate-500 mb-2">Hidden Word (Will be revealed)</p>
+                <p class="text-2xl font-black text-cyan-400" id="secretWordDisplay">🤫</p>
+                <p class="text-[9px] text-slate-600 mt-2">Watch carefully!</p>
+            </div>
+ 
+            <input id="secretWordInput" type="text" autocomplete="off" autocapitalize="off" placeholder="Enter the secret word..." class="w-full p-3.5 rounded-xl text-sm glass mb-3 tracking-wider border border-white/5 focus:border-cyan-500/50 transition-all" style="background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px);">
+            
+            <button id="submitSecretWordBtn" onclick="submitSecretWord()" class="w-full btn-premium py-3 rounded-xl font-black text-xs uppercase tracking-wider active:scale-[0.98] transition-all">
+                ✓ Submit Secret Word
+            </button>
+        </div>
+ 
+        <!-- Emoji Reaction Task -->
+        <div class="glass p-5 rounded-2xl border border-white/5 mb-4">
+            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">😊 Emoji Reaction</h4>
+            
+            <p class="text-[10px] text-slate-400 mb-4">React with the correct emoji:</p>
+            
+            <div class="grid grid-cols-4 gap-2 mb-4">
+                <button onclick="selectEmoji('😊')" class="p-4 glass rounded-xl border border-white/10 text-2xl font-black active:scale-90 active:border-cyan-500/50 transition-all" id="emoji-😊">😊</button>
+                <button onclick="selectEmoji('🎉')" class="p-4 glass rounded-xl border border-white/10 text-2xl font-black active:scale-90 active:border-cyan-500/50 transition-all" id="emoji-🎉">🎉</button>
+                <button onclick="selectEmoji('🚀')" class="p-4 glass rounded-xl border border-white/10 text-2xl font-black active:scale-90 active:border-cyan-500/50 transition-all" id="emoji-🚀">🚀</button>
+                <button onclick="selectEmoji('⭐')" class="p-4 glass rounded-xl border border-white/10 text-2xl font-black active:scale-90 active:border-cyan-500/50 transition-all" id="emoji-⭐">⭐</button>
+            </div>
+ 
+            <p class="text-[10px] text-slate-500 text-center mb-3" id="selectedEmojiDisplay">No emoji selected yet</p>
+            
+            <button id="submitEmojiBtn" onclick="submitEmojiReaction()" class="w-full btn-premium py-3 rounded-xl font-black text-xs uppercase tracking-wider active:scale-[0.98] transition-all">
+                🎯 Submit Emoji & Claim Reward
+            </button>
+        </div>
+ 
+        <!-- Reward Display -->
+        <div class="glass p-4 rounded-2xl border border-green-500/30 bg-green-500/5 text-center">
+            <p class="text-[10px] text-green-400 font-black uppercase mb-2">💰 Daily Reward</p>
+            <p class="text-3xl font-black text-transparent bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text" id="dailyRewardAmount">500</p>
+            <p class="text-[9px] text-green-300/70">DASH</p>
+        </div>
+ 
+        <!-- Come Back Tomorrow Message (if already completed) -->
+        <div id="dailyTaskCompletedMessage" class="hidden glass p-4 rounded-2xl border border-green-500/30 bg-green-500/5 text-center mt-4">
+            <p class="text-sm font-black text-green-400 mb-2">✅ Daily Task Completed!</p>
+            <p class="text-[10px] text-green-300/70">Come back tomorrow to earn more rewards</p>
+            <p class="text-[9px] text-green-300/50 mt-2" id="nextResetTime">Resets at midnight UTC</p>
+        </div>
+    </div>
+</div>
+ 
     
 
 </div>    
@@ -1147,7 +1240,7 @@ main {
             <!-- Populated by loadLevels() -->
         </div>
     </div>
-
+</div>
     <!-- ===== LEVEL DETAIL DRAWER (Hidden by default) ===== -->
     <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
         <div class="glass rounded-t-3xl border-t border-white/10 max-h-[85vh] overflow-y-auto pb-6">
@@ -1215,7 +1308,7 @@ main {
         </div>
     </div>
 
-</div>
+
 <div id="tab-profile" class="tab-content">
     <!-- Top Balance Card -->
  <div class="glass p-6 text-center glow-blue mb-6 relative overflow-hidden">
