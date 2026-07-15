@@ -5847,7 +5847,7 @@ async function loadYoutubeTasks() {
                     ${t.thumbnail ? `
                         <img src="${t.thumbnail}" class="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0">
                     ` : `
-                        <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-xl shrink-0">📺</div>
+                        <img src="/assets/images/icon-youtube.png" class="w-12 h-12 object-contain drop-shadow-lg shrink-0">
                     `}
                     <div class="min-w-0">
                         <h4 class="text-sm font-bold text-white truncate">${t.title}</h4>
@@ -6000,7 +6000,7 @@ async function loadAdsWatchList() {
 
             return `
             <div class="glass p-4 flex items-center gap-4 border border-orange-500/15 rounded-2xl">
-                <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl shrink-0">👁️</div>
+                <img src="/assets/images/icon-youtube.png" class="w-12 h-12 object-contain drop-shadow-lg shrink-0">
                 <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-center mb-1">
                         <p class="text-sm font-black text-white">+${ad.reward} DASH</p>
