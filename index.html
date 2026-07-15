@@ -1117,10 +1117,10 @@ main {
     <!-- COMMENT (secret word) VARIANT -->
     <div id="dailyTask-comment" class="hidden">
         <div class="glass p-5 rounded-2xl border border-white/5 mb-4">
-            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">🔤 Secret Word</h4>
+            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">🔤 Secret / Comment / Word</h4>
             <div class="bg-white/5 rounded-xl p-4 mb-4 text-center">
                 <p class="text-[10px] text-slate-500 mb-2">TODAY'S WORD</p>
-                <p class="text-2xl font-black text-cyan-400 tracking-wider" id="dailyCommentWord">GOLDEN</p>
+                <p class="text-2xl font-black text-cyan-400 tracking-wider" id="dailyCommentWord"></p>
             </div>
             <div class="flex gap-2">
                 <button onclick="copySecretWord()" class="flex-1 glass py-3 rounded-xl font-bold text-xs text-cyan-400 border border-cyan-500/30 active:scale-95 transition-all">📋 Copy Word</button>
@@ -3110,7 +3110,7 @@ async function upgradeToNextLevel() {
     try {
         // Fetch current user level
         const userRes = await secureFetch('/api/secure/user/level');
-        const currentLevel = userRes?.level || 1;
+        const currentLevel = userRes?.level || 0;
         const nextLevelNumber = Math.min(currentLevel + 1, 10); // Cap at level 10
         
         // Find the next level config
@@ -6000,7 +6000,7 @@ async function loadAdsWatchList() {
 
             return `
             <div class="glass p-4 flex items-center gap-4 border border-orange-500/15 rounded-2xl">
-                <img src="/assets/images/icon-youtube.png" class="w-12 h-12 object-contain drop-shadow-lg shrink-0">
+                <img src="/assets/images/icon-ads.png" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
                 <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-center mb-1">
                         <p class="text-sm font-black text-white">+${ad.reward} DASH</p>
