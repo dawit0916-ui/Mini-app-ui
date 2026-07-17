@@ -1262,6 +1262,59 @@ main {
     </div>
 </div>
 
+<div id="tab-shop" class="tab-content">
+    <!-- Shop Section Tabs (horizontal scroll) -->
+    <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+        <button onclick="switchShopSection('courses')" class="shop-tab-btn active px-4 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap glass transition-all">
+            📚 Courses
+        </button>
+        <button onclick="switchShopSection('apk')" class="shop-tab-btn px-4 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap glass transition-all">
+            📱 APK
+        </button>
+        <button onclick="switchShopSection('my-purchases')" class="shop-tab-btn px-4 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap glass transition-all">
+            ⭐ My Store
+        </button>
+    </div>
+ 
+    <!-- COURSES SECTION -->
+    <div id="shop-section-courses" class="shop-section">
+        <!-- Course Category Filter -->
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+            <button onclick="filterCourses('all')" class="course-filter-btn active px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all bg-blue-600/30">
+                All
+            </button>
+            <button onclick="filterCourses('tiktok')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">
+                TikTok
+            </button>
+            <button onclick="filterCourses('youtube')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">
+                YouTube
+            </button>
+            <button onclick="filterCourses('dropshipping')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">
+                Dropship
+            </button>
+        </div>
+ 
+        <!-- Courses Grid -->
+        <div id="shop-courses-grid" class="grid grid-cols-2 gap-3 pb-20">
+            <p class="text-center text-slate-500 text-xs py-10 col-span-2">Loading courses...</p>
+        </div>
+    </div>
+ 
+    <!-- APK SECTION -->
+    <div id="shop-section-apk" class="shop-section hidden">
+        <div id="shop-apk-grid" class="grid grid-cols-2 gap-3 pb-20">
+            <p class="text-center text-slate-500 text-xs py-10 col-span-2">Loading APKs...</p>
+        </div>
+    </div>
+ 
+    <!-- MY PURCHASES SECTION -->
+    <div id="shop-section-my-purchases" class="shop-section hidden">
+        <div id="shop-my-purchases-list" class="space-y-3 pb-20">
+            <p class="text-center text-slate-500 text-xs py-10">Loading your purchases...</p>
+        </div>
+    </div>
+</div>
+ 
 <div id="tab-profile" class="tab-content">
     <!-- Top Balance Card -->
  <div class="glass p-6 text-center glow-blue mb-6 relative overflow-hidden">
@@ -1509,7 +1562,10 @@ main {
             <span class="text-2xl">👑</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Admins</span>
         </button>
-        
+        <button onclick="switchAdminPanel('panel-shop-manager')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-purple-500/20 hover:bg-white/5 active:scale-95 transition-all">
+            <span class="text-2xl">🛍️</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Shop</span>
+        </button>
         <button onclick="switchAdminPanel('panel-console')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-green-500/20 hover:bg-white/5 active:scale-95 transition-all">
             <span class="text-2xl">🖥</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Console</span>
@@ -1694,7 +1750,91 @@ main {
         </div>
     </div>
 </div>
-    
+<!-- Admin Shop Manager Panel -->
+<div id="panel-shop-manager" class="hidden space-y-6 pb-10">
+    <div class="flex items-center gap-3 mb-4">
+        <button onclick="switchAdminPanel('hub')" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-purple-400">Shop Manager</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Manage courses, APKs & lessons</p>
+        </div>
+    </div>
+ 
+    <!-- Shop Tabs -->
+    <div class="flex gap-2 bg-black/20 p-1 rounded-xl border border-white/5">
+        <button onclick="switchShopAdminTab('courses')" id="admin-shop-tab-courses" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-purple-600 text-white transition-all">Courses</button>
+        <button onclick="switchShopAdminTab('apk')" id="admin-shop-tab-apk" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all">APK</button>
+        <button onclick="switchShopAdminTab('stats')" id="admin-shop-tab-stats" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all">Stats</button>
+    </div>
+ 
+    <!-- COURSES TAB -->
+    <div id="admin-shop-courses" class="space-y-4">
+        <!-- Create Course Form -->
+        <div class="glass p-4 border-white/5 rounded-2xl">
+            <h4 class="text-[10px] font-black uppercase text-purple-400 mb-3 tracking-widest">Create Course</h4>
+            <div class="space-y-3">
+                <input id="admin-course-title" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Course Title">
+                <input id="admin-course-category" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Category (e.g., TikTok Automation)">
+                <textarea id="admin-course-description" class="w-full p-2 rounded-xl text-xs glass h-20" placeholder="Description"></textarea>
+                <input id="admin-course-price" type="number" class="w-full p-2 rounded-xl text-xs glass" placeholder="Price (DASH)">
+                <input id="admin-course-thumbnail" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Thumbnail URL">
+                <button onclick="createAdminCourse()" class="w-full py-3 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all">
+                    Create Course
+                </button>
+            </div>
+        </div>            
+        <!-- Courses List -->
+        <div>
+            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">Manage Courses</h4>
+            <div id="admin-courses-list" class="space-y-2">
+                <p class="text-center text-slate-500 text-[10px] py-6">Loading courses...</p>
+            </div>
+        </div>
+    </div>
+ 
+    <!-- APK TAB -->
+    <div id="admin-shop-apk" class="hidden space-y-4">
+        <div class="glass p-4 border-white/5 rounded-2xl">
+            <h4 class="text-[10px] font-black uppercase text-purple-400 mb-3 tracking-widest">Create APK</h4>
+            <div class="space-y-3">
+                <input id="admin-apk-title" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="APK Name">
+                <textarea id="admin-apk-description" class="w-full p-2 rounded-xl text-xs glass h-20" placeholder="Description">  </textarea>
+                <input id="admin-apk-price" type="number" class="w-full p-2 rounded-xl text-xs glass" placeholder="Price (DASH)">
+                <input id="admin-apk-thumbnail" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Thumbnail URL">
+                <input id="admin-apk-telegram-file-id" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Telegram File ID">
+                <button onclick="createAdminAPK()" class="w-full py-3 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all">
+                    Create APK
+                </button>
+            </div>
+        </div>
+ 
+        <div id="admin-apk-list" class="space-y-2">
+            <p class="text-center text-slate-500 text-[10px] py-6">Loading APKs...</p>
+        </div>
+    </div>
+ 
+    <!-- STATS TAB -->
+    <div id="admin-shop-stats" class="hidden space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+            <div class="glass p-4 rounded-2xl border border-purple-500/20 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Total Products</p>
+                <h3 id="stat-shop-products" class="text-2xl font-black text-purple-400">0</h3>
+            </div>
+            <div class="glass p-4 rounded-2xl border border-blue-500/20 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Total Courses</p>
+                <h3 id="stat-shop-courses" class="text-2xl font-black text-blue-400">0</h3>
+            </div>
+            <div class="glass p-4 rounded-2xl border border-green-500/20 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Total Purchases</p>
+                <h3 id="stat-shop-purchases" class="text-2xl font-black text-green-400">0</h3>
+            </div>
+            <div class="glass p-4 rounded-2xl border border-yellow-500/20 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Total Revenue (DASH)</p>
+                <h3 id="stat-shop-revenue" class="text-2xl font-black text-yellow-400">0</h3>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- REPLACE the two floating glass divs with this: -->
 <div id="panel-payouts" class="hidden space-y-6 pb-10">
     <div class="flex items-center gap-3 mb-4">
@@ -2126,8 +2266,75 @@ return count;"></textarea>
         <div id="history-list" class="space-y-3"></div>
     </div>
 </div> 
+<div id="shop-detail-modal" class="sheet-backdrop">
+    <div class="sheet-drawer">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 id="shop-detail-title" class="sheet-title">Course Title</h3>
+                <p id="shop-detail-category" class="sheet-subtitle">Category</p>
+            </div>
+            <button onclick="closeShopDetail()" class="sheet-close">✕</button>
+        </div>
+ 
+        <div id="shop-detail-content" class="space-y-4">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+</div>
+ <div id="shop-course-detail-modal" class="sheet-backdrop">
+    <div class="sheet-drawer">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 id="course-detail-title" class="sheet-title">Course Title</h3>
+                <p id="course-detail-price" class="sheet-subtitle text-yellow-400">0 DASH</p>
+            </div>
+            <button onclick="closeCourseDetail()" class="sheet-close">✕</button>
+        </div>
+ 
+        <div id="course-detail-content" class="space-y-4">
+            <!-- Lessons list populated here -->
+        </div>
+    </div>
+ </div>
+<div id="admin-lesson-modal" class="sheet-backdrop">
+    <div class="sheet-drawer">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="sheet-title">Add Lesson</h3>
+            <button onclick="closeAdminLessonModal()" class="sheet-close">✕</button>
+        </div>
+ 
+        <div class="space-y-3">
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Module Name</p>
+                <input id="admin-lesson-module" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Module 1: Getting Started">
+            </div>
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Lesson Name</p>
+                <input id="admin-lesson-name" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Setting Up Your Account">
+            </div>
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Telegram File ID</p>
+                <input id="admin-lesson-file-id" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Paste file_id here">
+                <p class="text-[8px] text-slate-400 mt-1">Send video to bot, it will reply with file_id</p>
+            </div>
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Duration</p>
+                <input id="admin-lesson-duration" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., 12:45">
+            </div>
+            <button onclick="addAdminLesson()" class="w-full py-3 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all">
+                Add Lesson
+            </button>
+        </div>
+    </div>
+</div>
+     
 
-                                                                                                                                        </div>
 </main>
 
     <!-- CUSTOM IN-APP POPUP -->
@@ -6199,6 +6406,477 @@ function updateHeaderBalances(dash, usdt, tickets) {
     const dashEl   = document.getElementById('header-dash-val');
     if (dashEl)   dashEl.innerText   = parseInt(dash    || 0).toLocaleString();
 }
+// =====================================================
+// SHOP FUNCTIONS
+// ======= 
+// Current shop state
+let shopState = {
+    currentSection: 'courses',
+    currentFilter: 'all',
+    courses: [],
+    apks: [],
+    myPurchases: [],
+    selectedProduct: null,
+    adminCourseId: null
+};
+
+// Switch between shop sections
+function switchShopSection(section) {
+    shopState.currentSection = section;
+    document.querySelectorAll('.shop-section').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.shop-tab-btn').forEach(el => el.classList.remove('active', 'bg-blue-600/30'));
+    
+    document.getElementById(`shop-section-${section}`).classList.remove('hidden');
+    event.target.classList.add('active', 'bg-blue-600/30');
+
+    if (section === 'courses') loadShopCourses();
+    if (section === 'apk') loadShopAPKs();
+    if (section === 'my-purchases') loadMyPurchases();
+}
+
+// Load courses from backend
+async function loadShopCourses() {
+    try {
+        const res = await secureFetch('/api/shop/products?type=course', 'GET');
+        shopState.courses = res.products || [];
+        renderCourses();
+    } catch (err) {
+        console.error('Load courses error:', err);
+    }
+}
+
+// Load APKs from backend
+async function loadShopAPKs() {
+    try {
+        const res = await secureFetch('/api/shop/products?type=apk', 'GET');
+        shopState.apks = res.products || [];
+        renderAPKs();
+    } catch (err) {
+        console.error('Load APKs error:', err);
+    }
+}
+
+// Load user's purchases
+async function loadMyPurchases() {
+    try {
+        const res = await secureFetch('/api/secure/my-shop-purchases', 'GET');
+        shopState.myPurchases = res.purchases || [];
+        renderMyPurchases();
+    } catch (err) {
+        console.error('Load purchases error:', err);
+    }
+}
+
+// Filter courses by category
+function filterCourses(category) {
+    shopState.currentFilter = category;
+    document.querySelectorAll('.course-filter-btn').forEach(el => el.classList.remove('active', 'bg-blue-600/30'));
+    event.target.classList.add('active', 'bg-blue-600/30');
+    renderCourses();
+}
+
+// Render courses grid
+function renderCourses() {
+    const grid = document.getElementById('shop-courses-grid');
+    let filtered = shopState.courses;
+
+    if (shopState.currentFilter !== 'all') {
+        filtered = shopState.courses.filter(c => 
+            c.category?.toLowerCase().includes(shopState.currentFilter.toLowerCase())
+        );
+    }
+
+    if (filtered.length === 0) {
+        grid.innerHTML = '<p class="text-center text-slate-500 text-xs py-10 col-span-2">No courses available</p>';
+        return;
+    }
+
+    grid.innerHTML = filtered.map(course => `
+        <div onclick="openCourseDetail('${course._id}')" class="glass p-3 rounded-2xl border border-purple-500/20 cursor-pointer hover:bg-white/10 active:scale-95 transition-all">
+            <div class="w-full h-24 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-xl mb-2 flex items-center justify-center">
+                <span class="text-3xl">📚</span>
+            </div>
+            <h4 class="text-xs font-black text-white mb-1 line-clamp-2">${course.title}</h4>
+            <p class="text-[9px] text-slate-500 mb-2">${course.category || 'Course'}</p>
+            <div class="flex justify-between items-end">
+                <span class="text-[10px] font-black text-yellow-400">${course.price} DASH</span>
+                <span class="text-[8px] text-slate-400">⭐ ${course.rating || 0}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render APKs
+function renderAPKs() {
+    const grid = document.getElementById('shop-apk-grid');
+    
+    if (shopState.apks.length === 0) {
+        grid.innerHTML = '<p class="text-center text-slate-500 text-xs py-10 col-span-2">No APKs available</p>';
+        return;
+    }
+
+    grid.innerHTML = shopState.apks.map(apk => `
+        <div onclick="openAPKDetail('${apk._id}')" class="glass p-3 rounded-2xl border border-blue-500/20 cursor-pointer hover:bg-white/10 active:scale-95 transition-all">
+            <div class="w-full h-24 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl mb-2 flex items-center justify-center">
+                <span class="text-3xl">📱</span>
+            </div>
+            <h4 class="text-xs font-black text-white mb-1 line-clamp-2">${apk.title}</h4>
+            <p class="text-[9px] text-slate-500 mb-2">Application</p>
+            <div class="flex justify-between items-end">
+                <span class="text-[10px] font-black text-yellow-400">${apk.price} DASH</span>
+                <span class="text-[8px] text-slate-400">v1.0</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render my purchases
+function renderMyPurchases() {
+    const list = document.getElementById('shop-my-purchases-list');
+    
+    if (shopState.myPurchases.length === 0) {
+        list.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">You haven\'t purchased anything yet!</p>';
+        return;
+    }
+
+    list.innerHTML = shopState.myPurchases.map(purchase => `
+        <div class="glass p-4 rounded-2xl border border-green-500/20">
+            <div class="flex justify-between items-start mb-2">
+                <h4 class="text-xs font-black text-white">${purchase.productId.title}</h4>
+                <span class="text-[8px] px-2 py-1 bg-green-500/20 text-green-400 rounded font-black">Owned</span>
+            </div>
+            <p class="text-[9px] text-slate-500 mb-3">${purchase.productId.category || 'Product'}</p>
+            ${purchase.productId.type === 'course' ? `
+                <button onclick="openCoursePlayer('${purchase.productId._id}')" class="w-full py-2 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase active:scale-95 transition-all">
+                    📚 Open Course
+                </button>
+            ` : `
+                <button onclick="downloadAPK('${purchase.productId._id}')" class="w-full py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase active:scale-95 transition-all">
+                    📥 Download
+                </button>
+            `}
+        </div>
+    `).join('');
+}
+
+// Open course detail
+async function openCourseDetail(productId) {
+    try {
+        const res = await secureFetch(`/api/shop/product/${productId}`, 'GET');
+        const { product, lessons } = res;
+        
+        shopState.selectedProduct = product;
+        
+        const modal = document.getElementById('shop-course-detail-modal');
+        document.getElementById('course-detail-title').textContent = product.title;
+        document.getElementById('course-detail-price').textContent = `${product.price} DASH`;
+
+        let lessonsHTML = `
+            <div class="glass p-3 rounded-xl border border-white/5">
+                <p class="text-[9px] text-slate-500 uppercase font-black mb-3">${product.description}</p>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Lessons (${lessons.length})</h4>
+                <div class="space-y-2">
+        `;
+
+        lessons.forEach((lesson, idx) => {
+            lessonsHTML += `
+                <div class="glass p-3 rounded-xl border border-white/5">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <p class="text-[9px] text-slate-500 font-black">${lesson.moduleName}</p>
+                            <p class="text-xs font-black text-white mt-1">${lesson.lessonName}</p>
+                        </div>
+                        <span class="text-[8px] text-slate-400">${lesson.duration || '--:--'}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        lessonsHTML += `
+                </div>
+            </div>
+        `;
+
+        // Check if already purchased
+        const purchased = shopState.myPurchases.some(p => p.productId._id === productId);
+        
+        if (purchased) {
+            lessonsHTML += `
+                <button onclick="openCoursePlayer('${productId}')" class="w-full py-3 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all">
+                    ▶ Play Course
+                </button>
+            `;
+        } else {
+            lessonsHTML += `
+                <button onclick="purchaseProduct('${productId}')" class="w-full py-3 bg-purple-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all">
+                    💰 Buy Now (${product.price} DASH)
+                </button>
+            `;
+        }
+
+        document.getElementById('course-detail-content').innerHTML = lessonsHTML;
+        modal.classList.add('active');
+    } catch (err) {
+        console.error('Open course error:', err);
+        showAlert('Error', 'Failed to load course details');
+    }
+}
+
+// Purchase product
+async function purchaseProduct(productId) {
+    try {
+        const res = await secureFetch('/api/secure/purchase-course', 'POST', { productId });
+        if (res.success) {
+            showAlert('Success!', res.message);
+            closeCourseDetail();
+            userProfileData.balance = res.newBalance;
+            updateUserProfile();
+            loadMyPurchases();
+        }
+    } catch (err) {
+        console.error('Purchase error:', err);
+        showAlert('Error', err.error || 'Purchase failed');
+    }
+}
+
+// Open course player
+function openCoursePlayer(productId) {
+    // TODO: Implement video player in a new modal with /api/stream-video
+    closeCourseDetail();
+    showAlert('Soon', 'Video player coming soon!');
+}
+
+// Close modals
+function closeShopDetail() {
+    document.getElementById('shop-detail-modal').classList.remove('active');
+}
+
+function closeCourseDetail() {
+    document.getElementById('shop-course-detail-modal').classList.remove('active');
+}
+
+// =====================================================
+// ADMIN SHOP FUNCTIONS
+// =====================================================
+
+// Switch admin shop tab
+function switchShopAdminTab(tab) {
+    document.querySelectorAll('[id^="admin-shop-tab-"]').forEach(el => {
+        el.classList.remove('bg-purple-600', 'text-white');
+        el.classList.add('text-slate-400');
+    });
+    document.querySelectorAll('[id^="admin-shop-"]').forEach(el => el.classList.add('hidden'));
+    
+    document.getElementById(`admin-shop-tab-${tab}`).classList.add('bg-purple-600', 'text-white');
+    document.getElementById(`admin-shop-${tab}`).classList.remove('hidden');
+
+    if (tab === 'courses') loadAdminCourses();
+    if (tab === 'apk') loadAdminAPKs();
+    if (tab === 'stats') loadShopStats();
+}
+
+// Load admin courses
+async function loadAdminCourses() {
+    try {
+        const res = await secureFetch('/api/admin/shop/products', 'GET');
+        const courses = res.products.filter(p => p.type === 'course');
+        
+        let html = courses.map(course => `
+            <div class="glass p-3 rounded-xl border border-purple-500/20">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1">
+                        <h5 class="text-xs font-black text-white">${course.title}</h5>
+                        <p class="text-[8px] text-slate-500">${course.category} • ${course.price} DASH</p>
+                    </div>
+                    <button onclick="deleteAdminProduct('${course._id}')" class="text-[10px] text-red-400 hover:text-red-300">✕</button>
+                </div>
+                <button onclick="openAdminLessonModal('${course._id}')" class="w-full py-2 bg-purple-600/50 text-purple-300 rounded-lg text-[9px] font-black uppercase active:scale-95 transition-all">
+                    ➕ Add Lesson
+                </button>
+            </div>
+        `).join('');
+
+        document.getElementById('admin-courses-list').innerHTML = html;
+    } catch (err) {
+        console.error('Load admin courses error:', err);
+    }
+}
+
+// Create course
+async function createAdminCourse() {
+    try {
+        const title = document.getElementById('admin-course-title').value.trim();
+        const category = document.getElementById('admin-course-category').value.trim();
+        const description = document.getElementById('admin-course-description').value.trim();
+        const price = parseInt(document.getElementById('admin-course-price').value);
+        const thumbnail = document.getElementById('admin-course-thumbnail').value.trim();
+
+        if (!title || !price) {
+            showAlert('Error', 'Title and price required');
+            return;
+        }
+
+        const res = await secureFetch('/api/admin/shop/create-course', 'POST', {
+            title, category, description, price, thumbnail
+        });
+
+        if (res.success) {
+            showAlert('Success!', 'Course created');
+            document.getElementById('admin-course-title').value = '';
+            document.getElementById('admin-course-category').value = '';
+            document.getElementById('admin-course-description').value = '';
+            document.getElementById('admin-course-price').value = '';
+            document.getElementById('admin-course-thumbnail').value = '';
+            loadAdminCourses();
+        }
+    } catch (err) {
+        showAlert('Error', err.error || 'Failed to create course');
+    }
+}
+
+// Open lesson modal
+function openAdminLessonModal(courseId) {
+    shopState.adminCourseId = courseId;
+    document.getElementById('admin-lesson-modal').classList.add('active');
+}
+
+function closeAdminLessonModal() {
+    document.getElementById('admin-lesson-modal').classList.remove('active');
+}
+
+// Add lesson
+async function addAdminLesson() {
+    try {
+        const moduleName = document.getElementById('admin-lesson-module').value.trim();
+        const lessonName = document.getElementById('admin-lesson-name').value.trim();
+        const telegram_file_id = document.getElementById('admin-lesson-file-id').value.trim();
+        const duration = document.getElementById('admin-lesson-duration').value.trim();
+
+        if (!moduleName || !lessonName || !telegram_file_id) {
+            showAlert('Error', 'All fields required');
+            return;
+        }
+
+        const res = await secureFetch('/api/admin/shop/lesson/add', 'POST', {
+            courseId: shopState.adminCourseId,
+            moduleName,
+            lessonName,
+            telegram_file_id,
+            duration
+        });
+
+        if (res.success) {
+            showAlert('Success!', 'Lesson added');
+            closeAdminLessonModal();
+            document.getElementById('admin-lesson-module').value = '';
+            document.getElementById('admin-lesson-name').value = '';
+            document.getElementById('admin-lesson-file-id').value = '';
+            document.getElementById('admin-lesson-duration').value = '';
+        }
+    } catch (err) {
+        showAlert('Error', err.error || 'Failed to add lesson');
+    }
+}
+
+// Load admin APKs
+async function loadAdminAPKs() {
+    try {
+        const res = await secureFetch('/api/admin/shop/products', 'GET');
+        const apks = res.products.filter(p => p.type === 'apk');
+        
+        let html = apks.map(apk => `
+            <div class="glass p-3 rounded-xl border border-blue-500/20">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h5 class="text-xs font-black text-white">${apk.title}</h5>
+                        <p class="text-[8px] text-slate-500">${apk.price} DASH</p>
+                    </div>
+                    <button onclick="deleteAdminProduct('${apk._id}')" class="text-[10px] text-red-400 hover:text-red-300">✕</button>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('admin-apk-list').innerHTML = html;
+    } catch (err) {
+        console.error('Load admin APKs error:', err);
+    }
+}
+
+// Create APK
+async function createAdminAPK() {
+    try {
+        const title = document.getElementById('admin-apk-title').value.trim();
+        const description = document.getElementById('admin-apk-description').value.trim();
+        const price = parseInt(document.getElementById('admin-apk-price').value);
+        const thumbnail = document.getElementById('admin-apk-thumbnail').value.trim();
+
+        if (!title || !price) {
+            showAlert('Error', 'Title and price required');
+            return;
+        }
+
+        const res = await secureFetch('/api/admin/shop/create-course', 'POST', {
+            type: 'apk',
+            title,
+            description,
+            price,
+            thumbnail
+        });
+
+        if (res.success) {
+            showAlert('Success!', 'APK created');
+            loadAdminAPKs();
+        }
+    } catch (err) {
+        showAlert('Error', err.error || 'Failed to create APK');
+    }
+}
+
+// Load shop stats
+async function loadShopStats() {
+    try {
+        const res = await secureFetch('/api/admin/shop/stats', 'GET');
+        const { stats } = res;
+        
+        document.getElementById('stat-shop-products').textContent = stats.totalProducts;
+        document.getElementById('stat-shop-courses').textContent = stats.totalCourses;
+        document.getElementById('stat-shop-purchases').textContent = stats.totalPurchases;
+        document.getElementById('stat-shop-revenue').textContent = stats.totalRevenue;
+    } catch (err) {
+        console.error('Load stats error:', err);
+    }
+}
+
+// Delete product
+async function deleteAdminProduct(productId) {
+    if (!confirm('Delete this product?')) return;
+    
+    try {
+        const res = await secureFetch(`/api/admin/shop/product/${productId}`, 'DELETE');
+        if (res.success) {
+            showAlert('Success!', 'Product deleted');
+            loadAdminCourses();
+            loadAdminAPKs();
+        }
+    } catch (err) {
+        showAlert('Error', err.error || 'Failed to delete');
+    }
+}
+
+// Initialize shop on tab switch
+window.addEventListener('load', () => {
+    // Load shop data when tab is first opened
+    const observer = new MutationObserver((mutations) => {
+        const shopTab = document.getElementById('tab-shop');
+        if (shopTab && !shopTab.classList.contains('hidden')) {
+            if (shopState.courses.length === 0) loadShopCourses();
+        }
+    });
+    
+    observer.observe(document.body, { attributes: true, subtree: true });
+});
 
         // Start App
         initApp();
