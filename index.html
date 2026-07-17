@@ -3703,6 +3703,7 @@ if (btn) {
     if(tabId === 'admin') loadAdminData();
     if(tabId === 'profile') loadUserProfileMetrics();
     if(tabId === 'levels') loadLevels();
+    if(tabId === 'shop') { if (shopState.courses.length === 0) loadShopCourses(); }
     if(tabId === 'reminders') {
     loadReminderConfig();  // ✅ FIX: Load toggle config FIRST (which also loads stats)
 }
@@ -3720,7 +3721,7 @@ function switchAdminPanel(panelId) {
         'panel-payouts', 
         'panel-proofs', 
         'panel-admins', 
-        
+        'panel-shop-manager',
         'panel-console',
         'panel-support',
         'panel-ad-manager'
@@ -3748,6 +3749,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-support') loadAdminTickets('open');
                     if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-ad-manager') loadAdminAds();
+                    if (panelId === 'panel-shop-manager') loadAdminCourses();
                     if (panelId === 'panel-console') conStartBackendStream();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
                 } else {
@@ -6864,19 +6866,6 @@ async function deleteAdminProduct(productId) {
         showAlert('Error', err.error || 'Failed to delete');
     }
 }
-
-// Initialize shop on tab switch
-window.addEventListener('load', () => {
-    // Load shop data when tab is first opened
-    const observer = new MutationObserver((mutations) => {
-        const shopTab = document.getElementById('tab-shop');
-        if (shopTab && !shopTab.classList.contains('hidden')) {
-            if (shopState.courses.length === 0) loadShopCourses();
-        }
-    });
-    
-    observer.observe(document.body, { attributes: true, subtree: true });
-});
 
         // Start App
         initApp();
