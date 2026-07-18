@@ -32,6 +32,9 @@ html, body {
     overflow: hidden;
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* stops iOS/Android long-press image-save & selection popup */
 }
 
 body::before {
@@ -51,7 +54,11 @@ body::after {
     background: linear-gradient(to bottom, rgba(8, 4, 28, 0.60), rgba(4, 2, 14, 0.65));
     z-index: -1;
 }
-
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+}
 
 .glow-spark {
     position: absolute;
@@ -2735,7 +2742,7 @@ Enhanced with touch barrier, custom controls, and anti-download measures
                         <div class="loading-spinner"></div>
                         <p class="text-xs text-slate-400 mt-2">Loading video...</p>
                     </div>
-                    <button id="fake-fullscreen-exit-btn" class="fake-fullscreen-exit-btn" onclick="exitFakeFullscreen()">Exit Fullscreen</button>
+                    <button id="fake-fullscreen-exit-btn" class="fake-fullscreen-exit-btn" onclick="exitFakeFullscreen()">Exit</button>
                 </div>
 
                 <!-- CUSTOM CONTROL PANEL (Below video, fully accessible) -->
@@ -3283,6 +3290,30 @@ mainEl.addEventListener('touchend', async (e) => {
     }, 400);
 });
 
+
+document.addEventListener('contextmenu', (e) => {
+    const tag = e.target.tagName;
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault();
+    }
+});
+
+let longPressTimer;
+document.addEventListener('touchstart', (e) => {
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return; // allow normal text selection/copy there
+
+    longPressTimer = setTimeout(() => {
+        e.preventDefault();
+    }, 300);
+}, { passive: false });
+
+document.addEventListener('touchend', () => clearTimeout(longPressTimer));
+document.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+
+
+            
+            
 let currentEditingUserData = null; // Cache active user model locally
 let userDirectoryFilter = 'all';
 
