@@ -7074,7 +7074,7 @@ async function openCourseDetail(productId) {
         modal.classList.add('active');
     } catch (err) {
         console.error('Open course error:', err);
-        showAlert('Error', 'Failed to load course details');
+        showAppAlert('Failed to load course details','Error');
     }
 }
 
@@ -7083,7 +7083,7 @@ async function purchaseProduct(productId) {
     try {
         const res = await secureFetch('/api/secure/purchase-course', 'POST', { productId });
         if (res.success) {
-            showAlert('Success!', res.message);
+            showAppAlert('res.message','Success');
             closeCourseDetail();
             userProfileData.balance = res.newBalance;
             updateUserProfile();
@@ -7091,7 +7091,7 @@ async function purchaseProduct(productId) {
         }
     } catch (err) {
         console.error('Purchase error:', err);
-        showAlert('Error', err.error || 'Purchase failed');
+        showAppAlert('err.error' || 'Purchase failed', 'Error' );
     }
 }
 
