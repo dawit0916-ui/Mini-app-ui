@@ -6891,7 +6891,7 @@ function switchShopSection(section) {
 // Load courses from backend
 async function loadShopCourses() {
     try {
-        const res = await secureFetch('/api/shop/products?type=course', 'GET');
+        const res = await secureFetch('/api/shop/products?type=course', { method: 'GET' });
         shopState.courses = res.products || [];
         renderCourses();
     } catch (err) {
@@ -6902,7 +6902,7 @@ async function loadShopCourses() {
 // Load APKs from backend
 async function loadShopAPKs() {
     try {
-        const res = await secureFetch('/api/shop/products?type=apk', 'GET');
+        const res = await secureFetch('/api/shop/products?type=apk', { method: 'GET' });
         shopState.apks = res.products || [];
         renderAPKs();
     } catch (err) {
@@ -6913,7 +6913,7 @@ async function loadShopAPKs() {
 // Load user's purchases
 async function loadMyPurchases() {
     try {
-        const res = await secureFetch('/api/secure/my-shop-purchases', 'GET');
+        const res = await secureFetch('/api/secure/my-shop-purchases', { method: 'GET' });
         shopState.myPurchases = res.purchases || [];
         renderMyPurchases();
     } catch (err) {
@@ -7016,7 +7016,7 @@ function renderMyPurchases() {
 // Open course detail
 async function openCourseDetail(productId) {
     try {
-        const res = await secureFetch(`/api/shop/product/${productId}`, 'GET');
+        const res = await secureFetch(`/api/shop/product/${productId}`, { method: 'GET' });
         const { product, lessons } = res;
         
         shopState.selectedProduct = product;
@@ -7074,16 +7074,19 @@ async function openCourseDetail(productId) {
         modal.classList.add('active');
     } catch (err) {
         console.error('Open course error:', err);
-        showAppAlert('Failed to load course details','Error');
+        showNotificationToast('Failed to load course details', 'error');
     }
 }
 
 // Purchase product
 async function purchaseProduct(productId) {
     try {
-        const res = await secureFetch('/api/secure/purchase-course', 'POST', { productId });
-        if (res.success) {
-            showAppAlert('res.message','Success');
+        const res = await secureFetch('/api/secure/purchase-course', {
+         method: 'POST',
+         body: JSON.stringify({ productId })
+       });        
+    if (res.success) {
+            showNotificationToast(res.message, 'success');
             closeCourseDetail();
             userProfileData.balance = res.newBalance;
             updateUserProfile();
@@ -7091,15 +7094,8 @@ async function purchaseProduct(productId) {
         }
     } catch (err) {
         console.error('Purchase error:', err);
-        showAppAlert('err.error' || 'Purchase failed', 'Error' );
+        showNotificationToast(err.error || 'Purchase failed', 'error');
     }
-}
-
-// Open course player
-function openCoursePlayer(productId) {
-    // TODO: Implement video player in a new modal with /api/stream-video
-    closeCourseDetail();
-    showAlert('Soon', 'Video player coming soon!');
 }
 
 // Close modals
@@ -7110,7 +7106,27 @@ function closeShopDetail() {
 function closeCourseDetail() {
     document.getElementById('shop-course-detail-modal').classList.remove('active');
 }
+async function downloadAPK(productId) {
+    try {
+        showNotificationToast('Preparing download...', 'info');
+        const response = await secureFetch(`/api/download-apk?productId=${productId}`, { method: 'GET' });
 
+        // secureFetch already parses JSON internally, but this endpoint returns
+        // a binary file, not JSON — so bypass that and hit the raw response directly
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = 'app.apk';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+        console.error('Download APK error:', err);
+        showNotificationToast(err.message || err.error || 'Failed to download APK', 'error');
+    }
+}
 // =====================================================
 // ADMIN SHOP FUNCTIONS
 // =====================================================
@@ -7136,7 +7152,7 @@ function switchShopAdminTab(tab) {
 // Load admin courses
 async function loadAdminCourses() {
     try {
-        const res = await secureFetch('/api/admin/shop/products', 'GET');
+        const res = await secureFetch('/api/admin/shop/products', { method: 'GET' });
         const courses = res.products.filter(p => p.type === 'course');
         
         let html = courses.map(course => `
@@ -7175,10 +7191,9 @@ async function createAdminCourse() {
         }
 
         const res = await secureFetch('/api/admin/shop/create-course', {
-          method: 'POST',
-          body: JSON.stringify({ title, category, description, price, thumbnail })
-        });
-
+           method: 'POST',
+           body: JSON.stringify({ title, category, description, price, thumbnail })
+          });
         if (res.success) {
             showNotificationToast( 'Course created', 'Success!');
             document.getElementById('admin-course-title').value = '';
@@ -7212,7 +7227,7 @@ async function addAdminLesson() {
         const duration = document.getElementById('admin-lesson-duration').value.trim();
 
         if (!moduleName || !lessonName || !telegram_file_id) {
-            showAlert('Error', 'All fields required');
+            showNotificationToast('All fields required', 'error');
             return;
         }
 
@@ -7225,7 +7240,7 @@ async function addAdminLesson() {
         });
 
         if (res.success) {
-            showAlert('Success!', 'Lesson added');
+            showNotificationToast('Lesson added', 'success');
             closeAdminLessonModal();
             document.getElementById('admin-lesson-module').value = '';
             document.getElementById('admin-lesson-name').value = '';
@@ -7233,14 +7248,14 @@ async function addAdminLesson() {
             document.getElementById('admin-lesson-duration').value = '';
         }
     } catch (err) {
-        showAlert('Error', err.error || 'Failed to add lesson');
+        showNotificationToast(err.error || 'Failed to add lesson', 'error');
     }
 }
 
 // Load admin APKs
 async function loadAdminAPKs() {
     try {
-        const res = await secureFetch('/api/admin/shop/products', 'GET');
+        const res = await secureFetch('/api/admin/shop/products', { method: 'GET' });
         const apks = res.products.filter(p => p.type === 'apk');
         
         let html = apks.map(apk => `
@@ -7271,7 +7286,7 @@ async function createAdminAPK() {
         const telegram_file_id = document.getElementById('admin-apk-telegram-file-id').value.trim();
 
         if (!title || !price) {
-            showAlert('Error', 'Title and price required');
+            showNotificationToast('Title and price required', 'error');
             return;
         }
 
@@ -7280,17 +7295,12 @@ async function createAdminAPK() {
             return;
         }
 
-        const res = await secureFetch('/api/admin/shop/create-course', 'POST', {
-            type: 'apk',
-            title,
-            description,
-            price,
-            thumbnail,
-            telegram_file_id
-        });
-
+        const res = await secureFetch('/api/admin/shop/create-course', {
+          method: 'POST',
+         body: JSON.stringify({ type: 'apk', title, description, price, thumbnail, telegram_file_id })
+          });
         if (res.success) {
-            showAlert('Success!', 'APK created');
+            showNotificationToast('APK created', 'success');
             document.getElementById('admin-apk-title').value = '';
             document.getElementById('admin-apk-description').value = '';
             document.getElementById('admin-apk-price').value = '';
@@ -7299,14 +7309,14 @@ async function createAdminAPK() {
             loadAdminAPKs();
         }
     } catch (err) {
-        showAlert('Error', err.error || 'Failed to create APK');
+        showNotificationToast(err.error || 'Failed to create APK', 'error');
     }
 }
 
 // Load shop stats
 async function loadShopStats() {
     try {
-        const res = await secureFetch('/api/admin/shop/stats', 'GET');
+        const res = await secureFetch('/api/admin/shop/stats', { method: 'GET' });
         const { stats } = res;
         
         document.getElementById('stat-shop-products').textContent = stats.totalProducts;
@@ -7323,14 +7333,14 @@ async function deleteAdminProduct(productId) {
     if (!confirm('Delete this product?')) return;
     
     try {
-        const res = await secureFetch(`/api/admin/shop/product/${productId}`, 'DELETE');
+        const res = await secureFetch(`/api/admin/shop/product/${productId}`, { method: 'DELETE' });
         if (res.success) {
-            showAlert('Success!', 'Product deleted');
+            showNotificationToast('Product deleted', 'success');
             loadAdminCourses();
             loadAdminAPKs();
         }
     } catch (err) {
-        showAlert('Error', err.error || 'Failed to delete');
+        showNotificationToast(err.error || 'Failed to delete', 'error');
     }
 }
 
@@ -7354,7 +7364,7 @@ let videoPlayerState = {
 
 async function openCoursePlayer(courseId) {
     try {
-        const res = await secureFetch(`/api/shop/product/${courseId}`, 'GET');
+        const res = await secureFetch(`/api/shop/product/${courseId}`, { method: 'GET' });
         const { product, lessons } = res;
 
         videoPlayerState.courseId = courseId;
