@@ -1083,6 +1083,12 @@ video.no-touch-shield {
         height: 100%;
     }
 }    
+.fake-fullscreen {
+    position: fixed !important;
+    top: 0; left: 0; width: 100vw !important; height: 100vh !important;
+    z-index: 9999;
+    background: #000;
+}        
     </style>
 </head>
 <body>
@@ -6977,7 +6983,36 @@ function renderAPKs() {
         </div>
     `).join('');
 }
+async function openAPKDetail(productId) {
+    try {
+        const res = await secureFetch(`/api/shop/product/${productId}`, { method: 'GET' });
+        const { product } = res;
 
+        shopState.selectedProduct = product;
+
+        const modal = document.getElementById('shop-course-detail-modal');
+        document.getElementById('course-detail-title').textContent = product.title;
+        document.getElementById('course-detail-price').textContent = `${product.price} DASH`;
+
+        const purchased = shopState.myPurchases.some(p => p.productId._id === productId);
+
+        let contentHTML = `
+            <div class="glass p-3 rounded-xl border border-white/5">
+                <p class="text-[9px] text-slate-500 uppercase font-black mb-3">${product.description}</p>
+            </div>
+        `;
+
+        contentHTML += purchased
+            ? `<button onclick="downloadAPK('${productId}')" class="w-full py-3 bg-blue-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all">📥 Download APK</button>`
+            : `<button onclick="purchaseProduct('${productId}')" class="w-full py-3 bg-purple-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all">💰 Buy Now (${product.price} DASH)</button>`;
+
+        document.getElementById('course-detail-content').innerHTML = contentHTML;
+        modal.classList.add('active');
+    } catch (err) {
+        console.error('Open APK detail error:', err);
+        showNotificationToast('Failed to load APK details', 'error');
+    }
+}
 // Render my purchases
 function renderMyPurchases() {
     const list = document.getElementById('shop-my-purchases-list');
@@ -7483,22 +7518,26 @@ function initializeVideoControls() {
 
     // Play/Pause Control
     playPauseBtn.addEventListener('click', () => {
-        if (video.paused || video.ended) {
-            video.play();
-            playPauseBtn.textContent = '⏸';
-            videoPlayerState.isPlaying = true;
-        } else {
-            video.pause();
-            playPauseBtn.textContent = '▶';
-            videoPlayerState.isPlaying = false;
+    if (video.paused || video.ended) {
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(err => {
+                if (err.name !== 'AbortError') console.error('Play error:', err);
+            });
         }
-    });
-
+        playPauseBtn.textContent = '⏸';
+        videoPlayerState.isPlaying = true;
+    } else {
+        video.pause();
+        playPauseBtn.textContent = '▶';
+        videoPlayerState.isPlaying = false;
+    }
+});
     // Progress Bar Control
     progressSlider.addEventListener('input', (e) => {
-        video.currentTime = (parseFloat(e.target.value) / 100) * video.duration;
-    });
-
+    if (!isFinite(video.duration) || video.duration <= 0) return;
+    video.currentTime = (parseFloat(e.target.value) / 100) * video.duration;
+});
     video.addEventListener('timeupdate', () => {
         const percent = (video.currentTime / video.duration) * 100 || 0;
         progressSlider.value = percent;
@@ -7542,24 +7581,28 @@ function initializeVideoControls() {
 
     // Fullscreen Control
     fullscreenBtn.addEventListener('click', () => {
-        const container = document.querySelector('.video-wrapper');
-        if (!document.fullscreenElement) {
-            if (container.requestFullscreen) {
-                container.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
-            } else if (container.webkitRequestFullscreen) {
-                container.webkitRequestFullscreen();
-            }
-            fullscreenBtn.textContent = '⛶';
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-            fullscreenBtn.textContent = '⛶';
-        }
-    });
+    const container = document.querySelector('.video-wrapper');
 
+    if (document.fullscreenElement || container.classList.contains('fake-fullscreen')) {
+        if (document.fullscreenElement) {
+            (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+        }
+        container.classList.remove('fake-fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        return;
+    }
+
+    if (container.requestFullscreen) {
+        container.requestFullscreen().catch(() => {
+            container.classList.add('fake-fullscreen'); // fallback: CSS full-viewport overlay
+        });
+    } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+    } else {
+        container.classList.add('fake-fullscreen');
+    }
+    fullscreenBtn.textContent = '⛶';
+});
     // Prevent context menu on video
     video.addEventListener('contextmenu', (e) => {
         e.preventDefault();
