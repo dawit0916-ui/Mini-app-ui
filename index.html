@@ -1085,10 +1085,45 @@ video.no-touch-shield {
 }    
 .fake-fullscreen {
     position: fixed !important;
-    top: 0; left: 0; width: 100vw !important; height: 100vh !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 100vh !important;
+    height: 100vw !important;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center center;
     z-index: 9999;
     background: #000;
-}        
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fake-fullscreen video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+}
+
+.fake-fullscreen-exit-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10000;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.fake-fullscreen .fake-fullscreen-exit-btn {
+    display: flex;
+}
     </style>
 </head>
 <body>
@@ -2783,6 +2818,7 @@ Enhanced with touch barrier, custom controls, and anti-download measures
                 <button onclick="nextLesson()" id="next-lesson-btn" class="flex-1 py-2 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all disabled:opacity-50">
                     Next →
                 </button>
+                <button id="fake-fullscreen-exit-btn" class="fake-fullscreen-exit-btn" onclick="exitFakeFullscreen()">Exit Fullscreen</button>
             </div>
         </div>
     </div>
@@ -7584,25 +7620,36 @@ function initializeVideoControls() {
     const container = document.querySelector('.video-wrapper');
 
     if (document.fullscreenElement || container.classList.contains('fake-fullscreen')) {
-        if (document.fullscreenElement) {
-            (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
-        }
-        container.classList.remove('fake-fullscreen');
-        fullscreenBtn.textContent = '⛶';
+        exitFakeFullscreen();
         return;
     }
 
     if (container.requestFullscreen) {
         container.requestFullscreen().catch(() => {
-            container.classList.add('fake-fullscreen'); // fallback: CSS full-viewport overlay
+            enterFakeFullscreen(container);
         });
     } else if (container.webkitRequestFullscreen) {
         container.webkitRequestFullscreen();
     } else {
-        container.classList.add('fake-fullscreen');
+        enterFakeFullscreen(container);
     }
     fullscreenBtn.textContent = '⛶';
 });
+
+function enterFakeFullscreen(container) {
+    container.classList.add('fake-fullscreen');
+    document.body.style.overflow = 'hidden'; // prevent background scroll behind the overlay
+}
+
+function exitFakeFullscreen() {
+    const container = document.querySelector('.video-wrapper');
+    if (document.fullscreenElement) {
+        (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+    }
+    container.classList.remove('fake-fullscreen');
+    document.body.style.overflow = '';
+    document.getElementById('fullscreen-btn').textContent = '⛶';
+}
     // Prevent context menu on video
     video.addEventListener('contextmenu', (e) => {
         e.preventDefault();
