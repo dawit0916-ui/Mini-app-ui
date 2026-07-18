@@ -764,6 +764,325 @@ main {
 .image-preview { display: none; }
 .image-preview.show { display: block; }  
 
+
+/*=====================================================
+STYLING - SECURE VIDEO PLAYER PROTECTION
+===================================================== */
+/* ═══════════════════════════════════════════════════════════
+   VIDEO PLAYER CONTAINER & LAYOUT
+   ═══════════════════════════════════════════════════════════ */
+
+.video-player-container {
+    width: 100%;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIDEO ELEMENT PROTECTION (CRITICAL SECURITY LAYER)
+   ═══════════════════════════════════════════════════════════ */
+
+video.no-touch-shield {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+
+    /* ──────────────────────────────────────────────────
+       iOS Safari Protection
+       ────────────────────────────────────────────────── */
+    
+    /* Disable the iOS long-press "Share/Save" popup */
+    -webkit-touch-callout: none;
+    
+    /* Disable text selection on long-press */
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    /* Disable tap-to-highlight visual feedback */
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Disable callout popup on iOS */
+    -webkit-user-callout: none;
+
+    /* ──────────────────────────────────────────────────
+       Android Chrome Protection
+       ────────────────────────────────────────────────── */
+    
+    /* Disable drag-and-drop */
+    -webkit-user-drag: none;
+    user-drag: none;
+    
+    /* Disable text/content selection */
+    -webkit-text-select-color: transparent;
+    
+    /* Remove context menu on long-press */
+    cursor: pointer;
+
+    /* ──────────────────────────────────────────────────
+       Cross-browser Protection
+       ────────────────────────────────────────────────── */
+    
+    /* Disable any visual selection highlight */
+    outline: none;
+    border: none;
+    
+    /* Ensure video doesn't trigger browser context menu */
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TRANSPARENT TOUCH BARRIER (BLOCKS DIRECT INTERACTION)
+   ═══════════════════════════════════════════════════════════ */
+
+.touch-barrier {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 5;
+    
+    /* Block all pointer events on the video itself */
+    pointer-events: auto;
+    
+    /* Prevent selection and context menu */
+    -webkit-user-select: none;
+    user-select: none;
+    
+    /* User cannot long-press this barrier */
+    -webkit-touch-callout: none;
+    
+    /* Disable tap feedback */
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Prevent right-click context menu */
+    oncontextmenu: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOADING OVERLAY
+   ═══════════════════════════════════════════════════════════ */
+
+.video-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    backdrop-filter: blur(4px);
+}
+
+.video-loading-overlay.hidden {
+    display: none;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #7c3aed;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTROL PANEL (CUSTOM CONTROLS BELOW VIDEO)
+   ═══════════════════════════════════════════════════════════ */
+
+.video-control-panel {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.95));
+    padding: 12px;
+    border-top: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Progress Bar Section */
+.progress-container {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.progress-slider {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    border-radius: 2px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
+}
+
+.time-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #94a3b8;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-weight: 600;
+}
+
+/* Controls Row */
+.controls-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.control-btn:active {
+    background: rgba(124, 58, 237, 0.3);
+    border-color: rgba(124, 58, 237, 0.5);
+    transform: scale(0.95);
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-icon {
+    display: inline-block;
+    font-weight: bold;
+}
+
+/* Volume Control Group */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.volume-slider {
+    width: 60px;
+    height: 3px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 2px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    .video-wrapper {
+        aspect-ratio: auto;
+        max-height: 50vh;
+    }
+    
+    .control-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .volume-control {
+        display: none; /* Hide on small screens */
+    }
+    
+    .playback-speed-btn {
+        display: none; /* Hide on small screens */
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SHEET DRAWER FULLSCREEN OVERRIDE
+   ═══════════════════════════════════════════════════════════ */
+
+.sheet-drawer-fullscreen {
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .sheet-drawer-fullscreen {
+        max-height: 100%;
+        height: 100%;
+    }
+}    
     </style>
 </head>
 <body>
@@ -2333,7 +2652,135 @@ return count;"></textarea>
         </div>
     </div>
 </div>
-     
+<!-- =====================================================
+SECURE VIDEO PLAYER MODAL (Production-Protected)
+Enhanced with touch barrier, custom controls, and anti-download measures
+===================================================== -->
+
+<div id="video-player-modal" class="sheet-backdrop">
+    <div class="sheet-drawer sheet-drawer-fullscreen">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 id="video-player-title" class="sheet-title">Course Lesson</h3>
+                <p id="video-player-duration" class="sheet-subtitle">--:--</p>
+            </div>
+            <button onclick="closeVideoPlayer()" class="sheet-close">✕</button>
+        </div>
+
+        <!-- MAIN VIDEO CONTAINER WITH SECURITY LAYERS -->
+        <div id="video-player-content" class="space-y-4">
+            
+            <!-- Secure Video Player Container -->
+            <div class="video-player-container">
+                <!-- Video Wrapper with Touch Barrier -->
+                <div class="video-wrapper">
+                    <video 
+                        id="secure-video"
+                        class="no-touch-shield"
+                        playsinline
+                        webkit-playsinline="true"
+                        oncontextmenu="return false;"
+                        controlsList="nodownload noremoteplayback">
+                        Your browser does not support the video tag.
+                    </video>
+                    
+                    <!-- TRANSPARENT TOUCH BARRIER (blocks direct video interaction) -->
+                    <div class="touch-barrier"></div>
+
+                    <!-- Loading Indicator (appears over barrier) -->
+                    <div id="video-loading-overlay" class="video-loading-overlay hidden">
+                        <div class="loading-spinner"></div>
+                        <p class="text-xs text-slate-400 mt-2">Loading video...</p>
+                    </div>
+                </div>
+
+                <!-- CUSTOM CONTROL PANEL (Below video, fully accessible) -->
+                <div class="video-control-panel">
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <input 
+                            type="range" 
+                            id="video-progress" 
+                            class="progress-slider" 
+                            min="0" 
+                            max="100" 
+                            value="0">
+                        <div class="time-display">
+                            <span id="current-time">0:00</span>
+                            <span id="duration-time">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons Row -->
+                    <div class="controls-row">
+                        <!-- Play/Pause -->
+                        <button id="play-pause-btn" class="control-btn" title="Play/Pause">
+                            <span class="btn-icon">▶</span>
+                        </button>
+
+                        <!-- Volume Control -->
+                        <div class="volume-control">
+                            <button id="volume-btn" class="control-btn" title="Volume">
+                                <span class="btn-icon">🔊</span>
+                            </button>
+                            <input 
+                                type="range" 
+                                id="volume-slider" 
+                                class="volume-slider" 
+                                min="0" 
+                                max="100" 
+                                value="100">
+                        </div>
+
+                        <!-- Spacer -->
+                        <div class="flex-1"></div>
+
+                        <!-- Quality/Speed (optional) -->
+                        <button id="playback-speed-btn" class="control-btn text-xs" title="Speed">
+                            <span class="btn-icon">1x</span>
+                        </button>
+
+                        <!-- Fullscreen -->
+                        <button id="fullscreen-btn" class="control-btn" title="Fullscreen">
+                            <span class="btn-icon">⛶</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Info & Lessons Navigation -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                
+                <!-- Course Description -->
+                <div class="lg:col-span-2 glass p-3 rounded-xl border border-white/5">
+                    <h4 class="text-[9px] font-black uppercase text-slate-400 mb-2">About This Lesson</h4>
+                    <p id="video-course-desc" class="text-[10px] text-slate-300 line-clamp-4"></p>
+                </div>
+
+                <!-- Lessons List (Right sidebar on desktop) -->
+                <div class="glass p-3 rounded-xl border border-white/5 max-h-96 overflow-y-auto">
+                    <h4 class="text-[9px] font-black uppercase text-slate-400 mb-2 sticky top-0 bg-slate-900/80 pb-2">Lessons</h4>
+                    <div id="video-lessons-list" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-2">
+                <button onclick="prevLesson()" id="prev-lesson-btn" class="flex-1 py-2 bg-slate-600/30 text-slate-300 rounded-xl text-xs font-black uppercase active:scale-95 transition-all disabled:opacity-50">
+                    ← Previous
+                </button>
+                <button onclick="nextLesson()" id="next-lesson-btn" class="flex-1 py-2 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all disabled:opacity-50">
+                    Next →
+                </button>
+            </div>
+        </div>
+    </div>
+</div>     
 
 </main>
 
@@ -6871,6 +7318,301 @@ async function deleteAdminProduct(productId) {
         showAlert('Error', err.error || 'Failed to delete');
     }
 }
+
+/*<!-- =====================================================
+JAVASCRIPT - SECURE VIDEO PLAYER WITH CUSTOM CONTROLS
+===================================================== -->*/
+
+
+let videoPlayerState = {
+    courseId: null,
+    lessons: [],
+    currentLessonIdx: 0,
+    currentLessonId: null,
+    isPlaying: false,
+    currentSpeed: 1
+};
+
+// ─────────────────────────────────────────────────────
+// CORE PLAYER FUNCTIONS
+// ─────────────────────────────────────────────────────
+
+async function openCoursePlayer(courseId) {
+    try {
+        const res = await secureFetch(`/api/shop/product/${courseId}`, 'GET');
+        const { product, lessons } = res;
+
+        videoPlayerState.courseId = courseId;
+        videoPlayerState.lessons = lessons;
+        videoPlayerState.currentLessonIdx = 0;
+
+        // Update modal
+        document.getElementById('video-player-title').textContent = product.title;
+        document.getElementById('video-course-desc').textContent = product.description;
+
+        // Render lessons navigation
+        renderLessonsNavigation();
+
+        // Open modal and play first lesson
+        document.getElementById('video-player-modal').classList.add('active');
+        playLesson(0, lessons[0]._id);
+
+    } catch (err) {
+        console.error('Open player error:', err);
+        showAlert('Error', 'Failed to load course');
+    }
+}
+
+function renderLessonsNavigation() {
+    const lessons = videoPlayerState.lessons;
+    let lessonsHTML = lessons.map((lesson, idx) => `
+        <div 
+            onclick="playLesson(${idx}, '${lesson._id}')" 
+            class="lesson-nav-item glass p-2.5 rounded-lg border transition-all cursor-pointer ${idx === 0 ? 'border-purple-500/40 bg-purple-500/10' : 'border-white/5 hover:border-white/10'}">
+            <div class="flex items-start gap-2">
+                <span class="text-[10px] font-black text-purple-400 flex-shrink-0">L${idx + 1}</span>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[8px] text-slate-500 uppercase font-black truncate">${lesson.moduleName}</p>
+                    <p class="text-[9px] font-black text-white mt-0.5 line-clamp-2">${lesson.lessonName}</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('video-lessons-list').innerHTML = lessonsHTML;
+}
+
+async function playLesson(idx, lessonId) {
+    try {
+        // Update navigation highlight
+        document.querySelectorAll('.lesson-nav-item').forEach((el, i) => {
+            if (i === idx) {
+                el.classList.add('border-purple-500/40', 'bg-purple-500/10');
+                el.classList.remove('border-white/5');
+            } else {
+                el.classList.remove('border-purple-500/40', 'bg-purple-500/10');
+                el.classList.add('border-white/5');
+            }
+        });
+
+        videoPlayerState.currentLessonIdx = idx;
+        videoPlayerState.currentLessonId = lessonId;
+
+        // Update title
+        const lesson = videoPlayerState.lessons[idx];
+        document.getElementById('video-player-title').textContent = lesson.lessonName;
+        document.getElementById('video-player-duration').textContent = lesson.duration || '--:--';
+        document.getElementById('duration-time').textContent = lesson.duration || '--:--';
+        document.getElementById('current-time').textContent = '0:00';
+
+        // Show loading
+        document.getElementById('video-loading-overlay').classList.remove('hidden');
+        
+        const video = document.getElementById('secure-video');
+        video.src = '';
+        video.pause();
+
+        // Build stream URL
+        const streamUrl = `/api/stream-video?courseId=${videoPlayerState.courseId}&lessonId=${lessonId}`;
+
+        // Set video source
+        video.src = streamUrl;
+        
+        // Update nav buttons
+        updateNavButtons();
+
+        // Handle loading
+        video.onloadedmetadata = () => {
+            document.getElementById('video-loading-overlay').classList.add('hidden');
+            document.getElementById('video-progress').max = Math.floor(video.duration) || 100;
+        };
+
+        video.onerror = (err) => {
+            console.error('Video load error:', err);
+            document.getElementById('video-loading-overlay').classList.add('hidden');
+            showAlert('Error', 'Failed to load video');
+        };
+
+    } catch (err) {
+        console.error('Play lesson error:', err);
+        document.getElementById('video-loading-overlay').classList.add('hidden');
+        showAlert('Error', 'Failed to play video');
+    }
+}
+
+// ─────────────────────────────────────────────────────
+// CUSTOM CONTROL HANDLERS
+// ─────────────────────────────────────────────────────
+
+function initializeVideoControls() {
+    const video = document.getElementById('secure-video');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const progressSlider = document.getElementById('video-progress');
+    const volumeBtn = document.getElementById('volume-btn');
+    const volumeSlider = document.getElementById('volume-slider');
+    const speedBtn = document.getElementById('playback-speed-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+    // Play/Pause Control
+    playPauseBtn.addEventListener('click', () => {
+        if (video.paused || video.ended) {
+            video.play();
+            playPauseBtn.textContent = '⏸';
+            videoPlayerState.isPlaying = true;
+        } else {
+            video.pause();
+            playPauseBtn.textContent = '▶';
+            videoPlayerState.isPlaying = false;
+        }
+    });
+
+    // Progress Bar Control
+    progressSlider.addEventListener('input', (e) => {
+        video.currentTime = (parseFloat(e.target.value) / 100) * video.duration;
+    });
+
+    video.addEventListener('timeupdate', () => {
+        const percent = (video.currentTime / video.duration) * 100 || 0;
+        progressSlider.value = percent;
+        document.getElementById('current-time').textContent = formatTime(video.currentTime);
+    });
+
+    video.addEventListener('ended', () => {
+        playPauseBtn.textContent = '▶';
+        videoPlayerState.isPlaying = false;
+    });
+
+    // Volume Control
+    volumeBtn.addEventListener('click', () => {
+        if (video.muted) {
+            video.muted = false;
+            volumeSlider.value = video.volume * 100;
+            volumeBtn.textContent = '🔊';
+        } else {
+            video.muted = true;
+            volumeSlider.value = 0;
+            volumeBtn.textContent = '🔇';
+        }
+    });
+
+    volumeSlider.addEventListener('input', (e) => {
+        const vol = parseFloat(e.target.value) / 100;
+        video.volume = vol;
+        video.muted = vol === 0;
+        volumeBtn.textContent = vol === 0 ? '🔇' : '🔊';
+    });
+
+    // Playback Speed Control
+    speedBtn.addEventListener('click', () => {
+        const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+        const currentIdx = speeds.indexOf(videoPlayerState.currentSpeed);
+        const nextIdx = (currentIdx + 1) % speeds.length;
+        videoPlayerState.currentSpeed = speeds[nextIdx];
+        video.playbackRate = videoPlayerState.currentSpeed;
+        speedBtn.textContent = videoPlayerState.currentSpeed + 'x';
+    });
+
+    // Fullscreen Control
+    fullscreenBtn.addEventListener('click', () => {
+        const container = document.querySelector('.video-wrapper');
+        if (!document.fullscreenElement) {
+            if (container.requestFullscreen) {
+                container.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            }
+            fullscreenBtn.textContent = '⛶';
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+            fullscreenBtn.textContent = '⛶';
+        }
+    });
+
+    // Prevent context menu on video
+    video.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+
+    // Prevent touch barrier interaction
+    const touchBarrier = document.querySelector('.touch-barrier');
+    touchBarrier.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        return false;
+    });
+    touchBarrier.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+}
+
+// ─────────────────────────────────────────────────────
+// UTILITY FUNCTIONS
+// ─────────────────────────────────────────────────────
+
+function formatTime(seconds) {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${String(secs).padStart(2, '0')}`;
+}
+
+function updateNavButtons() {
+    const prevBtn = document.getElementById('prev-lesson-btn');
+    const nextBtn = document.getElementById('next-lesson-btn');
+    
+    prevBtn.disabled = videoPlayerState.currentLessonIdx === 0;
+    nextBtn.disabled = videoPlayerState.currentLessonIdx === videoPlayerState.lessons.length - 1;
+}
+
+function nextLesson() {
+    if (videoPlayerState.currentLessonIdx < videoPlayerState.lessons.length - 1) {
+        const nextIdx = videoPlayerState.currentLessonIdx + 1;
+        const nextLessonId = videoPlayerState.lessons[nextIdx]._id;
+        playLesson(nextIdx, nextLessonId);
+    }
+}
+
+function prevLesson() {
+    if (videoPlayerState.currentLessonIdx > 0) {
+        const prevIdx = videoPlayerState.currentLessonIdx - 1;
+        const prevLessonId = videoPlayerState.lessons[prevIdx]._id;
+        playLesson(prevIdx, prevLessonId);
+    }
+}
+
+function closeVideoPlayer() {
+    const video = document.getElementById('secure-video');
+    video.pause();
+    video.src = '';
+    document.getElementById('video-player-modal').classList.remove('active');
+}
+
+// Initialize controls when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    initializeVideoControls();
+});
+
+// Prevent keyboard shortcuts for download
+document.addEventListener('keydown', (e) => {
+    const video = document.getElementById('secure-video');
+    if (document.activeElement === video || document.querySelector('.touch-barrier:hover')) {
+        // Disable Ctrl+S (Save)
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            return false;
+        }
+        // Disable Ctrl+C (Copy) on video
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
 
         // Start App
         initApp();
