@@ -1112,23 +1112,23 @@ video.no-touch-shield {
 }
 
 .fake-fullscreen-exit-btn {
-    position: absolute;
+    position: fixed;
     top: 16px;
     right: 16px;
-    z-index: 10000;
-    width: 40px;
-    height: 40px;
+    z-index: 1000000; /* above toast-container's 999999 */
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0,0,0,0.75);
     color: #fff;
     border: none;
-    font-size: 18px;
+    font-size: 20px;
     display: none;
     align-items: center;
     justify-content: center;
 }
 
-.fake-fullscreen .fake-fullscreen-exit-btn {
+body.fs-mode .fake-fullscreen-exit-btn {
     display: flex;
 }
     </style>
@@ -2742,7 +2742,7 @@ Enhanced with touch barrier, custom controls, and anti-download measures
                         <div class="loading-spinner"></div>
                         <p class="text-xs text-slate-400 mt-2">Loading video...</p>
                     </div>
-                    <button id="fake-fullscreen-exit-btn" class="fake-fullscreen-exit-btn" onclick="exitFakeFullscreen()">Exit</button>
+                    
                 </div>
 
                 <!-- CUSTOM CONTROL PANEL (Below video, fully accessible) -->
@@ -2830,7 +2830,7 @@ Enhanced with touch barrier, custom controls, and anti-download measures
         </div>
     </div>
 </div>     
-
+<button id="fake-fullscreen-exit-btn" class="fake-fullscreen-exit-btn" onclick="exitFakeFullscreen()">✕</button>
 </main>
 
     <!-- CUSTOM IN-APP POPUP -->
@@ -7212,10 +7212,13 @@ function closeCourseDetail() {
 async function downloadAPK(productId) {
     try {
         showNotificationToast('Preparing download...', 'info');
-        const response = await secureFetch(`/api/download-apk?productId=${productId}`, { method: 'GET' });
-
-        // secureFetch already parses JSON internally, but this endpoint returns
-        // a binary file, not JSON — so bypass that and hit the raw response directly
+        const response = await fetch(`${RENDER_URL}/api/download-apk?productId=${productId}`, {
+            headers: { 'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || '' }
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || 'Download failed');
+        }
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -7227,7 +7230,7 @@ async function downloadAPK(productId) {
         URL.revokeObjectURL(blobUrl);
     } catch (err) {
         console.error('Download APK error:', err);
-        showNotificationToast(err.message || err.error || 'Failed to download APK', 'error');
+        showNotificationToast(err.message || 'Failed to download APK', 'error');
     }
 }
 // =====================================================
@@ -7669,7 +7672,8 @@ function initializeVideoControls() {
 
 function enterFakeFullscreen(container) {
     container.classList.add('fake-fullscreen');
-    document.body.style.overflow = 'hidden'; // prevent background scroll behind the overlay
+    document.body.classList.add('fs-mode');
+    document.body.style.overflow = 'hidden';
 }
 
 function exitFakeFullscreen() {
@@ -7678,6 +7682,7 @@ function exitFakeFullscreen() {
         (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
     }
     container.classList.remove('fake-fullscreen');
+    document.body.classList.remove('fs-mode');
     document.body.style.overflow = '';
     document.getElementById('fullscreen-btn').textContent = '⛶';
 }
