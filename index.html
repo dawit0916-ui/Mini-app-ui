@@ -3307,20 +3307,15 @@ if (strikeRes && strikeRes.strikes > 0) {
         showAppAlert("Search engine error.", 'error')
     }
         }
-
-// 2. Multi-Metric Updates (Balance and Points Sync Alignment)
 async function updateUserMetrics() {
     const newBalance = document.getElementById('new-user-balance').value;
-    const newPoints = document.getElementById('new-user-points').value;
-    const newCoins = document.getElementById('new-user-coins').value;
-    
-    if (!currentEditingUserId || newBalance === '' || newPoints === '' || newCoins === '') return;
+
+    if (!currentEditingUserId || newBalance === '') return;
 
     try {
         const res = await secureFetch('/api/admin/user/update', {
             method: 'POST',
             body: JSON.stringify({
-                // Changed from 'userId' to match backend 'target_user_id' parameter
                 target_user_id: currentEditingUserId,
                 balance: parseFloat(newBalance)
             })
@@ -3328,18 +3323,17 @@ async function updateUserMetrics() {
 
         if (res.success) {
             tg.HapticFeedback.notificationOccurred('success');
-            showAppAlert("User metrics synchronized successfully.", 'success')
-            
+            showAppAlert("User metrics synchronized successfully.", 'success');
+
             document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(4);
-            
-            // Refresh main background list views implicitly
+
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
         } else {
-            showAppAlert("Failed to update profile values.", 'error')
+            showAppAlert("Failed to update profile values.", 'error');
         }
     } catch (e) {
         console.error("Data tracking writing failure:", e);
-        showAppAlert("Network communications failed.", 'error')
+        showAppAlert("Network communications failed.", 'error');
     }
 }
 
