@@ -7079,13 +7079,18 @@ async function openCourseDetail(productId) {
 }
 
 // Purchase product
+let purchaseInProgress = false;
+
 async function purchaseProduct(productId) {
+    if (purchaseInProgress) return;
+    purchaseInProgress = true;
+
     try {
         const res = await secureFetch('/api/secure/purchase-course', {
-         method: 'POST',
-         body: JSON.stringify({ productId })
-       });        
-    if (res.success) {
+            method: 'POST',
+            body: JSON.stringify({ productId })
+        });
+        if (res.success) {
             showNotificationToast(res.message, 'success');
             closeCourseDetail();
             userProfileData.balance = res.newBalance;
@@ -7095,6 +7100,8 @@ async function purchaseProduct(productId) {
     } catch (err) {
         console.error('Purchase error:', err);
         showNotificationToast(err.error || 'Purchase failed', 'error');
+    } finally {
+        purchaseInProgress = false;
     }
 }
 
@@ -7291,7 +7298,8 @@ async function createAdminAPK() {
         }
 
         if (!telegram_file_id) {
-            showAlert('Error', 'Telegram File ID required — upload the APK to the bot first to get one');
+            showNotificationToast('Telegram File ID required — upload the APK to the bot first to get one', 'error');
+
             return;
         }
 
@@ -7384,7 +7392,7 @@ async function openCoursePlayer(courseId) {
 
     } catch (err) {
         console.error('Open player error:', err);
-        showAlert('Error', 'Failed to load course');
+        showNotificationToast('Failed to load course', 'error');
     }
 }
 
@@ -7438,7 +7446,8 @@ async function playLesson(idx, lessonId) {
         video.pause();
 
         // Build stream URL
-        const streamUrl = `/api/stream-video?courseId=${videoPlayerState.courseId}&lessonId=${lessonId}`;
+        const initData = window.Telegram?.WebApp?.initData || '';
+        const streamUrl = `${RENDER_URL}/api/stream-video?courseId=${videoPlayerState.courseId}&lessonId=${lessonId}&initData=${encodeURIComponent(initData)}`;
 
         // Set video source
         video.src = streamUrl;
@@ -7455,13 +7464,13 @@ async function playLesson(idx, lessonId) {
         video.onerror = (err) => {
             console.error('Video load error:', err);
             document.getElementById('video-loading-overlay').classList.add('hidden');
-            showAlert('Error', 'Failed to load video');
+            showNotificationToast('Failed to load video', 'error');
         };
 
     } catch (err) {
         console.error('Play lesson error:', err);
         document.getElementById('video-loading-overlay').classList.add('hidden');
-        showAlert('Error', 'Failed to play video');
+        showNotificationToast('Failed to play video', 'error');
     }
 }
 
@@ -7638,9 +7647,7 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-function showAlert(title, message) {
-    alert(`${title}: ${message}`);
-}
+
         // Start App
         initApp();
 
