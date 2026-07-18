@@ -785,6 +785,9 @@ STYLING - SECURE VIDEO PLAYER PROTECTION
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .video-wrapper {
@@ -1090,7 +1093,57 @@ video.no-touch-shield {
         height: 100%;
     }
 }    
-.fake-fullscreen {
+
+.fs-header {
+    display: none; /* only shown in fake-fullscreen */
+    align-items: center;
+    gap: 10px;
+    padding: 6px 2px;
+}
+
+.fs-back-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.fs-header-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.fs-course-title {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.fs-lesson-name {
+    font-size: 13px;
+    color: #fff;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* FAKE FULLSCREEN: rotate header + video + controls together as one rigid block */
+body.fs-mode .video-player-container {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
@@ -1100,36 +1153,32 @@ video.no-touch-shield {
     transform-origin: center center;
     z-index: 9999;
     background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 14px;
+    box-sizing: border-box;
+    gap: 10px;
 }
 
-.fake-fullscreen video {
-    width: 100% !important;
-    height: 100% !important;
+body.fs-mode .fs-header {
+    display: flex;
+}
+
+body.fs-mode .video-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+
+body.fs-mode .video-wrapper video {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
 }
 
-.fake-fullscreen-exit-btn {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 1000000; /* above toast-container's 999999 */
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.75);
-    color: #fff;
-    border: none;
-    font-size: 20px;
-    display: none;
-    align-items: center;
-    justify-content: center;
+body.fs-mode .touch-barrier {
+    pointer-events: none;
 }
 
-body.fs-mode .fake-fullscreen-exit-btn {
-    display: flex;
+body.fs-mode .video-control-panel {
+    flex-shrink: 0;
 }
     </style>
 </head>
@@ -2722,83 +2771,67 @@ Enhanced with touch barrier, custom controls, and anti-download measures
             
             <!-- Secure Video Player Container -->
             <div class="video-player-container">
-                <!-- Video Wrapper with Touch Barrier -->
-                <div class="video-wrapper">
-                    <video 
-                        id="secure-video"
-                        class="no-touch-shield"
-                        playsinline
-                        webkit-playsinline="true"
-                        oncontextmenu="return false;"
-                        controlsList="nodownload noremoteplayback">
-                        Your browser does not support the video tag.
-                    </video>
-                    
-                    <!-- TRANSPARENT TOUCH BARRIER (blocks direct video interaction) -->
-                    <div class="touch-barrier"></div>
+    <!-- Fullscreen header: back arrow + course title + lesson name (hidden unless in fake-fullscreen) -->
+    <div class="fs-header">
+        <button class="fs-back-btn" onclick="exitFakeFullscreen()">←</button>
+        <div class="fs-header-text">
+            <p class="fs-course-title" id="fs-course-title"></p>
+            <p class="fs-lesson-name" id="fs-lesson-name"></p>
+        </div>
+    </div>
 
-                    <!-- Loading Indicator (appears over barrier) -->
-                    <div id="video-loading-overlay" class="video-loading-overlay hidden">
-                        <div class="loading-spinner"></div>
-                        <p class="text-xs text-slate-400 mt-2">Loading video...</p>
-                    </div>
-                    
-                </div>
+    <div class="video-wrapper">
+        <video 
+            id="secure-video"
+            class="no-touch-shield"
+            playsinline
+            webkit-playsinline="true"
+            oncontextmenu="return false;"
+            controlsList="nodownload noremoteplayback">
+            Your browser does not support the video tag.
+        </video>
+        
+        <div class="touch-barrier"></div>
 
-                <!-- CUSTOM CONTROL PANEL (Below video, fully accessible) -->
-                <div class="video-control-panel">
-                    
-                    <!-- Progress Bar -->
-                    <div class="progress-container">
-                        <input 
-                            type="range" 
-                            id="video-progress" 
-                            class="progress-slider" 
-                            min="0" 
-                            max="100" 
-                            value="0">
-                        <div class="time-display">
-                            <span id="current-time">0:00</span>
-                            <span id="duration-time">0:00</span>
-                        </div>
-                    </div>
+        <div id="video-loading-overlay" class="video-loading-overlay hidden">
+            <div class="loading-spinner"></div>
+            <p class="text-xs text-slate-400 mt-2">Loading video...</p>
+        </div>
+    </div>
 
-                    <!-- Control Buttons Row -->
-                    <div class="controls-row">
-                        <!-- Play/Pause -->
-                        <button id="play-pause-btn" class="control-btn" title="Play/Pause">
-                            <span class="btn-icon">▶</span>
-                        </button>
-
-                        <!-- Volume Control -->
-                        <div class="volume-control">
-                            <button id="volume-btn" class="control-btn" title="Volume">
-                                <span class="btn-icon">🔊</span>
-                            </button>
-                            <input 
-                                type="range" 
-                                id="volume-slider" 
-                                class="volume-slider" 
-                                min="0" 
-                                max="100" 
-                                value="100">
-                        </div>
-
-                        <!-- Spacer -->
-                        <div class="flex-1"></div>
-
-                        <!-- Quality/Speed (optional) -->
-                        <button id="playback-speed-btn" class="control-btn text-xs" title="Speed">
-                            <span class="btn-icon">1x</span>
-                        </button>
-
-                        <!-- Fullscreen -->
-                        <button id="fullscreen-btn" class="control-btn" title="Fullscreen">
-                            <span class="btn-icon">⛶</span>
-                        </button>
-                    </div>
-                </div>
+    <div class="video-control-panel">
+        <div class="progress-container">
+            <input type="range" id="video-progress" class="progress-slider" min="0" max="100" value="0">
+            <div class="time-display">
+                <span id="current-time">0:00</span>
+                <span id="duration-time">0:00</span>
             </div>
+        </div>
+
+        <div class="controls-row">
+            <button id="play-pause-btn" class="control-btn" title="Play/Pause">
+                <span class="btn-icon">▶</span>
+            </button>
+
+            <div class="volume-control">
+                <button id="volume-btn" class="control-btn" title="Volume">
+                    <span class="btn-icon">🔊</span>
+                </button>
+                <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="100">
+            </div>
+
+            <div class="flex-1"></div>
+
+            <button id="playback-speed-btn" class="control-btn text-xs" title="Speed">
+                <span class="btn-icon">1x</span>
+            </button>
+
+            <button id="fullscreen-btn" class="control-btn" title="Fullscreen">
+                <span class="btn-icon">⛶</span>
+            </button>
+        </div>
+    </div>
+</div>
 
             <!-- Course Info & Lessons Navigation -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -2830,7 +2863,8 @@ Enhanced with touch barrier, custom controls, and anti-download measures
         </div>
     </div>
 </div>     
-<button id="fake-fullscreen-exit-btn" class="fake-fullscreen-exit-btn" onclick="exitFakeFullscreen()">✕</button>
+
+
 </main>
 
     <!-- CUSTOM IN-APP POPUP -->
@@ -7480,6 +7514,7 @@ async function openCoursePlayer(courseId) {
 
         // Update modal
         document.getElementById('video-player-title').textContent = product.title;
+        document.getElementById('fs-course-title').textContent = product.title;
         document.getElementById('video-course-desc').textContent = product.description;
 
         // Render lessons navigation
@@ -7533,6 +7568,7 @@ async function playLesson(idx, lessonId) {
         // Update title
         const lesson = videoPlayerState.lessons[idx];
         document.getElementById('video-player-title').textContent = lesson.lessonName;
+        document.getElementById('fs-lesson-name').textContent = lesson.lessonName;
         document.getElementById('video-player-duration').textContent = lesson.duration || '--:--';
         document.getElementById('duration-time').textContent = lesson.duration || '--:--';
         document.getElementById('current-time').textContent = '0:00';
@@ -7649,39 +7685,21 @@ function initializeVideoControls() {
         speedBtn.textContent = videoPlayerState.currentSpeed + 'x';
     });
 
-    // Fullscreen Control
+// Fullscreen Control (CSS-rotate only — real Fullscreen API is unsupported in Telegram's WebView)
     fullscreenBtn.addEventListener('click', () => {
-    const container = document.querySelector('.video-wrapper');
+        if (document.body.classList.contains('fs-mode')) {
+            exitFakeFullscreen();
+        } else {
+            enterFakeFullscreen();
+        }
+    });
 
-    if (document.fullscreenElement || container.classList.contains('fake-fullscreen')) {
-        exitFakeFullscreen();
-        return;
-    }
-
-    if (container.requestFullscreen) {
-        container.requestFullscreen().catch(() => {
-            enterFakeFullscreen(container);
-        });
-    } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-    } else {
-        enterFakeFullscreen(container);
-    }
-    fullscreenBtn.textContent = '⛶';
-});
-
-function enterFakeFullscreen(container) {
-    container.classList.add('fake-fullscreen');
+function enterFakeFullscreen() {
     document.body.classList.add('fs-mode');
     document.body.style.overflow = 'hidden';
 }
 
 function exitFakeFullscreen() {
-    const container = document.querySelector('.video-wrapper');
-    if (document.fullscreenElement) {
-        (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
-    }
-    container.classList.remove('fake-fullscreen');
     document.body.classList.remove('fs-mode');
     document.body.style.overflow = '';
     document.getElementById('fullscreen-btn').textContent = '⛶';
