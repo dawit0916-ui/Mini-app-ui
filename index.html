@@ -7121,8 +7121,11 @@ function switchShopAdminTab(tab) {
         el.classList.remove('bg-purple-600', 'text-white');
         el.classList.add('text-slate-400');
     });
-    document.querySelectorAll('[id^="admin-shop-"]').forEach(el => el.classList.add('hidden'));
-    
+    // Only hide content panels, not the tab bar buttons
+    ['courses', 'apk', 'stats'].forEach(t => {
+        document.getElementById(`admin-shop-${t}`).classList.add('hidden');
+    });
+
     document.getElementById(`admin-shop-tab-${tab}`).classList.add('bg-purple-600', 'text-white');
     document.getElementById(`admin-shop-${tab}`).classList.remove('hidden');
 
@@ -7130,7 +7133,6 @@ function switchShopAdminTab(tab) {
     if (tab === 'apk') loadAdminAPKs();
     if (tab === 'stats') loadShopStats();
 }
-
 // Load admin courses
 async function loadAdminCourses() {
     try {
@@ -7168,16 +7170,17 @@ async function createAdminCourse() {
         const thumbnail = document.getElementById('admin-course-thumbnail').value.trim();
 
         if (!title || !price) {
-            showAlert('Error', 'Title and price required');
+            showNotificationToast( 'Title and price required', 'Error');
             return;
         }
 
-        const res = await secureFetch('/api/admin/shop/create-course', 'POST', {
-            title, category, description, price, thumbnail
+        const res = await secureFetch('/api/admin/shop/create-course', {
+          method: 'POST',
+          body: JSON.stringify({ title, category, description, price, thumbnail })
         });
 
         if (res.success) {
-            showAlert('Success!', 'Course created');
+            showNotificationToast( 'Course created', 'Success!');
             document.getElementById('admin-course-title').value = '';
             document.getElementById('admin-course-category').value = '';
             document.getElementById('admin-course-description').value = '';
@@ -7186,7 +7189,7 @@ async function createAdminCourse() {
             loadAdminCourses();
         }
     } catch (err) {
-        showAlert('Error', err.error || 'Failed to create course');
+        showNotificationToast(err.error || 'Failed to create course', 'Error');
     }
 }
 
@@ -7265,9 +7268,15 @@ async function createAdminAPK() {
         const description = document.getElementById('admin-apk-description').value.trim();
         const price = parseInt(document.getElementById('admin-apk-price').value);
         const thumbnail = document.getElementById('admin-apk-thumbnail').value.trim();
+        const telegram_file_id = document.getElementById('admin-apk-telegram-file-id').value.trim();
 
         if (!title || !price) {
             showAlert('Error', 'Title and price required');
+            return;
+        }
+
+        if (!telegram_file_id) {
+            showAlert('Error', 'Telegram File ID required — upload the APK to the bot first to get one');
             return;
         }
 
@@ -7276,11 +7285,17 @@ async function createAdminAPK() {
             title,
             description,
             price,
-            thumbnail
+            thumbnail,
+            telegram_file_id
         });
 
         if (res.success) {
             showAlert('Success!', 'APK created');
+            document.getElementById('admin-apk-title').value = '';
+            document.getElementById('admin-apk-description').value = '';
+            document.getElementById('admin-apk-price').value = '';
+            document.getElementById('admin-apk-thumbnail').value = '';
+            document.getElementById('admin-apk-telegram-file-id').value = '';
             loadAdminAPKs();
         }
     } catch (err) {
@@ -7613,7 +7628,9 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-
+function showAlert(title, message) {
+    alert(`${title}: ${message}`);
+}
         // Start App
         initApp();
 
