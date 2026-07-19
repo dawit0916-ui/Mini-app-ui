@@ -29,7 +29,7 @@ html, body {
     min-height: 100%;
     position: fixed;
     height: 100%;
-    overflow: hidden;q
+    overflow: hidden;
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
     -webkit-user-select: none;
@@ -6968,9 +6968,26 @@ window.switchAdminPanel = function(panelId) {
     }
 };
 
-function updateHeaderBalances(dash, usdt, tickets) {
-    const dashEl   = document.getElementById('header-dash-val');
-    if (dashEl)   dashEl.innerText   = parseInt(dash    || 0).toLocaleString();
+async function updateHeaderBalances(dash, usdt, tickets) {
+    // Self-healing: if called with no args, fetch the real current balance instead of defaulting to 0
+    if (dash === undefined) {
+        try {
+            const data = await secureFetch('/api/secure/profile');
+            const profile = (typeof data.balance === 'number') ? data : (data.profile || null);
+            if (profile) {
+                cachedUserProfile = profile;
+                dash = profile.balance;
+                usdt = profile.points;
+                tickets = profile.coins;
+            }
+        } catch (err) {
+            console.error('updateHeaderBalances: failed to fetch fresh profile', err);
+            return; // bail out without touching the DOM — leaves last-known-good value on screen
+        }
+    }
+
+    const dashEl = document.getElementById('header-dash-val');
+    if (dashEl) dashEl.innerText = parseInt(dash || 0).toLocaleString();
 }
 // =====================================================
 // SHOP FUNCTIONS
