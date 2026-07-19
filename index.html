@@ -1186,6 +1186,11 @@ body.fs-mode .touch-barrier {
 body.fs-mode .video-control-panel {
     flex-shrink: 0;
 }
+
+body.fs-mode .volume-control {
+    display: flex !important;
+}
+
     </style>
 </head>
 <body>
@@ -3847,25 +3852,23 @@ async function processPurchaseLevel() {
 
         if (!response.success) {
             showAppAlert(response.message || 'Purchase failed', 'error');
-            btn.textContent = originalText;
-            btn.disabled = false;
             return;
         }
 
-        // Success!
         showAppReward(`🎉 Upgraded to ${level.name}!`, `+${level.dailyReward} DASH/day reward unlocked for Daily Task!`);
-        
-        // Close drawer and reload
         toggleLevelDetail();
         await new Promise(r => setTimeout(r, 500));
         await loadLevels();
-        await updateHeaderBalances();
+
+        const profile = await secureFetch('/api/secure/profile');
+        updateHeaderBalances(profile.balance, profile.points, profile.coins);
 
     } catch (error) {
         console.error('Purchase error:', error);
         showAppAlert('Error processing purchase', 'error');
-        btn.textContent = originalText;
+    } finally {
         btn.disabled = false;
+        btn.textContent = originalText;
     }
 }
 
