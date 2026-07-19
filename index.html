@@ -1077,7 +1077,19 @@ video.no-touch-shield {
         display: none; /* Hide on small screens */
     }
 }
-
+.video-watermark {
+    position: absolute;
+    pointer-events: none;
+    color: rgba(255, 255, 255, 0.22);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    white-space: nowrap;
+    z-index: 4; /* above video, below touch-barrier's 5 so it never blocks taps */
+    transition: top 1.2s ease, left 1.2s ease;
+    user-select: none;
+}
 /* ═══════════════════════════════════════════════════════════
    SHEET DRAWER FULLSCREEN OVERRIDE
    ═══════════════════════════════════════════════════════════ */
@@ -1100,20 +1112,14 @@ video.no-touch-shield {
     gap: 10px;
     padding: 6px 2px;
 }
-
-.fs-back-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: none;
-    color: #fff;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.fs-duration {
+    font-size: 11px;
+    font-weight: 900;
+    color: #cbd5e1;
     flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
 }
+
 
 .fs-header-text {
     flex: 1;
@@ -1187,7 +1193,7 @@ body.fs-mode .video-control-panel {
    <div id="loading-screen" class="loading-screen-overlay">
     <div class="loading-content">
         <div class="loading-logo-ring">
-            <img src="/assets/images/dash-coin.png" alt="EMBT" class="loading-logo-img">
+            <img src="/assets/images/dash-coin.png" alt="DASH" class="loading-logo-img">
         </div>
         <h1 class="loading-title">DASH EARN</h1>
         <div class="loading-divider">
@@ -1195,7 +1201,7 @@ body.fs-mode .video-control-panel {
             <span class="loading-line-deco"></span>
             <span class="loading-dot-deco"></span>
         </div>
-        <p class="loading-tagline">EARN · WATCH · GROW · TOGETHER</p>
+        <p class="loading-tagline">EARN · WATCH · GROW</p>
         <div class="loading-progress-track">
             <div id="loading-progress-fill" class="loading-progress-fill"></div>
         </div>
@@ -2770,34 +2776,35 @@ Enhanced with touch barrier, custom controls, and anti-download measures
         <div id="video-player-content" class="space-y-4">
             
             <!-- Secure Video Player Container -->
-            <div class="video-player-container">
+       <div class="video-player-container">
     <!-- Fullscreen header: back arrow + course title + lesson name (hidden unless in fake-fullscreen) -->
-    <div class="fs-header">
-        <button class="fs-back-btn" onclick="exitFakeFullscreen()">←</button>
-        <div class="fs-header-text">
-            <p class="fs-course-title" id="fs-course-title"></p>
-            <p class="fs-lesson-name" id="fs-lesson-name"></p>
-        </div>
-    </div>
+            <div class="fs-header">
+               <span class="fs-duration" id="fs-duration">0:00</span>
+               <div class="fs-header-text">
+                  <p class="fs-course-title" id="fs-course-title"></p>
+                  <p class="fs-lesson-name" id="fs-lesson-name"></p>
+              </div>
+           </div>
 
-    <div class="video-wrapper">
-        <video 
-            id="secure-video"
-            class="no-touch-shield"
-            playsinline
-            webkit-playsinline="true"
-            oncontextmenu="return false;"
-            controlsList="nodownload noremoteplayback">
-            Your browser does not support the video tag.
-        </video>
+           <div class="video-wrapper">
+                <video 
+                  id="secure-video"
+                  class="no-touch-shield"
+                  playsinline
+                  webkit-playsinline="true"
+                  oncontextmenu="return false;"
+                  controlsList="nodownload noremoteplayback">
+                  Your browser does not support the video tag.
+                </video>
         
         <div class="touch-barrier"></div>
 
-        <div id="video-loading-overlay" class="video-loading-overlay hidden">
-            <div class="loading-spinner"></div>
-            <p class="text-xs text-slate-400 mt-2">Loading video...</p>
-        </div>
-    </div>
+               <div id="video-loading-overlay" class="video-loading-overlay hidden">
+                 <div class="loading-spinner"></div>
+                 <p class="text-xs text-slate-400 mt-2">Loading video...</p>
+              </div>
+              <div id="video-watermark" class="video-watermark"></div>
+       </div>
 
     <div class="video-control-panel">
         <div class="progress-container">
@@ -2806,6 +2813,7 @@ Enhanced with touch barrier, custom controls, and anti-download measures
                 <span id="current-time">0:00</span>
                 <span id="duration-time">0:00</span>
             </div>
+            
         </div>
 
         <div class="controls-row">
@@ -7586,7 +7594,7 @@ async function playLesson(idx, lessonId) {
 
         // Set video source
         video.src = streamUrl;
-        
+        startVideoWatermark();
         // Update nav buttons
         updateNavButtons();
 
@@ -7608,7 +7616,41 @@ async function playLesson(idx, lessonId) {
         showNotificationToast('Failed to play video', 'error');
     }
 }
+let watermarkInterval = null;
 
+function startVideoWatermark() {
+    const wm = document.getElementById('video-watermark');
+    const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (!wm || !user) return;
+
+    const label = user.username ? `@${user.username} · ${user.id}` : `ID ${user.id}`;
+    wm.textContent = label;
+
+    const positions = [
+        { top: '8%', left: '6%' },
+        { top: '8%', left: '55%' },
+        { top: '85%', left: '6%' },
+        { top: '85%', left: '55%' },
+        { top: '46%', left: '30%' }
+    ];
+
+    let i = 0;
+    const applyPosition = () => {
+        wm.style.top = positions[i].top;
+        wm.style.left = positions[i].left;
+        i = (i + 1) % positions.length;
+    };
+
+    applyPosition();
+    clearInterval(watermarkInterval);
+    watermarkInterval = setInterval(applyPosition, 8000); // drift every 8s
+}
+
+function stopVideoWatermark() {
+    clearInterval(watermarkInterval);
+    watermarkInterval = null;
+}
 // ─────────────────────────────────────────────────────
 // CUSTOM CONTROL HANDLERS
 // ─────────────────────────────────────────────────────
@@ -7761,6 +7803,7 @@ function closeVideoPlayer() {
     const video = document.getElementById('secure-video');
     video.pause();
     video.src = '';
+    stopVideoWatermark();
     document.getElementById('video-player-modal').classList.remove('active');
 }
 
