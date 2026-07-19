@@ -29,7 +29,7 @@ html, body {
     min-height: 100%;
     position: fixed;
     height: 100%;
-    overflow: hidden;
+    overflow: hidden;q
     color: #f8fafc;
     font-family: 'Inter', sans-serif;
     -webkit-user-select: none;
@@ -7684,18 +7684,19 @@ function initializeVideoControls() {
     // Progress Bar Control
     progressSlider.addEventListener('input', (e) => {
     if (!isFinite(video.duration) || video.duration <= 0) return;
-    video.currentTime = (parseFloat(e.target.value) / 100) * video.duration;
+    video.currentTime = parseFloat(e.target.value); // already seconds, since max = duration
 });
-    video.addEventListener('timeupdate', () => {
-        const percent = (video.currentTime / video.duration) * 100 || 0;
-        progressSlider.value = percent;
-        document.getElementById('current-time').textContent = formatTime(video.currentTime);
-    });
 
-    video.addEventListener('ended', () => {
-        playPauseBtn.textContent = '▶';
-        videoPlayerState.isPlaying = false;
-    });
+video.addEventListener('timeupdate', () => {
+    progressSlider.value = video.currentTime; // seconds now, matches max
+    document.getElementById('current-time').textContent = formatTime(video.currentTime);
+});
+
+video.addEventListener('ended', () => {
+    playPauseBtn.textContent = '▶';
+    videoPlayerState.isPlaying = false;
+    progressSlider.value = progressSlider.max; // snap thumb fully to the end
+});
 
     // Volume Control
     volumeBtn.addEventListener('click', () => {
