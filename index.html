@@ -6546,9 +6546,9 @@ function goToGroup() {
 }
 
 function goToPost() {
+    secureFetch('/api/secure/daily-tasks/mark-pending-reaction', { method: 'POST' }).catch(() => {});
     window.open(todaysTask.post_direct_link, '_blank');
 }
-
 async function verifyReaction() {
     const btn = document.getElementById('verifyReactionBtn');
     btn.disabled = true;
