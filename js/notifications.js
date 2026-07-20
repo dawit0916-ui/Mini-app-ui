@@ -1,165 +1,309 @@
+/* ============================================================
+   NOTIFICATIONS SYSTEM
+   ============================================================ */
 
-let notifications = [
-    { type: 'system', title: 'System Active', msg: 'Welcome to the premium vault.', read: true, date: new Date() }
-];
-let currentNotifTab = 'personal';
-
-/**
- * Toggles visibility of the modal box interface view wrapper
- */
-function toggleNotificationCenter() {
-    const el = document.getElementById('notification-center');
-    const dot = document.getElementById('unread-dot');
-    
-    if (!el) return console.error("Notification center view wrapper container missing.");
-    
-    if (el.style.display === 'none' || el.style.display === '') {
-    el.style.display = 'flex';
-    el.classList.add('active');
-} else {
-    el.style.display = 'none';
-    el.classList.remove('active');
+class NotificationManager {
+    constructor() {
+        this.toasts = [];
+        this.maxToasts = 5;
+        this.container = null;
+        this.init();
     }
-    
-    if (el.classList.contains('active')) {
-        if (dot) dot.classList.add('hidden'); // Hide red indicator dot on modal activation
-        switchNotifTab(currentNotifTab);
-    }
-}
 
-/**
- * Fetches secure database announcements from your server and loads them into memory
- */
-async function syncUserInbox() {
-    try {
-        const remoteAlerts = await secureFetch('/api/secure/notifications');
-        if (remoteAlerts && Array.isArray(remoteAlerts)) {
-          
-            // Map payloads to uniform design schemes safely matching backend parameters
-            // ==========================================================================
-// ✅ REPLACE YOUR MAP MATRIX INSIDE syncUserInbox() WITH THIS:
-// ==========================================================================
-notifications = remoteAlerts.map(srvNotif => {
-    // Read the clean incoming type from our updated backend property
-    const incomingType = srvNotif.type || 'system';
-    
-    return {
-        // If it explicitly says 'system', route it to 'system'. Otherwise, it's 'personal'.
-        type: (incomingType === 'system') ? 'system' : 'personal',
-        title: srvNotif.title || 'Notification',
-        msg: srvNotif.message || srvNotif.msg || '',
-        read: srvNotif.read || false,
-        date: srvNotif.date || srvNotif.createdAt || new Date()
-    };
-});
-            
-            // Sync status badge dot context
-            const hasUnread = notifications.some(n => !n.read);
-            const unreadDot = document.getElementById('unread-dot');
-            if (unreadDot) {
-                if (hasUnread) unreadDot.classList.remove('hidden');
-                else unreadDot.classList.add('hidden');
-            }
-console.log("Current State Synchronized List Payload Array:", notifications);
-            renderFilteredNotifications();
+    init() {
+        // Create notifications container
+        this.container = document.createElement('div');
+        this.container.className = 'notifications-container';
+        this.container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            pointer-events: none;
+        `;
+        document.body.appendChild(this.container);
+    }
+
+    /**
+     * Show notification toast
+     */
+    show(message, type = 'info', duration = 3000, icon = null) {
+        // Limit number of toasts
+        if (this.toasts.length >= this.maxToasts) {
+            const oldest = this.toasts.shift();
+            oldest.element.remove();
         }
-    } catch (e) {
-        // This will force your phone to show you exactly why the code is breaking!
-        alert("CRITICAL INBOX SYNC ERROR TRACE:\n" + e.message + "\n\nStack: " + e.stack);
-        console.error("Failed to sync application user data notifications records:", e);
-    }
-}
 
-/**
- * Physically renders your active tab array memory straight into the DOM
- */
-function renderFilteredNotifications() {
-    const notificationsContainer = document.getElementById('notifications-container');
-    if (!notificationsContainer) return;
-
-    // Filter list by selected sub-tab view parameters
-    const filteredList = notifications.filter(n => n.type === currentNotifTab);
-
-    // Empty state fallback display card template structure
-    if (filteredList.length === 0) {
-        notificationsContainer.innerHTML = `
-            <div class="text-center text-slate-500 py-12 flex flex-col items-center justify-center gap-1">
-                <span class="text-2xl">📩</span>
-                <p class="text-xs font-black uppercase tracking-wider text-white">Inbox Clear</p>
-                <p class="text-[10px] text-slate-400 font-bold">No new messages for you</p>
-            </div>`;
-        return;
-    }
-
-    // Map and inject modern message elements
-    notificationsContainer.innerHTML = filteredList.map(notif => {
-        const formattedTime = new Date(notif.date).toLocaleTimeString([], {
-            hour: '2-digit', 
-            minute: '2-digit'
-        });
-
-        return `
-            <div class="p-4 bg-white/5 border ${!notif.read ? 'border-blue-500/50 bg-blue-500/5' : 'border-white/10'} rounded-2xl flex flex-col gap-1 backdrop-blur-md transition-all duration-300">
-                <div class="flex justify-between items-start">
-                    <span class="font-black text-white uppercase text-xs tracking-wider">${notif.title}</span>
-                    <span class="text-[9px] uppercase font-bold text-slate-500">${formattedTime}</span>
+        const toastId = Date.now();
+        const toast = document.createElement('div');
+        toast.className = `notification notification-${type} notification-enter`;
+        toast.style.pointerEvents = 'auto';
+        
+        const iconHtml = icon ? `<span class="notification-icon">${icon}</span>` : '';
+        
+        toast.innerHTML = `
+            <div class="notification-content">
+                ${iconHtml}
+                <div class="notification-text">
+                    <span>${this.escapeHtml(message)}</span>
                 </div>
-                <p class="text-xs text-slate-300 font-medium leading-relaxed">${notif.msg|| notif.message || ''}</p>
+                <button class="notification-close" data-toast-id="${toastId}">&times;</button>
             </div>
         `;
-    }).join('');
 
-    // Mark current tab items as read after 2 seconds safely
-    setTimeout(() => {
-        notifications.forEach(n => {
-            if (n.type === currentNotifTab) n.read = true;
+        this.container.appendChild(toast);
+        this.container.style.pointerEvents = 'auto';
+
+        const toastObj = { id: toastId, element: toast, timeout: null };
+        this.toasts.push(toastObj);
+
+        // Close button handler
+        toast.querySelector('.notification-close').addEventListener('click', () => {
+            this.remove(toastId);
         });
-    }, 2000);
-}
 
-/**
- * Tabs visibility controller logic state engine
- */
-function switchNotifTab(tabName) {
-    currentNotifTab = tabName;
-    
-    const personalBtn = document.getElementById('btn-notif-personal');
-    const systemBtn = document.getElementById('btn-notif-system');
-    
-    if (personalBtn && systemBtn) {
-        if (tabName === 'personal') {
-            personalBtn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-blue-600 text-white";
-            systemBtn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-white/5 text-slate-400";
-        } else {
-            personalBtn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-white/5 text-slate-400";
-            systemBtn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-blue-600 text-white";
+        // Auto-remove after duration
+        if (duration > 0) {
+            toastObj.timeout = setTimeout(() => this.remove(toastId), duration);
+        }
+
+        return toastId;
+    }
+
+    /**
+     * Remove notification
+     */
+    remove(toastId) {
+        const index = this.toasts.findIndex(t => t.id === toastId);
+        if (index !== -1) {
+            const toast = this.toasts[index];
+            clearTimeout(toast.timeout);
+            
+            toast.element.classList.remove('notification-enter');
+            toast.element.classList.add('notification-exit');
+            
+            setTimeout(() => {
+                toast.element.remove();
+                this.toasts.splice(index, 1);
+            }, 300);
         }
     }
-    
-    renderFilteredNotifications();
+
+    /**
+     * Success notification
+     */
+    success(message, duration = 3000) {
+        return this.show(message, 'success', duration, '✓');
+    }
+
+    /**
+     * Error notification
+     */
+    error(message, duration = 4000) {
+        return this.show(message, 'error', duration, '✕');
+    }
+
+    /**
+     * Warning notification
+     */
+    warning(message, duration = 3500) {
+        return this.show(message, 'warning', duration, '⚠');
+    }
+
+    /**
+     * Info notification
+     */
+    info(message, duration = 3000) {
+        return this.show(message, 'info', duration, 'ℹ');
+    }
+
+    /**
+     * Persistent notification (no auto-close)
+     */
+    persistent(message, type = 'info') {
+        return this.show(message, type, 0);
+    }
+
+    /**
+     * Escape HTML
+     */
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Clear all notifications
+     */
+    clearAll() {
+        this.toasts.forEach(toast => {
+            clearTimeout(toast.timeout);
+            toast.element.remove();
+        });
+        this.toasts = [];
+    }
 }
 
 /**
- * Creates a real-time floating user overlay card announcement
+ * Alert Dialog Manager
  */
-function pushNotification(title, msg, type = 'system') {
-    // Save to unified state array
-    notifications.unshift({ type, title, msg, read: false, date: new Date() });
-    
-    const unreadDot = document.getElementById('unread-dot');
-    if (unreadDot) unreadDot.classList.remove('hidden');
-    
-    // Create UI overlay toast elements dynamically
-    const toast = document.createElement('div');
-    toast.className = `toast glass p-4 rounded-2xl border-l-4 ${type === 'system' ? 'border-blue-500' : 'border-green-500'} mb-2 shadow-2xl transition-all duration-300`;
-    toast.innerHTML = `<h5 class="text-[10px] font-black uppercase text-white">${title}</h5><p class="text-xs text-slate-300">${msg}</p>`;
-    
-    const toastContainer = document.getElementById('toast-container');
-    if (toastContainer) toastContainer.appendChild(toast);
-    
-    // Automatically fade element down 4 seconds later
-    setTimeout(() => toast.remove(), 4000);
+class AlertManager {
+    /**
+     * Show confirmation dialog
+     */
+    static async confirm(title, message, buttons = { yes: 'Confirm', no: 'Cancel' }) {
+        return new Promise(resolve => {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop active';
+            backdrop.style.zIndex = '9500';
+            backdrop.innerHTML = `
+                <div class="alert-dialog">
+                    <div class="alert-header">
+                        <h3>${this.escapeHtml(title)}</h3>
+                    </div>
+                    <div class="alert-body">
+                        <p>${this.escapeHtml(message)}</p>
+                    </div>
+                    <div class="alert-footer">
+                        <button class="btn btn-secondary btn-cancel">${this.escapeHtml(buttons.no)}</button>
+                        <button class="btn btn-primary btn-confirm">${this.escapeHtml(buttons.yes)}</button>
+                    </div>
+                </div>
+            `;
 
-    // Live update the list elements if center layout is open
-    renderFilteredNotifications();
+            document.body.appendChild(backdrop);
+
+            backdrop.querySelector('.btn-confirm').addEventListener('click', () => {
+                backdrop.remove();
+                resolve(true);
+            });
+
+            backdrop.querySelector('.btn-cancel').addEventListener('click', () => {
+                backdrop.remove();
+                resolve(false);
+            });
+
+            // Close on backdrop click
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) {
+                    backdrop.remove();
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    /**
+     * Show alert dialog
+     */
+    static async alert(title, message) {
+        return new Promise(resolve => {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop active';
+            backdrop.style.zIndex = '9500';
+            backdrop.innerHTML = `
+                <div class="alert-dialog">
+                    <div class="alert-header">
+                        <h3>${this.escapeHtml(title)}</h3>
+                    </div>
+                    <div class="alert-body">
+                        <p>${this.escapeHtml(message)}</p>
+                    </div>
+                    <div class="alert-footer">
+                        <button class="btn btn-primary btn-ok">OK</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(backdrop);
+
+            const close = () => {
+                backdrop.remove();
+                resolve();
+            };
+
+            backdrop.querySelector('.btn-ok').addEventListener('click', close);
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) close();
+            });
+        });
+    }
+
+    /**
+     * Show prompt dialog
+     */
+    static async prompt(title, message, placeholder = '') {
+        return new Promise(resolve => {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop active';
+            backdrop.style.zIndex = '9500';
+            backdrop.innerHTML = `
+                <div class="alert-dialog">
+                    <div class="alert-header">
+                        <h3>${this.escapeHtml(title)}</h3>
+                    </div>
+                    <div class="alert-body">
+                        <p>${this.escapeHtml(message)}</p>
+                        <input type="text" class="prompt-input" placeholder="${this.escapeHtml(placeholder)}" />
+                    </div>
+                    <div class="alert-footer">
+                        <button class="btn btn-secondary btn-cancel">Cancel</button>
+                        <button class="btn btn-primary btn-ok">OK</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(backdrop);
+            const input = backdrop.querySelector('.prompt-input');
+            input.focus();
+
+            const close = (value) => {
+                backdrop.remove();
+                resolve(value);
+            };
+
+            backdrop.querySelector('.btn-ok').addEventListener('click', () => {
+                close(input.value);
+            });
+
+            backdrop.querySelector('.btn-cancel').addEventListener('click', () => {
+                close(null);
+            });
+
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') close(input.value);
+            });
+
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) close(null);
+            });
+        });
+    }
+
+    /**
+     * Escape HTML
+     */
+    static escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+}
+
+// Initialize notification manager globally
+const notifications = new NotificationManager();
+
+// Helper function for backward compatibility
+function showNotificationToast(message, type = 'info') {
+    return notifications.show(message, type);
+}
+
+// Export for use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { NotificationManager, AlertManager, notifications };
 }
