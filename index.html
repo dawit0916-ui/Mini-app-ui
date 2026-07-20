@@ -7023,6 +7023,7 @@ async function loadShopCourses() {
         const res = await secureFetch('/api/shop/products?type=course', { method: 'GET' });
         shopState.courses = res.products || [];
         renderCourses();
+        loadMyPurchases();
     } catch (err) {
         console.error('Load courses error:', err);
     }
@@ -7034,6 +7035,7 @@ async function loadShopAPKs() {
         const res = await secureFetch('/api/shop/products?type=apk', { method: 'GET' });
         shopState.apks = res.products || [];
         renderAPKs();
+        loadMyPurchases();
     } catch (err) {
         console.error('Load APKs error:', err);
     }
@@ -7251,9 +7253,10 @@ async function purchaseProduct(productId) {
         if (res.success) {
             showNotificationToast(res.message, 'success');
             closeCourseDetail();
-            userProfileData.balance = res.newBalance;
-            updateUserProfile();
             loadMyPurchases();
+            if (cachedUserProfile) cachedUserProfile.balance = res.newBalance;
+            updateUserProfile();
+            
         }
     } catch (err) {
         console.error('Purchase error:', err);
@@ -7605,8 +7608,11 @@ async function playLesson(idx, lessonId) {
         document.getElementById('video-loading-overlay').classList.remove('hidden');
         
         const video = document.getElementById('secure-video');
-        video.src = '';
-        video.pause();
+        // Reset video before loading new lesson
+       video.onerror = null;
+       video.onloadedmetadata = null;
+       video.src = '';
+       video.pause();
 
         // Build stream URL
         const initData = window.Telegram?.WebApp?.initData || '';
@@ -7822,6 +7828,8 @@ function prevLesson() {
 
 function closeVideoPlayer() {
     const video = document.getElementById('secure-video');
+    video.onerror = null;
+    video.onloadedmetadata = null;
     video.pause();
     video.src = '';
     stopVideoWatermark();
