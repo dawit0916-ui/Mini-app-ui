@@ -1,143 +1,191 @@
-async function secureFetch(url, options = {}) {
-    // 1. Automatically inject authorization header configurations natively
-    const absoluteUrl = url.startsWith('http') ? url : `${RENDER_URL}${url}`;
-    const headers = {
-        'Content-Type': 'application/json',
-        'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || ''
-    };
+/* ============================================================
+   API CLIENT & REQUEST HANDLER
+   ============================================================ */
 
-    const config = {
-        ...options,
-        headers: {
-            ...headers,
-            ...options.headers
-        }
-    };
-
-    try {
-        const response = await fetch(absoluteUrl, config);
-
-        // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
-        // 2. INTERCEPT ARCHITECTURAL MAINTENANCE PIPELINE CODES (HTTP 503)
-if (response.status === 503) {
-    let maintenanceData = { maintenance: true };
-    try {
-        maintenanceData = await response.json();
-    } catch (parseFallback) {
-        // Fallback context values if response isn't programmatic JSON
-        maintenanceData.message = "The server is currently undergoing infrastructure updates or experiencing high load.";
-        maintenanceData.accentAsset = "⚠️";
+/**
+ * Main API request handler
+ * Handles auth, retries, and error management
+ */
+class APIClient {
+    constructor(config) {
+        this.baseUrl = config.api.baseUrl;
+        this.timeout = config.api.timeout;
+        this.retryAttempts = config.api.retryAttempts;
+        this.retryDelay = config.api.retryDelay;
     }
 
-    if (maintenanceData.maintenance) {
-        renderGlobalMaintenanceViewportScreen(maintenanceData);
-        throw new Error("System operation halted: Infrastructure upgrading.");
-    }
-}
-
-
-        // Return standard raw object maps out to calling layers if structural clearance passes
-        if (!response.ok) {
-            const errorPayload = await response.json().catch(() => ({}));
-            return { error: errorPayload.error || `HTTP Error: ${response.status}` };
-        }
-
-        return await response.json();
-
-    } catch (networkException) {
-        console.error(`[Gateway Network Fault] Path: ${absoluteUrl} Trace:`, networkException.message);
-        throw networkException;
-    }
-}
-async function fetchAdminStatus() {
-    try {
-        const data = await secureFetch('/api/admin/check');
+    /**
+     * Fetch wrapper with error handling and retries
+     */
+    async request(endpoint, options = {}, retryCount = 0) {
+        const url = `${this.baseUrl}${endpoint}`;
         
-        if (data && data.success) {
-            isCurrentUserAdmin = data.isAdmin;
-            allAdmins = data.adminList || [];
-            
-            // Set primary admin ID (first in list)
-            OWNER_ID = allAdmins.length > 0 ? allAdmins[0] : null;
-            
-            console.log("✅ Admin Status Fetched:", {
-                isAdmin: isCurrentUserAdmin,
-                totalAdmins: allAdmins.length,
-                adminIds: allAdmins
-            });
-            
-            return isCurrentUserAdmin;
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        // Add auth token if available
+        if (APP_CONFIG.user.token) {
+            headers['Authorization'] = `Bearer ${APP_CONFIG.user.token}`;
         }
-    } catch (err) {
-        console.error("Failed to fetch admin status:", err);
-    }
-    return false;
-}
-// ==========================================================================
-// STRUCTURAL MAINTENANCE VIEWPORT LAYOUT RENDERING COMPONENT
-// ==========================================================================
-function renderGlobalMaintenanceViewportScreen(meta) {
-    // Triggers soft alerts inside Telegram client framework
-    if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
-    }
 
-    const accentAsset = meta.accentAsset || "🛠️";
-    const customMessage = meta.message || "System under active scheduled maintenance updates.";
-    const terminalTargetTime = meta.targetTime ? new Date(meta.targetTime) : null;
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-    // Direct injection into root body node context guarantees total bypass defense locks
-    document.body.innerHTML = `
-        <div class="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden font-sans z-[999999]">
-            <div class="absolute w-[300px] h-[300px] bg-blue-600/10 rounded-full blur-[80px] -top-10 -left-10 pointer-events-none"></div>
-            <div class="absolute w-[300px] h-[300px] bg-indigo-600/10 rounded-full blur-[80px] -bottom-10 -right-10 pointer-events-none"></div>
-            
-            <div class="glass border-white/5 max-w-sm w-full p-8 rounded-3xl flex flex-col items-center relative shadow-2xl">
-                <div class="w-20 h-20 bg-blue-500/10 rounded-2xl flex items-center justify-center text-4xl mb-6 border border-blue-500/20 animate-pulse">
-                    ${accentAsset}
-                </div>
-                
-                <h1 class="text-xl font-black text-white uppercase tracking-wider mb-2">Upgrading Vault</h1>
-                <p class="text-xs text-slate-400 leading-relaxed px-2 mb-6">${customMessage}</p>
-                
-                ${terminalTargetTime ? `
-                    <div class="w-full bg-black/20 border border-white/5 rounded-2xl p-4 mb-2">
-                        <p class="text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1.5">Estimated Complete Window</p>
-                        <div id="maintenance-countdown-clock" class="text-lg font-mono font-black text-blue-400 tracking-widest">
-                            --:--:--
-                        </div>
-                    </div>
-                ` : ''}
-                
-                <div class="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-widest">
-                    <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping"></span>
-                    Network Interface Offline
-                </div>
-            </div>
-        </div>
-    `;
+            const response = await fetch(url, {
+                ...options,
+                headers,
+                signal: controller.signal
+            });
 
-    // Operational live client-side reactive countdown ticker worker loop setup
-    if (terminalTargetTime) {
-        function updateMaintenanceClockTicker() {
-            const timeDifferenceDelta = terminalTargetTime - Date.now();
-            const clockContainerNode = document.getElementById('maintenance-countdown-clock');
-            if (!clockContainerNode) return;
+            clearTimeout(timeoutId);
 
-            if (timeDifferenceDelta <= 0) {
-                clockContainerNode.innerText = "PROCESSING REBOOT...";
-                setTimeout(() => window.location.reload(), 5000); // Forces reload to re-verify gate state
-                return;
+            if (!response.ok) {
+                // Handle 401 Unauthorized
+                if (response.status === 401) {
+                    this.handleUnauthorized();
+                    throw new Error('Unauthorized - Please login again');
+                }
+
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
             }
 
-            const totalSeconds = Math.floor(timeDifferenceDelta / 1000);
-            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            // Handle empty response
+            if (response.status === 204) {
+                return { success: true };
+            }
 
-            clockContainerNode.innerText = `${hours}:${minutes}:${seconds}`;
-            requestAnimationFrame(updateMaintenanceClockTicker);
+            return await response.json();
+
+        } catch (error) {
+            // Retry on network errors
+            if (retryCount < this.retryAttempts && error.name !== 'AbortError') {
+                await this.delay(this.retryDelay);
+                return this.request(endpoint, options, retryCount + 1);
+            }
+
+            console.error(`API Error [${endpoint}]:`, error);
+            throw error;
         }
-        updateMaintenanceClockTicker();
     }
+
+    /**
+     * GET request
+     */
+    async get(endpoint, options = {}) {
+        return this.request(endpoint, { ...options, method: 'GET' });
+    }
+
+    /**
+     * POST request
+     */
+    async post(endpoint, data, options = {}) {
+        return this.request(endpoint, {
+            ...options,
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    /**
+     * PUT request
+     */
+    async put(endpoint, data, options = {}) {
+        return this.request(endpoint, {
+            ...options,
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    /**
+     * DELETE request
+     */
+    async delete(endpoint, options = {}) {
+        return this.request(endpoint, { ...options, method: 'DELETE' });
+    }
+
+    /**
+     * Handle unauthorized errors
+     */
+    handleUnauthorized() {
+        APP_CONFIG.user.token = null;
+        APP_CONFIG.user.id = null;
+        // Redirect to login or show auth modal
+        if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+        }
+    }
+
+    /**
+     * Utility delay function
+     */
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+// Initialize API client
+const api = new APIClient(APP_CONFIG);
+
+/**
+ * Secure fetch wrapper (alias for API client)
+ * Maintains backward compatibility
+ */
+async function secureFetch(endpoint, options = {}) {
+    return api.request(endpoint, options);
+}
+
+/**
+ * Specific API endpoint handlers
+ */
+const apiEndpoints = {
+    // Auth
+    login: (data) => api.post('/login', data),
+    logout: () => api.post('/logout', {}),
+    verify: () => api.post('/verify-membership', {}),
+    
+    // User Profile
+    getProfile: () => api.get('/user/profile'),
+    updateProfile: (data) => api.put('/user/profile', data),
+    
+    // Wallet
+    getWallet: () => api.get('/wallet'),
+    transfer: (data) => api.post('/wallet/transfer', data),
+    withdraw: (data) => api.post('/wallet/withdraw', data),
+    
+    // Referrals
+    getReferrals: () => api.get('/referrals'),
+    getReferralLink: () => api.get('/referrals/link'),
+    
+    // Tasks
+    getTasks: () => api.get('/tasks'),
+    completeTask: (taskId) => api.post(`/tasks/${taskId}/complete`, {}),
+    
+    // Games
+    getGames: () => api.get('/games'),
+    playGame: (gameId, data) => api.post(`/games/${gameId}/play`, data),
+    
+    // Video/Lessons
+    getLessons: () => api.get('/lessons'),
+    getLesson: (lessonId) => api.get(`/lessons/${lessonId}`),
+    getVideoUrl: (lessonId) => api.get(`/lessons/${lessonId}/video`),
+    markLessonComplete: (lessonId) => api.post(`/lessons/${lessonId}/complete`, {}),
+    
+    // Wheel/Spin
+    spinWheel: () => api.post('/wheel/spin', {}),
+    getWheelRewards: () => api.get('/wheel/rewards'),
+    
+    // Admin
+    getAdminStats: () => api.get('/admin/stats'),
+    getUsers: () => api.get('/admin/users'),
+    getUserDetails: (userId) => api.get(`/admin/users/${userId}`)
+};
+
+// Export for use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { api, secureFetch, apiEndpoints };
 }
