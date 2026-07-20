@@ -1,47 +1,216 @@
-:root {
-            --neon-blue: #3b82f6;
-            --neon-green: #10b981;
-            --neon-purple: #8b5cf6;
-        }
+/* ============================================================
+   GLOBAL STYLES & TYPOGRAPHY
+   ============================================================ */
 
- /* Combined and locked root container frame */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     min-height: 100%;
     position: fixed;
-    height: 100%; /* Locks viewport perfectly to mobile screen limits */
-    overflow: hidden; /* Stops the entire page/body from dragging */
-    background: linear-gradient(to bottom, #1e1b4b, #020617);
-    color: #f8fafc;
+    height: 100%;
+    overflow: hidden;
+    color: var(--text-primary);
     font-family: 'Inter', sans-serif;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-normal);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
-/* Dedicated internal scrolling area */
-main {
-    height: calc(100% - 100px); /* Formatted to accurately clear header/footer height */
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch; /* Ensures fluid iOS inertia physics */
-    overscroll-behavior: contain;
-    padding: 24px;
-    padding-top: 100px; /* Safe space clearing your fixed top element */
-    padding-bottom: 24px; /* Balanced resting padding at the very bottom */
+/* ============================================================
+   BACKGROUND SETUP
+   ============================================================ */
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('/assets/images/bg.png');
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
 }
 
-        /* Glassmorphism Effect */
-        .glass {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-        }
-        /* Neon Glows */
-        .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
-        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
-        .nav-active {
-    color: white !important;
-    filter: drop-shadow(0 0 8px var(--neon-blue));
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8, 4, 28, 0.60), rgba(4, 2, 14, 0.65));
+    z-index: -1;
+}
+
+/* Allow text selection in inputs */
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-weight: var(--fw-bold);
+    line-height: 1.2;
+}
+
+p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--neon-blue);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--neon-green);
+}
+
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+    font-family: 'Inter', sans-serif;
+    font-size: var(--fs-sm);
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-purple);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+button {
+    font-family: 'Inter', sans-serif;
+    font-weight: var(--fw-bold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+    border-radius: var(--radius-lg);
+}
+
+button:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   SCROLLBARS
+   ============================================================ */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.4);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.6);
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+.opacity-0 {
+    opacity: 0;
+}
+
+.opacity-1 {
+    opacity: 1;
+}
+
+.transition-all {
+    transition: all var(--transition-base);
+}
+
+.no-select {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ============================================================
+   LOADING OVERLAY
+   ============================================================ */
+
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 2, 18, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity var(--transition-base);
+}
+
+.loading-overlay.hidden {
+    display: none;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border-purple);
+    border-top-color: var(--neon-purple);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

@@ -1,0 +1,280 @@
+/* ============================================================
+   MODAL SYSTEM - Backdrops & Overlays
+   ============================================================ */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: var(--z-modal-bg);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-base) var(--ease-in-out);
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ============================================================
+   BOTTOM SHEET DRAWER
+   ============================================================ */
+
+.sheet-drawer {
+    width: 100%;
+    max-width: 480px;
+    background: var(--gradient-purple-long);
+    border: 1px solid var(--border-purple);
+    border-bottom: none;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    padding: var(--spacing-md) var(--spacing-xl) var(--spacing-2xl);
+    max-height: 82vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 
+        0 -8px 40px rgba(139, 92, 246, 0.12),
+        0 -2px 0px var(--border-orange);
+    transform: translateY(100%);
+    transition: transform 0.38s var(--ease-out-back);
+    z-index: var(--z-modal);
+}
+
+.modal-backdrop.active .sheet-drawer {
+    transform: translateY(0);
+}
+
+/* Drag handle bar */
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--gradient-handle);
+    border-radius: 4px;
+    margin: 0 auto var(--spacing-lg);
+    opacity: 0.6;
+}
+
+/* Sheet Header */
+.sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-lg);
+}
+
+.sheet-title {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.sheet-subtitle {
+    font-size: var(--fs-xs);
+    color: var(--text-tertiary);
+    font-weight: var(--fw-bold);
+    font-family: monospace;
+    margin-top: var(--spacing-xs);
+}
+
+.sheet-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-medium);
+    color: var(--text-tertiary);
+    font-size: var(--fs-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.sheet-close:active {
+    transform: scale(0.9);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
+   SHEET MESSAGE BUBBLES
+   ============================================================ */
+
+.sheet-msg-bubble {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.sheet-msg-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-muted);
+}
+
+.sheet-msg-text {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Previous bubble variant */
+.sheet-prev-bubble {
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.sheet-prev-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: var(--spacing-sm);
+    color: #a78bfa;
+}
+
+/* ============================================================
+   SHEET FORM ELEMENTS
+   ============================================================ */
+
+.sheet-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid var(--border-purple) !important;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--fs-sm);
+    color: var(--text-primary);
+    resize: none;
+    outline: none;
+    margin-bottom: var(--spacing-md);
+    transition: border-color var(--transition-fast);
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+    min-height: 100px;
+}
+
+.sheet-textarea:focus {
+    border-color: rgba(139, 92, 246, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08);
+}
+
+/* ============================================================
+   SHEET ACTIONS ROW
+   ============================================================ */
+
+.sheet-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.sheet-btn-primary {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    border: none;
+    background: var(--gradient-purple);
+    color: #ffffff;
+    box-shadow: var(--shadow-purple);
+    transition: all var(--transition-fast);
+}
+
+.sheet-btn-primary:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.sheet-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sheet-btn-secondary {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-medium);
+    color: var(--text-tertiary);
+    transition: all var(--transition-fast);
+}
+
+.sheet-btn-secondary:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-purple);
+}
+
+.sheet-btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   SCROLLABLE CONTENT IN SHEETS
+   ============================================================ */
+
+.sheet-drawer::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sheet-drawer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sheet-drawer::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 3px;
+}
+
+.sheet-drawer::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+}
+
+/* ============================================================
+   MODAL CONTENT SECTIONS
+   ============================================================ */
+
+.modal-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.modal-section:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 640px) {
+    .sheet-drawer {
+        max-height: 90vh;
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    }
+}
