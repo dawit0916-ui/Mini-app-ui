@@ -6710,8 +6710,7 @@ async function submitYoutubeTaskCode() {
         btn.disabled = false;
         btn.innerText = "🎉 Submit & Claim";
     }
-}
-
+        }
 /* ============================================================
    WATCH & EARN (ADS) — moved into its own Earn sub-page.
    Uses your existing /api/secure/available-ads + playAdAndTrack.
@@ -6806,7 +6805,6 @@ async function loadAdsWatchList() {
    ============================================================ */
 let _fastTaskWidgetMounted = false;
 let _fastTaskConfigCache = null;
-
 async function loadAndShowAdsgram() {
     const container = document.getElementById('adsgram-container');
     const remainingLabel = document.getElementById('fast-task-remaining');
@@ -6857,8 +6855,6 @@ async function loadAndShowAdsgram() {
         container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Network error.</p>';
     }
 }
-
-
 /* ============================================================
    ADMIN: YOUTUBE TASK MANAGER
    ============================================================ */
@@ -6898,7 +6894,6 @@ async function addNewYoutubeTask() {
         showAppAlert("Failed to connect to server.", 'error');
     }
 }
-
 async function loadAdminYoutubeTaskList() {
     const container = document.getElementById('admin-youtube-tasks-list');
     if (!container) return;
@@ -6928,7 +6923,6 @@ async function loadAdminYoutubeTaskList() {
         container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load.</p>';
     }
 }
-
 async function deleteYoutubeTask(id) {
     showAppConfirm("Delete this YouTube task permanently?", async (ok) => {
         if (!ok) return;
@@ -6941,7 +6935,6 @@ async function deleteYoutubeTask(id) {
         }
     });
 }
-
 /* ============================================================
    WIRING: extend switchTab and switchAdminPanel without
    removing your existing logic (they're already wrapped once
@@ -6957,7 +6950,6 @@ window.switchTab = function(tabId, btn) {
         closeEarnSection();
     }
 };
-
 const _earnPanelPrevSwitchAdminPanel = window.switchAdminPanel;
 window.switchAdminPanel = function(panelId) {
     if (typeof _earnPanelPrevSwitchAdminPanel === "function") {
@@ -6967,7 +6959,6 @@ window.switchAdminPanel = function(panelId) {
         loadAdminYoutubeTaskList();
     }
 };
-
 async function updateHeaderBalances(dash, usdt, tickets) {
     // Self-healing: if called with no args, fetch the real current balance instead of defaulting to 0
     if (dash === undefined) {
@@ -7002,7 +6993,6 @@ let shopState = {
     selectedProduct: null,
     adminCourseId: null
 };
-
 // Switch between shop sections
 function switchShopSection(section) {
     shopState.currentSection = section;
@@ -7015,8 +7005,7 @@ function switchShopSection(section) {
     if (section === 'courses') loadShopCourses();
     if (section === 'apk') loadShopAPKs();
     if (section === 'my-purchases') loadMyPurchases();
-}
-
+        }
 // Load courses from backend
 async function loadShopCourses() {
     try {
@@ -7028,7 +7017,6 @@ async function loadShopCourses() {
         console.error('Load courses error:', err);
     }
 }
-
 // Load APKs from backend
 async function loadShopAPKs() {
     try {
@@ -7040,7 +7028,6 @@ async function loadShopAPKs() {
         console.error('Load APKs error:', err);
     }
 }
-
 // Load user's purchases
 async function loadMyPurchases() {
     try {
@@ -7051,7 +7038,6 @@ async function loadMyPurchases() {
         console.error('Load purchases error:', err);
     }
 }
-
 // Filter courses by category
 function filterCourses(category) {
     shopState.currentFilter = category;
@@ -7059,7 +7045,6 @@ function filterCourses(category) {
     event.target.classList.add('active', 'bg-blue-600/30');
     renderCourses();
 }
-
 // Render courses grid
 function renderCourses() {
     const grid = document.getElementById('shop-courses-grid');
@@ -7089,8 +7074,7 @@ function renderCourses() {
             </div>
         </div>
     `).join('');
-}
-
+                                               }
 // Render APKs
 function renderAPKs() {
     const grid = document.getElementById('shop-apk-grid');
@@ -7172,7 +7156,6 @@ function renderMyPurchases() {
         </div>
     `).join('');
 }
-
 // Open course detail
 async function openCourseDetail(productId) {
     try {
@@ -7212,7 +7195,6 @@ async function openCourseDetail(productId) {
                 </div>
             </div>
         `;
-
         // Check if already purchased
         const purchased = shopState.myPurchases.some(p => p.productId._id === productId);
         
@@ -7237,10 +7219,8 @@ async function openCourseDetail(productId) {
         showNotificationToast('Failed to load course details', 'error');
     }
 }
-
 // Purchase product
 let purchaseInProgress = false;
-
 async function purchaseProduct(productId) {
     if (purchaseInProgress) return;
     purchaseInProgress = true;
@@ -7255,9 +7235,7 @@ async function purchaseProduct(productId) {
             closeCourseDetail();
             loadMyPurchases();
             if (cachedUserProfile) cachedUserProfile.balance = res.newBalance;
-            updateUserProfile();
-            
-        }
+            }
     } catch (err) {
         console.error('Purchase error:', err);
         showNotificationToast(err.error || 'Purchase failed', 'error');
@@ -7265,12 +7243,10 @@ async function purchaseProduct(productId) {
         purchaseInProgress = false;
     }
 }
-
 // Close modals
 function closeShopDetail() {
     document.getElementById('shop-detail-modal').classList.remove('active');
 }
-
 function closeCourseDetail() {
     document.getElementById('shop-course-detail-modal').classList.remove('active');
 }
