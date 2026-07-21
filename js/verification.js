@@ -60,9 +60,35 @@ function verifyMarkClicked(which) {
     }, 700);
 }
 
-async function verifyRunCheck() {
+// Reveal the gate with the dramatic blur/spring transition. Safe to call
+// even if it's already visible.
+function showVerifyGate() {
     const gate = document.getElementById('verify-gate');
-    const btn  = document.getElementById('verify-btn');
+    if (!gate) return;
+    gate.classList.remove('hidden');
+    // Force a reflow so the browser registers display:flex before we add
+    // the animation class — otherwise the transition gets skipped and it
+    // just snaps open instead of animating in.
+    void gate.offsetWidth;
+    gate.classList.add('gate-visible');
+}
+
+// Animate the gate closed, then remove it from layout once the transition
+// finishes so it doesn't sit on top of the app invisibly.
+function hideVerifyGate() {
+    const gate = document.getElementById('verify-gate');
+    if (!gate) return;
+    gate.classList.remove('gate-visible');
+    setTimeout(() => gate.classList.add('hidden'), 450); // matches CSS transition duration
+}
+
+// silent=true suppresses the "Not Verified Yet" popup — used for the
+// automatic background check so already-joined users get zero interruption
+// and not-yet-joined users just see the gate itself, without a redundant
+// alert stacked on top of it. The button click passes silent=false so an
+// explicit user action still gets clear feedback.
+async function verifyRunCheck(silent = false) {
+    const btn = document.getElementById('verify-btn');
 
     btn.classList.add('loading');
     btn.disabled = true;
@@ -74,15 +100,23 @@ async function verifyRunCheck() {
         });
 
         if (res && res.verified) {
-            gate.classList.add('hidden');
+            hideVerifyGate();
         } else {
-            showAppAlert("You must join both the channel and group before verifying.", 'warning', 'Not Verified Yet');
+            showVerifyGate();
             if (res?.inChannel) document.getElementById('verify-row-channel').classList.add('joined');
             if (res?.inGroup)   document.getElementById('verify-row-group').classList.add('joined');
+            if (!silent) {
+                showAppAlert("You must join both the channel and group before verifying.", 'warning', 'Not Verified Yet');
+            }
         }
     } catch (e) {
         console.error('Gate check error:', e);
-        showAppAlert("Could not connect to server. Please try again.", 'error', 'Connection Error');
+        // Fail safe: if we can't confirm membership, show the gate rather
+        // than silently letting an unverified user through.
+        showVerifyGate();
+        if (!silent) {
+            showAppAlert("Could not connect to server. Please try again.", 'error', 'Connection Error');
+        }
     } finally {
         btn.classList.remove('loading');
         btn.disabled = false;
@@ -90,14 +124,13 @@ async function verifyRunCheck() {
 }
 
 function verifyCheckMembership() {
-    
-    verifyRunCheck();
+    verifyRunCheck(false);
 }
 
-// ── Show gate as soon as DOM is ready, before initApp runs ──
-document.addEventListener('DOMContentLoaded', () => {
-    const gate = document.getElementById('verify-gate');
-    gate.classList.remove('hidden');
-    // Wait for loading screen to finish then check
-    setTimeout(verifyRunCheck, 1500);
-});
+// ── Run the membership check as soon as this script loads (this file only
+//    executes after the loader has already injected every component, so the
+//    DOM is ready by definition — no need to wait on DOMContentLoaded, which
+//    would already have fired by now and never call back). The gate stays
+//    hidden the entire time; it only animates in if the check fails, so
+//    already-verified users never see it pop up at all. ──
+verifyRunCheck(true);
