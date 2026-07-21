@@ -1,0 +1,171 @@
+
+// Load and display all levels
+async function loadLevels() {
+    try {
+        // Fetch current user level
+        const userRes = await secureFetch('/api/secure/user/level');
+        const currentLevel = userRes?.level || 1;
+        const userBalance = userRes?.balance || 0;
+
+        // Update hero card
+        const currentConfig = LEVEL_CONFIG[currentLevel - 1];
+        document.getElementById('currentLevelDisplay').textContent = currentLevel;
+        document.getElementById('currentLevelName').textContent = currentConfig.name;
+        document.getElementById('currentLevelEmoji').textContent = currentConfig.emoji;
+        document.getElementById('dailyLimitDisplay').textContent = `${currentConfig.dailyLimit}/day`;
+
+        // Render levels grid
+        const levelsGrid = document.getElementById('levelsGrid');
+        levelsGrid.innerHTML = '';
+
+        LEVEL_CONFIG.forEach((level, idx) => {
+            const isUnlocked = currentLevel > level.level;
+            const isCurrent = currentLevel === level.level;
+            const canAfford = userBalance >= level.price;
+            const isNextLevel = level.level === currentLevel + 1;
+
+            const levelCard = document.createElement('button');
+            levelCard.onclick = () => showLevelDetails(level);
+            levelCard.className = `glass p-4 rounded-2xl border transition-all active:scale-95 flex flex-col items-center gap-2 ${
+                isCurrent ? 'border-purple-500/50 bg-purple-500/10' :
+                isUnlocked ? 'border-green-500/30 bg-green-500/5' :
+                isNextLevel ? 'border-blue-500/30 bg-blue-500/5' :
+                'border-white/5'
+            }`;
+
+            const badgeHTML = isCurrent ? '✅ CURRENT' : 
+                             isUnlocked ? '✓ UNLOCKED' :
+                             isNextLevel ? '→ NEXT' : '🔒 LOCKED';
+
+            levelCard.innerHTML = `
+                <p class="text-2xl">${level.emoji}</p>
+                <h4 class="text-[10px] font-black uppercase text-white tracking-wider">${level.name}</h4>
+                <p class="text-[8px] text-slate-400 font-bold">${level.price.toLocaleString()} DASH</p>
+                <span class="text-[7px] font-black uppercase tracking-widest ${
+                    isCurrent ? 'text-purple-400' :
+                    isUnlocked ? 'text-green-400' :
+                    isNextLevel ? 'text-blue-400' : 'text-slate-500'
+                }">${badgeHTML}</span>
+            `;
+            levelsGrid.appendChild(levelCard);
+        });
+
+    } catch (error) {
+        console.error('Error loading levels:', error);
+        showAppAlert('Failed to load levels', 'error');
+    }
+}
+
+// Show level detail drawer
+function showLevelDetails(levelConfig) {
+    const drawer = document.getElementById('levelDetailDrawer');
+    const nextLevel = LEVEL_CONFIG[Math.min(levelConfig.level, 9)];
+
+    // Update drawer content
+    document.getElementById('drawerLevelName').textContent = levelConfig.name;
+    document.getElementById('drawerLevelPrice').textContent = levelConfig.price.toLocaleString();
+    document.getElementById('drawerLevelEmoji').textContent = levelConfig.emoji;
+    document.getElementById('drawerLevelTitle').textContent = levelConfig.name;
+    document.getElementById('drawerLevelDesc').textContent = levelConfig.description;
+    document.getElementById('drawerDailyReward').textContent = levelConfig.dailyReward.toLocaleString() + ' DASH';
+    document.getElementById('drawerDailyLimit').textContent = levelConfig.dailyLimit + '/day';
+    document.getElementById('drawerCommission').textContent = levelConfig.commission + '%';
+    document.getElementById('drawerNextPrice').textContent = nextLevel.price.toLocaleString() + ' DASH';
+
+    // Update features grid
+    const featuresGrid = document.getElementById('drawerFeaturesGrid');
+    featuresGrid.innerHTML = levelConfig.features.map(feature => `
+        <div class="glass p-3 rounded-xl border border-white/5 flex items-center gap-2">
+            <span class="text-sm">✨</span>
+            <span class="text-xs text-slate-300">${feature}</span>
+        </div>
+    `).join('');
+
+    // Store current level for purchase
+    window.selectedLevelForPurchase = levelConfig;
+
+    // Show drawer
+    drawer.classList.remove('hidden');
+}
+
+// Toggle level detail drawer
+function toggleLevelDetail() {
+    const drawer = document.getElementById('levelDetailDrawer');
+    drawer.classList.toggle('hidden');
+}
+
+// Process level purchase
+async function processPurchaseLevel() {
+    if (!window.selectedLevelForPurchase) return;
+
+    const level = window.selectedLevelForPurchase;
+    const btn = document.getElementById('drawerPurchaseBtn');
+    const originalText = btn.textContent;
+
+    try {
+        btn.disabled = true;
+        btn.textContent = '⏳ Processing...';
+
+        const response = await secureFetch('/api/secure/level/purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level: level.level })
+        });
+
+        if (!response.success) {
+            showAppAlert(response.message || 'Purchase failed', 'error');
+            return;
+        }
+
+        showAppReward(`🎉 Upgraded to ${level.name}!`, `+${level.dailyReward} DASH/day reward unlocked for Daily Task!`);
+        toggleLevelDetail();
+        await new Promise(r => setTimeout(r, 500));
+        await loadLevels();
+
+        const profile = await secureFetch('/api/secure/profile');
+        updateHeaderBalances(profile.balance, profile.points, profile.coins);
+
+    } catch (error) {
+        console.error('Purchase error:', error);
+        showAppAlert('Error processing purchase', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
+}
+
+// Initialize levels on tab switch
+function initializeLevelsTab() {
+    loadLevels();
+}
+// Upgrade to next level - called from Profile tab
+async function upgradeToNextLevel() {
+    try {
+        // Fetch current user level
+        const userRes = await secureFetch('/api/secure/user/level');
+        const currentLevel = userRes?.level || 0;
+        const nextLevelNumber = Math.min(currentLevel + 1, 10); // Cap at level 10
+        
+        // Find the next level config
+        const nextLevelConfig = LEVEL_CONFIG.find(l => l.level === nextLevelNumber);
+        
+        if (!nextLevelConfig) {
+            showAppAlert('Max level reached!', 'info');
+            return;
+        }
+        
+        // Switch to levels tab
+        switchTab('levels', document.getElementById('nav-item'));
+        
+        // Wait for tab transition, then load and show details
+        await new Promise(r => setTimeout(r, 300));
+        await loadLevels();
+        showLevelDetails(nextLevelConfig);
+        
+    } catch (error) {
+        console.error('Error upgrading to next level:', error);
+        showAppAlert('Failed to load level info', 'error');
+    }
+}
+// Track tasks currently in progress
+let activeTasks = {};
