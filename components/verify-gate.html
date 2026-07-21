@@ -1,0 +1,38 @@
+<!-- ── VERIFICATION GATE ── -->
+<div id="verify-gate" >
+    <div class="verify-card" style="background: linear-gradient(160deg, rgba(28,14,52,0.98) 0%, rgba(10,4,28,0.99) 100%); border: 1px solid rgba(139,92,246,0.2); border-radius: 28px; box-shadow: 0 -8px 40px rgba(139,92,246,0.12);">
+        
+        <div style="width:64px;height:64px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;">
+            🔐
+        </div>
+
+        <div style="font-size:18px;font-weight:900;color:#f8fafc;text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">Verification Required</div>
+        <div style="font-size:11px;color:#64748b;font-weight:700;text-align:center;margin-bottom:24px;text-transform:uppercase;letter-spacing:0.1em;">Join our channels to continue</div>
+
+        <a id="verify-row-channel" href="https://t.me/EMBTasks_botC" target="_blank"
+           class="verify-channel-row" onclick="verifyMarkClicked('channel')"
+           style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:14px 16px;margin-bottom:10px;">
+            <div class="verify-tg-badge" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#60a5fa"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+            </div>
+            <span style="flex:1;font-size:13px;font-weight:700;color:#f1f5f9;">Dash Official Channel</span>
+            <div class="verify-check" id="verify-dot-channel"></div>
+        </a>
+
+        <a id="verify-row-group" href="https://t.me/EMBTasks_botG" target="_blank"
+           class="verify-channel-row" onclick="verifyMarkClicked('group')"
+           style="background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:14px 16px;margin-bottom:20px;">
+            <div class="verify-tg-badge" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#60a5fa"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+            </div>
+            <span style="flex:1;font-size:13px;font-weight:700;color:#f1f5f9;">Dash Community Group</span>
+            <div class="verify-check" id="verify-dot-group"></div>
+        </a>
+
+        <button class="verify-btn" id="verify-btn" onclick="verifyCheckMembership()"
+            style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:16px;height:52px;font-size:13px;font-weight:900;letter-spacing:0.06em;box-shadow:0 4px 20px rgba(124,58,237,0.3);">
+            <span class="verify-btn-text">→ Verify Access</span>
+            <div class="verify-spinner"></div>
+        </button>
+    </div>
+</div>

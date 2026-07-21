@@ -1,0 +1,154 @@
+<div id="tab-earn" class="tab-content">
+
+    <!-- ===== EARN HUB (banner list) ===== -->
+    <div id="earn-hub-view">
+        <div class="mb-4">
+            <h2 class="text-xl font-black tracking-wide text-white">Earn Center</h2>
+            <p class="text-xs text-slate-400">Pick a way to earn DASH</p>
+        </div>
+
+        <!-- Banner: YouTube Tasks -->
+        <button onclick="openEarnSection('youtube')" class="w-full text-left relative overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-950/40 to-rose-950/20 p-5 mb-4 backdrop-blur-xl active:scale-[0.98] transition-all">
+            <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-red-500/15 blur-xl"></div>
+            <div class="flex items-center gap-4">
+                <img src="/assets/images/icon-youtube.png" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-base font-black text-white">YouTube Tasks</h3>
+                    <p class="text-[11px] text-slate-400 truncate">Watch & enter the hidden code to earn</p>
+                </div>
+                <span class="text-slate-500 text-lg">›</span>
+            </div>
+        </button>
+
+        <!-- Banner: Watch & Earn (ads) -->
+        <button onclick="openEarnSection('ads')" class="w-full text-left relative overflow-hidden rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-950/40 to-amber-950/20 p-5 mb-4 backdrop-blur-xl active:scale-[0.98] transition-all">
+            <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-orange-500/15 blur-xl"></div>
+            <div class="flex items-center gap-4">
+                <img src="/assets/images/icon-ads.png" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-base font-black text-white">Watch & Earn</h3>
+                    <p class="text-[11px] text-slate-400 truncate">Watch short ads for instant rewards</p>
+                </div>
+                <span class="text-slate-500 text-lg">›</span>
+            </div>
+        </button>
+
+       <button onclick="openEarnSection('daily')" class="w-full text-left relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-blue-950/20 p-5 mb-4 backdrop-blur-xl active:scale-[0.98] transition-all">
+    <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-cyan-500/15 blur-xl"></div>
+    <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/20 flex items-center justify-center text-2xl shrink-0">📝</div>
+        <div class="flex-1 min-w-0">
+            <h3 class="text-base font-black text-white">Daily Task</h3>
+            <p class="text-[11px] text-slate-400 truncate" id="dailyTaskPreview">Loading today's task...</p>
+        </div>
+        <span class="text-slate-500 text-lg">›</span>
+    </div>
+</button>
+    </div>
+
+    <!-- ===== SUB-PAGE: YOUTUBE TASKS LIST ===== -->
+    <div id="earn-section-youtube" class="hidden">
+        <div class="flex items-center gap-3 mb-5">
+            <button onclick="closeEarnSection()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-widest text-red-400">YouTube Tasks</h3>
+                <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Watch the video, find the code, claim</p>
+            </div>
+        </div>
+        <div id="youtube-task-list" class="space-y-4"></div>
+    </div>
+
+    <!-- ===== SUB-PAGE: YOUTUBE TASK DETAIL (instructions + claim) ===== -->
+    <div id="earn-section-youtube-detail" class="hidden">
+        <div class="flex items-center gap-3 mb-5">
+            <button onclick="backToYoutubeList()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+            <div class="min-w-0">
+                <h3 id="yt-detail-title" class="text-sm font-black uppercase tracking-widest text-red-400 truncate">Task</h3>
+                <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">+<span id="yt-detail-reward">0.00</span> USDT</p>
+            </div>
+        </div>
+
+        <div class="glass p-5 border-red-500/20 mb-4">
+            <h4 class="text-[10px] font-black uppercase text-red-400 mb-3 tracking-widest">Instructions</h4>
+            <p id="yt-detail-instructions" class="text-xs text-slate-300 leading-relaxed mb-4">—</p>
+            <button id="yt-detail-watch-btn" onclick="watchYoutubeTaskVideo()" class="w-full bg-red-600 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                ▶️ Watch Video
+            </button>
+        </div>
+
+        <div class="glass p-5 border-white/5">
+            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">Enter The Hidden Code</h4>
+            <p class="text-[10px] text-slate-500 mb-3">The code is shown or spoken somewhere in the video. Type it exactly as shown.</p>
+            <input id="yt-code-input" type="text" autocomplete="off" autocapitalize="off" class="w-full p-3.5 rounded-xl text-sm glass mb-3 tracking-wider" placeholder="Enter code...">
+            <button id="yt-claim-btn" onclick="submitYoutubeTaskCode()" class="w-full btn-premium py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider active:scale-[0.98] transition-all">
+                🎉 Submit & Claim
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== SUB-PAGE: WATCH & EARN (ads) — your existing ad UI moves here ===== -->
+    <div id="earn-section-ads" class="hidden">
+        <div class="flex items-center gap-3 mb-5">
+            <button onclick="closeEarnSection()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-widest text-orange-400">Watch & Earn</h3>
+                <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Watch short ads for instant rewards</p>
+            </div>
+        </div>
+        <div id="ads-watch-list" class="space-y-4">
+            <p class="text-center text-[10px] text-slate-500 py-6">Loading ads...</p>
+        </div>
+    </div>
+
+<div id="earn-section-daily" class="hidden">
+    <div class="flex items-center gap-3 mb-5">
+        <button onclick="closeEarnSection()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-cyan-400">📝 Daily Task</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">One task per day</p>
+        </div>
+    </div>
+
+    <!-- COMMENT (secret word) VARIANT -->
+    <div id="dailyTask-comment" class="hidden">
+        <div class="glass p-5 rounded-2xl border border-white/5 mb-4">
+            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">🔤 Secret / Comment / Word</h4>
+            <div class="bg-white/5 rounded-xl p-4 mb-4 text-center">
+                <p class="text-[10px] text-slate-500 mb-2">TODAY'S WORD</p>
+                <p class="text-2xl font-black text-cyan-400 tracking-wider" id="dailyCommentWord"></p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="copySecretWord()" class="flex-1 glass py-3 rounded-xl font-bold text-xs text-cyan-400 border border-cyan-500/30 active:scale-95 transition-all">📋 Copy Word</button>
+                <button onclick="goToGroup()" class="flex-1 btn-premium py-3 rounded-xl font-black text-xs active:scale-95 transition-all">🚀 Go to Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REACTION VARIANT -->
+    <div id="dailyTask-reaction" class="hidden">
+        <div class="glass p-5 rounded-2xl border border-white/5 mb-4">
+            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">🔥 React to Post</h4>
+            <div class="bg-white/5 rounded-xl p-4 mb-4 text-center">
+                <p class="text-[10px] text-slate-500 mb-2">React with</p>
+                <p class="text-4xl" id="dailyReactionEmoji">🔥</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="goToPost()" class="flex-1 btn-premium py-3 rounded-xl font-black text-xs active:scale-95 transition-all">🔥 Go to Post</button>
+                <button id="verifyReactionBtn" onclick="verifyReaction()" class="flex-1 glass py-3 rounded-xl font-bold text-xs text-green-400 border border-green-500/30 active:scale-95 transition-all">✓ Verify</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHARED: reward + status -->
+    <div class="glass p-4 rounded-2xl border border-white/5 flex items-center justify-between mb-4">
+        <span class="text-[10px] text-slate-400">Reward</span>
+        <span class="text-sm font-black text-orange-400" id="dailyTaskReward">+50 DASH</span>
+    </div>
+
+    <div id="dailyTaskCompletedMsg" class="hidden glass p-4 rounded-2xl border border-green-500/30 bg-green-500/5 text-center">
+        <p class="text-sm font-black text-green-400 mb-1">✅ Completed!</p>
+        <p class="text-[10px] text-green-300/70">Come back tomorrow for a new task</p>
+    </div>
+</div>
+
+</div>    

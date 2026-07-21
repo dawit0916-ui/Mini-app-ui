@@ -1,0 +1,104 @@
+<!-- =============== TAB-LEVELS (COMPLETE IMPLEMENTATION) =============== -->
+<div id="tab-levels" class="tab-content">
+    
+    <!-- ===== CURRENT LEVEL HERO CARD ===== -->
+    <div class="glass p-6 mb-6 rounded-3xl border border-white/10 text-center relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl"></div>
+        
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">🏆 Your Current Level</p>
+        
+        <div class="flex items-center justify-center gap-2 mb-4">
+            <span id="currentLevelEmoji" class="text-4xl">🚀</span>
+            <div>
+                <div class="text-5xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="currentLevelDisplay">1</div>
+                <p class="text-xs text-slate-400 font-bold mt-1" id="currentLevelName">Hustler</p>
+            </div>
+        </div>
+
+        <!-- Level Progress Info -->
+        <div class="bg-white/5 rounded-xl p-3 mb-4 text-center">
+            <p class="text-[9px] text-slate-500 mb-1">DAILY TASK LIMIT</p>
+            <p class="text-lg font-black text-orange-300" id="dailyLimitDisplay">1/day</p>
+        </div>
+
+        <!-- Upgrade Button -->
+        <button onclick="showLevelUpgradeDrawer()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
+            🎁 Upgrade to Next Level 
+        </button>
+    </div>
+
+    <!-- ===== LEVELS GRID (10 LEVELS) ===== -->
+    <div class="mb-4">
+        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">All Levels</h3>
+        <div id="levelsGrid" class="grid grid-cols-2 gap-3">
+            <!-- Populated by loadLevels() -->
+        </div>
+    </div>
+
+    <!-- ===== LEVEL DETAIL DRAWER (Hidden by default) ===== -->
+    <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-start">
+        <div class="glass rounded-t-3xl border-t border-white/10 max-h-[85vh] overflow-y-auto pb-6">
+            <!-- Header -->
+            <div class="sticky top-0 glass rounded-t-3xl border-b border-white/10 p-5 flex items-center justify-between bg-opacity-95">
+                <div>
+                    <h3 id="drawerLevelName" class="text-sm font-black uppercase tracking-widest text-purple-400">Level 1</h3>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Price: <span id="drawerLevelPrice">10,000</span> DASH</p>
+                </div>
+                <button onclick="toggleLevelDetail()" class="w-8 h-8 glass rounded-lg flex items-center justify-center text-lg font-black active:scale-90 transition-all">✕</button>
+            </div>
+
+            <!-- Level Card Display -->
+            <div class="p-5">
+                <div class="glass p-6 rounded-2xl border border-white/10 text-center mb-5">
+                    <p class="text-5xl mb-2" id="drawerLevelEmoji">🚀</p>
+                    <h2 id="drawerLevelTitle" class="text-2xl font-black text-white mb-1">Hustler</h2>
+                    <p id="drawerLevelDesc" class="text-xs text-slate-400">Entry Level • Start Your Journey</p>
+                </div>
+
+                <!-- Features Unlocked at This Level -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">✨ Features Unlocked</h4>
+                    <div id="drawerFeaturesGrid" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Rewards & Benefits -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">💰 Rewards & Benefits</h4>
+                    <div class="space-y-2">
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Daily Task Reward</span>
+                            <span id="drawerDailyReward" class="text-sm font-black text-orange-300">500 DASH</span>
+                        </div>
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Task Daily Limit</span>
+                            <span id="drawerDailyLimit" class="text-sm font-black text-cyan-400">1/day</span>
+                        </div>
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Referral Commission</span>
+                            <span id="drawerCommission" class="text-sm font-black text-green-400">5%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upgrade Path -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">📈 Upgrade Path</h4>
+                    <div class="glass p-4 rounded-xl border border-white/5 text-center">
+                        <p class="text-xs text-slate-400 mb-2">Next Level Requires</p>
+                        <p class="text-lg font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="drawerNextPrice">20,000 DASH</p>
+                    </div>
+                </div>
+
+                <!-- Purchase Button -->
+                <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
+                    🎁 Upgrade Now
+                </button>
+                <button onclick="toggleLevelDetail()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

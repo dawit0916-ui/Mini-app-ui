@@ -1,0 +1,234 @@
+<div id="modal-support" class="sheet-backdrop" onclick="closeSupportDrawer()">
+    <div class="sheet-drawer" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div>
+                <div class="sheet-title">💬 Contact Support</div>
+                <div class="sheet-subtitle">We typically reply within 24h</div>
+            </div>
+            <button class="sheet-close" onclick="closeSupportDrawer()">✕</button>
+        </div>
+        <textarea id="support-msg-drawer" rows="5" class="sheet-textarea" placeholder="Describe your issue..."></textarea>
+        <button onclick="submitSupportTicketFromDrawer()" class="sheet-btn-primary w-full">📩 Send Ticket</button>
+    </div>
+</div>
+
+
+<!-- LEADERBOARD DRAWER -->
+<div id="modal-leaderboard" class="sheet-backdrop" onclick="closeLeaderboardDrawer()">
+    <div class="sheet-drawer" onclick="event.stopPropagation()" style="max-height:88vh;">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div>
+                <div class="sheet-title">🏆 Leaderboard</div>
+                <div id="lb-your-rank" class="sheet-subtitle">Your Rank #-</div>
+            </div>
+            <button class="sheet-close" onclick="closeLeaderboardDrawer()">✕</button>
+        </div>
+
+        <div class="flex gap-2 mb-5 bg-black/20 p-1 rounded-xl border border-white/5">
+          <button id="lb-tab-points" onclick="switchLeaderboardTab('points')" class="lb-tab-btn flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all">⚡ DASH</button>
+          <button id="lb-tab-invites" onclick="switchLeaderboardTab('invites')" class="lb-tab-btn flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all">👥 Invites</button>
+        </div>
+
+        <div id="lb-podium" class="flex items-end gap-2 mb-6 px-1"></div>
+
+        <div id="lb-list"></div>
+    </div>
+</div>
+<div id="modal-history" class="sheet-backdrop" onclick="closeHistoryDrawer()">
+    <div class="sheet-drawer" onclick="event.stopPropagation()" style="max-height:85vh;">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div>
+                <div class="sheet-title">🕓 My Activity</div>
+                <div class="sheet-subtitle">Your recent task history</div>
+            </div>
+            <button class="sheet-close" onclick="closeHistoryDrawer()">✕</button>
+        </div>
+        <div id="history-list" class="space-y-3"></div>
+    </div>
+</div> 
+<div id="shop-detail-modal" class="sheet-backdrop">
+    <div class="sheet-drawer">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 id="shop-detail-title" class="sheet-title">Course Title</h3>
+                <p id="shop-detail-category" class="sheet-subtitle">Category</p>
+            </div>
+            <button onclick="closeShopDetail()" class="sheet-close">✕</button>
+        </div>
+ 
+        <div id="shop-detail-content" class="space-y-4">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+</div>
+ <div id="shop-course-detail-modal" class="sheet-backdrop">
+    <div class="sheet-drawer">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 id="course-detail-title" class="sheet-title">Course Title</h3>
+                <p id="course-detail-price" class="sheet-subtitle text-yellow-400">0 DASH</p>
+            </div>
+            <button onclick="closeCourseDetail()" class="sheet-close">✕</button>
+        </div>
+ 
+        <div id="course-detail-content" class="space-y-4">
+            <!-- Lessons list populated here -->
+        </div>
+    </div>
+ </div>
+<div id="admin-lesson-modal" class="sheet-backdrop">
+    <div class="sheet-drawer">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="sheet-title">Add Lesson</h3>
+            <button onclick="closeAdminLessonModal()" class="sheet-close">✕</button>
+        </div>
+ 
+        <div class="space-y-3">
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Module Name</p>
+                <input id="admin-lesson-module" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Module 1: Getting Started">
+            </div>
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Lesson Name</p>
+                <input id="admin-lesson-name" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Setting Up Your Account">
+            </div>
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Telegram File ID</p>
+                <input id="admin-lesson-file-id" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Paste file_id here">
+                <p class="text-[8px] text-slate-400 mt-1">Send video to bot, it will reply with file_id</p>
+            </div>
+            <div>
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Duration</p>
+                <input id="admin-lesson-duration" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., 12:45">
+            </div>
+            <button onclick="addAdminLesson()" class="w-full py-3 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all">
+                Add Lesson
+            </button>
+        </div>
+    </div>
+</div>
+<!-- =====================================================
+SECURE VIDEO PLAYER MODAL (Production-Protected)
+Enhanced with touch barrier, custom controls, and anti-download measures
+===================================================== -->
+
+<div id="video-player-modal" class="sheet-backdrop">
+    <div class="sheet-drawer sheet-drawer-fullscreen">
+        <div class="sheet-handle"></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 id="video-player-title" class="sheet-title">Course Lesson</h3>
+                <p id="video-player-duration" class="sheet-subtitle">--:--</p>
+            </div>
+            <button onclick="closeVideoPlayer()" class="sheet-close">✕</button>
+        </div>
+
+        <!-- MAIN VIDEO CONTAINER WITH SECURITY LAYERS -->
+        <div id="video-player-content" class="space-y-4">
+            
+            <!-- Secure Video Player Container -->
+       <div class="video-player-container">
+    <!-- Fullscreen header: back arrow + course title + lesson name (hidden unless in fake-fullscreen) -->
+            <div class="fs-header">
+               <span class="fs-duration" id="fs-duration">0:00</span>
+               <div class="fs-header-text">
+                  <p class="fs-course-title" id="fs-course-title"></p>
+                  <p class="fs-lesson-name" id="fs-lesson-name"></p>
+              </div>
+           </div>
+
+           <div class="video-wrapper">
+                <video 
+                  id="secure-video"
+                  class="no-touch-shield"
+                  playsinline
+                  webkit-playsinline="true"
+                  oncontextmenu="return false;"
+                  controlsList="nodownload noremoteplayback">
+                  Your browser does not support the video tag.
+                </video>
+        
+        <div class="touch-barrier"></div>
+
+               <div id="video-loading-overlay" class="video-loading-overlay hidden">
+                 <div class="loading-spinner"></div>
+                 <p class="text-xs text-slate-400 mt-2">Loading video...</p>
+              </div>
+              <div id="video-watermark" class="video-watermark"></div>
+       </div>
+
+    <div class="video-control-panel">
+        <div class="progress-container">
+            <input type="range" id="video-progress" class="progress-slider" min="0" max="100" value="0">
+            <div class="time-display">
+                <span id="current-time">0:00</span>
+                <span id="duration-time">0:00</span>
+            </div>
+            
+        </div>
+
+        <div class="controls-row">
+            <button id="play-pause-btn" class="control-btn" title="Play/Pause">
+                <span class="btn-icon">▶</span>
+            </button>
+
+            <div class="volume-control">
+                <button id="volume-btn" class="control-btn" title="Volume">
+                    <span class="btn-icon">🔊</span>
+                </button>
+                <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="100">
+            </div>
+
+            <div class="flex-1"></div>
+
+            <button id="playback-speed-btn" class="control-btn text-xs" title="Speed">
+                <span class="btn-icon">1x</span>
+            </button>
+
+            <button id="fullscreen-btn" class="control-btn" title="Fullscreen">
+                <span class="btn-icon">⛶</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+            <!-- Course Info & Lessons Navigation -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                
+                <!-- Course Description -->
+                <div class="lg:col-span-2 glass p-3 rounded-xl border border-white/5">
+                    <h4 class="text-[9px] font-black uppercase text-slate-400 mb-2">About This Lesson</h4>
+                    <p id="video-course-desc" class="text-[10px] text-slate-300 line-clamp-4"></p>
+                </div>
+
+                <!-- Lessons List (Right sidebar on desktop) -->
+                <div class="glass p-3 rounded-xl border border-white/5 max-h-96 overflow-y-auto">
+                    <h4 class="text-[9px] font-black uppercase text-slate-400 mb-2 sticky top-0 bg-slate-900/80 pb-2">Lessons</h4>
+                    <div id="video-lessons-list" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-2">
+                <button onclick="prevLesson()" id="prev-lesson-btn" class="flex-1 py-2 bg-slate-600/30 text-slate-300 rounded-xl text-xs font-black uppercase active:scale-95 transition-all disabled:opacity-50">
+                    ← Previous
+                </button>
+                <button onclick="nextLesson()" id="next-lesson-btn" class="flex-1 py-2 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all disabled:opacity-50">
+                    Next →
+                </button>
+                  </div>
+        </div>
+    </div>
+</div>     
