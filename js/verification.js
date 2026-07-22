@@ -1,3 +1,5 @@
+const _verifyClicked = { channel: false, group: false };
+
 function showBanOverlay(reason) {
     // Remove any existing overlay
     document.getElementById('ban-overlay')?.remove();

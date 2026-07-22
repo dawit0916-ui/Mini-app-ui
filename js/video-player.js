@@ -328,10 +328,3 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-
-        // Start App
-        initApp();
-
-       
-// ── VERIFICATION GATE ──────────────────────────────────────────────────────
-const _verifyClicked = { channel: false, group: false };
