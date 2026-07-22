@@ -1,0 +1,202 @@
+
+/* ============================================================
+   BOTTOM SHEET DRAWER — new reusable class system
+   ============================================================ */
+.sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 2, 18, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 8000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sheet-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.sheet-drawer {
+    width: 100%;
+    max-width: 480px;
+    background: linear-gradient(160deg, rgba(28, 14, 52, 0.98) 0%, rgba(10, 4, 28, 0.99) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-bottom: none;
+    border-radius: 28px 28px 0 0;
+    padding: 14px 20px 36px;
+    max-height: 82vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 
+        0 -8px 40px rgba(139, 92, 246, 0.12),
+        0 -2px 0px rgba(251, 146, 60, 0.15);
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.34, 1.1, 0.64, 1);
+}
+
+.sheet-backdrop.active .sheet-drawer {
+    transform: translateY(0);
+}
+
+/* Drag handle */
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, #7c3aed, #f97316);
+    border-radius: 4px;
+    margin: 0 auto 18px;
+    opacity: 0.6;
+}
+
+/* Sheet header row */
+.sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.sheet-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.sheet-subtitle {
+    font-size: 9px;
+    color: #64748b;
+    font-weight: 700;
+    font-family: monospace;
+    margin-top: 3px;
+}
+
+.sheet-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #64748b;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sheet-close:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
+
+/* Message bubble inside sheet */
+.sheet-msg-bubble {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.sheet-msg-label {
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    color: #475569;
+}
+
+.sheet-msg-text {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+/* Previous reply bubble */
+.sheet-prev-bubble {
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.sheet-prev-label {
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    color: #a78bfa;
+}
+
+/* Textarea inside sheet */
+.sheet-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #f1f5f9;
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.sheet-textarea:focus {
+    border-color: rgba(139, 92, 246, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08);
+}
+
+/* Action buttons row */
+.sheet-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.sheet-btn-primary {
+    flex: 1;
+    padding: 13px;
+    border-radius: 16px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    border: none;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+    transition: all 0.2s ease;
+}
+
+.sheet-btn-primary:active { transform: scale(0.97); }
+.sheet-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.sheet-btn-secondary {
+    flex: 1;
+    padding: 13px;
+    border-radius: 16px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.sheet-btn-secondary:active { transform: scale(0.97); background: rgba(255,255,255,0.08); }

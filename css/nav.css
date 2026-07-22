@@ -1,0 +1,29 @@
+
+        .nav-active {
+    color: white !important;
+    filter: drop-shadow(0 0 8px var(--neon-blue));
+}
+/* Active nav — full brightness + green glow on icon, gold text */
+.nav-active img {
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 8px rgba(134, 239, 172, 0.8)) 
+            drop-shadow(0 0 16px rgba(74, 222, 128, 0.4));
+}
+
+.nav-active span {
+    color: #fde68a !important; /* amber-200 — matches gold medallion */
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
+/* Inactive nav */
+.nav-btn img {
+    transition: all 0.3s ease;
+}
+
+.nav-btn span {
+    transition: all 0.3s ease;
+}
+
+.nav-active::after {
+    display: none;
+}
