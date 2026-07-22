@@ -1,0 +1,421 @@
+  
+
+
+/*=====================================================
+STYLING - SECURE VIDEO PLAYER PROTECTION
+===================================================== */
+/* ═══════════════════════════════════════════════════════════
+   VIDEO PLAYER CONTAINER & LAYOUT
+   ═══════════════════════════════════════════════════════════ */
+
+.video-player-container {
+    width: 100%;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIDEO ELEMENT PROTECTION (CRITICAL SECURITY LAYER)
+   ═══════════════════════════════════════════════════════════ */
+
+video.no-touch-shield {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+
+    /* ──────────────────────────────────────────────────
+       iOS Safari Protection
+       ────────────────────────────────────────────────── */
+    
+    /* Disable the iOS long-press "Share/Save" popup */
+    -webkit-touch-callout: none;
+    
+    /* Disable text selection on long-press */
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    /* Disable tap-to-highlight visual feedback */
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Disable callout popup on iOS */
+    -webkit-user-callout: none;
+
+    /* ──────────────────────────────────────────────────
+       Android Chrome Protection
+       ────────────────────────────────────────────────── */
+    
+    /* Disable drag-and-drop */
+    -webkit-user-drag: none;
+    user-drag: none;
+    
+    /* Disable text/content selection */
+    -webkit-text-select-color: transparent;
+    
+    /* Remove context menu on long-press */
+    cursor: pointer;
+
+    /* ──────────────────────────────────────────────────
+       Cross-browser Protection
+       ────────────────────────────────────────────────── */
+    
+    /* Disable any visual selection highlight */
+    outline: none;
+    border: none;
+    
+    /* Ensure video doesn't trigger browser context menu */
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TRANSPARENT TOUCH BARRIER (BLOCKS DIRECT INTERACTION)
+   ═══════════════════════════════════════════════════════════ */
+
+.touch-barrier {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 5;
+    
+    /* Block all pointer events on the video itself */
+    pointer-events: auto;
+    
+    /* Prevent selection and context menu */
+    -webkit-user-select: none;
+    user-select: none;
+    
+    /* User cannot long-press this barrier */
+    -webkit-touch-callout: none;
+    
+    /* Disable tap feedback */
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Prevent right-click context menu */
+    oncontextmenu: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOADING OVERLAY
+   ═══════════════════════════════════════════════════════════ */
+
+.video-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    backdrop-filter: blur(4px);
+}
+
+.video-loading-overlay.hidden {
+    display: none;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #7c3aed;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTROL PANEL (CUSTOM CONTROLS BELOW VIDEO)
+   ═══════════════════════════════════════════════════════════ */
+
+.video-control-panel {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.95));
+    padding: 12px;
+    border-top: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Progress Bar Section */
+.progress-container {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.progress-slider {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    border-radius: 2px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
+}
+
+.time-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #94a3b8;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-weight: 600;
+}
+
+/* Controls Row */
+.controls-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.control-btn:active {
+    background: rgba(124, 58, 237, 0.3);
+    border-color: rgba(124, 58, 237, 0.5);
+    transform: scale(0.95);
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-icon {
+    display: inline-block;
+    font-weight: bold;
+}
+
+/* Volume Control Group */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.volume-slider {
+    width: 60px;
+    height: 3px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 2px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    background: #7c3aed;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    .video-wrapper {
+        aspect-ratio: auto;
+        max-height: 50vh;
+    }
+    
+    .control-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .volume-control {
+        display: none; /* Hide on small screens */
+    }
+    
+    .playback-speed-btn {
+        display: none; /* Hide on small screens */
+    }
+}
+.video-watermark {
+    position: absolute;
+    pointer-events: none;
+    color: rgba(255, 255, 255, 0.22);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    white-space: nowrap;
+    z-index: 4; /* above video, below touch-barrier's 5 so it never blocks taps */
+    transition: top 1.2s ease, left 1.2s ease;
+    user-select: none;
+}
+/* ═══════════════════════════════════════════════════════════
+   SHEET DRAWER FULLSCREEN OVERRIDE
+   ═══════════════════════════════════════════════════════════ */
+
+.sheet-drawer-fullscreen {
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .sheet-drawer-fullscreen {
+        max-height: 100%;
+        height: 100%;
+    }
+}    
+
+.fs-header {
+    display: none; /* only shown in fake-fullscreen */
+    align-items: center;
+    gap: 10px;
+    padding: 6px 2px;
+}
+.fs-duration {
+    font-size: 11px;
+    font-weight: 900;
+    color: #cbd5e1;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+
+.fs-header-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.fs-course-title {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.fs-lesson-name {
+    font-size: 13px;
+    color: #fff;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* FAKE FULLSCREEN: rotate header + video + controls together as one rigid block */
+body.fs-mode .video-player-container {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 100vh !important;
+    height: 100vw !important;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center center;
+    z-index: 9999;
+    background: #000;
+    padding: 14px;
+    box-sizing: border-box;
+    gap: 10px;
+}
+
+body.fs-mode .fs-header {
+    display: flex;
+}
+
+body.fs-mode .video-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+
+body.fs-mode .video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+body.fs-mode .touch-barrier {
+    pointer-events: none;
+}
+
+body.fs-mode .video-control-panel {
+    flex-shrink: 0;
+}
+
+body.fs-mode .volume-control {
+    display: flex !important;
+}
