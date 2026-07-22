@@ -238,12 +238,12 @@ function updateReminderStatus(enabled) {
 
 
 
-// Load reminder config on page load
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('remindersToggle')) {
-        loadReminderConfig();
-    }
-});
+// Load reminder config — runs directly since this file only executes
+// after the loader has already injected every component (DOMContentLoaded
+// would already have fired and never call back here).
+if (document.getElementById('remindersToggle')) {
+    loadReminderConfig();
+}
 // Step 1: Global variable synchronization hooks
 let cachedUserProfile = null;
 let allTasks = [];

@@ -305,10 +305,12 @@ function closeVideoPlayer() {
     document.getElementById('video-player-modal').classList.remove('active');
 }
 
-// Initialize controls when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    initializeVideoControls();
-});
+// Initialize controls — this file only executes after the loader has
+// already injected every component (including this modal's markup), so
+// the DOM is ready by definition. Waiting on DOMContentLoaded here would
+// never fire (it already fired before this script was loaded), which is
+// why the play/pause/volume/speed/fullscreen buttons were dead.
+initializeVideoControls();
 
 // Prevent keyboard shortcuts for download
 document.addEventListener('keydown', (e) => {
