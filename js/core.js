@@ -41,13 +41,6 @@ async function fetchAdminStatus() {
             
             // Set primary admin ID (first in list)
             OWNER_ID = allAdmins.length > 0 ? allAdmins[0] : null;
-            
-            console.log("✅ Admin Status Fetched:", {
-                isAdmin: isCurrentUserAdmin,
-                totalAdmins: allAdmins.length,
-                adminIds: allAdmins
-            });
-            
             return isCurrentUserAdmin;
         }
     } catch (err) {
@@ -236,7 +229,7 @@ async function initApp() {
         }
 
         // 3. Fetch profile
-        setLoadingProgress(30, 'Loading your profile...');
+        setLoadingProgress(30, 'Loading profile...');
         const data = await secureFetch('/api/secure/profile');
 
         if (data && !data.error) {
@@ -263,21 +256,21 @@ async function initApp() {
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
-        setLoadingProgress(45, 'Loading your level...');
+        setLoadingProgress(45, 'Loading level...');
         await loadLevels();
         // 4. Load everything the app needs, in parallel where safe
         setLoadingProgress(60, 'Loading tasks...');
         await loadAvailableTasks();
 
-        setLoadingProgress(70, 'Loading your team...');
+        setLoadingProgress(70, 'Loading team...');
         await loadReferralData();
 
-        setLoadingProgress(85, 'Loading your stats...');
+        setLoadingProgress(85, 'Loading stats...');
         await loadUserProfileMetrics();
 
         // Admin-only data — only fetched if the user is actually an admin
         if (isCurrentUserAdmin) {
-            setLoadingProgress(92, 'Loading admin data...');
+            setLoadingProgress(92, 'Loading data...');
             await loadAdminData().catch(e => console.warn('Admin data load failed:', e.message));
         }
 
