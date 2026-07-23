@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    <!-- Ban / Strike Status Block -->
+    <!-- Ban Status Block -->
     <div id="profile-ban-block" class="hidden">
 
         <!-- BANNED state -->
@@ -60,29 +60,7 @@
                 <span class="text-[10px] text-red-400 uppercase font-black tracking-wider">Account Suspended</span>
             </div>
             <p class="text-[9px] text-red-300/70 leading-relaxed">
-                Your account was suspended by the system due to self-referral or multi-account activity. Contact support to appeal.
-            </p>
-        </div>
-
-        <!-- STRIKE WARNING state (not banned yet) -->
-        <div id="profile-strike-row" class="hidden bg-orange-500/10 border border-orange-500/30 p-3.5 rounded-xl mb-3">
-            <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                    <span class="text-base">⚠️</span>
-                    <span class="text-[10px] text-orange-400 uppercase font-black tracking-wider">Auto-Ban Warning</span>
-                </div>
-                <span id="profile-strike-badge" class="text-[9px] font-black text-orange-300 bg-orange-500/15 border border-orange-500/25 px-2 py-0.5 rounded-full">0 / 5 Strikes</span>
-            </div>
-
-            <!-- Strike progress bar -->
-            <div class="w-full h-1.5 bg-black/30 rounded-full overflow-hidden mb-2">
-                <div id="profile-strike-bar" class="h-full rounded-full transition-all duration-500"
-                     style="width: 0%; background: linear-gradient(90deg, #f97316, #ef4444);
-                            box-shadow: 0 0 6px rgba(249,115,22,0.4);"></div>
-            </div>
-
-            <p class="text-[9px] text-orange-300/70 leading-relaxed">
-                Strikes are issued when referred accounts share the same IP. Reaching 5 strikes triggers an automatic ban.
+                Your account was suspended by an administrator. Contact support to appeal.
             </p>
         </div>
 
