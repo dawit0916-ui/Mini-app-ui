@@ -56,7 +56,7 @@ function renderCourses() {
     let filtered = shopState.courses;
 
     if (shopState.currentFilter !== 'all') {
-        filtered = shopState.courses.filter(c => 
+        filtered = shopState.courses.filter(c =>
             c.category?.toLowerCase().includes(shopState.currentFilter.toLowerCase())
         );
     }
@@ -66,20 +66,46 @@ function renderCourses() {
         return;
     }
 
-    grid.innerHTML = filtered.map(course => `
+    grid.innerHTML = filtered.map(course => {
+
+        const thumbnail = course.thumbnail
+            ? `assets/thumbnails/${course.thumbnail}`
+            : "assets/thumbnails/default.png";
+
+        return `
         <div onclick="openCourseDetail('${course._id}')" class="glass p-3 rounded-2xl border border-purple-500/20 cursor-pointer hover:bg-white/10 active:scale-95 transition-all">
-            <div class="w-full h-24 bg-gradient-to-br from-purple-500/20 to-orange-500/20 rounded-xl mb-2 flex items-center justify-center">
-                <span class="text-3xl">📚</span>
+
+            <div class="w-full h-24 rounded-xl overflow-hidden mb-2">
+                <img
+                    src="${thumbnail}"
+                    alt="${course.title}"
+                    class="w-full h-full object-cover"
+                    onerror="this.src='assets/thumbnails/default.png'">
             </div>
-            <h4 class="text-xs font-black text-white mb-1 line-clamp-2">${course.title}</h4>
-            <p class="text-[9px] text-slate-500 mb-2">${course.category || 'Course'}</p>
+
+            <h4 class="text-xs font-black text-white mb-1 line-clamp-2">
+                ${course.title}
+            </h4>
+
+            <p class="text-[9px] text-slate-500 mb-2">
+                ${course.category || 'Course'}
+            </p>
+
             <div class="flex justify-between items-end">
-                <span class="text-[10px] font-black text-yellow-400">${course.price} DASH</span>
-                <span class="text-[8px] text-slate-400">⭐ ${course.rating || 0}</span>
+                <span class="text-[10px] font-black text-yellow-400">
+                    ${course.price} DASH
+                </span>
+
+                <span class="text-[8px] text-slate-400">
+                    ⭐ ${course.rating || 4.5}
+                </span>
             </div>
+
         </div>
-    `).join('');
-                                               }
+        `;
+    }).join('');
+}
+                                               
 // Render APKs
 function renderAPKs() {
     const grid = document.getElementById('shop-apk-grid');
@@ -136,19 +162,39 @@ async function openAPKDetail(productId) {
 // Render my purchases
 function renderMyPurchases() {
     const list = document.getElementById('shop-my-purchases-list');
-    
+
     if (shopState.myPurchases.length === 0) {
-        list.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">You haven\'t purchased anything yet!</p>';
+        list.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">You haven\\'t purchased anything yet!</p>';
         return;
     }
 
-    list.innerHTML = shopState.myPurchases.map(purchase => `
+    list.innerHTML = shopState.myPurchases.map(purchase => {
+        const thumbnail = purchase.productId.thumbnail
+            ? `assets/thumbnails/${purchase.productId.thumbnail}`
+            : "assets/thumbnails/default.png";
+
+        return `
         <div class="glass p-4 rounded-2xl border border-green-500/20">
-            <div class="flex justify-between items-start mb-2">
-                <h4 class="text-xs font-black text-white">${purchase.productId.title}</h4>
-                <span class="text-[8px] px-2 py-1 bg-green-500/20 text-green-400 rounded font-black">Owned</span>
+
+            <div class="flex gap-3 items-start mb-3">
+                <img
+                    src="${thumbnail}"
+                    alt="${purchase.productId.title}"
+                    class="w-16 h-16 rounded-xl object-cover"
+                    onerror="this.src='assets/thumbnails/default.png'">
+
+                <div class="flex-1">
+                    <div class="flex justify-between items-start">
+                        <h4 class="text-xs font-black text-white">${purchase.productId.title}</h4>
+                        <span class="text-[8px] px-2 py-1 bg-green-500/20 text-green-400 rounded font-black">Owned</span>
+                    </div>
+
+                    <p class="text-[9px] text-slate-500 mt-1">
+                        ${purchase.productId.category || 'Product'}
+                    </p>
+                </div>
             </div>
-            <p class="text-[9px] text-slate-500 mb-3">${purchase.productId.category || 'Product'}</p>
+
             ${purchase.productId.type === 'course' ? `
                 <button onclick="openCoursePlayer('${purchase.productId._id}')" class="w-full py-2 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase active:scale-95 transition-all">
                     📚 Open Course
@@ -159,26 +205,47 @@ function renderMyPurchases() {
                 </button>
             `}
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 // Open course detail
 async function openCourseDetail(productId) {
     try {
         const res = await secureFetch(`/api/shop/product/${productId}`, { method: 'GET' });
         const { product, lessons } = res;
-        
+
         shopState.selectedProduct = product;
-        
+
+        const thumbnail = product.thumbnail
+            ? `assets/thumbnails/${product.thumbnail}`
+            : "assets/thumbnails/default.png";
+
         const modal = document.getElementById('shop-course-detail-modal');
         document.getElementById('course-detail-title').textContent = product.title;
         document.getElementById('course-detail-price').textContent = `${product.price} DASH`;
 
         let lessonsHTML = `
             <div class="glass p-3 rounded-xl border border-white/5">
-                <p class="text-[9px] text-slate-500 uppercase font-black mb-3">${product.description}</p>
+
+                <div class="w-full h-44 rounded-xl overflow-hidden mb-3">
+                    <img
+                        src="${thumbnail}"
+                        alt="${product.title}"
+                        class="w-full h-full object-cover"
+                        onerror="this.src='assets/thumbnails/default.png'">
+                </div>
+
+                <p class="text-[9px] text-slate-500 uppercase font-black mb-3">
+                    ${product.description}
+                </p>
+
             </div>
+
             <div>
-                <h4 class="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Lessons (${lessons.length})</h4>
+                <h4 class="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">
+                    Lessons (${lessons.length})
+                </h4>
+
                 <div class="space-y-2">
         `;
 
@@ -200,9 +267,10 @@ async function openCourseDetail(productId) {
                 </div>
             </div>
         `;
+
         // Check if already purchased
         const purchased = shopState.myPurchases.some(p => p.productId._id === productId);
-        
+
         if (purchased) {
             lessonsHTML += `
                 <button onclick="openCoursePlayer('${productId}')" class="w-full py-3 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all">
@@ -219,6 +287,7 @@ async function openCourseDetail(productId) {
 
         document.getElementById('course-detail-content').innerHTML = lessonsHTML;
         modal.classList.add('active');
+
     } catch (err) {
         console.error('Open course error:', err);
         showNotificationToast('Failed to load course details', 'error');
