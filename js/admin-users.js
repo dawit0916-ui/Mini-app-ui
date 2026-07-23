@@ -36,24 +36,6 @@ async function searchUser() {
             banBtn.innerHTML = "🪓 Ban User";
             banBtn.className = "flex-1 bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase";
         }
-        const wlBtn = document.getElementById('btn-whitelist-toggle');
-if (foundUser.whitelisted) {
-    wlBtn.innerHTML = "⭐ Whitelisted";
-    wlBtn.className = "flex-1 bg-purple-600 text-white py-3 rounded-xl text-[10px] font-black uppercase";
-} else {
-    wlBtn.innerHTML = "☆ Whitelist";
-    wlBtn.className = "flex-1 bg-purple-600/20 text-purple-400 py-3 rounded-xl text-[10px] font-black uppercase border border-purple-500/30";
-}
-          // Show strike count if inviter has any
-const strikeRes = await secureFetch(`/api/admin/user-strikes/${foundUser.user_id}`);
-const strikeDisplay = document.getElementById('inviter-strike-display');
-const strikeCount = document.getElementById('inviter-strike-count');
-if (strikeRes && strikeRes.strikes > 0) {
-    strikeDisplay.classList.remove('hidden');
-    strikeCount.innerText = `${strikeRes.strikes} / 5`;
-} else {
-    strikeDisplay.classList.add('hidden');
-}
         document.getElementById('admin-user-editor').classList.remove('hidden');
         tg.HapticFeedback.impactOccurred('light');
 
@@ -123,77 +105,6 @@ async function toggleUserBanStatus() {
         }
     });
 }
-async function toggleUserWhitelistStatus() {
-    if (!currentEditingUserId || !currentEditingUserData) return;
-
-    const targetState = !currentEditingUserData.whitelisted;
-    const actionLabel = targetState ? "WHITELIST (allow multi-account/IP bypass)" : "REMOVE from whitelist";
-
-    showAppConfirm(`Are you sure you want to ${actionLabel} this user?`, async (confirmed) => {
-        if (!confirmed) return;
-
-        try {
-            const res = await secureFetch('/api/admin/user/whitelist', {
-                method: 'POST',
-                body: JSON.stringify({ userId: currentEditingUserId, whitelisted: targetState })
-            });
-
-            if (res.success) {
-                tg.HapticFeedback.notificationOccurred('success');
-                showAppAlert(`User ${targetState ? 'whitelisted' : 'removed from whitelist'}!`, 'success');
-                searchUser();
-            } else {
-                showAppAlert("Action denied by server.", 'error');
-            }
-        } catch (e) {
-            showAppAlert("Failed to update whitelist status.", 'error');
-        }
-    });
-        }
-  async function loadWhitelist() {
-    const container = document.getElementById('whitelist-list');
-    if (!container) return;
-    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">Loading...</p>';
-
-    try {
-        const res = await secureFetch('/api/admin/whitelist');
-        const users = res?.users || [];
-
-        if (users.length === 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-4">No whitelisted users yet</p>';
-            return;
-        }
-
-        container.innerHTML = users.map(u => `
-            <div class="glass p-3 flex justify-between items-center border-purple-500/15">
-                <div>
-                    <p class="text-xs font-bold text-white">${u.first_name || 'User'} ${u.username ? '@' + u.username : ''}</p>
-                    <p class="text-[9px] text-slate-500">ID: ${u.user_id}</p>
-                </div>
-                <button onclick="quickRemoveWhitelist(${u.user_id})" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase">Remove</button>
-            </div>
-        `).join('');
-    } catch (e) {
-        container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load.</p>';
-    }
-}
-
-async function quickRemoveWhitelist(userId) {
-    showAppConfirm("Remove this user from the whitelist?", async (ok) => {
-        if (!ok) return;
-        const res = await secureFetch('/api/admin/user/whitelist', {
-            method: 'POST',
-            body: JSON.stringify({ userId, whitelisted: false })
-        });
-        if (res.success) {
-            showAppAlert("Removed from whitelist.", 'success');
-            loadWhitelist();
-        } else {
-            showAppAlert("Failed to remove.", 'error');
-        }
-    });
-}      
-
 // 1. Fixed Directory Views Manager
 function filterUserDirectory(filterType) {
     userDirectoryFilter = filterType;
@@ -238,7 +149,6 @@ async function loadUserDirectory() {
         <div>
             <div class="flex items-center gap-1.5">
                 <p class="text-xs font-bold text-white">${u.first_name || (u.username ? '@' + u.username : 'ID: ' + u.user_id)}</p>
-                ${u.whitelisted ? '<span class="text-[10px]" title="Whitelisted">✅</span>' : ''}
             </div>
             <p class="text-[9px] font-bold text-slate-400">ID: ${u.user_id}${u.username ? ' · @' + u.username : ''}</p>
         </div>

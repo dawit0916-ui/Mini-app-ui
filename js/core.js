@@ -103,8 +103,8 @@ if (response.status === 503) {
 // After the 503 maintenance check, add:
 if (response.status === 403) {
     const errData = await response.json().catch(() => ({}));
-    if (errData.banned || errData.error === 'multi_account_detected') {
-        const reason = errData.message || 'Self-referral or multi-account usage detected.';
+    if (errData.banned) {
+        const reason = errData.message || 'Your account has been suspended by an administrator.';
         showBanOverlay(reason);
         throw new Error('Account banned: ' + reason);
     }
@@ -249,7 +249,7 @@ async function initApp() {
 
             if (activeProfile) {
                 if (activeProfile.is_banned) {
-                    showBanOverlay('Your account has been suspended for violating our terms.');
+                    showBanOverlay('Your account has been suspended by an administrator.');
                     return;
                 }
 

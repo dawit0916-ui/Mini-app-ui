@@ -57,32 +57,6 @@ async function saveBotConfig() {
     }
 }
 
-// Save IP Guard settings
-async function saveIPGuardSettings() {
-    const threshold = parseInt(document.getElementById('set-autoban-threshold').value);
-    const resetDays = parseInt(document.getElementById('set-strike-reset-days').value);
-    
-    if (isNaN(threshold) || threshold < 1 || isNaN(resetDays) || resetDays < 1) {
-        return showAppAlert("Please enter valid numbers for all fields.", 'warning');
-    }
-    
-    try {
-        const res = await secureFetch('/api/admin/settings', {
-            method: 'POST',
-            body: JSON.stringify({
-                ip_guard_autoban_threshold: threshold,
-                strike_reset_days: resetDays
-            })
-        });
-        
-        if (res.success) {
-            showAppAlert("IP Guard settings updated!", 'success');
-        }
-    } catch (e) {
-        showAppAlert("Failed to save IP Guard settings.", 'error');
-    }
-}
-
 // Load initial settings on panel open (add to switchAdminPanel function)
 function loadAdminSettings() {
     secureFetch('/api/admin/settings/all').then(data => {
@@ -94,8 +68,6 @@ function loadAdminSettings() {
             document.getElementById('set-ref-bonus').value = data.settings?.ref_bonus_amount || 0.5;
             document.getElementById('set-ref-percent').value = data.settings?.ref_commission_percent || 10;
             document.getElementById('set-ref-threshold').value = data.settings?.ref_tasks_required || 3;
-            document.getElementById('set-autoban-threshold').value = data.settings?.ip_guard_autoban_threshold || 5;
-            document.getElementById('set-strike-reset-days').value = data.settings?.strike_reset_days || 30;
             
         }
     }).catch(err => console.error('Failed to load settings:', err));

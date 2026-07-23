@@ -40,38 +40,18 @@ if (profileDash)    profileDash.innerText    = dash.toLocaleString();
                 document.getElementById('profile-joined').innerText =
                     new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             }
-      // Ban / Strike status block
-const banBlock    = document.getElementById('profile-ban-block');
-const bannedRow   = document.getElementById('profile-banned-row');
-const strikeRow   = document.getElementById('profile-strike-row');
-const strikeBadge = document.getElementById('profile-strike-badge');
-const strikeBar   = document.getElementById('profile-strike-bar');
-
-// Fetch live strike count from backend
-let strikes = 0;
-try {
-    const strikeRes = await secureFetch(`/api/admin/user-strikes/${data.user_id}`);
-    strikes = strikeRes?.strikes || 0;
-} catch (e) { /* silent fail */ }
+      // Ban status block
+const banBlock  = document.getElementById('profile-ban-block');
+const bannedRow = document.getElementById('profile-banned-row');
 
 const isBanned = data.is_banned || false;
 
-if (isBanned || strikes > 0) {
+if (isBanned) {
     banBlock.classList.remove('hidden');
-
-    if (isBanned) {
-        bannedRow.classList.remove('hidden');
-        strikeRow.classList.add('hidden');
-    } else {
-        bannedRow.classList.add('hidden');
-        strikeRow.classList.remove('hidden');
-        strikeBadge.innerText = `${strikes} / 5 Strikes`;
-        strikeBar.style.width = `${(strikes / 5) * 100}%`;
-    }
+    bannedRow.classList.remove('hidden');
 } else {
     banBlock.classList.add('hidden');
     bannedRow.classList.add('hidden');
-    strikeRow.classList.add('hidden');
 }
             
         }

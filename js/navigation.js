@@ -73,7 +73,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-payouts') loadPendingWithdrawals();
                     if (panelId === 'panel-proofs') loadPendingProofs();       
                     if (panelId === 'panel-task-manager') loadAdminTaskList();
-                    if (panelId === 'panel-settings') { loadAdminData(); loadWhitelist(); loadAdminSettings(); loadFastTaskAdminPanel(); }
+                    if (panelId === 'panel-settings') { loadAdminData(); loadAdminSettings(); loadFastTaskAdminPanel(); }
                     if (panelId === 'panel-support') loadAdminTickets('open');
                     if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-ad-manager') loadAdminAds();

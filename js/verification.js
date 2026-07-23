@@ -9,29 +9,47 @@ function showBanOverlay(reason) {
     overlay.style.cssText = `
         position: fixed; inset: 0; z-index: 9999;
         display: flex; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.92); padding: 24px;
+        padding: 24px;
+        background: rgba(0,0,0,0);
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        opacity: 0;
+        transition: background 0.45s ease, backdrop-filter 0.45s ease,
+                    -webkit-backdrop-filter 0.45s ease, opacity 0.35s ease;
     `;
 
     overlay.innerHTML = `
-        <div style="
-            background: linear-gradient(135deg, #1a0a0a, #2d0f0f);
-            border: 1px solid #7f1d1d;
-            border-radius: 20px;
-            padding: 32px 24px;
+        <div id="ban-overlay-card" style="
+            background: linear-gradient(160deg, #1a0a0a 0%, #2d0f0f 100%);
+            border: 1px solid rgba(239,68,68,0.35);
+            border-radius: 22px;
+            padding: 36px 24px 28px;
             text-align: center;
             max-width: 320px;
             width: 100%;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+            transform: scale(0.82) translateY(36px);
+            opacity: 0;
+            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
         ">
-            <div style="font-size: 48px; margin-bottom: 16px;">🚫</div>
+            <div style="
+                width:64px;height:64px;
+                background:rgba(239,68,68,0.15);
+                border:1px solid rgba(239,68,68,0.35);
+                border-radius:20px;
+                display:flex;align-items:center;justify-content:center;
+                margin:0 auto 16px;font-size:28px;
+            ">🚫</div>
             <h2 style="color: #ef4444; font-size: 18px; font-weight: 900; margin-bottom: 8px;">
                 Account Suspended
             </h2>
             <p style="color: #fca5a5; font-size: 13px; margin-bottom: 24px; line-height: 1.5;">
-                ${reason || 'Your account has been suspended for violating our terms.'}
+                ${reason || 'Your account has been suspended by an administrator.'}
             </p>
             <a href="https://t.me/DashearnSupport" target="_blank" style="
                 display: block;
-                background: #7f1d1d;
+                background: rgba(239,68,68,0.15);
+                border: 1px solid rgba(239,68,68,0.3);
                 color: #fca5a5;
                 padding: 12px;
                 border-radius: 12px;
@@ -43,6 +61,20 @@ function showBanOverlay(reason) {
     `;
 
     document.body.appendChild(overlay);
+
+    // Force a reflow so the browser registers the initial state before we
+    // trigger the transition — otherwise it just snaps open instead of
+    // animating in.
+    void overlay.offsetWidth;
+    overlay.style.background = 'rgba(0,0,0,0.85)';
+    overlay.style.backdropFilter = 'blur(10px)';
+    overlay.style.webkitBackdropFilter = 'blur(10px)';
+    overlay.style.opacity = '1';
+    const card = overlay.querySelector('#ban-overlay-card');
+    if (card) {
+        card.style.transform = 'scale(1) translateY(0)';
+        card.style.opacity = '1';
+    }
 
     // Hide everything else
     document.getElementById('loading-screen')?.style && 
