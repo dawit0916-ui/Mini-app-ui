@@ -164,7 +164,7 @@ function renderMyPurchases() {
     const list = document.getElementById('shop-my-purchases-list');
 
     if (shopState.myPurchases.length === 0) {
-        list.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">You haven\\'t purchased anything yet!</p>';
+        list.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">You haven\'t purchased anything yet!</p>';
         return;
     }
 
