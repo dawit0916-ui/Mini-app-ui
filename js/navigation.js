@@ -1,42 +1,67 @@
-
 function switchTab(tabId, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Show selected tab
     const targetTab = document.getElementById('tab-' + tabId);
-    if(targetTab) targetTab.classList.add('active');
-    window.scrollTo(0,0);
+    if (targetTab) targetTab.classList.add('active');
 
- // Reset all nav buttons
-document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.remove('nav-active');
-    const img = b.querySelector('img');
-    if (img) { img.classList.add('opacity-40'); img.classList.remove('opacity-100'); }
-    const span = b.querySelector('span');
-    if (span) span.className = 'text-[8px] font-black uppercase tracking-wider text-slate-600';
-});
+    window.scrollTo(0, 0);
 
-// Activate selected
-if (btn) {
-    btn.classList.add('nav-active');
-    const img = btn.querySelector('img');
-    if (img) { img.classList.remove('opacity-40'); }
-    const span = btn.querySelector('span');
-    if (span) span.className = 'text-[8px] font-black uppercase tracking-wider text-yellow-300/80';
-}
+    // Reset all nav buttons
+    document.querySelectorAll('.nav-btn').forEach(button => {
 
+        button.classList.remove('nav-active');
+
+        const img = button.querySelector('img');
+        if (img) {
+            img.classList.add('opacity-40');
+            img.classList.remove('opacity-100');
+        }
+
+        const span = button.querySelector('span');
+        if (span) {
+            span.className =
+                'text-[8px] font-black uppercase tracking-wider text-slate-600';
+        }
+    });
+
+    // Activate selected button
+    if (btn) {
+
+        btn.classList.add('nav-active');
+
+        const img = btn.querySelector('img');
+        if (img) {
+            img.classList.remove('opacity-40');
+            img.classList.add('opacity-100');
+        }
+
+        const span = btn.querySelector('span');
+        if (span) {
+            span.className =
+                'text-[8px] font-black uppercase tracking-wider text-yellow-300/80';
+        }
+    }
+
+    // Telegram haptic feedback
     tg.HapticFeedback.selectionChanged();
-    
-    if(tabId === 'home') loadAvailableTasks();
-    if(tabId === 'history') loadUserHistory();
-    if(tabId === 'friends') loadReferralData();
-    if(tabId === 'admin') loadAdminData();
-    if(tabId === 'profile') loadUserProfileMetrics();
-    if(tabId === 'levels') loadLevels();
-    if(tabId === 'shop') { if (shopState.courses.length === 0) loadShopCourses(); }
-    if(tabId === 'reminders') {
-    loadReminderConfig();  // ✅ FIX: Load toggle config FIRST (which also loads stats)
-}
-        
-    
+
+    // Load tab data
+    if (tabId === 'home') loadAvailableTasks();
+    if (tabId === 'history') loadUserHistory();
+    if (tabId === 'friends') loadReferralData();
+    if (tabId === 'admin') loadAdminData();
+    if (tabId === 'profile') loadUserProfileMetrics();
+    if (tabId === 'levels') loadLevels();
+    if (tabId === 'shop' && shopState.courses.length === 0) loadShopCourses();
+
+    if (tabId === 'reminders') {
+        loadReminderConfig();
+    }
 }
 // --- ADMIN HUB NAVIGATION ---
 function switchAdminPanel(panelId) {
