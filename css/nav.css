@@ -14,8 +14,7 @@
 .nav-buttons-container {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0;
+    justify-content: space-around; /* Distributes buttons evenly */
     width: 100%;
     height: 100%;
     position: relative;
@@ -24,10 +23,8 @@
 
 /* Individual nav button base styles */
 .nav-btn {
-    position: absolute; /* Essential for translateX math */
-    top: 50%;
-    left: 0;
-    margin-top: -1.75rem; /* Center vertically if height is ~3.5rem */
+    position: relative; /* Changed back from absolute */
+    flex: 1; /* Allows buttons to share space equally */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -46,9 +43,9 @@
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     
     /* Will-change for animation performance */
-    will-change: transform, filter, position, left;
-    
+    will-change: transform, filter; /* Removed position/left tracking */
 }
+
 
 /* Nav button image */
 .nav-btn img {
