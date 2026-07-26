@@ -22,10 +22,6 @@ const navState = {
     animationFrameId: null,
     isCalculating: false
 };
-
-/**
- * Initialize premium navigation on DOM ready
- */
 function initPremiumNavigation() {
     const container = document.getElementById('navButtonsContainer');
     if (!container) {
@@ -37,7 +33,9 @@ function initPremiumNavigation() {
     recalculateNavLayout();
 
     // Set up click handlers with proper delegation
-    document.querySelectorAll('.nav-btn').forEach((btn, index) => {
+    document.querySelectorAll('.nav-btn').forEach((btn) => {
+        
+        // 1. Click Event
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             const visibleIndex = navState.visibleButtons.indexOf(btn);
@@ -45,20 +43,28 @@ function initPremiumNavigation() {
                 animateNavLayout(visibleIndex);
             }
         });
-    });
 
-    // Prevent default behavior
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+        // 2. Touch Start Event (UPDATED)
         btn.addEventListener('touchstart', (e) => {
-            btn.style.transform = btn.classList.contains('nav-active') 
-                ? 'scale(1.25) translateY(-12px)' 
-                : 'scale(0.95)';
+            const visibleIndex = navState.visibleButtons.indexOf(btn);
+            if (visibleIndex !== -1) {
+                const targetX = navState.positions[visibleIndex];
+                const isActive = btn.classList.contains('nav-active');
+                
+                // We combine translateX with the scale/lift animations
+                btn.style.transform = isActive 
+                    ? `translateX(${targetX}px) scale(1.25) translateY(-12px)` 
+                    : `translateX(${targetX}px) scale(0.95) translateY(0)`;
+            }
         });
+        
+        // 3. Touch End Event
         btn.addEventListener('touchend', (e) => {
             recalculateNavLayout();
         });
     });
 }
+
 
 /**
  * Recalculate navigation layout (called on resize, orientation change)
@@ -103,68 +109,78 @@ function recalculateNavLayout() {
 
     navState.isCalculating = false;
 }
-
 /**
- * Calculate pixel positions for each button
- * Positions are relative to container center
+ * Calculate pixel positions using a Wrap-Around Carousel algorithm
  */
 function calculateButtonPositions() {
     const buttonCount = navState.visibleButtons.length;
     navState.positions = [];
 
-    const centerX = navState.containerWidth / 2;
-    const activeIndex = navState.activeButtonIndex;
-
-    // Button width with proper spacing
+    // Width of a single button slot
     const effectiveButtonWidth = navState.containerWidth / buttonCount;
+    
+    // Find the index of the exact middle slot
+    const centerSlot = Math.floor((buttonCount - 1) / 2);
+    const activeIndex = navState.activeButtonIndex;
+    
+    const half = Math.floor(buttonCount / 2);
 
     for (let i = 0; i < buttonCount; i++) {
-        let position = 0;
+        let distance = i - activeIndex;
 
-        if (i === activeIndex) {
-            // Active button stays at center
-            position = centerX - effectiveButtonWidth / 2;
-        } else if (i < activeIndex) {
-            // Buttons to the left of active
-            const distanceFromActive = activeIndex - i;
-            position = centerX - (distanceFromActive + 1) * effectiveButtonWidth;
-        } else {
-            // Buttons to the right of active
-            const distanceFromActive = i - activeIndex;
-            position = centerX + distanceFromActive * effectiveButtonWidth;
+        // CAROUSEL WRAP-AROUND LOGIC
+        // If a button is too far right, wrap it to the left side
+        if (distance > half) {
+            distance -= buttonCount;
+        } else if (distance < -(buttonCount - half - 1)) {
+            distance += buttonCount;
         }
 
+        // Map the wrapped distance to a physical slot (active button = centerSlot)
+        const targetSlot = centerSlot + distance;
+
+        // Calculate absolute left position in pixels
+        const position = targetSlot * effectiveButtonWidth;
         navState.positions.push(position);
     }
 }
 
 /**
- * Apply layout transformations to buttons
- * @param {boolean} animate - Whether to enable transitions
- 
+ * Apply layout transformations, combining Slide + Scale + Lift natively
+ */
 function applyNavLayout(animate = true) {
+    const effectiveButtonWidth = navState.containerWidth / navState.visibleButtons.length;
+
     navState.visibleButtons.forEach((btn, index) => {
         const targetX = navState.positions[index];
+        const isActive = index === navState.activeButtonIndex;
+
+        // Force uniform width so items center perfectly within their slots
+        btn.style.width = `${effectiveButtonWidth}px`;
+
+        // Combine X slide with active scaling and Y lift
+        const transformString = isActive 
+            ? `translateX(${targetX}px) scale(1.3) translateY(-12px)`
+            : `translateX(${targetX}px) scale(1) translateY(0)`;
 
         if (!animate) {
-            // Instant layout (no animation)
             btn.style.transition = 'none';
-            btn.style.transform = `translateX(${targetX}px)`;
-            // Force repaint
-            void btn.offsetWidth;
+            btn.style.transform = transformString;
+            void btn.offsetWidth; // Force reflow
             btn.style.transition = '';
         } else {
-            // Animated layout (spring ease)
             btn.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            btn.style.transform = `translateX(${targetX}px)`;
+            btn.style.transform = transformString;
         }
     });
 }
 
+
+
 /**
  * Animate to a new active button
  * @param {number} newIndex - Index of button to activate
- 
+ */
 function animateNavLayout(newIndex) {
     if (newIndex === navState.activeButtonIndex || newIndex >= navState.visibleButtons.length) {
         return;
@@ -187,7 +203,7 @@ function animateNavLayout(newIndex) {
     // Apply animated layout
     applyNavLayout(true);
 }
-*/
+
 /**
  * Get the current active button element
  * @returns {HTMLElement|null}
