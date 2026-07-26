@@ -19,10 +19,15 @@
     width: 100%;
     height: 100%;
     position: relative;
+    overflow: hidden;
 }
 
 /* Individual nav button base styles */
 .nav-btn {
+    position: absolute; /* Essential for translateX math */
+    top: 50%;
+    left: 0;
+    margin-top: -1.75rem; /* Center vertically if height is ~3.5rem */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -43,8 +48,6 @@
     /* Will-change for animation performance */
     will-change: transform, filter, position, left;
     
-    /* Fix position relative for absolute positioning context */
-    position: relative;
 }
 
 /* Nav button image */
