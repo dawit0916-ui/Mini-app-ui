@@ -1,29 +1,47 @@
-
-        .nav-active {
-    color: white !important;
-    filter: drop-shadow(0 0 8px var(--neon-blue));
-}
-/* Active nav — full brightness + green glow on icon, gold text */
-.nav-active img {
-    opacity: 1 !important;
-    filter: drop-shadow(0 0 8px rgba(134, 239, 172, 0.8)) 
-            drop-shadow(0 0 16px rgba(74, 222, 128, 0.4));
+/* Navigation Animation */
+.nav-btn{
+    position: relative;
+    transition: all .35s cubic-bezier(.22,1,.36,1);
 }
 
-.nav-active span {
-    color: #fde68a !important; /* amber-200 — matches gold medallion */
-    text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+.nav-btn img{
+    transition: all .35s cubic-bezier(.22,1,.36,1);
 }
 
-/* Inactive nav */
-.nav-btn img {
-    transition: all 0.3s ease;
+.nav-btn span{
+    transition: all .35s cubic-bezier(.22,1,.36,1);
 }
 
-.nav-btn span {
-    transition: all 0.3s ease;
+/* Inactive */
+.nav-btn img{
+    opacity:.4;
+    transform:scale(.9);
 }
 
-.nav-active::after {
-    display: none;
+.nav-btn span{
+    color:#475569;
+}
+
+/* Active */
+.nav-active{
+    transform:translateY(-12px);
+    z-index:20;
+}
+
+.nav-active img{
+    opacity:1 !important;
+    transform:scale(1.28);
+    filter:
+        drop-shadow(0 0 10px rgba(134,239,172,.9))
+        drop-shadow(0 0 22px rgba(74,222,128,.55));
+}
+
+.nav-active span{
+    color:#fde68a !important;
+    font-weight:900;
+    text-shadow:0 0 8px rgba(251,191,36,.5);
+}
+
+.nav-active::after{
+    display:none;
 }
