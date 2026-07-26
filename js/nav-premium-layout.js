@@ -141,7 +141,7 @@ function calculateButtonPositions() {
 /**
  * Apply layout transformations to buttons
  * @param {boolean} animate - Whether to enable transitions
- */
+ 
 function applyNavLayout(animate = true) {
     navState.visibleButtons.forEach((btn, index) => {
         const targetX = navState.positions[index];
@@ -164,7 +164,7 @@ function applyNavLayout(animate = true) {
 /**
  * Animate to a new active button
  * @param {number} newIndex - Index of button to activate
- */
+ 
 function animateNavLayout(newIndex) {
     if (newIndex === navState.activeButtonIndex || newIndex >= navState.visibleButtons.length) {
         return;
@@ -187,7 +187,7 @@ function animateNavLayout(newIndex) {
     // Apply animated layout
     applyNavLayout(true);
 }
-
+*/
 /**
  * Get the current active button element
  * @returns {HTMLElement|null}
