@@ -35,7 +35,6 @@ const SCRIPTS = [
     'js/core.js',
     'js/utils.js',
     'js/notifications.js',
-    'js/nav-premium-layout.js',
     'js/navigation.js',
     'js/verification.js',
     'js/tasks.js',
