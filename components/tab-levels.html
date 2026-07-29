@@ -1,274 +1,304 @@
-<!-- =============== TAB-LEVELS (CONFUSED / EXPERIMENTAL DESIGN) =============== -->
+<!-- =============== TAB-LEVELS (MODERN MINIMALIST DESIGN) =============== -->
 <div id="tab-levels" class="tab-content">
     
-    <!-- ===== DISORIENTING HEADER SECTION ===== -->
-    <div class="relative mb-8 px-1">
-        <!-- Floating Level Number (HUGE, OFFSET) -->
-        <div class="absolute -top-12 -right-6 text-[180px] font-black opacity-5 pointer-events-none select-none" id="currentLevelDisplay">1</div>
-        
-        <!-- Diagonal Layout Info Cards -->
-        <div class="relative z-10 space-y-2">
-            <!-- Daily Limit Card (Oversized, Misplaced) -->
-            <div class="glass p-6 rounded-none rounded-tr-[40px] rounded-bl-[40px] border border-white/10 border-l-transparent">
-                <div class="flex items-center justify-between gap-4">
-                    <div class="flex-shrink-0">
-                        <p class="text-[7px] text-slate-500 uppercase font-black tracking-widest">DAILY</p>
-                        <p class="text-[7px] text-slate-500 uppercase font-black tracking-widest">LIMIT</p>
-                    </div>
-                    <p class="text-5xl font-black text-orange-300 leading-none" id="dailyLimitDisplay">1</p>
-                    <div class="text-right flex-1">
-                        <p class="text-[8px] text-slate-400 font-black mb-1">Per Day</p>
-                        <span id="currentLevelEmoji" class="text-3xl inline-block">🚀</span>
-                    </div>
-                </div>
+    <!-- ===== ELEGANT PROGRESS RING & STAT ===== -->
+    <div class="mb-8 flex items-center justify-between px-2">
+        <!-- SVG Progress Circle -->
+        <div class="relative w-24 h-24">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <!-- Background circle -->
+                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+                <!-- Progress circle (60% = 6 of 10 levels) -->
+                <circle cx="50" cy="50" r="45" fill="none" stroke="url(#progressGradient)" stroke-width="2" stroke-dasharray="169.65 282.74" stroke-linecap="round"/>
+                <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <!-- Center content -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <p id="currentLevelDisplay" class="text-3xl font-black text-white">1</p>
+                <p class="text-[8px] text-slate-400 font-bold">of 10</p>
             </div>
+        </div>
 
-            <!-- Current Level Name (Positioned Weird) -->
-            <div class="glass p-4 rounded-3xl rounded-tl-none border border-white/10 ml-auto w-2/3">
-                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">You Are</p>
-                <p id="currentLevelName" class="text-xl font-black text-purple-400 mb-1">Hustler</p>
-                <p class="text-[8px] text-slate-300">Level <span id="currentLevelLevel">1</span></p>
+        <!-- Level Info Card -->
+        <div class="flex-1 ml-6">
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">Current Level</p>
+            <div class="flex items-baseline gap-2 mb-3">
+                <span id="currentLevelEmoji" class="text-3xl">🚀</span>
+                <h2 id="currentLevelName" class="text-2xl font-black text-white">Hustler</h2>
+            </div>
+            <div class="glass p-2 rounded-lg border border-white/10 text-center">
+                <p class="text-[9px] text-slate-500 font-black">DAILY LIMIT</p>
+                <p id="dailyLimitDisplay" class="text-lg font-black text-orange-300">1/day</p>
             </div>
         </div>
     </div>
 
-    <!-- ===== UPSIDE DOWN UPGRADE SECTION ===== -->
-    <div class="mb-8 pt-6 border-t border-white/10">
-        <button onclick="showLevelUpgradeDrawer()" class="w-full glass p-8 rounded-2xl border border-white/10 hover:border-white/30 transition-all group">
-            <div class="transform -rotate-12 origin-center mb-3 inline-block">
-                <p class="text-4xl">🎁</p>
+    <!-- ===== UPGRADE CTA BANNER ===== -->
+    <div class="mb-8 glass p-1 rounded-2xl border border-white/10 overflow-hidden">
+        <button onclick="showLevelUpgradeDrawer()" class="w-full glass p-5 rounded-xl bg-gradient-to-r from-purple-600/10 to-cyan-600/10 border border-white/5 hover:border-white/20 transition-all group">
+            <div class="flex items-center justify-between">
+                <div class="text-left">
+                    <p class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-1">Next Achievement Unlocked</p>
+                    <p class="text-xs font-bold text-slate-200 group-hover:text-white transition-colors">Tap to explore Level 2</p>
+                </div>
+                <p class="text-2xl group-hover:scale-110 transition-transform">🎁</p>
             </div>
-            <p class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-1">Ready to Level Up?</p>
-            <p class="text-xs text-slate-300 font-bold group-hover:text-white transition-colors">Tap anywhere to unlock new powers</p>
         </button>
     </div>
 
-    <!-- ===== CHAOTIC LEVELS DISPLAY (SCATTERED LAYOUT) ===== -->
-    <div class="mb-8 relative">
-        <h3 class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-4 px-2">Level Universe</h3>
-        
-        <!-- Column 1 - Left Aligned -->
-        <div class="space-y-3 mb-4">
-            <div id="levelsGrid-col1" class="space-y-3">
-                <!-- Odd levels: 1, 3, 5, 7, 9 -->
-            </div>
-        </div>
-
-        <!-- Column 2 - Right Aligned (Offset) -->
-        <div class="space-y-3 -mt-8 ml-auto mr-0 w-5/6">
-            <div id="levelsGrid-col2" class="space-y-3">
-                <!-- Even levels: 2, 4, 6, 8, 10 -->
+    <!-- ===== LEVEL PROGRESSION TIMELINE ===== -->
+    <div class="mb-8">
+        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Your Level Path</h3>
+        <div class="relative">
+            <!-- Vertical timeline line -->
+            <div class="absolute left-5 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-500/50 to-purple-500/50"></div>
+            
+            <!-- Timeline items -->
+            <div id="levelsGrid" class="space-y-3">
+                <!-- Populated by loadLevels() -->
             </div>
         </div>
     </div>
 
-    <!-- ===== STATS IN WRONG ORDER ===== -->
-    <div class="mb-8 grid grid-cols-3 gap-2">
-        <div class="glass p-3 rounded-2xl border border-white/10 text-center order-3">
-            <p class="text-[7px] text-slate-500 uppercase font-black mb-1">Max Reward</p>
-            <p class="text-xl font-black text-green-400">1400</p>
+    <!-- ===== KEY METRICS CARDS ===== -->
+    <div class="mb-6 grid grid-cols-2 gap-3">
+        <div class="glass p-5 rounded-2xl border border-white/10 group hover:border-white/20 transition-all">
+            <div class="flex items-start justify-between mb-2">
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Max Reward</p>
+                <p class="text-sm font-black text-green-400">💰</p>
+            </div>
+            <p class="text-2xl font-black text-white">1400 DASH</p>
+            <p class="text-[8px] text-slate-500 mt-2">Level 10 daily task</p>
         </div>
-        <div class="glass p-3 rounded-2xl border border-white/10 text-center order-1">
-            <p class="text-[7px] text-slate-500 uppercase font-black mb-1">Levels</p>
-            <p class="text-xl font-black text-purple-400">10</p>
+
+        <div class="glass p-5 rounded-2xl border border-white/10 group hover:border-white/20 transition-all">
+            <div class="flex items-start justify-between mb-2">
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Levels Left</p>
+                <p class="text-sm font-black text-cyan-400">📈</p>
+            </div>
+            <p class="text-2xl font-black text-white">9 Levels</p>
+            <p class="text-[8px] text-slate-500 mt-2">To unlock all features</p>
         </div>
-        <div class="glass p-3 rounded-2xl border border-white/10 text-center order-2">
-            <p class="text-[7px] text-slate-500 uppercase font-black mb-1">Next Cost</p>
-            <p class="text-lg font-black text-cyan-400" id="nextLevelPrice">20k</p>
+
+        <div class="glass p-5 rounded-2xl border border-white/10 group hover:border-white/20 transition-all col-span-2">
+            <div class="flex items-start justify-between mb-2">
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Next Level Cost</p>
+                <p class="text-sm font-black text-purple-400">💎</p>
+            </div>
+            <div class="flex items-baseline justify-between">
+                <p class="text-3xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="nextLevelPrice">20,000</p>
+                <p class="text-xs text-slate-400">DASH</p>
+            </div>
         </div>
     </div>
 
-    <!-- ===== INVERTED LEVEL DETAIL DRAWER ===== -->
-    <div id="levelDetailDrawer" class="hidden fixed inset-0 z-50 flex flex-col justify-between">
-        <!-- Top Overlay -->
-        <div class="bg-black/40 backdrop-blur-sm flex-1 flex items-center justify-center p-4">
-            <!-- Floating Center Card -->
-            <div class="glass rounded-2xl border border-white/10 w-full max-w-xs overflow-hidden">
-                <!-- Header with Emoji on Wrong Side -->
-                <div class="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 p-6 flex items-start justify-between border-b border-white/10">
+    <!-- ===== ELEGANT MODAL DRAWER ===== -->
+    <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-3xl border border-white/10 w-full max-w-sm max-h-[90vh] overflow-y-auto">
+            
+            <!-- Header Section with Gradient -->
+            <div class="sticky top-0 glass rounded-t-3xl border-b border-white/10 p-6 bg-gradient-to-b from-purple-600/10 to-transparent">
+                <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
-                        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">Level</p>
-                        <h3 id="drawerLevelName" class="text-lg font-black uppercase tracking-widest text-purple-400 mb-1">Level 1</h3>
-                        <p class="text-[8px] text-slate-400">
-                            Cost: <span id="drawerLevelPrice" class="font-black text-cyan-400">10,000</span> DASH
-                        </p>
+                        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">Level Details</p>
+                        <h2 id="drawerLevelName" class="text-2xl font-black text-white mb-1">Level 1</h2>
                     </div>
-                    <p class="text-5xl" id="drawerLevelEmoji">🚀</p>
+                    <button onclick="toggleLevelDetail()" class="flex-shrink-0 w-8 h-8 glass rounded-lg flex items-center justify-center text-lg hover:bg-white/10 active:scale-90 transition-all">✕</button>
                 </div>
 
-                <!-- Title Below Header -->
-                <div class="p-4 border-b border-white/10">
-                    <h2 id="drawerLevelTitle" class="text-2xl font-black text-white mb-1">Hustler</h2>
-                    <p id="drawerLevelDesc" class="text-[9px] text-slate-400">Entry Level • Start Your Journey</p>
+                <!-- Level Display -->
+                <div class="flex items-center gap-4">
+                    <div class="text-5xl" id="drawerLevelEmoji">🚀</div>
+                    <div>
+                        <h3 id="drawerLevelTitle" class="text-xl font-black text-white">Hustler</h3>
+                        <p id="drawerLevelDesc" class="text-xs text-slate-400 mt-1">Entry Level • Start Your Journey</p>
+                        <div class="mt-3 inline-block glass px-3 py-1 rounded-lg border border-white/10">
+                            <p class="text-[8px] text-slate-400">
+                                <span class="font-black text-cyan-400" id="drawerLevelPrice">10,000</span> DASH
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="p-6 space-y-6">
+
+                <!-- Features Section -->
+                <div>
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">✨ Features Unlocked</h4>
+                    <div id="drawerFeaturesGrid" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
 
-                <!-- Features in Vertical Scroll (Unexpected) -->
-                <div class="max-h-40 overflow-x-auto p-4 border-b border-white/10">
-                    <div class="flex gap-2">
-                        <div id="drawerFeaturesGrid" class="flex gap-2">
-                            <!-- Populated dynamically, horizontal scroll -->
+                <!-- Divider -->
+                <div class="h-px bg-gradient-to-r from-white/0 via-white/10 to-white/0"></div>
+
+                <!-- Rewards Section -->
+                <div>
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">💰 Rewards & Economics</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 glass rounded-xl border border-white/10">
+                            <span class="text-xs text-slate-300">Daily Task Reward</span>
+                            <span id="drawerDailyReward" class="text-sm font-black text-orange-300">500 DASH</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 glass rounded-xl border border-white/10">
+                            <span class="text-xs text-slate-300">Daily Task Limit</span>
+                            <span id="drawerDailyLimit" class="text-sm font-black text-cyan-400">1/day</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 glass rounded-xl border border-white/10">
+                            <span class="text-xs text-slate-300">Referral Commission</span>
+                            <span id="drawerCommission" class="text-sm font-black text-green-400">5%</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Rewards in Weird Layout -->
-                <div class="p-4 space-y-3 border-b border-white/10">
-                    <div class="flex items-baseline justify-between gap-3">
-                        <p class="text-[8px] text-slate-500 uppercase font-black">Daily Task</p>
-                        <p id="drawerDailyReward" class="text-3xl font-black text-orange-300">500</p>
-                        <p class="text-[9px] text-slate-400">DASH</p>
-                    </div>
-                    <div class="flex items-baseline justify-between gap-3">
-                        <p class="text-[8px] text-slate-500 uppercase font-black">Limit</p>
-                        <p id="drawerDailyLimit" class="text-3xl font-black text-cyan-400">1</p>
-                        <p class="text-[9px] text-slate-400">/day</p>
-                    </div>
-                    <div class="flex items-baseline justify-between gap-3">
-                        <p class="text-[8px] text-slate-500 uppercase font-black">Commission</p>
-                        <p id="drawerCommission" class="text-3xl font-black text-green-400">5</p>
-                        <p class="text-[9px] text-slate-400">%</p>
-                    </div>
+                <!-- Divider -->
+                <div class="h-px bg-gradient-to-r from-white/0 via-white/10 to-white/0"></div>
+
+                <!-- Upgrade Information -->
+                <div class="glass p-4 rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-600/10 to-purple-600/10">
+                    <p class="text-[9px] text-slate-500 uppercase font-black mb-2">Next Level Requirement</p>
+                    <p id="drawerNextPrice" class="text-2xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text mb-2">20,000 DASH</p>
+                    <p class="text-[8px] text-slate-400">Purchase this level to unlock new features</p>
                 </div>
 
-                <!-- Next Level (Prominent, But Rotated Text) -->
-                <div class="p-4 border-b border-white/10">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-[8px] text-slate-500 uppercase font-black mb-2">Upgrade to Level 2</p>
-                            <p id="drawerNextPrice" class="text-2xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text">20,000 DASH</p>
-                        </div>
-                        <p class="text-4xl transform -rotate-45">→</p>
-                    </div>
-                </div>
-
-                <!-- Buttons Stacked Weird -->
-                <div class="p-4 space-y-2">
-                    <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-3 rounded-lg font-black uppercase text-xs transition-all active:scale-[0.98]">
-                        🎁 Upgrade Now
+                <!-- Action Buttons -->
+                <div class="space-y-3 pt-2">
+                    <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] hover:shadow-lg">
+                        🎁 Purchase Level
                     </button>
-                    <button onclick="toggleLevelDetail()" class="w-full glass py-2 rounded-lg font-bold text-[10px] text-slate-300 border border-white/10 active:scale-[0.98] transition-all">
-                        Dismiss
+                    <button onclick="toggleLevelDetail()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 border border-white/10 hover:border-white/20 active:scale-[0.98] transition-all">
+                        Close
                     </button>
                 </div>
             </div>
-        </div>
-
-        <!-- Bottom Close Bar -->
-        <div class="glass border-t border-white/10 p-3 text-center">
-            <button onclick="toggleLevelDetail()" class="text-xl font-black text-slate-400 hover:text-white transition-colors">✕</button>
         </div>
     </div>
 </div>
 
 <style>
-    /* Confused animations */
-    @keyframes wobble {
-        0%, 100% { transform: rotate(0deg) skewX(0deg); }
-        25% { transform: rotate(2deg) skewX(1deg); }
-        50% { transform: rotate(-1deg) skewX(-1deg); }
-        75% { transform: rotate(1deg) skewX(0.5deg); }
-    }
-
-    @keyframes float-weird {
-        0%, 100% { transform: translateY(0px) translateX(0px); }
-        33% { transform: translateY(-8px) translateX(-4px); }
-        66% { transform: translateY(8px) translateX(4px); }
-    }
-
-    @keyframes pulse-uneven {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-
-    /* Level card items with chaos */
-    .level-card-confused {
+    /* Timeline level cards */
+    .timeline-level-card {
         position: relative;
+        margin-left: 2.5rem;
+        padding: 1rem;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 1.25rem;
-        padding: 1.25rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
+        border-radius: 1rem;
         cursor: pointer;
-        transform: rotate(var(--rotate, 0deg));
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
     }
 
-    .level-card-confused:hover {
+    .timeline-level-card::before {
+        content: '';
+        position: absolute;
+        left: -1.5rem;
+        top: 1.25rem;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+    }
+
+    .timeline-level-card.unlocked::before {
+        background: #06b6d4;
+        box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+    }
+
+    .timeline-level-card.current::before {
+        width: 1rem;
+        height: 1rem;
+        left: -1.75rem;
+        top: 1rem;
+        background: #a855f7;
+        box-shadow: 0 0 12px rgba(168, 85, 247, 0.8);
+    }
+
+    .timeline-level-card:hover {
         border-color: rgba(255, 255, 255, 0.2);
-        transform: rotate(var(--rotate, 0deg)) scale(1.02);
+        background: rgba(255, 255, 255, 0.05);
     }
 
-    .level-card-confused:active {
-        transform: rotate(var(--rotate, 0deg)) scale(0.97);
+    .timeline-level-card:active {
+        transform: scale(0.98);
     }
 
-    .level-card-confused.locked {
-        opacity: 0.5;
-        filter: grayscale(60%);
+    .timeline-level-card.locked {
+        opacity: 0.6;
     }
 
-    .level-card-confused.unlocked {
-        animation: pulse-uneven 2s ease-in-out infinite;
-    }
-
-    /* Drawer animations */
+    /* Modal animations */
     #levelDetailDrawer {
-        animation: fadeIn 0.25s ease-out;
+        animation: fadeInScale 0.3s ease-out;
     }
 
     #levelDetailDrawer.hidden {
         display: none !important;
-        animation: fadeOut 0.2s ease-out;
     }
 
-    @keyframes fadeIn {
+    @keyframes fadeInScale {
         from {
             opacity: 0;
+            transform: scale(0.95);
         }
         to {
             opacity: 1;
+            transform: scale(1);
         }
     }
 
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
-        }
-        to {
-            opacity: 0;
-        }
-    }
-
-    /* Scrollbar for features */
-    #drawerFeaturesGrid {
+    /* Smooth scrollbar */
+    #levelDetailDrawer > div {
         scrollbar-width: thin;
         scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
     }
 
-    #drawerFeaturesGrid::-webkit-scrollbar {
-        height: 4px;
+    #levelDetailDrawer > div::-webkit-scrollbar {
+        width: 6px;
     }
 
-    #drawerFeaturesGrid::-webkit-scrollbar-track {
+    #levelDetailDrawer > div::-webkit-scrollbar-track {
         background: transparent;
     }
 
-    #drawerFeaturesGrid::-webkit-scrollbar-thumb {
+    #levelDetailDrawer > div::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
+        border-radius: 3px;
     }
 
-    /* Tilted text for Next Level */
-    #drawerNextPrice {
-        display: inline-block;
+    #levelDetailDrawer > div::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
     }
 
-    /* Confusing grid breakpoint */
-    @media (max-width: 400px) {
-        #levelsGrid-col2 {
-            width: 100% !important;
-            margin-left: 0 !important;
-        }
+    /* Feature grid items */
+    .feature-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #cbd5e1;
+    }
+
+    .feature-chip.active {
+        background: rgba(6, 182, 212, 0.15);
+        border-color: rgba(6, 182, 212, 0.3);
+        color: #06b6d4;
     }
 </style>
