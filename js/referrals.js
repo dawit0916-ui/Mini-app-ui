@@ -68,30 +68,33 @@ async function saveRefSettings() {
         showAppAlert("Failed to update referral settings.", 'error');
     }
 }
-async function saveRefSettings() {
-    const bonus = document.getElementById('set-ref-bonus').value;
-    const percent = document.getElementById('set-ref-percent').value;
-
-    await secureFetch('/api/admin/settings', {
-        method: 'POST',
-        body: JSON.stringify({ 
-            ref_bonus_amount: parseFloat(bonus), 
-            ref_commission_percent: parseInt(percent) 
-        })
-    });
-    showAppAlert("Referral rules updated!", 'success')
-        }
-
-
 // --- UPDATED REFERRAL LOGIC ---
 async function loadReferralData() {
     const linkInput = document.getElementById('ref-link-input');
     if (linkInput) linkInput.value = `https://t.me/Dashearn_bot?start=${user.id}`;
     const listContainer = document.getElementById('friends-list');
     try {
-        const data = await secureFetch('/api/secure/referrals');
-        const tasksRequired =3; // Match your admin setting
-        
+        const [data, settings, levelRes] = await Promise.all([
+            secureFetch('/api/secure/referrals'),
+            secureFetch('/api/settings').catch(() => null),
+            secureFetch('/api/secure/user/level').catch(() => null)
+        ]);
+
+        // Commission rate: same rule the backend actually pays out with —
+        // the user's own level's rate if they've bought one, otherwise the
+        // global default. Keeps this badge from lying about your real rate.
+        const myLevel = levelRes?.level || 0;
+        const globalCommission = settings?.ref_commission_percent ?? 10;
+        const commissionRate = (myLevel > 0 && LEVEL_CONFIG[myLevel - 1])
+            ? LEVEL_CONFIG[myLevel - 1].commission
+            : globalCommission;
+        const commissionEl = document.getElementById('ref-commission-rate');
+        if (commissionEl) commissionEl.textContent = `${commissionRate}%`;
+
+        const tasksRequired = settings?.ref_tasks_required ?? 3; // matches the real admin setting now
+        const requiredEl = document.getElementById('ref-tasks-required');
+        if (requiredEl) requiredEl.textContent = tasksRequired;
+
         let activeTotal = 0;
         let commTotal = 0;
 
