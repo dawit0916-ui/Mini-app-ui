@@ -1,11 +1,13 @@
-
 // Load and display all levels
+let currentUserBalance = 0;
+
 async function loadLevels() {
     try {
         // Fetch current user level
         const userRes = await secureFetch('/api/secure/user/level');
         const currentLevel = userRes?.level || 1;
         const userBalance = userRes?.balance || 0;
+        currentUserBalance = userBalance;
 
         // Update hero card
         const currentConfig = LEVEL_CONFIG[currentLevel - 1];
@@ -26,16 +28,20 @@ async function loadLevels() {
 
             const levelCard = document.createElement('button');
             levelCard.onclick = () => showLevelDetails(level);
+            const isAffordableNext = isNextLevel && canAfford;
+            const isUnaffordableNext = isNextLevel && !canAfford;
             levelCard.className = `glass p-4 rounded-2xl border transition-all active:scale-95 flex flex-col items-center gap-2 ${
                 isCurrent ? 'border-purple-500/50 bg-purple-500/10' :
                 isUnlocked ? 'border-green-500/30 bg-green-500/5' :
-                isNextLevel ? 'border-blue-500/30 bg-blue-500/5' :
+                isAffordableNext ? 'border-blue-500/30 bg-blue-500/5' :
+                isUnaffordableNext ? 'border-orange-500/20 bg-orange-500/5' :
                 'border-white/5'
             }`;
 
             const badgeHTML = isCurrent ? '✅ CURRENT' : 
                              isUnlocked ? '✓ UNLOCKED' :
-                             isNextLevel ? '→ NEXT' : '🔒 LOCKED';
+                             isAffordableNext ? '→ NEXT' :
+                             isUnaffordableNext ? '💰 NEED MORE' : '🔒 LOCKED';
 
             levelCard.innerHTML = `
                 <p class="text-2xl">${level.emoji}</p>
@@ -44,7 +50,8 @@ async function loadLevels() {
                 <span class="text-[7px] font-black uppercase tracking-widest ${
                     isCurrent ? 'text-purple-400' :
                     isUnlocked ? 'text-green-400' :
-                    isNextLevel ? 'text-blue-400' : 'text-slate-500'
+                    isAffordableNext ? 'text-blue-400' :
+                    isUnaffordableNext ? 'text-orange-400' : 'text-slate-500'
                 }">${badgeHTML}</span>
             `;
             levelsGrid.appendChild(levelCard);
@@ -59,7 +66,7 @@ async function loadLevels() {
 // Show level detail drawer
 function showLevelDetails(levelConfig) {
     const drawer = document.getElementById('levelDetailDrawer');
-    const nextLevel = LEVEL_CONFIG[Math.min(levelConfig.level, 9)];
+    const nextLevel = levelConfig.level < 10 ? LEVEL_CONFIG[levelConfig.level] : levelConfig;
 
     // Update drawer content
     document.getElementById('drawerLevelName').textContent = levelConfig.name;
@@ -81,6 +88,16 @@ function showLevelDetails(levelConfig) {
         </div>
     `).join('');
 
+    // Reflect real affordability on the purchase button instead of always
+    // showing it as ready to buy
+    const purchaseBtn = document.getElementById('drawerPurchaseBtn');
+    const canAfford = currentUserBalance >= levelConfig.price;
+    purchaseBtn.disabled = !canAfford;
+    purchaseBtn.classList.toggle('opacity-50', !canAfford);
+    purchaseBtn.textContent = canAfford
+        ? `Upgrade for ${levelConfig.price.toLocaleString()} DASH`
+        : `Need ${(levelConfig.price - currentUserBalance).toLocaleString()} more DASH`;
+
     // Store current level for purchase
     window.selectedLevelForPurchase = levelConfig;
 
@@ -99,6 +116,12 @@ async function processPurchaseLevel() {
     if (!window.selectedLevelForPurchase) return;
 
     const level = window.selectedLevelForPurchase;
+
+    if (currentUserBalance < level.price) {
+        showAppAlert(`You need ${(level.price - currentUserBalance).toLocaleString()} more DASH to upgrade.`, 'warning');
+        return;
+    }
+
     const btn = document.getElementById('drawerPurchaseBtn');
     const originalText = btn.textContent;
 
@@ -123,7 +146,7 @@ async function processPurchaseLevel() {
         await loadLevels();
 
         const profile = await secureFetch('/api/secure/profile');
-        updateHeaderBalances(profile.balance, profile.points, profile.coins);
+        updateHeaderBalances(profile.balance);
 
     } catch (error) {
         console.error('Purchase error:', error);
