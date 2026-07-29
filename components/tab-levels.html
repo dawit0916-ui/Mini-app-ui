@@ -1,335 +1,104 @@
-<!-- =============== TAB-LEVELS (GAMIFIED CARD DECK DESIGN) =============== -->
+<!-- =============== TAB-LEVELS (COMPLETE IMPLEMENTATION) =============== -->
 <div id="tab-levels" class="tab-content">
     
-    <!-- ===== CARD STACK HEADER ===== -->
-    <div class="mb-8 relative h-64 perspective">
-        <!-- Stacked card background effect -->
-        <div class="absolute inset-0 glass rounded-3xl border border-white/10 transform translate-y-2 translate-x-1 opacity-40 blur-sm"></div>
-        <div class="absolute inset-0 glass rounded-3xl border border-white/10 transform translate-y-1 translate-x-0.5 opacity-70"></div>
+    <!-- ===== CURRENT LEVEL HERO CARD ===== -->
+    <div class="glass p-6 mb-6 rounded-3xl border border-white/10 text-center relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl"></div>
         
-        <!-- Main Hero Card -->
-        <div class="absolute inset-0 glass rounded-3xl border border-white/10 p-6 flex flex-col justify-between overflow-hidden group">
-            <!-- Decorative corner element -->
-            <div class="absolute -top-12 -right-12 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-8 -left-8 w-32 h-32 bg-cyan-600/20 rounded-full blur-3xl"></div>
-            
-            <!-- Top Section -->
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4">
-                    <div>
-                        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">Your Card</p>
-                        <div class="flex items-center gap-2">
-                            <span id="currentLevelEmoji" class="text-4xl">🚀</span>
-                            <div>
-                                <p id="currentLevelDisplay" class="text-4xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text leading-none">1</p>
-                                <p id="currentLevelName" class="text-sm font-black text-slate-200 mt-1">Hustler</p>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-xs font-black text-slate-500 text-right">
-                        <span class="text-lg">⭐</span><br/>
-                        TIER 1
-                    </p>
-                </div>
-            </div>
-
-            <!-- Bottom Section -->
-            <div class="relative z-10 space-y-3">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="glass p-3 rounded-lg border border-white/10 text-center">
-                        <p class="text-[8px] text-slate-500 uppercase font-black">Daily</p>
-                        <p id="dailyLimitDisplay" class="text-xl font-black text-orange-300 mt-1">1</p>
-                    </div>
-                    <div class="glass p-3 rounded-lg border border-white/10 text-center">
-                        <p class="text-[8px] text-slate-500 uppercase font-black">Reward</p>
-                        <p class="text-xl font-black text-green-400 mt-1">500</p>
-                    </div>
-                </div>
-                <button onclick="showLevelUpgradeDrawer()" class="w-full glass py-3 rounded-xl font-black text-xs uppercase tracking-widest text-slate-200 border border-white/20 hover:border-white/40 transition-all group-hover:bg-white/10">
-                    Upgrade Card ✨
-                </button>
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">🏆 Your Current Level</p>
+        
+        <div class="flex items-center justify-center gap-2 mb-4">
+            <span id="currentLevelEmoji" class="text-4xl">🚀</span>
+            <div>
+                <div class="text-5xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="currentLevelDisplay">1</div>
+                <p class="text-xs text-slate-400 font-bold mt-1" id="currentLevelName">Hustler</p>
             </div>
         </div>
+
+        <!-- Level Progress Info -->
+        <div class="bg-white/5 rounded-xl p-3 mb-4 text-center">
+            <p class="text-[9px] text-slate-500 mb-1">DAILY TASK LIMIT</p>
+            <p class="text-lg font-black text-orange-300" id="dailyLimitDisplay">1/day</p>
+        </div>
+
+        <!-- Upgrade Button -->
+        <button onclick="showLevelUpgradeDrawer()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
+            🎁 Upgrade to Next Level 
+        </button>
     </div>
 
-    <!-- ===== CARD COLLECTION ===== -->
-    <div class="mb-8">
-        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Card Collection</h3>
-        <p class="text-[9px] text-slate-500 mb-4">Collect all 10 level cards to master Dash Earn</p>
-        
-        <div id="levelsGrid" class="grid grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto pr-2">
+    <!-- ===== LEVELS GRID (10 LEVELS) ===== -->
+    <div class="mb-4">
+        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">All Levels</h3>
+        <div id="levelsGrid" class="grid grid-cols-2 gap-3">
             <!-- Populated by loadLevels() -->
         </div>
     </div>
 
-    <!-- ===== PROGRESSION BAR ===== -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between mb-2">
-            <p class="text-[8px] font-black uppercase text-slate-400 tracking-wider">Collection Progress</p>
-            <p class="text-[8px] font-black text-slate-500"><span id="currentLevelLevel">1</span>/10</p>
-        </div>
-        <div class="glass p-1 rounded-full border border-white/10 overflow-hidden">
-            <div class="h-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-500" style="width: 10%;" id="progressBar"></div>
-        </div>
-    </div>
-
-    <!-- ===== STATS BANNER ===== -->
-    <div class="glass p-4 rounded-2xl border border-white/10 grid grid-cols-3 gap-3 mb-4">
-        <div class="text-center">
-            <p class="text-2xl mb-1">🏆</p>
-            <p class="text-[8px] text-slate-500 uppercase font-black">Max Tier</p>
-            <p class="text-sm font-black text-purple-400 mt-1">10</p>
-        </div>
-        <div class="text-center">
-            <p class="text-2xl mb-1">💰</p>
-            <p class="text-[8px] text-slate-500 uppercase font-black">Top Reward</p>
-            <p class="text-sm font-black text-green-400 mt-1">1400</p>
-        </div>
-        <div class="text-center">
-            <p class="text-2xl mb-1">💎</p>
-            <p class="text-[8px] text-slate-500 uppercase font-black">Next Cost</p>
-            <p class="text-sm font-black text-cyan-400 mt-1" id="nextLevelPrice">20k</p>
-        </div>
-    </div>
-
-    <!-- ===== CARD DETAIL MODAL ===== -->
-    <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="glass rounded-3xl border border-white/10 w-full max-w-sm overflow-hidden shadow-2xl">
-            
-            <!-- Card Image Section -->
-            <div class="relative h-48 bg-gradient-to-br from-purple-600/30 to-cyan-600/30 border-b border-white/10 flex items-center justify-center overflow-hidden group">
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 left-0 w-32 h-32 bg-purple-400 rounded-full blur-3xl"></div>
-                    <div class="absolute bottom-0 right-0 w-40 h-40 bg-cyan-400 rounded-full blur-3xl"></div>
+    <!-- ===== LEVEL DETAIL DRAWER (Hidden by default) ===== -->
+    <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-start">
+        <div class="glass rounded-t-3xl border-t border-white/10 max-h-[85vh] overflow-y-auto pb-6">
+            <!-- Header -->
+            <div class="sticky top-0 glass rounded-t-3xl border-b border-white/10 p-5 flex items-center justify-between bg-opacity-95">
+                <div>
+                    <h3 id="drawerLevelName" class="text-sm font-black uppercase tracking-widest text-purple-400">Level 1</h3>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Price: <span id="drawerLevelPrice">10,000</span> DASH</p>
                 </div>
-                
-                <div class="relative z-10 text-center">
-                    <p class="text-7xl mb-2 group-hover:scale-125 transition-transform" id="drawerLevelEmoji">🚀</p>
-                    <p id="drawerLevelName" class="text-sm font-black uppercase tracking-widest text-slate-300">Level 1</p>
-                </div>
-
-                <!-- Corner Badge -->
-                <div class="absolute top-3 right-3 glass px-3 py-1 rounded-lg border border-white/10">
-                    <p class="text-[8px] font-black text-cyan-400">RARITY 1</p>
-                </div>
+                <button onclick="toggleLevelDetail()" class="w-8 h-8 glass rounded-lg flex items-center justify-center text-lg font-black active:scale-90 transition-all">✕</button>
             </div>
 
-            <!-- Card Content -->
-            <div class="p-6 space-y-5">
-                
-                <!-- Title & Description -->
-                <div>
+            <!-- Level Card Display -->
+            <div class="p-5">
+                <div class="glass p-6 rounded-2xl border border-white/10 text-center mb-5">
+                    <p class="text-5xl mb-2" id="drawerLevelEmoji">🚀</p>
                     <h2 id="drawerLevelTitle" class="text-2xl font-black text-white mb-1">Hustler</h2>
                     <p id="drawerLevelDesc" class="text-xs text-slate-400">Entry Level • Start Your Journey</p>
-                    <div class="mt-3 inline-block glass px-3 py-1 rounded-lg border border-white/10">
-                        <p class="text-[9px] text-slate-400">
-                            Cost: <span class="font-black text-cyan-400" id="drawerLevelPrice">10,000</span> DASH
-                        </p>
-                    </div>
                 </div>
 
-                <!-- Divider -->
-                <div class="h-px bg-gradient-to-r from-white/0 via-white/10 to-white/0"></div>
-
-                <!-- Features -->
-                <div>
-                    <p class="text-[9px] font-black uppercase text-slate-400 tracking-wider mb-2">✨ Abilities</p>
-                    <div id="drawerFeaturesGrid" class="flex flex-wrap gap-2">
+                <!-- Features Unlocked at This Level -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">✨ Features Unlocked</h4>
+                    <div id="drawerFeaturesGrid" class="space-y-2">
                         <!-- Populated dynamically -->
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="glass p-3 rounded-lg border border-white/10 text-center">
-                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Reward</p>
-                        <p id="drawerDailyReward" class="text-lg font-black text-orange-300">500</p>
-                        <p class="text-[7px] text-slate-400 mt-1">DASH</p>
-                    </div>
-                    <div class="glass p-3 rounded-lg border border-white/10 text-center">
-                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Limit</p>
-                        <p id="drawerDailyLimit" class="text-lg font-black text-cyan-400">1</p>
-                        <p class="text-[7px] text-slate-400 mt-1">/day</p>
-                    </div>
-                    <div class="glass p-3 rounded-lg border border-white/10 text-center">
-                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Commission</p>
-                        <p id="drawerCommission" class="text-lg font-black text-green-400">5</p>
-                        <p class="text-[7px] text-slate-400 mt-1">%</p>
+                <!-- Rewards & Benefits -->
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">💰 Rewards & Benefits</h4>
+                    <div class="space-y-2">
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Daily Task Reward</span>
+                            <span id="drawerDailyReward" class="text-sm font-black text-orange-300">500 DASH</span>
+                        </div>
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Task Daily Limit</span>
+                            <span id="drawerDailyLimit" class="text-sm font-black text-cyan-400">1/day</span>
+                        </div>
+                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Referral Commission</span>
+                            <span id="drawerCommission" class="text-sm font-black text-green-400">5%</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Upgrade Path -->
-                <div class="glass p-4 rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-600/10 to-purple-600/10">
-                    <p class="text-[8px] text-slate-500 uppercase font-black mb-2">Next Level Card</p>
-                    <div class="flex items-baseline justify-between">
-                        <p id="drawerNextPrice" class="text-2xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text">20,000</p>
-                        <p class="text-xs text-slate-400">DASH</p>
+                <div class="mb-5">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">📈 Upgrade Path</h4>
+                    <div class="glass p-4 rounded-xl border border-white/5 text-center">
+                        <p class="text-xs text-slate-400 mb-2">Next Level Requires</p>
+                        <p class="text-lg font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="drawerNextPrice">20,000 DASH</p>
                     </div>
                 </div>
 
-                <!-- Action Button -->
-                <div class="space-y-3 pt-3">
-                    <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
-                        Unlock Card 🎁
-                    </button>
-                    <button onclick="toggleLevelDetail()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 border border-white/10 hover:border-white/20 active:scale-[0.98] transition-all">
-                        Back to Collection
-                    </button>
-                </div>
+                <!-- Purchase Button -->
+                <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
+                    🎁 Upgrade Now
+                </button>
+                <button onclick="toggleLevelDetail()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
+                    Close
+                </button>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Perspective transform for card stack */
-    .perspective {
-        perspective: 1000px;
-    }
-
-    /* Collection card items */
-    .card-item {
-        position: relative;
-        aspect-ratio: 9/16;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 1.25rem;
-        padding: 1rem;
-        cursor: pointer;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.03);
-        transition: all 0.3s ease;
-        transform-style: preserve-3d;
-    }
-
-    .card-item::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .card-item:hover {
-        border-color: rgba(255, 255, 255, 0.3);
-        background: rgba(255, 255, 255, 0.08);
-        transform: translateY(-4px);
-    }
-
-    .card-item:hover::before {
-        opacity: 1;
-    }
-
-    .card-item:active {
-        transform: translateY(-2px) scale(0.98);
-    }
-
-    .card-item.locked {
-        opacity: 0.5;
-        filter: grayscale(40%);
-    }
-
-    .card-item.unlocked {
-        border-color: rgba(6, 182, 212, 0.3);
-        background: rgba(6, 182, 212, 0.05);
-    }
-
-    .card-item.current {
-        border-color: rgba(168, 85, 247, 0.5);
-        background: rgba(168, 85, 247, 0.08);
-        box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-    }
-
-    .card-item-emoji {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-item-title {
-        font-size: 0.875rem;
-        font-weight: 900;
-        color: #f1f5f9;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .card-item-subtitle {
-        font-size: 0.625rem;
-        color: #94a3b8;
-        margin-top: 0.25rem;
-        font-weight: 700;
-    }
-
-    .card-item-badge {
-        margin-top: 0.75rem;
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: rgba(6, 182, 212, 0.2);
-        border: 1px solid rgba(6, 182, 212, 0.3);
-        border-radius: 0.5rem;
-        font-size: 0.625rem;
-        font-weight: 900;
-        color: #06b6d4;
-    }
-
-    /* Modal animations */
-    #levelDetailDrawer {
-        animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    #levelDetailDrawer.hidden {
-        display: none !important;
-    }
-
-    @keyframes zoomIn {
-        from {
-            opacity: 0;
-            transform: scale(0.8) rotateX(10deg);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1) rotateX(0deg);
-        }
-    }
-
-    /* Scrollbar styling */
-    #levelsGrid::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    #levelsGrid::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    #levelsGrid::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 2px;
-    }
-
-    #levelsGrid::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Feature chips */
-    .feature-ability {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #cbd5e1;
-        transition: all 0.2s ease;
-    }
-
-    .feature-ability:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
-    }
-</style>
