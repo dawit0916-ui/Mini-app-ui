@@ -1,104 +1,230 @@
-<!-- =============== TAB-LEVELS (COMPLETE IMPLEMENTATION) =============== -->
+<!-- =============== TAB-LEVELS (COMPLETE REDESIGN) =============== -->
 <div id="tab-levels" class="tab-content">
     
-    <!-- ===== CURRENT LEVEL HERO CARD ===== -->
-    <div class="glass p-6 mb-6 rounded-3xl border border-white/10 text-center relative overflow-hidden">
-        <div class="absolute -top-10 -left-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl"></div>
-        
-        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-2">🏆 Your Current Level</p>
-        
-        <div class="flex items-center justify-center gap-2 mb-4">
-            <span id="currentLevelEmoji" class="text-4xl">🚀</span>
-            <div>
-                <div class="text-5xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="currentLevelDisplay">1</div>
-                <p class="text-xs text-slate-400 font-bold mt-1" id="currentLevelName">Hustler</p>
+    <!-- ===== COMPACT CURRENT LEVEL STATUS BAR ===== -->
+    <div class="flex items-center justify-between gap-2 mb-6 px-1">
+        <div class="flex-1 glass p-4 rounded-2xl border border-white/10">
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Current</p>
+            <div class="flex items-center gap-2">
+                <span id="currentLevelEmoji" class="text-3xl">🚀</span>
+                <div>
+                    <div class="text-3xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="currentLevelDisplay">1</div>
+                    <p class="text-[9px] text-slate-400 font-bold" id="currentLevelName">Hustler</p>
+                </div>
             </div>
         </div>
-
-        <!-- Level Progress Info -->
-        <div class="bg-white/5 rounded-xl p-3 mb-4 text-center">
-            <p class="text-[9px] text-slate-500 mb-1">DAILY TASK LIMIT</p>
-            <p class="text-lg font-black text-orange-300" id="dailyLimitDisplay">1/day</p>
+        
+        <div class="flex-1 glass p-4 rounded-2xl border border-white/10 text-center">
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">Daily Limit</p>
+            <p class="text-2xl font-black text-orange-300" id="dailyLimitDisplay">1/day</p>
         </div>
 
-        <!-- Upgrade Button -->
-        <button onclick="showLevelUpgradeDrawer()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
-            🎁 Upgrade to Next Level 
+        <button onclick="showLevelUpgradeDrawer()" class="glass p-4 rounded-2xl border border-white/10 hover:border-white/30 transition-all active:scale-90 h-full flex items-center justify-center text-xl font-black">
+            ⬆️
         </button>
     </div>
 
-    <!-- ===== LEVELS GRID (10 LEVELS) ===== -->
-    <div class="mb-4">
-        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">All Levels</h3>
-        <div id="levelsGrid" class="grid grid-cols-2 gap-3">
+    <!-- ===== LEVEL CARDS CAROUSEL / GRID ===== -->
+    <div class="mb-6">
+        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 px-1">Browse All Levels</h3>
+        <div id="levelsGrid" class="grid grid-cols-1 gap-3 max-h-[60vh] overflow-y-auto pr-1">
             <!-- Populated by loadLevels() -->
         </div>
     </div>
 
-    <!-- ===== LEVEL DETAIL DRAWER (Hidden by default) ===== -->
-    <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-start">
-        <div class="glass rounded-t-3xl border-t border-white/10 max-h-[85vh] overflow-y-auto pb-6">
-            <!-- Header -->
-            <div class="sticky top-0 glass rounded-t-3xl border-b border-white/10 p-5 flex items-center justify-between bg-opacity-95">
-                <div>
-                    <h3 id="drawerLevelName" class="text-sm font-black uppercase tracking-widest text-purple-400">Level 1</h3>
-                    <p class="text-[9px] text-slate-500 mt-0.5">Price: <span id="drawerLevelPrice">10,000</span> DASH</p>
-                </div>
-                <button onclick="toggleLevelDetail()" class="w-8 h-8 glass rounded-lg flex items-center justify-center text-lg font-black active:scale-90 transition-all">✕</button>
+    <!-- ===== QUICK STATS FOOTER ===== -->
+    <div class="glass p-4 rounded-2xl border border-white/10 mb-4 grid grid-cols-3 gap-3 text-center">
+        <div>
+            <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Total Levels</p>
+            <p class="text-lg font-black text-purple-400">10</p>
+        </div>
+        <div>
+            <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Max Reward</p>
+            <p class="text-lg font-black text-green-400">1400</p>
+        </div>
+        <div>
+            <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Next Price</p>
+            <p class="text-lg font-black text-cyan-400" id="nextLevelPrice">20k</p>
+        </div>
+    </div>
+
+    <!-- ===== LEVEL DETAIL DRAWER (Modal-Style) ===== -->
+    <div id="levelDetailDrawer" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end">
+        <div class="glass rounded-t-3xl border-t border-white/10 w-full max-h-[92vh] overflow-y-auto pb-8">
+            
+            <!-- Close Handle Bar -->
+            <div class="flex justify-center pt-3 pb-2">
+                <div class="w-10 h-1 bg-slate-600 rounded-full"></div>
             </div>
 
-            <!-- Level Card Display -->
-            <div class="p-5">
-                <div class="glass p-6 rounded-2xl border border-white/10 text-center mb-5">
-                    <p class="text-5xl mb-2" id="drawerLevelEmoji">🚀</p>
-                    <h2 id="drawerLevelTitle" class="text-2xl font-black text-white mb-1">Hustler</h2>
-                    <p id="drawerLevelDesc" class="text-xs text-slate-400">Entry Level • Start Your Journey</p>
+            <!-- Header Section -->
+            <div class="sticky top-0 glass rounded-t-3xl border-b border-white/10 px-5 py-4 flex items-start justify-between bg-opacity-95 backdrop-blur">
+                <div class="flex-1">
+                    <p class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-1">Level Details</p>
+                    <h3 id="drawerLevelName" class="text-lg font-black uppercase tracking-widest text-purple-400">Level 1</h3>
+                </div>
+                <button onclick="toggleLevelDetail()" class="w-8 h-8 glass rounded-lg flex items-center justify-center text-lg font-black active:scale-90 transition-all hover:bg-white/10">✕</button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="px-5 pt-5">
+
+                <!-- Large Level Card with Badge -->
+                <div class="relative mb-6">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-3xl blur-xl"></div>
+                    <div class="glass p-8 rounded-3xl border border-white/10 text-center relative overflow-hidden">
+                        <div class="absolute -top-8 -right-8 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl"></div>
+                        <p class="text-6xl mb-3 relative z-10" id="drawerLevelEmoji">🚀</p>
+                        <p class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-2">Level</p>
+                        <h2 id="drawerLevelTitle" class="text-3xl font-black text-white mb-2">Hustler</h2>
+                        <p id="drawerLevelDesc" class="text-xs text-slate-400 mb-4">Entry Level • Start Your Journey</p>
+                        <div class="inline-block glass px-4 py-2 rounded-xl border border-white/10">
+                            <p class="text-[9px] text-slate-400">Price: <span id="drawerLevelPrice" class="font-black text-cyan-400">10,000</span> DASH</p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Features Unlocked at This Level -->
-                <div class="mb-5">
-                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">✨ Features Unlocked</h4>
+                <!-- Features Unlocked (Compact List) -->
+                <div class="mb-6">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-1">✨ Features Unlocked</h4>
                     <div id="drawerFeaturesGrid" class="space-y-2">
                         <!-- Populated dynamically -->
                     </div>
                 </div>
 
-                <!-- Rewards & Benefits -->
-                <div class="mb-5">
-                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">💰 Rewards & Benefits</h4>
-                    <div class="space-y-2">
-                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
-                            <span class="text-xs text-slate-300">Daily Task Reward</span>
-                            <span id="drawerDailyReward" class="text-sm font-black text-orange-300">500 DASH</span>
+                <!-- Rewards Grid Layout -->
+                <div class="mb-6">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-1">💰 Rewards & Benefits</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="glass p-4 rounded-2xl border border-white/10 text-center">
+                            <p class="text-[8px] text-slate-500 font-black mb-1.5">Daily Task</p>
+                            <p id="drawerDailyReward" class="text-2xl font-black text-orange-300">500</p>
+                            <p class="text-[8px] text-slate-400 mt-1">DASH</p>
                         </div>
-                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
-                            <span class="text-xs text-slate-300">Task Daily Limit</span>
-                            <span id="drawerDailyLimit" class="text-sm font-black text-cyan-400">1/day</span>
+                        <div class="glass p-4 rounded-2xl border border-white/10 text-center">
+                            <p class="text-[8px] text-slate-500 font-black mb-1.5">Daily Limit</p>
+                            <p id="drawerDailyLimit" class="text-2xl font-black text-cyan-400">1</p>
+                            <p class="text-[8px] text-slate-400 mt-1">/day</p>
                         </div>
-                        <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between">
-                            <span class="text-xs text-slate-300">Referral Commission</span>
-                            <span id="drawerCommission" class="text-sm font-black text-green-400">5%</span>
+                        <div class="glass p-4 rounded-2xl border border-white/10 text-center">
+                            <p class="text-[8px] text-slate-500 font-black mb-1.5">Commission</p>
+                            <p id="drawerCommission" class="text-2xl font-black text-green-400">5</p>
+                            <p class="text-[8px] text-slate-400 mt-1">%</p>
+                        </div>
+                        <div class="glass p-4 rounded-2xl border border-white/10 text-center">
+                            <p class="text-[8px] text-slate-500 font-black mb-1.5">Feature Discount</p>
+                            <p class="text-2xl font-black text-blue-400">0%</p>
+                            <p class="text-[8px] text-slate-400 mt-1">off</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Upgrade Path -->
-                <div class="mb-5">
-                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">📈 Upgrade Path</h4>
-                    <div class="glass p-4 rounded-xl border border-white/5 text-center">
-                        <p class="text-xs text-slate-400 mb-2">Next Level Requires</p>
-                        <p class="text-lg font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text" id="drawerNextPrice">20,000 DASH</p>
+                <!-- Upgrade Path Section -->
+                <div class="mb-6">
+                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">📈 Next Level</h4>
+                    <div class="glass p-5 rounded-2xl border border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-slate-400 font-bold">To Upgrade</p>
+                                <p id="drawerNextPrice" class="text-xl font-black text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text mt-1">20,000 DASH</p>
+                            </div>
+                            <div class="text-3xl">➜</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Purchase Button -->
-                <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
-                    🎁 Upgrade Now
-                </button>
-                <button onclick="toggleLevelDetail()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
-                    Close
-                </button>
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button id="drawerPurchaseBtn" onclick="processPurchaseLevel()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
+                        🎁 Purchase This Level
+                    </button>
+                    <button onclick="toggleLevelDetail()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 border border-white/10 hover:border-white/20 active:scale-[0.98] transition-all">
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Ensure drawer is styled properly */
+    #levelDetailDrawer {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    #levelDetailDrawer.hidden {
+        display: none !important;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+
+    /* Scrollbar styling for level grid */
+    #levelsGrid::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    #levelsGrid::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #levelsGrid::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+    }
+
+    #levelsGrid::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Level card grid item styling (for dynamically added cards) */
+    .level-card-item {
+        glass: true;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.5rem;
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 0.75rem;
+        align-items: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .level-card-item:active {
+        transform: scale(0.98);
+    }
+
+    .level-card-item:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .level-card-item.locked {
+        opacity: 0.6;
+    }
+
+    .level-card-item.locked:hover {
+        opacity: 0.8;
+    }
+</style>
