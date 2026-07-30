@@ -1,4 +1,3 @@
-
 // 1. Enhanced Search Engine Action (Fixed Query Routing Alignment)
 async function searchUser() {
     const searchId = document.getElementById('search-user-id').value.trim();
@@ -10,7 +9,6 @@ async function searchUser() {
         // The backend returns an array under "users". Let's check if we got a match
         if (!res.success || !res.users || res.users.length === 0) {
             showAppAlert("User record not found.", 'error')
-            document.getElementById('admin-user-editor').classList.add('hidden');
             return;
         }
         // Isolate the exact matching user document from the payload array
@@ -20,23 +18,7 @@ async function searchUser() {
         currentEditingUserData = foundUser;
         currentEditingUserId = foundUser.user_id;
 
-        // Sync editor text display fields
-        document.getElementById('edit-user-display-id').innerText = foundUser.user_id;
-        document.getElementById('edit-user-balance').innerText = parseFloat(foundUser.balance).toFixed(4);
-        
-        // Populate editable input value fields
-        document.getElementById('new-user-balance').value = foundUser.balance;
-        
-        // Set state of Ban Button dynamically
-        const banBtn = document.getElementById('btn-ban-toggle');
-        if (foundUser.is_banned) {
-            banBtn.innerHTML = "🔴 Unban User";
-            banBtn.className = "flex-1 bg-yellow-600/20 text-yellow-400 py-3 rounded-xl text-[10px] font-black uppercase";
-        } else {
-            banBtn.innerHTML = "🪓 Ban User";
-            banBtn.className = "flex-1 bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase";
-        }
-        document.getElementById('admin-user-editor').classList.remove('hidden');
+        openUserEditDrawer(foundUser);
         tg.HapticFeedback.impactOccurred('light');
 
     } catch (e) {
@@ -44,66 +26,87 @@ async function searchUser() {
         showAppAlert("Search engine error.", 'error')
     }
         }
-async function updateUserMetrics() {
-    const newBalance = document.getElementById('new-user-balance').value;
 
-    if (!currentEditingUserId || newBalance === '') return;
+function openUserEditDrawer(u) {
+    document.getElementById('edit-user-display-id').innerText = u.user_id;
+    document.getElementById('edit-user-name').innerText = u.first_name || 'Member';
+    document.getElementById('edit-user-username').innerText = u.username && u.username !== 'N/A' ? '@' + u.username : 'N/A';
+    document.getElementById('edit-user-joined').innerText = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown';
+    document.getElementById('edit-user-referrals').innerText = u.referralCount || 0;
+    document.getElementById('edit-user-total-earned').innerText = (u.total_earned || 0).toLocaleString() + ' DASH';
+    document.getElementById('edit-user-tasks-done').innerText = u.tasksCompleted || 0;
+
+    document.getElementById('edit-user-balance-input').value = u.balance || 0;
+    document.getElementById('edit-user-level-input').value = u.level || 0;
+    document.getElementById('edit-user-banned-input').checked = !!u.is_banned;
+    document.getElementById('edit-user-redflag-input').checked = !!u.red_flag;
+
+    document.getElementById('admin-user-edit-drawer').classList.add('active');
+}
+
+function closeUserEditDrawer() {
+    document.getElementById('admin-user-edit-drawer').classList.remove('active');
+}
+
+async function saveUserEdit() {
+    if (!currentEditingUserId) return;
+
+    const newBalance = parseFloat(document.getElementById('edit-user-balance-input').value);
+    const newLevel = parseInt(document.getElementById('edit-user-level-input').value);
+    const newBanned = document.getElementById('edit-user-banned-input').checked;
+    const newRedFlag = document.getElementById('edit-user-redflag-input').checked;
+
+    const btn = document.getElementById('btn-save-user-edit');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
 
     try {
+        // Balance/red-flag go through the generic update route
         const res = await secureFetch('/api/admin/user/update', {
             method: 'POST',
             body: JSON.stringify({
                 target_user_id: currentEditingUserId,
-                balance: parseFloat(newBalance)
+                balance: newBalance,
+                red_flag: newRedFlag
             })
         });
 
-        if (res.success) {
+        // Ban status goes through its own dedicated route, since that one
+        // also notifies the user via Telegram — the generic update route
+        // doesn't do that, and losing the notification would be a step back.
+        let banRes = { success: true };
+        if (newBanned !== !!currentEditingUserData?.is_banned) {
+            banRes = await secureFetch('/api/admin/users/ban', {
+                method: 'POST',
+                body: JSON.stringify({ userId: currentEditingUserId, banned: newBanned })
+            });
+        }
+
+        // Level changes go through the dedicated set-level route, since it
+        // also recomputes purchased_levels and features_unlocked correctly
+        let levelRes = { success: true };
+        if (newLevel !== (currentEditingUserData?.level || 0)) {
+            levelRes = await secureFetch('/api/admin/user/set-level', {
+                method: 'POST',
+                body: JSON.stringify({ target_user_id: currentEditingUserId, level: newLevel })
+            });
+        }
+
+        if (res.success && banRes.success && levelRes.success) {
             tg.HapticFeedback.notificationOccurred('success');
-            showAppAlert("User metrics synchronized successfully.", 'success');
-
-            document.getElementById('edit-user-balance').innerText = parseFloat(newBalance).toFixed(4);
-
+            showAppAlert("User updated successfully.", 'success');
+            closeUserEditDrawer();
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
         } else {
-            showAppAlert("Failed to update profile values.", 'error');
+            showAppAlert("Failed to update some values.", 'error');
         }
     } catch (e) {
-        console.error("Data tracking writing failure:", e);
-        showAppAlert("Network communications failed.", 'error');
+        console.error("User edit save failure:", e);
+        showAppAlert("Failed to save changes.", 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Changes';
     }
-}
-
-// 3. Toggle Ban State Engine Action
-async function toggleUserBanStatus() {
-    if(!currentEditingUserId || !currentEditingUserData) return;
-    
-    const targetState = !currentEditingUserData.is_banned;
-    const actionLabel = targetState ? "BAN" : "UNBAN";
-
-    showAppConfirm(`Are you sure you want to ${actionLabel} this user?`, async (confirmed) => {
-        if(!confirmed) return;
-
-        try {
-            const res = await secureFetch('/api/admin/users/ban', {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    userId: currentEditingUserId,
-                    banned: targetState
-                })
-            });
-
-            if(res.success) {
-                tg.HapticFeedback.notificationOccurred('success');
-                showAppAlert(`User successfully ${targetState ? 'banned' : 'unbanned'}!`, 'success');
-                searchUser(); // Refresh data to load current layout state  
-            } else {
-                showAppAlert("Action denied by server.", 'error')
-            }
-        } catch(e) {
-            showAppAlert("Failed to run ban assignment.", 'error')
-        }
-    });
 }
 // 1. Fixed Directory Views Manager
 function filterUserDirectory(filterType) {
