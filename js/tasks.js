@@ -1,4 +1,3 @@
-        
 function startTask(url, taskId, reward, duration) {
     tg.openLink(url);
     
@@ -84,7 +83,11 @@ updateHeaderBalances(
     showNotificationToast(`+${result.reward || ''} DASH earned! 🎉`, 'success');
 }
      else {
-            showAppAlert(result.error || "Verification failed.", 'error', 'Not Joined Yet')
+            if (result.unlocksAtLevel && typeof showLevelLockedOverlay === 'function' && showLevelLockedOverlay(result.unlocksAtLevel, result.error)) {
+                // upgrade-required overlay shown instead of the generic alert
+            } else {
+                showAppAlert(result.error || "Verification failed.", 'error', 'Not Joined Yet')
+            }
             btn.disabled = false;
             btn.innerText = "Claim Reward";
         }
