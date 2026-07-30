@@ -1,3 +1,19 @@
+// Synthetic display config for level 0 — brand new users start here, and
+// LEVEL_CONFIG only defines levels 1-10, so this fills the gap instead of
+// crashing on LEVEL_CONFIG[-1].
+const FREE_TIER_CONFIG = {
+    level: 0,
+    name: 'Free Tier',
+    emoji: '🆓',
+    price: 0,
+    dailyReward: 0,
+    dailyLimit: 0,
+    commission: 0,
+    courseDiscount: 0,
+    description: 'Buy Level 1 to start earning daily rewards and unlock the task platform.',
+    features: []
+};
+
 // Load and display all levels
 let currentUserBalance = 0;
 
@@ -5,16 +21,17 @@ async function loadLevels() {
     try {
         // Fetch current user level
         const userRes = await secureFetch('/api/secure/user/level');
-        const currentLevel = userRes?.level || 1;
+        const currentLevel = userRes?.level || 0;
         const userBalance = userRes?.balance || 0;
         currentUserBalance = userBalance;
 
-        // Update hero card
-        const currentConfig = LEVEL_CONFIG[currentLevel - 1];
+        // Update hero card — level 0 (every new user) uses the free-tier
+        // fallback since LEVEL_CONFIG only covers levels 1-10.
+        const currentConfig = currentLevel > 0 ? LEVEL_CONFIG[currentLevel - 1] : FREE_TIER_CONFIG;
         document.getElementById('currentLevelDisplay').textContent = currentLevel;
         document.getElementById('currentLevelName').textContent = currentConfig.name;
         document.getElementById('currentLevelEmoji').textContent = currentConfig.emoji;
-        document.getElementById('dailyLimitDisplay').textContent = `${currentConfig.dailyLimit}/day`;
+        document.getElementById('dailyLimitDisplay').textContent = currentLevel > 0 ? `${currentConfig.dailyLimit}/day` : 'Locked';
 
         // Render levels grid
         const levelsGrid = document.getElementById('levelsGrid');
@@ -25,12 +42,23 @@ async function loadLevels() {
             const isCurrent = currentLevel === level.level;
             const canAfford = userBalance >= level.price;
             const isNextLevel = level.level === currentLevel + 1;
-
-            const levelCard = document.createElement('button');
-            levelCard.onclick = () => showLevelDetails(level);
             const isAffordableNext = isNextLevel && canAfford;
             const isUnaffordableNext = isNextLevel && !canAfford;
-            levelCard.className = `glass p-4 rounded-2xl border transition-all active:scale-95 flex flex-col items-center gap-2 ${
+            // Only the current level, already-owned levels, and the single
+            // next purchasable level are interactive. Levels further out
+            // than "next" can't be bought yet (must buy sequentially), so
+            // tapping them shouldn't open a purchase drawer at all.
+            const isTappable = isCurrent || isUnlocked || isNextLevel;
+
+            const levelCard = document.createElement('button');
+            if (isTappable) {
+                levelCard.onclick = () => showLevelDetails(level);
+            } else {
+                levelCard.disabled = true;
+            }
+            levelCard.className = `glass p-4 rounded-2xl border transition-all flex flex-col items-center gap-2 ${
+                isTappable ? 'active:scale-95' : 'opacity-40 cursor-not-allowed'
+            } ${
                 isCurrent ? 'border-purple-500/50 bg-purple-500/10' :
                 isUnlocked ? 'border-green-500/30 bg-green-500/5' :
                 isAffordableNext ? 'border-blue-500/30 bg-blue-500/5' :
@@ -47,6 +75,7 @@ async function loadLevels() {
                 <p class="text-2xl">${level.emoji}</p>
                 <h4 class="text-[10px] font-black uppercase text-white tracking-wider">${level.name}</h4>
                 <p class="text-[8px] text-slate-400 font-bold">${level.price.toLocaleString()} DASH</p>
+                ${level.courseDiscount > 0 ? `<span class="text-[7px] font-black text-pink-400">🏷️ ${level.courseDiscount}% OFF courses</span>` : ''}
                 <span class="text-[7px] font-black uppercase tracking-widest ${
                     isCurrent ? 'text-purple-400' :
                     isUnlocked ? 'text-green-400' :
@@ -79,6 +108,15 @@ function showLevelDetails(levelConfig) {
     document.getElementById('drawerCommission').textContent = levelConfig.commission + '%';
     document.getElementById('drawerNextPrice').textContent = nextLevel.price.toLocaleString() + ' DASH';
 
+    // Course discount banner
+    const discountBanner = document.getElementById('drawerDiscountBanner');
+    if (levelConfig.courseDiscount > 0) {
+        document.getElementById('drawerDiscountValue').textContent = levelConfig.courseDiscount;
+        discountBanner.classList.remove('hidden');
+    } else {
+        discountBanner.classList.add('hidden');
+    }
+
     // Update features grid
     const featuresGrid = document.getElementById('drawerFeaturesGrid');
     featuresGrid.innerHTML = levelConfig.features.map(feature => `
@@ -101,14 +139,40 @@ function showLevelDetails(levelConfig) {
     // Store current level for purchase
     window.selectedLevelForPurchase = levelConfig;
 
-    // Show drawer
-    drawer.classList.remove('hidden');
+    // Show drawer (sheet pattern — opened via .active, matching every
+    // other drawer/modal in the app)
+    drawer.classList.add('active');
 }
 
 // Toggle level detail drawer
 function toggleLevelDetail() {
     const drawer = document.getElementById('levelDetailDrawer');
-    drawer.classList.toggle('hidden');
+    drawer.classList.toggle('active');
+}
+
+// Show an "upgrade required" prompt when a level-gated feature blocks the
+// user, with a direct path to the level that unlocks it. Call this with
+// the unlocksAtLevel value from any 403 response that includes one.
+function showLevelLockedOverlay(unlocksAtLevel, featureMessage) {
+    if (!unlocksAtLevel) return false;
+    const targetLevel = LEVEL_CONFIG.find(l => l.level === unlocksAtLevel);
+    if (!targetLevel) return false;
+
+    showAppConfirm(
+        featureMessage || `This requires Level ${unlocksAtLevel}: ${targetLevel.name}. Upgrade now to unlock it!`,
+        async (confirmed) => {
+            if (!confirmed) return;
+            switchTab('levels', document.getElementById('nav-item'));
+            await new Promise(r => setTimeout(r, 300));
+            await loadLevels();
+            showLevelDetails(targetLevel);
+        },
+        'warning',
+        `🔒 Level ${unlocksAtLevel} Required`,
+        `🚀 View Level ${unlocksAtLevel}`,
+        'Not Now'
+    );
+    return true;
 }
 
 // Process level purchase
