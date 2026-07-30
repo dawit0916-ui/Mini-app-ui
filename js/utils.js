@@ -1,4 +1,3 @@
-
 function getEmptyStateHTML(icon, title, subtitle) {
     return `
         <div class="flex flex-col items-center justify-center py-20 opacity-40">
@@ -19,6 +18,7 @@ const LEVEL_CONFIG = [
         dailyReward: 500,
         dailyLimit: 1,
         commission: 5,
+        courseDiscount: 0,
         description: 'Entry Level • Start Your Journey',
         features: ['Access to task platform']
     },
@@ -30,6 +30,7 @@ const LEVEL_CONFIG = [
         dailyReward: 700,
         dailyLimit: 1,
         commission: 5,
+        courseDiscount: 0,
         description: 'Growing Your Authority',
         features: ['Daily Tasks Unlocked', 'Secret Word + Emoji Reaction']
     },
@@ -41,6 +42,7 @@ const LEVEL_CONFIG = [
         dailyReward: 900,
         dailyLimit: 1,
         commission: 10,
+        courseDiscount: 0,
         description: 'Unleash Your Creativity',
         features: ['Custom Tasks', 'Weekly Tasks', 'Advanced Settings']
     },
@@ -52,6 +54,7 @@ const LEVEL_CONFIG = [
         dailyReward: 1100,
         dailyLimit: 1,
         commission: 10,
+        courseDiscount: 0,
         description: 'Master Content Creation',
         features: ['Monthly Tasks', 'Content Analytics', 'Scheduling Tools']
     },
@@ -63,6 +66,7 @@ const LEVEL_CONFIG = [
         dailyReward: 1200,
         dailyLimit: 2,
         commission: 15,
+        courseDiscount: 20,
         description: 'Unlock Premium Features',
         features: ['3-Month Tasks', 'Whitelist Access', 'Analytics Dashboard', 'Ad Multiplier (1.5x-2.5x)']
     },
@@ -74,6 +78,7 @@ const LEVEL_CONFIG = [
         dailyReward: 1250,
         dailyLimit: 2,
         commission: 15,
+        courseDiscount: 30,
         description: 'Strategic Advantage',
         features: ['Task Scheduling', 'Advanced Automation', 'Priority Queue']
     },
@@ -85,6 +90,7 @@ const LEVEL_CONFIG = [
         dailyReward: 1300,
         dailyLimit: 2,
         commission: 20,
+        courseDiscount: 40,
         description: 'Become an Influencer',
         features: ['YouTube Task Priority', 'Influencer Badge', 'Exclusive Opportunities']
     },
@@ -96,6 +102,7 @@ const LEVEL_CONFIG = [
         dailyReward: 1350,
         dailyLimit: 2,
         commission: 20,
+        courseDiscount: 50,
         description: 'Build Your Empire',
         features: ['Team Management', 'Bulk Operations', 'Custom Workflows']
     },
@@ -107,6 +114,7 @@ const LEVEL_CONFIG = [
         dailyReward: 1375,
         dailyLimit: 2,
         commission: 25,
+        courseDiscount: 55,
         description: 'Almost There',
         features: ['Priority Support', 'VIP Status', 'Exclusive Rewards']
     },
@@ -118,6 +126,7 @@ const LEVEL_CONFIG = [
         dailyReward: 1400,
         dailyLimit: 2,
         commission: 25,
+        courseDiscount: 60,
         description: 'The Ultimate Level',
         features: ['All Features Unlocked', 'VIP Special', 'Exclusive Events', 'Custom Rewards']
     }
