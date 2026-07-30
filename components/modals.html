@@ -232,3 +232,101 @@ Enhanced with touch barrier, custom controls, and anti-download measures
         </div>
     </div>
 </div>     
+
+    <!-- ===== ADMIN: USER EDIT DRAWER ===== -->
+    <div id="admin-user-edit-drawer" class="sheet-backdrop" onclick="if(event.target===this) closeUserEditDrawer()">
+        <div class="sheet-drawer sheet-drawer-fullscreen">
+            <div class="sheet-handle"></div>
+
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="sheet-title">Edit User</h3>
+                    <p class="sheet-subtitle">ID: <span id="edit-user-display-id">—</span></p>
+                </div>
+                <button onclick="closeUserEditDrawer()" class="sheet-close">✕</button>
+            </div>
+
+            <!-- Read-only profile info -->
+            <div class="glass p-4 rounded-xl border border-white/5 mb-4 space-y-2">
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-500">Name</span>
+                    <span id="edit-user-name" class="font-bold text-white">—</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-500">Username</span>
+                    <span id="edit-user-username" class="font-bold text-white">—</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-500">Joined</span>
+                    <span id="edit-user-joined" class="font-bold text-white">—</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-500">Referrals</span>
+                    <span id="edit-user-referrals" class="font-bold text-white">—</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-500">Total Earned</span>
+                    <span id="edit-user-total-earned" class="font-bold text-orange-400">—</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-500">Tasks Completed</span>
+                    <span id="edit-user-tasks-done" class="font-bold text-white">—</span>
+                </div>
+            </div>
+
+            <!-- Editable fields -->
+            <div class="space-y-3 mb-4">
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Balance (DASH)</p>
+                    <input id="edit-user-balance-input" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass">
+                </div>
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Level</p>
+                    <select id="edit-user-level-input" class="w-full p-3 rounded-xl text-xs glass">
+                        <option value="0">Level 0 — Free Tier</option>
+                        <option value="1">Level 1 — Hustler</option>
+                        <option value="2">Level 2 — Authority</option>
+                        <option value="3">Level 3 — Creator</option>
+                        <option value="4">Level 4 — Content King</option>
+                        <option value="5">Level 5 — Power User</option>
+                        <option value="6">Level 6 — Master Tactician</option>
+                        <option value="7">Level 7 — Influencer</option>
+                        <option value="8">Level 8 — Empire Builder</option>
+                        <option value="9">Level 9 — Legend Candidate</option>
+                        <option value="10">Level 10 — Legend</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Toggles -->
+            <div class="space-y-2 mb-5">
+                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
+                    <div>
+                        <p class="text-xs font-bold text-red-300">Banned</p>
+                        <p class="text-[9px] text-slate-500">Blocks all access to the app</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="edit-user-banned-input" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:bg-red-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
+                    <div>
+                        <p class="text-xs font-bold text-orange-300">Red Flag</p>
+                        <p class="text-[9px] text-slate-500">Marks account as suspicious, doesn't block access</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="edit-user-redflag-input" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:bg-orange-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+            </div>
+
+            <button id="btn-save-user-edit" onclick="saveUserEdit()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
+                💾 Save Changes
+            </button>
+            <button onclick="closeUserEditDrawer()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
+                Close
+            </button>
+        </div>
+    </div>
