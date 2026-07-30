@@ -1,4 +1,4 @@
-function startTask(url, taskId, reward, duration) {
+function startTask(url, taskId, reward, duration, isDaily = false) {
     tg.openLink(url);
     
     const btn = document.getElementById(`btn-task-${taskId}`);
@@ -19,7 +19,11 @@ function startTask(url, taskId, reward, duration) {
             btn.disabled = false;
             btn.classList.remove('btn-premium');
             btn.classList.add('bg-green-600', 'px-5', 'py-2', 'rounded-xl', 'text-[10px]', 'font-black');
-            btn.onclick = () => claimTask(taskId);
+            // Daily-type tasks reset every day and are level-gated — they
+            // need the dedicated daily-task endpoint, not the one-time
+            // claim-task endpoint (which would permanently mark them done
+            // and never let them reset).
+            btn.onclick = () => isDaily ? claimDailyTask(taskId) : claimTask(taskId);
         }
     }, 1000);
 }
