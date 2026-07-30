@@ -15,79 +15,17 @@ async function saveSystemSettings() {
     }
 }
 
-// Save new user bonus
-async function saveNewUserBonus() {
-    const bonus = parseFloat(document.getElementById('set-new-user-bonus').value);
-    if (isNaN(bonus) || bonus < 0) {
-        return showAppAlert("Please enter a valid bonus amount.", 'warning');
-    }
-    
-    try {
-        const res = await secureFetch('/api/admin/settings', {
-            method: 'POST',
-            body: JSON.stringify({ new_user_bonus: bonus })
-        });
-        
-        if (res.success) {
-            showAppAlert("New user bonus updated!", 'success');
-        }
-    } catch (e) {
-        showAppAlert("Failed to save bonus.", 'error');
-    }
-}
-
-// Save bot configuration
-async function saveBotConfig() {
-    const botUsername = document.getElementById('set-bot-username').value.trim();
-    const supportChannel = document.getElementById('set-support-channel').value.trim();
-    
-    if (!botUsername) return showAppAlert("Bot username is required.", 'warning');
-    
-    try {
-        const res = await secureFetch('/api/admin/settings', {
-            method: 'POST',
-            body: JSON.stringify({ bot_username: botUsername, support_channel: supportChannel })
-        });
-        
-        if (res.success) {
-            showAppAlert("Bot configuration saved!", 'success');
-        }
-    } catch (e) {
-        showAppAlert("Failed to save bot config.", 'error');
-    }
-}
-
 // Load initial settings on panel open (add to switchAdminPanel function)
 function loadAdminSettings() {
     secureFetch('/api/admin/settings/all').then(data => {
         if (data && data.success) {
             document.getElementById('set-maintenance').checked = data.settings?.maintenance_mode || false;
-            document.getElementById('set-new-user-bonus').value = data.settings?.new_user_bonus || 0;
-            document.getElementById('set-bot-username').value = data.settings?.bot_username || 'Dashearn_bot';
-            document.getElementById('set-support-channel').value = data.settings?.support_channel || '';
             document.getElementById('set-ref-bonus').value = data.settings?.ref_bonus_amount || 0.5;
             document.getElementById('set-ref-percent').value = data.settings?.ref_commission_percent || 10;
             document.getElementById('set-ref-threshold').value = data.settings?.ref_tasks_required || 3;
             
         }
     }).catch(err => console.error('Failed to load settings:', err));
-}
-async function saveSettings() {
-    const isMaint = document.getElementById('set-maintenance').checked;
-
-    try {
-        const res = await secureFetch('/api/admin/settings', {
-            method: 'POST',
-            body: JSON.stringify({ maintenance_mode: isMaint })
-        });
-        
-        if(res.success) {
-            tg.HapticFeedback.impactOccurred('medium');
-            showAppAlert(`Maintenance mode is now ${isMaint ? 'ON 🔴' : 'OFF 🟢'}.`, isMaint ? 'warning' : 'success');
-        }
-    } catch (e) {
-        showAppAlert("Failed to update settings.", 'error');
-    }
 }
             // --- ADMIN: LOAD DASHBOARD ---
 async function loadAdminData() {
