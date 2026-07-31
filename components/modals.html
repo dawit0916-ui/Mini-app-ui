@@ -330,3 +330,89 @@ Enhanced with touch barrier, custom controls, and anti-download measures
             </button>
         </div>
     </div>
+
+
+    <!-- ===== ADMIN: TASK EDIT DRAWER ===== -->
+    <div id="admin-task-edit-drawer" class="sheet-backdrop" onclick="if(event.target===this) closeTaskEditDrawer()">
+        <div class="sheet-drawer sheet-drawer-fullscreen">
+            <div class="sheet-handle"></div>
+
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="sheet-title">Edit Task</h3>
+                    <p class="sheet-subtitle" id="edit-task-id-display">—</p>
+                </div>
+                <button onclick="closeTaskEditDrawer()" class="sheet-close">✕</button>
+            </div>
+
+            <div class="space-y-3 mb-4">
+                <input id="edit-task-title" type="text" placeholder="Task Name" class="w-full p-3 rounded-xl text-xs glass">
+                <input id="edit-task-link" type="text" placeholder="URL (https://...)" class="w-full p-3 rounded-xl text-xs glass">
+                <textarea id="edit-task-desc" rows="2" placeholder="Instructions" class="w-full p-3 rounded-xl text-xs glass"></textarea>
+
+                <div class="flex gap-2">
+                    <select id="edit-task-category" class="flex-1 p-3 rounded-xl text-xs glass text-slate-400">
+                        <option value="Crypto">Crypto</option>
+                        <option value="Airdrop">Airdrop</option>
+                        <option value="Education">Education</option>
+                    </select>
+                    <input id="edit-task-reward" type="number" step="50" placeholder="Amount" class="w-1/3 p-3 rounded-xl text-xs glass">
+                </div>
+
+                <div class="bg-white/5 p-3 rounded-xl">
+                    <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Task Type</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="edit-task-type" value="auto" onchange="updateTaskEditDurationVisibility()" class="accent-blue-500">
+                            <span class="text-[10px] font-bold">Auto (Telegram)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="edit-task-type" value="manual" onchange="updateTaskEditDurationVisibility()" class="accent-indigo-500">
+                            <span class="text-[10px] font-bold">Manual (Proof)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="edit-task-type" value="daily" onchange="updateTaskEditDurationVisibility()" class="accent-orange-500">
+                            <span class="text-[10px] font-bold">Daily (Resets)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="edit-task-type" value="custom" onchange="updateTaskEditDurationVisibility()" class="accent-purple-500">
+                            <span class="text-[10px] font-bold">Custom (Level-gated)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="edit-task-duration-wrap">
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Duration (unlocks by level)</p>
+                    <select id="edit-task-duration" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
+                        <option value="">None</option>
+                        <option value="weekly">Weekly — Level 3+</option>
+                        <option value="monthly">Monthly — Level 4+</option>
+                        <option value="three_month">3-Month — Level 5+</option>
+                    </select>
+                </div>
+
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Max Completions (optional)</p>
+                    <input id="edit-task-max-users" type="number" step="1" placeholder="Unlimited" class="w-full p-3 rounded-xl text-xs glass">
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl mb-5">
+                <div>
+                    <p class="text-xs font-bold text-green-300">Enabled</p>
+                    <p class="text-[9px] text-slate-500">Disabled tasks are hidden from users, not deleted</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="edit-task-enabled" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:bg-green-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                </label>
+            </div>
+
+            <button id="btn-save-task-edit" onclick="saveTaskEdit()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
+                💾 Save Changes
+            </button>
+            <button onclick="closeTaskEditDrawer()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
+                Close
+            </button>
+        </div>
+    </div>
