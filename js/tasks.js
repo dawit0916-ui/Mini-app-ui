@@ -41,12 +41,20 @@ async function loadAdminTaskList() {
     }
     
     container.innerHTML = taskArray.map(t => `
-        <div class="glass p-3 flex justify-between items-center border-white/5">
+        <div class="glass p-3 flex justify-between items-center border-white/5 ${t.enabled === false ? 'opacity-50' : ''}">
             <div>
                 <p class="text-xs font-bold">${t.title}</p>
-                <p class="text-[9px] text-green-400">${t.reward} DASH</p>
+                <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                    <span class="text-[9px] text-green-400">${t.reward} DASH</span>
+                    <span class="text-[8px] text-slate-500 uppercase font-black">${t.type || 'auto'}</span>
+                    ${t.duration ? `<span class="text-[8px] text-purple-400 uppercase font-black">${t.duration}</span>` : ''}
+                    ${t.enabled === false ? '<span class="text-[8px] text-red-400 uppercase font-black">Disabled</span>' : ''}
+                </div>
             </div>
-            <button onclick="deleteTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase">Delete</button>
+            <div class="flex gap-1.5">
+                <button onclick="openTaskEditDrawer('${t.id}')" class="bg-blue-600/20 text-blue-400 border border-blue-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase">Edit</button>
+                <button onclick="deleteTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase">Delete</button>
+            </div>
         </div>
     `).join('');
 }
@@ -143,6 +151,13 @@ async function claimDailyTask(taskId) {
 }
 
 // Admin: Add Task Function
+function updateTaskAddDurationVisibility() {
+    const type = document.querySelector('input[name="task-add-verify-type"]:checked')?.value;
+    const wrap = document.getElementById('task-add-duration-wrap');
+    if (!wrap) return;
+    wrap.classList.toggle('hidden', type === 'daily');
+}
+
 async function addNewTask() {
   try {
     const titleEl = document.getElementById('task-add-title');
@@ -152,6 +167,8 @@ async function addNewTask() {
     const rewardEl = document.getElementById('task-add-reward');
     const categoryEl = document.getElementById('task-add-category');
     const typeEl = document.querySelector('input[name="task-add-verify-type"]:checked');
+    const durationEl = document.getElementById('task-add-duration');
+    const maxUsersEl = document.getElementById('task-add-max-users');
 
     if (!titleEl || !linkEl || !descEl || !previewEl || !rewardEl || !categoryEl || !typeEl) {
         console.error('addNewTask: missing expected form element', {
@@ -167,10 +184,12 @@ async function addNewTask() {
     const reward = rewardEl.value;
     const category = categoryEl.value;
     const type = typeEl.value;
+    const duration = (durationEl && type !== 'daily') ? durationEl.value : '';
+    const maxUsers = maxUsersEl && maxUsersEl.value ? parseInt(maxUsersEl.value) : undefined;
 
     if (!title || !link || !reward) return showAppAlert("Title, Link, and Reward are required.", 'warning');
 
-    const taskData = { title, url: link, description: desc, image: imageString, reward: parseFloat(reward), category, type };
+    const taskData = { title, url: link, description: desc, image: imageString, reward: parseFloat(reward), category, type, duration, max_users: maxUsers };
 
     const res = await secureFetch('/api/admin/tasks/add', {
         method: 'POST',
@@ -182,7 +201,7 @@ async function addNewTask() {
         tg.HapticFeedback.notificationOccurred('success');
         showAppAlert("Task deployed successfully!", 'success');
 
-        ['task-add-title', 'task-add-link', 'task-add-desc', 'task-add-reward'].forEach(id => {
+        ['task-add-title', 'task-add-link', 'task-add-desc', 'task-add-reward', 'task-add-max-users'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
@@ -415,6 +434,92 @@ function previewProofImage(input, taskId) {
     };
     reader.readAsDataURL(file);
             }
+
+
+function updateTaskEditDurationVisibility() {
+    const type = document.querySelector('input[name="edit-task-type"]:checked')?.value;
+    const wrap = document.getElementById('edit-task-duration-wrap');
+    if (!wrap) return;
+    wrap.classList.toggle('hidden', type === 'daily');
+}
+
+let currentEditingTaskId = null;
+
+async function openTaskEditDrawer(taskId) {
+    try {
+        const tasks = await secureFetch('/api/admin/tasks');
+        const task = (Array.isArray(tasks) ? tasks : []).find(t => t.id === taskId);
+        if (!task) return showAppAlert("Task not found.", 'error');
+
+        currentEditingTaskId = taskId;
+
+        document.getElementById('edit-task-id-display').innerText = `ID: ${task.id}`;
+        document.getElementById('edit-task-title').value = task.title || '';
+        document.getElementById('edit-task-link').value = task.url || '';
+        document.getElementById('edit-task-desc').value = task.description || '';
+        document.getElementById('edit-task-category').value = task.category || 'Crypto';
+        document.getElementById('edit-task-reward').value = task.reward || '';
+        document.getElementById('edit-task-duration').value = task.duration || '';
+        document.getElementById('edit-task-max-users').value = task.max_users || '';
+        document.getElementById('edit-task-enabled').checked = task.enabled !== false;
+
+        const typeRadio = document.querySelector(`input[name="edit-task-type"][value="${task.type || 'auto'}"]`);
+        if (typeRadio) typeRadio.checked = true;
+        updateTaskEditDurationVisibility();
+
+        document.getElementById('admin-task-edit-drawer').classList.add('active');
+    } catch (e) {
+        console.error('openTaskEditDrawer error:', e);
+        showAppAlert("Failed to load task.", 'error');
+    }
+}
+
+function closeTaskEditDrawer() {
+    document.getElementById('admin-task-edit-drawer').classList.remove('active');
+}
+
+async function saveTaskEdit() {
+    if (!currentEditingTaskId) return;
+
+    const btn = document.getElementById('btn-save-task-edit');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    try {
+        const type = document.querySelector('input[name="edit-task-type"]:checked')?.value || 'auto';
+        const updates = {
+            title: document.getElementById('edit-task-title').value,
+            url: document.getElementById('edit-task-link').value,
+            description: document.getElementById('edit-task-desc').value,
+            category: document.getElementById('edit-task-category').value,
+            reward: parseFloat(document.getElementById('edit-task-reward').value) || 0,
+            type,
+            duration: type !== 'daily' ? document.getElementById('edit-task-duration').value : '',
+            max_users: document.getElementById('edit-task-max-users').value ? parseInt(document.getElementById('edit-task-max-users').value) : undefined,
+            enabled: document.getElementById('edit-task-enabled').checked
+        };
+
+        const res = await secureFetch(`/api/admin/tasks/update/${currentEditingTaskId}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates)
+        });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showAppAlert("Task updated!", 'success');
+            closeTaskEditDrawer();
+            loadAdminTaskList();
+        } else {
+            showAppAlert(res.error || "Failed to update task.", 'error');
+        }
+    } catch (e) {
+        console.error('saveTaskEdit error:', e);
+        showAppAlert("Failed to save task.", 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Changes';
+    }
+}
 
 
 async function deleteTask(id) {
