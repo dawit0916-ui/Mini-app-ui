@@ -22,17 +22,14 @@ async function loadLevels() {
     try {
         // Fetch current user level
         const userRes = await secureFetch('/api/secure/user/level');
-        const rawLevel = Number(userRes?.level) || 0;
-        const currentLevel = Math.min(Math.max(rawLevel, 0), LEVEL_CONFIG.length);
+        const currentLevel = userRes?.level || 0;
         const userBalance = userRes?.balance || 0;
         currentUserBalance = userBalance;
         currentUserLevel = currentLevel;
 
         // Update hero card — level 0 (every new user) uses the free-tier
         // fallback since LEVEL_CONFIG only covers levels 1-10.
-        const currentConfig = currentLevel > 0 && LEVEL_CONFIG[currentLevel - 1]
-            ? LEVEL_CONFIG[currentLevel - 1]
-            : FREE_TIER_CONFIG;
+        const currentConfig = currentLevel > 0 ? LEVEL_CONFIG[currentLevel - 1] : FREE_TIER_CONFIG;
         document.getElementById('currentLevelDisplay').textContent = currentLevel;
         document.getElementById('currentLevelName').textContent = currentConfig.name;
         document.getElementById('currentLevelEmoji').textContent = currentConfig.emoji;
@@ -124,34 +121,32 @@ function showLevelDetails(levelConfig) {
 
     // Update features grid
     const featuresGrid = document.getElementById('drawerFeaturesGrid');
-    featuresGrid.innerHTML = levelConfig.features.map(feature => {
-        const featureMeta = typeof feature === 'string'
-            ? { name: feature, unlocksAtLevel: levelConfig.level }
-            : feature;
-        const isUnlocked = currentUserLevel >= (featureMeta.unlocksAtLevel || levelConfig.level);
-        const statusText = isUnlocked ? 'Unlocked' : `Locked • Level ${featureMeta.unlocksAtLevel}`;
-        const statusClass = isUnlocked ? 'text-green-400' : 'text-slate-500';
-
-        return `
-            <div class="glass p-3 rounded-xl border border-white/5 flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                    <span class="text-sm">✨</span>
-                    <span class="text-xs text-slate-300">${featureMeta.name}</span>
-                </div>
-                <span class="text-[9px] font-black uppercase tracking-widest ${statusClass}">${statusText}</span>
-            </div>
-        `;
-    }).join('');
+    featuresGrid.innerHTML = levelConfig.features.map(feature => `
+        <div class="glass p-3 rounded-xl border border-white/5 flex items-center gap-2">
+            <span class="text-sm">✨</span>
+            <span class="text-xs text-slate-300">${feature}</span>
+        </div>
+    `).join('');
 
     // Reflect real affordability on the purchase button instead of always
-    // showing it as ready to buy
+    // showing it as ready to buy — and disable it entirely if this level
+    // is already owned (tapping "Upgrade" on your current/past level made
+    // no sense before this check existed).
     const purchaseBtn = document.getElementById('drawerPurchaseBtn');
+    const alreadyOwned = levelConfig.level <= currentUserLevel;
     const canAfford = currentUserBalance >= levelConfig.price;
-    purchaseBtn.disabled = !canAfford;
-    purchaseBtn.classList.toggle('opacity-50', !canAfford);
-    purchaseBtn.textContent = canAfford
-        ? `Upgrade for ${levelConfig.price.toLocaleString()} DASH`
-        : `Need ${(levelConfig.price - currentUserBalance).toLocaleString()} more DASH`;
+
+    if (alreadyOwned) {
+        purchaseBtn.disabled = true;
+        purchaseBtn.classList.add('opacity-50');
+        purchaseBtn.textContent = '✓ Already Owned';
+    } else {
+        purchaseBtn.disabled = !canAfford;
+        purchaseBtn.classList.toggle('opacity-50', !canAfford);
+        purchaseBtn.textContent = canAfford
+            ? `Upgrade for ${levelConfig.price.toLocaleString()} DASH`
+            : `Need ${(levelConfig.price - currentUserBalance).toLocaleString()} more DASH`;
+    }
 
     // Store current level for purchase
     window.selectedLevelForPurchase = levelConfig;
@@ -198,6 +193,11 @@ async function processPurchaseLevel() {
 
     const level = window.selectedLevelForPurchase;
 
+    if (level.level <= currentUserLevel) {
+        showAppAlert('You already own this level.', 'info');
+        return;
+    }
+
     if (currentUserBalance < level.price) {
         showAppAlert(`You need ${(level.price - currentUserBalance).toLocaleString()} more DASH to upgrade.`, 'warning');
         return;
@@ -221,7 +221,6 @@ async function processPurchaseLevel() {
             return;
         }
 
-        currentUserBalance = Math.max(0, currentUserBalance - level.price);
         showAppReward(`🎉 Upgraded to ${level.name}!`, `+${level.dailyReward} DASH/day reward unlocked for Daily Task!`);
         toggleLevelDetail();
         await new Promise(r => setTimeout(r, 500));
@@ -229,7 +228,6 @@ async function processPurchaseLevel() {
 
         const profile = await secureFetch('/api/secure/profile');
         updateHeaderBalances(profile.balance);
-        window.selectedLevelForPurchase = null;
 
     } catch (error) {
         console.error('Purchase error:', error);
@@ -249,12 +247,8 @@ async function upgradeToNextLevel() {
     try {
         // Fetch current user level
         const userRes = await secureFetch('/api/secure/user/level');
-        const currentLevel = Math.min(Math.max(Number(userRes?.level) || 0, 0), LEVEL_CONFIG.length);
-        if (currentLevel >= LEVEL_CONFIG.length) {
-            showAppAlert('Max level reached!', 'info');
-            return;
-        }
-        const nextLevelNumber = currentLevel + 1;
+        const currentLevel = userRes?.level || 0;
+        const nextLevelNumber = Math.min(currentLevel + 1, 10); // Cap at level 10
         
         // Find the next level config
         const nextLevelConfig = LEVEL_CONFIG.find(l => l.level === nextLevelNumber);
