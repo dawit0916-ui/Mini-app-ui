@@ -350,6 +350,29 @@ Enhanced with touch barrier, custom controls, and anti-download measures
                 <input id="edit-task-link" type="text" placeholder="URL (https://...)" class="w-full p-3 rounded-xl text-xs glass">
                 <textarea id="edit-task-desc" rows="2" placeholder="Instructions" class="w-full p-3 rounded-xl text-xs glass"></textarea>
 
+                <div class="space-y-1">
+                    <p class="text-[8px] text-slate-500 uppercase font-black ml-1">Task Icon</p>
+                    <div id="edit-task-icon-auto-note" class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-300 font-bold flex items-center gap-2">
+                        <img src="assets/icons/telegram.png" class="w-5 h-5 rounded">
+                        Uses Telegram icon automatically
+                    </div>
+                    <div id="edit-task-icon-picker" class="hidden grid grid-cols-4 gap-2">
+                        <button type="button" onclick="selectTaskIcon('edit', 'twitter')" data-icon="twitter" class="task-edit-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                            <img src="assets/icons/twitter.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">Twitter</span>
+                        </button>
+                        <button type="button" onclick="selectTaskIcon('edit', 'youtube')" data-icon="youtube" class="task-edit-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                            <img src="assets/icons/youtube.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">YouTube</span>
+                        </button>
+                        <button type="button" onclick="selectTaskIcon('edit', 'instagram')" data-icon="instagram" class="task-edit-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                            <img src="assets/icons/instagram.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">Instagram</span>
+                        </button>
+                        <button type="button" onclick="selectTaskIcon('edit', 'tiktok')" data-icon="tiktok" class="task-edit-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                            <img src="assets/icons/tiktok.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">TikTok</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="edit-task-icon-value" value="">
+                </div>
+
                 <div class="flex gap-2">
                     <select id="edit-task-category" class="flex-1 p-3 rounded-xl text-xs glass text-slate-400">
                         <option value="Crypto">Crypto</option>
@@ -363,25 +386,25 @@ Enhanced with touch barrier, custom controls, and anti-download measures
                     <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Task Type</p>
                     <div class="grid grid-cols-2 gap-2">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="edit-task-type" value="auto" onchange="updateTaskEditDurationVisibility()" class="accent-blue-500">
+                            <input type="radio" name="edit-task-type" value="auto" onchange="updateTaskEditDurationVisibility(); updateTaskIconVisibility('edit')" class="accent-blue-500">
                             <span class="text-[10px] font-bold">Auto (Telegram)</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="edit-task-type" value="manual" onchange="updateTaskEditDurationVisibility()" class="accent-indigo-500">
+                            <input type="radio" name="edit-task-type" value="manual" onchange="updateTaskEditDurationVisibility(); updateTaskIconVisibility('edit')" class="accent-indigo-500">
                             <span class="text-[10px] font-bold">Manual (Proof)</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="edit-task-type" value="daily" onchange="updateTaskEditDurationVisibility()" class="accent-orange-500">
+                            <input type="radio" name="edit-task-type" value="daily" onchange="updateTaskEditDurationVisibility(); updateTaskIconVisibility('edit')" class="accent-orange-500">
                             <span class="text-[10px] font-bold">Daily (Resets)</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="edit-task-type" value="custom" onchange="updateTaskEditDurationVisibility()" class="accent-purple-500">
+                            <input type="radio" name="edit-task-type" value="custom" onchange="updateTaskEditDurationVisibility(); updateTaskIconVisibility('edit')" class="accent-purple-500">
                             <span class="text-[10px] font-bold">Custom (Level-gated)</span>
                         </label>
                     </div>
                 </div>
 
-                <div id="edit-task-duration-wrap">
+                <div id="edit-task-duration-wrap" class="hidden">
                     <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Duration (unlocks by level)</p>
                     <select id="edit-task-duration" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
                         <option value="">None</option>
