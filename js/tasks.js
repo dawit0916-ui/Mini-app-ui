@@ -163,16 +163,16 @@ async function addNewTask() {
     const titleEl = document.getElementById('task-add-title');
     const linkEl = document.getElementById('task-add-link');
     const descEl = document.getElementById('task-add-desc');
-    const previewEl = document.getElementById('task-add-image-preview');
+    const iconValueEl = document.getElementById('task-add-icon-value');
     const rewardEl = document.getElementById('task-add-reward');
     const categoryEl = document.getElementById('task-add-category');
     const typeEl = document.querySelector('input[name="task-add-verify-type"]:checked');
     const durationEl = document.getElementById('task-add-duration');
     const maxUsersEl = document.getElementById('task-add-max-users');
 
-    if (!titleEl || !linkEl || !descEl || !previewEl || !rewardEl || !categoryEl || !typeEl) {
+    if (!titleEl || !linkEl || !descEl || !iconValueEl || !rewardEl || !categoryEl || !typeEl) {
         console.error('addNewTask: missing expected form element', {
-            titleEl, linkEl, descEl, previewEl, rewardEl, categoryEl, typeEl
+            titleEl, linkEl, descEl, iconValueEl, rewardEl, categoryEl, typeEl
         });
         return showAppAlert("Form is not fully loaded. Please reload the page.", 'error');
     }
@@ -180,7 +180,7 @@ async function addNewTask() {
     const title = titleEl.value;
     const link = linkEl.value;
     const desc = descEl.value;
-    const imageString = previewEl.getAttribute('data-base64') || "";
+    const imageString = iconValueEl.value || TASK_ICON_PATHS.telegram;
     const reward = rewardEl.value;
     const category = categoryEl.value;
     const type = typeEl.value;
@@ -206,17 +206,16 @@ async function addNewTask() {
             if (el) el.value = '';
         });
 
-        const fileEl = document.getElementById('task-add-image-file');
-        if (fileEl) fileEl.value = '';
-        previewEl.removeAttribute('data-base64');
-        previewEl.src = '';
-        previewEl.classList.add('hidden');
-
-        const uploadTextEl = document.getElementById('task-add-upload-text');
-        if (uploadTextEl) {
-            uploadTextEl.innerText = "Upload Image File";
-            uploadTextEl.className = "text-xs font-bold text-slate-400";
-        }
+        // Reset icon picker back to default (auto/Telegram)
+        iconValueEl.value = '';
+        document.querySelectorAll('.task-add-icon-btn').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-500/10');
+            btn.classList.add('border-white/10');
+        });
+        const autoTypeRadio = document.querySelector('input[name="task-add-verify-type"][value="auto"]');
+        if (autoTypeRadio) autoTypeRadio.checked = true;
+        updateTaskIconVisibility('add');
+        updateTaskAddDurationVisibility();
 
         loadAdminTaskList();
     } else {
@@ -227,22 +226,55 @@ async function addNewTask() {
     showAppAlert(e.message || "Failed to connect to server.", "error");
   }
 }
-function previewUploadedImage(input) {
-    const file = input.files[0];
-    const textSpan = document.getElementById('task-add-upload-text');
-    const previewImg = document.getElementById('task-add-image-preview');
-    if (!file || !textSpan || !previewImg) return;
+// Task icon is a fixed asset path, not an uploaded file: 'auto' tasks
+// always use the Telegram icon (Telegram verifies them, so it's the only
+// sensible icon), everything else picks from a small set of platform icons.
+const TASK_ICON_PATHS = {
+    telegram: 'assets/icons/telegram.png',
+    twitter: 'assets/icons/twitter.png',
+    youtube: 'assets/icons/youtube.png',
+    instagram: 'assets/icons/instagram.png',
+    tiktok: 'assets/icons/tiktok.png'
+};
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        previewImg.setAttribute('data-base64', e.target.result);
-        previewImg.src = e.target.result;
-        previewImg.classList.remove('hidden');
-        textSpan.innerText = file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name;
-        textSpan.className = "text-xs font-bold text-green-400";
-        tg.HapticFeedback.impactOccurred('light');
-    };
-    reader.readAsDataURL(file);
+function selectTaskIcon(prefix, platform) {
+    document.getElementById(`${prefix}-task-icon-value`).value = TASK_ICON_PATHS[platform];
+    document.querySelectorAll(`.task-${prefix}-icon-btn`).forEach(btn => {
+        const isSelected = btn.getAttribute('data-icon') === platform;
+        btn.classList.toggle('border-blue-500', isSelected);
+        btn.classList.toggle('bg-blue-500/10', isSelected);
+        btn.classList.toggle('border-white/10', !isSelected);
+    });
+}
+
+function updateTaskIconVisibility(prefix) {
+    const type = document.querySelector(`input[name="${prefix === 'add' ? 'task-add-verify-type' : 'edit-task-type'}"]:checked`)?.value;
+    const autoNote = document.getElementById(`${prefix}-task-icon-auto-note`);
+    const picker = document.getElementById(`${prefix}-task-icon-picker`);
+    if (!autoNote || !picker) return;
+
+    if (type === 'auto') {
+        autoNote.classList.remove('hidden');
+        picker.classList.add('hidden');
+        document.getElementById(`${prefix}-task-icon-value`).value = TASK_ICON_PATHS.telegram;
+    } else {
+        autoNote.classList.add('hidden');
+        picker.classList.remove('hidden');
+    }
+}
+
+// Sets the icon picker's selected state to match an existing task's image
+// path when opening the edit drawer.
+function setTaskEditIconFromPath(imagePath) {
+    const match = Object.entries(TASK_ICON_PATHS).find(([, path]) => path === imagePath);
+    const platform = match ? match[0] : null;
+    document.getElementById('edit-task-icon-value').value = imagePath || '';
+    document.querySelectorAll('.task-edit-icon-btn').forEach(btn => {
+        const isSelected = platform && btn.getAttribute('data-icon') === platform;
+        btn.classList.toggle('border-blue-500', isSelected);
+        btn.classList.toggle('bg-blue-500/10', isSelected);
+        btn.classList.toggle('border-white/10', !isSelected);
+    });
 }
 // Logic to dynamically add a new category option to the dropdown
 function updateCategoryDropdown(categoryName) {
@@ -466,6 +498,8 @@ async function openTaskEditDrawer(taskId) {
         const typeRadio = document.querySelector(`input[name="edit-task-type"][value="${task.type || 'auto'}"]`);
         if (typeRadio) typeRadio.checked = true;
         updateTaskEditDurationVisibility();
+        updateTaskIconVisibility('edit');
+        setTaskEditIconFromPath(task.image);
 
         document.getElementById('admin-task-edit-drawer').classList.add('active');
     } catch (e) {
@@ -487,10 +521,12 @@ async function saveTaskEdit() {
 
     try {
         const type = document.querySelector('input[name="edit-task-type"]:checked')?.value || 'auto';
+        const iconValue = document.getElementById('edit-task-icon-value').value;
         const updates = {
             title: document.getElementById('edit-task-title').value,
             url: document.getElementById('edit-task-link').value,
             description: document.getElementById('edit-task-desc').value,
+            image: type === 'auto' ? TASK_ICON_PATHS.telegram : (iconValue || ''),
             category: document.getElementById('edit-task-category').value,
             reward: parseFloat(document.getElementById('edit-task-reward').value) || 0,
             type,
