@@ -20,7 +20,7 @@ const LEVEL_CONFIG = [
         commission: 5,
         courseDiscount: 0,
         description: 'Entry Level • Start Your Journey',
-        features: [{ name: 'Access to task platform', unlocksAtLevel: 1 }]
+        features: ['Access to task platform']
     },
     {
         level: 2,
@@ -32,10 +32,7 @@ const LEVEL_CONFIG = [
         commission: 5,
         courseDiscount: 0,
         description: 'Growing Your Authority',
-        features: [
-            { name: 'Daily Tasks Unlocked', unlocksAtLevel: 2 },
-            { name: 'Secret Word + Emoji Reaction', unlocksAtLevel: 2 }
-        ]
+        features: ['Daily Tasks Unlocked', 'Secret Word + Emoji Reaction']
     },
     {
         level: 3,
@@ -47,11 +44,7 @@ const LEVEL_CONFIG = [
         commission: 10,
         courseDiscount: 0,
         description: 'Unleash Your Creativity',
-        features: [
-            { name: 'Custom Tasks', unlocksAtLevel: 3 },
-            { name: 'Weekly Tasks', unlocksAtLevel: 3 },
-            { name: 'Advanced Settings', unlocksAtLevel: 3 }
-        ]
+        features: ['Custom Tasks', 'Weekly Tasks', '🔜 More features coming soon']
     },
     {
         level: 4,
@@ -63,11 +56,7 @@ const LEVEL_CONFIG = [
         commission: 10,
         courseDiscount: 0,
         description: 'Master Content Creation',
-        features: [
-            { name: 'Monthly Tasks', unlocksAtLevel: 4 },
-            { name: 'Content Analytics', unlocksAtLevel: 4 },
-            { name: 'Scheduling Tools', unlocksAtLevel: 4 }
-        ]
+        features: ['Monthly Tasks', '🔜 More features coming soon']
     },
     {
         level: 5,
@@ -79,12 +68,7 @@ const LEVEL_CONFIG = [
         commission: 15,
         courseDiscount: 20,
         description: 'Unlock Premium Features',
-        features: [
-            { name: '3-Month Tasks', unlocksAtLevel: 5 },
-            { name: 'Whitelist Access', unlocksAtLevel: 5 },
-            { name: 'Analytics Dashboard', unlocksAtLevel: 5 },
-            { name: 'Ad Multiplier (1.5x-2.5x)', unlocksAtLevel: 5 }
-        ]
+        features: ['3-Month Tasks', '🔜 More features coming soon']
     },
     {
         level: 6,
@@ -96,11 +80,7 @@ const LEVEL_CONFIG = [
         commission: 15,
         courseDiscount: 30,
         description: 'Strategic Advantage',
-        features: [
-            { name: 'Task Scheduling', unlocksAtLevel: 6 },
-            { name: 'Advanced Automation', unlocksAtLevel: 6 },
-            { name: 'Priority Queue', unlocksAtLevel: 6 }
-        ]
+        features: ['🔜 More features coming soon']
     },
     {
         level: 7,
@@ -112,11 +92,7 @@ const LEVEL_CONFIG = [
         commission: 20,
         courseDiscount: 40,
         description: 'Become an Influencer',
-        features: [
-            { name: 'YouTube Task Priority', unlocksAtLevel: 7 },
-            { name: 'Influencer Badge', unlocksAtLevel: 7 },
-            { name: 'Exclusive Opportunities', unlocksAtLevel: 7 }
-        ]
+        features: ['🔜 More features coming soon']
     },
     {
         level: 8,
@@ -128,11 +104,7 @@ const LEVEL_CONFIG = [
         commission: 20,
         courseDiscount: 50,
         description: 'Build Your Empire',
-        features: [
-            { name: 'Team Management', unlocksAtLevel: 8 },
-            { name: 'Bulk Operations', unlocksAtLevel: 8 },
-            { name: 'Custom Workflows', unlocksAtLevel: 8 }
-        ]
+        features: ['🔜 More features coming soon']
     },
     {
         level: 9,
@@ -144,11 +116,7 @@ const LEVEL_CONFIG = [
         commission: 25,
         courseDiscount: 55,
         description: 'Almost There',
-        features: [
-            { name: 'Priority Support', unlocksAtLevel: 9 },
-            { name: 'VIP Status', unlocksAtLevel: 9 },
-            { name: 'Exclusive Rewards', unlocksAtLevel: 9 }
-        ]
+        features: ['🔜 More features coming soon']
     },
     {
         level: 10,
@@ -160,12 +128,7 @@ const LEVEL_CONFIG = [
         commission: 25,
         courseDiscount: 60,
         description: 'The Ultimate Level',
-        features: [
-            { name: 'All Features Unlocked', unlocksAtLevel: 10 },
-            { name: 'VIP Special', unlocksAtLevel: 10 },
-            { name: 'Exclusive Events', unlocksAtLevel: 10 },
-            { name: 'Custom Rewards', unlocksAtLevel: 10 }
-        ]
+        features: ['🔜 More features coming soon']
     }
 ];
 function formatLastActive(timestamp) {
