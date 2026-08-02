@@ -1,4 +1,3 @@
-
 function getAdsgramController(blockId) {
     if (!window.Adsgram) return null;
     if (!_adsgramControllers[blockId]) {
@@ -362,6 +361,30 @@ async function loadDailyTask() {
         document.getElementById('dailyTask-reaction').classList.add('hidden');
         document.getElementById('dailyTaskCompletedMsg').classList.add('hidden');
 
+        if (!res.success) {
+            // Either the daily limit is reached for today, or there are no
+            // tasks in the pool at all right now — both show the same
+            // "come back later" state, just with different wording.
+            const msgBox = document.getElementById('dailyTaskCompletedMsg');
+            const title = msgBox.querySelector('p:first-child');
+            const subtitle = msgBox.querySelector('p:last-child');
+            if (typeof res.dailyLimit === 'number') {
+                title.textContent = '✅ Daily Limit Reached!';
+                subtitle.textContent = `You've completed ${res.completedToday}/${res.dailyLimit} tasks today — come back tomorrow`;
+                document.getElementById('dailyTaskLimitLabel').textContent = `${res.completedToday}/${res.dailyLimit} done today`;
+            } else {
+                title.textContent = '😴 No Tasks Right Now';
+                subtitle.textContent = res.message || 'Check back again soon';
+            }
+            msgBox.classList.remove('hidden');
+            document.getElementById('dailyTaskPreview').textContent = 'No task available right now';
+            return;
+        }
+
+        if (typeof res.dailyLimit === 'number') {
+            document.getElementById('dailyTaskLimitLabel').textContent = `${res.completedToday}/${res.dailyLimit} done today`;
+        }
+
         document.getElementById('dailyTaskReward').textContent = `+${res.reward} DASH`;
 
         if (res.task_type === 'comment') {
@@ -372,12 +395,6 @@ async function loadDailyTask() {
             document.getElementById('dailyReactionEmoji').textContent = res.target_emoji;
             document.getElementById('dailyTaskPreview').textContent = `React ${res.target_emoji} · +${res.reward} DASH`;
             document.getElementById('dailyTask-reaction').classList.remove('hidden');
-        }
-
-        if (res.completed) {
-            document.getElementById('dailyTaskCompletedMsg').classList.remove('hidden');
-            document.getElementById('dailyTask-comment').classList.add('hidden');
-            document.getElementById('dailyTask-reaction').classList.add('hidden');
         }
 
     } catch (err) {
@@ -396,7 +413,10 @@ function goToGroup() {
 }
 
 function goToPost() {
-    secureFetch('/api/secure/daily-tasks/mark-pending-reaction', { method: 'POST' }).catch(() => {});
+    secureFetch('/api/secure/daily-tasks/mark-pending-reaction', {
+        method: 'POST',
+        body: JSON.stringify({ taskKey: todaysTask.task_key })
+    }).catch(() => {});
     window.open(todaysTask.post_direct_link, '_blank');
 }
 async function verifyReaction() {
@@ -404,10 +424,16 @@ async function verifyReaction() {
     btn.disabled = true;
     btn.textContent = '⏳...';
     try {
-        const res = await secureFetch('/api/secure/daily-tasks/verify-reaction', { method: 'POST' });
+        const res = await secureFetch('/api/secure/daily-tasks/verify-reaction', {
+            method: 'POST',
+            body: JSON.stringify({ taskKey: todaysTask.task_key })
+        });
         if (res.success) {
             showAppReward('✅ Verified!', `+${todaysTask.reward} DASH`);
             await updateHeaderBalances();
+            // Multiple tasks can be done per day now — load the next one
+            // (loadDailyTask itself shows the "limit reached" state if
+            // this was the last one they're allowed today).
             await loadDailyTask();
         } else {
             showAppAlert(res.message || 'Not detected yet — react first', 'info');
