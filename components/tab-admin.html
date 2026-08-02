@@ -121,15 +121,26 @@
         <textarea id="task-add-desc" rows="2" placeholder="Instructions (e.g. Follow, then enter your @username below)" class="w-full p-3 rounded-xl text-xs glass"></textarea>
         
         <div class="space-y-1">
-            <p class="text-[8px] text-slate-500 uppercase font-black ml-1">Task Icon (Optional)</p>
-            <div class="relative flex items-center justify-center w-full p-4 border border-dashed border-white/20 rounded-xl bg-black/20 hover:bg-white/5 transition-all">
-                <input id="task-add-image-file" type="file" accept="image/*" onchange="previewUploadedImage(this)" class="absolute inset-0 opacity-0 cursor-pointer z-10">
-                <div class="text-center flex items-center gap-3" id="task-add-upload-placeholder">
-                    <span class="text-xl">🖼️</span>
-                    <span class="text-xs font-bold text-slate-400" id="task-add-upload-text">Upload Image File</span>
-                </div>
-                <img id="task-add-image-preview" src="" class="hidden w-10 h-10 rounded-xl object-cover border border-white/10 ml-auto">
+            <p class="text-[8px] text-slate-500 uppercase font-black ml-1">Task Icon</p>
+            <div id="task-add-icon-auto-note" class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-300 font-bold flex items-center gap-2">
+                <img src="assets/icons/telegram.png" class="w-5 h-5 rounded">
+                Uses Telegram icon automatically
             </div>
+            <div id="task-add-icon-picker" class="hidden grid grid-cols-4 gap-2">
+                <button type="button" onclick="selectTaskIcon('add', 'twitter')" data-icon="twitter" class="task-add-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                    <img src="assets/icons/twitter.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">Twitter</span>
+                </button>
+                <button type="button" onclick="selectTaskIcon('add', 'youtube')" data-icon="youtube" class="task-add-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                    <img src="assets/icons/youtube.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">YouTube</span>
+                </button>
+                <button type="button" onclick="selectTaskIcon('add', 'instagram')" data-icon="instagram" class="task-add-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                    <img src="assets/icons/instagram.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">Instagram</span>
+                </button>
+                <button type="button" onclick="selectTaskIcon('add', 'tiktok')" data-icon="tiktok" class="task-add-icon-btn p-2 rounded-xl glass border border-white/10 flex flex-col items-center gap-1 transition-all">
+                    <img src="assets/icons/tiktok.png" class="w-6 h-6 rounded"><span class="text-[8px] font-bold">TikTok</span>
+                </button>
+            </div>
+            <input type="hidden" id="task-add-icon-value" value="">
         </div>
 
         <div class="flex gap-2">
@@ -145,19 +156,19 @@
             <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Task Type</p>
             <div class="grid grid-cols-2 gap-2">
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="auto" checked onchange="updateTaskAddDurationVisibility()" class="accent-blue-500">
+                    <input type="radio" name="task-add-verify-type" value="auto" checked onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-blue-500">
                     <span class="text-[10px] font-bold">Auto (Telegram)</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="manual" onchange="updateTaskAddDurationVisibility()" class="accent-indigo-500">
+                    <input type="radio" name="task-add-verify-type" value="manual" onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-indigo-500">
                     <span class="text-[10px] font-bold">Manual (Proof)</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="daily" onchange="updateTaskAddDurationVisibility()" class="accent-orange-500">
+                    <input type="radio" name="task-add-verify-type" value="daily" onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-orange-500">
                     <span class="text-[10px] font-bold">Daily (Resets)</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="custom" onchange="updateTaskAddDurationVisibility()" class="accent-purple-500">
+                    <input type="radio" name="task-add-verify-type" value="custom" onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-purple-500">
                     <span class="text-[10px] font-bold">Custom (Level-gated)</span>
                 </label>
             </div>
