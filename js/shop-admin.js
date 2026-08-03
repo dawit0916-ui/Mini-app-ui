@@ -30,10 +30,13 @@ async function loadAdminCourses() {
             <div class="glass p-3 rounded-xl border border-purple-500/20">
                 <div class="flex justify-between items-start mb-2">
                     <div class="flex-1">
-                        <h5 class="text-xs font-black text-white">${course.title}</h5>
+                        <h5 class="text-xs font-black text-white">${course.title}${course.active === false ? ' <span class="text-[8px] text-orange-400">(inactive)</span>' : ''}</h5>
                         <p class="text-[8px] text-slate-500">${course.category} • ${course.price} DASH</p>
                     </div>
-                    <button onclick="deleteAdminProduct('${course._id}')" class="text-[10px] text-red-400 hover:text-red-300">✕</button>
+                    <div class="flex gap-2">
+                        <button onclick="openShopEditDrawer('${course._id}', 'course')" class="text-[10px] text-blue-400 hover:text-blue-300">Edit</button>
+                        <button onclick="deleteAdminProduct('${course._id}')" class="text-[10px] text-red-400 hover:text-red-300">✕</button>
+                    </div>
                 </div>
                 <button onclick="openAdminLessonModal('${course._id}')" class="w-full py-2 bg-purple-600/50 text-purple-300 rounded-lg text-[9px] font-black uppercase active:scale-95 transition-all">
                     ➕ Add Lesson
@@ -102,12 +105,15 @@ async function addAdminLesson() {
             return;
         }
 
-        const res = await secureFetch('/api/admin/shop/lesson/add', 'POST', {
-            courseId: shopState.adminCourseId,
-            moduleName,
-            lessonName,
-            telegram_file_id,
-            duration
+        const res = await secureFetch('/api/admin/shop/lesson/add', {
+            method: 'POST',
+            body: JSON.stringify({
+                courseId: shopState.adminCourseId,
+                moduleName,
+                lessonName,
+                telegram_file_id,
+                duration
+            })
         });
 
         if (res.success) {
@@ -133,10 +139,13 @@ async function loadAdminAPKs() {
             <div class="glass p-3 rounded-xl border border-blue-500/20">
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
-                        <h5 class="text-xs font-black text-white">${apk.title}</h5>
+                        <h5 class="text-xs font-black text-white">${apk.title}${apk.active === false ? ' <span class="text-[8px] text-orange-400">(inactive)</span>' : ''}</h5>
                         <p class="text-[8px] text-slate-500">${apk.price} DASH</p>
                     </div>
-                    <button onclick="deleteAdminProduct('${apk._id}')" class="text-[10px] text-red-400 hover:text-red-300">✕</button>
+                    <div class="flex gap-2">
+                        <button onclick="openShopEditDrawer('${apk._id}', 'apk')" class="text-[10px] text-blue-400 hover:text-blue-300">Edit</button>
+                        <button onclick="deleteAdminProduct('${apk._id}')" class="text-[10px] text-red-400 hover:text-red-300">✕</button>
+                    </div>
                 </div>
             </div>
         `).join('');
@@ -202,17 +211,104 @@ async function loadShopStats() {
 
 // Delete product
 async function deleteAdminProduct(productId) {
-    if (!confirm('Delete this product?')) return;
-    
+    showAppConfirm('Delete this product? This also removes any lessons attached to it.', async (confirmed) => {
+        if (!confirmed) return;
+        try {
+            const res = await secureFetch(`/api/admin/shop/product/${productId}`, { method: 'DELETE' });
+            if (res.success) {
+                showNotificationToast('Product deleted', 'success');
+                loadAdminCourses();
+                loadAdminAPKs();
+            }
+        } catch (err) {
+            showNotificationToast(err.error || 'Failed to delete', 'error');
+        }
+    });
+}
+
+let currentEditingShopProductId = null;
+
+async function openShopEditDrawer(productId, type) {
     try {
-        const res = await secureFetch(`/api/admin/shop/product/${productId}`, { method: 'DELETE' });
+        // Works for both courses and APKs — it's just findById under the hood
+        const res = await secureFetch(`/api/admin/shop/course/${productId}`, { method: 'GET' });
+        if (!res.success) return showNotificationToast('Failed to load product', 'error');
+
+        const product = res.course;
+        currentEditingShopProductId = productId;
+
+        document.getElementById('edit-shop-type-label').textContent = type === 'apk' ? 'APK' : 'Course';
+        document.getElementById('edit-shop-display-id').textContent = productId;
+        document.getElementById('edit-shop-title').value = product.title || '';
+        document.getElementById('edit-shop-desc').value = product.description || '';
+        document.getElementById('edit-shop-category').value = product.category || '';
+        document.getElementById('edit-shop-price').value = product.price || 0;
+        document.getElementById('edit-shop-thumbnail').value = product.thumbnail || '';
+        document.getElementById('edit-shop-active').checked = product.active !== false;
+
+        const fileIdWrap = document.getElementById('edit-shop-fileid-wrap');
+        if (type === 'apk') {
+            fileIdWrap.classList.remove('hidden');
+            document.getElementById('edit-shop-fileid').value = product.telegram_file_id || '';
+        } else {
+            fileIdWrap.classList.add('hidden');
+        }
+
+        document.getElementById('admin-shop-edit-drawer').classList.add('active');
+    } catch (err) {
+        console.error('openShopEditDrawer error:', err);
+        showNotificationToast('Failed to load product', 'error');
+    }
+}
+
+function closeShopEditDrawer() {
+    document.getElementById('admin-shop-edit-drawer').classList.remove('active');
+    currentEditingShopProductId = null;
+}
+
+async function saveShopEdit() {
+    if (!currentEditingShopProductId) return;
+
+    const fileIdWrap = document.getElementById('edit-shop-fileid-wrap');
+    const isApk = !fileIdWrap.classList.contains('hidden');
+
+    const updates = {
+        title: document.getElementById('edit-shop-title').value,
+        description: document.getElementById('edit-shop-desc').value,
+        category: document.getElementById('edit-shop-category').value,
+        price: parseFloat(document.getElementById('edit-shop-price').value) || 0,
+        thumbnail: document.getElementById('edit-shop-thumbnail').value,
+        active: document.getElementById('edit-shop-active').checked
+    };
+    if (isApk) {
+        updates.telegram_file_id = document.getElementById('edit-shop-fileid').value;
+    }
+
+    const btn = document.getElementById('btn-save-shop-edit');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    try {
+        const res = await secureFetch(`/api/admin/shop/product/${currentEditingShopProductId}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates)
+        });
+
         if (res.success) {
-            showNotificationToast('Product deleted', 'success');
+            tg.HapticFeedback.notificationOccurred('success');
+            showNotificationToast('Product updated', 'success');
+            closeShopEditDrawer();
             loadAdminCourses();
             loadAdminAPKs();
+        } else {
+            showNotificationToast(res.error || 'Failed to update', 'error');
         }
     } catch (err) {
-        showNotificationToast(err.error || 'Failed to delete', 'error');
+        console.error('saveShopEdit error:', err);
+        showNotificationToast('Failed to save changes', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Changes';
     }
 }
 
