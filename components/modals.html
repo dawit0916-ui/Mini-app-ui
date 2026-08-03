@@ -439,3 +439,56 @@ Enhanced with touch barrier, custom controls, and anti-download measures
             </button>
         </div>
     </div>
+
+    <!-- ===== ADMIN: SHOP PRODUCT EDIT DRAWER ===== -->
+    <div id="admin-shop-edit-drawer" class="sheet-backdrop" onclick="if(event.target===this) closeShopEditDrawer()">
+        <div class="sheet-drawer sheet-drawer-fullscreen">
+            <div class="sheet-handle"></div>
+
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="sheet-title">Edit <span id="edit-shop-type-label">Product</span></h3>
+                    <p class="sheet-subtitle">ID: <span id="edit-shop-display-id">—</span></p>
+                </div>
+                <button onclick="closeShopEditDrawer()" class="sheet-close">✕</button>
+            </div>
+
+            <div class="space-y-3 mb-4">
+                <input id="edit-shop-title" type="text" placeholder="Title" class="w-full p-3 rounded-xl text-xs glass">
+                <textarea id="edit-shop-desc" rows="2" placeholder="Description" class="w-full p-3 rounded-xl text-xs glass"></textarea>
+
+                <div class="flex gap-2">
+                    <input id="edit-shop-category" type="text" placeholder="Category" class="flex-1 p-3 rounded-xl text-xs glass">
+                    <input id="edit-shop-price" type="number" step="1" placeholder="Price" class="w-1/3 p-3 rounded-xl text-xs glass">
+                </div>
+
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Thumbnail Filename</p>
+                    <input id="edit-shop-thumbnail" type="text" placeholder="e.g. crypto101.png" class="w-full p-3 rounded-xl text-xs glass">
+                </div>
+
+                <div id="edit-shop-fileid-wrap" class="hidden">
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Telegram File ID</p>
+                    <input id="edit-shop-fileid" type="text" placeholder="APK file_id from the bot" class="w-full p-3 rounded-xl text-xs glass">
+                </div>
+
+                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
+                    <div>
+                        <p class="text-xs font-bold text-green-300">Active</p>
+                        <p class="text-[9px] text-slate-500">Inactive products are hidden from the shop</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="edit-shop-active" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:bg-green-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+            </div>
+
+            <button id="btn-save-shop-edit" onclick="saveShopEdit()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
+                💾 Save Changes
+            </button>
+            <button onclick="closeShopEditDrawer()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
+                Close
+            </button>
+        </div>
+    </div>
