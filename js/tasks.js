@@ -348,9 +348,9 @@ async function loadAvailableTasks() {
                     <div class="p-4 flex justify-between items-center gap-3">
                         <div class="flex items-center gap-4 min-w-0">
                             ${task.image ? `
-                                <img src="${task.image}" class="w-10 h-10 rounded-xl object-cover border border-white/10 shrink-0">
+                                <img src="${task.image}" class="w-12 h-12 rounded-full object-cover border border-white/10 shrink-0">
                             ` : `
-                                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl shrink-0">
+                                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-xl shrink-0">
                                     ${isDaily ? '📅' : (isManual ? '📢' : '🔗')}
                                 </div>
                             `}
