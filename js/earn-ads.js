@@ -552,6 +552,8 @@ async function loadAndShowAdsgram() {
     const remainingLabel = document.getElementById('fast-task-remaining');
     if (!container) return;
 
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Loading...</p>';
+
     try {
         const cfg = await secureFetch('/api/secure/fast-task-config');
 
