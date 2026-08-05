@@ -543,41 +543,46 @@ async function loadAdsWatchList() {
     }
 }
 /* ============================================================
-   FAST TASK WIDGET - CARD-BASED LAYOUT (MATCHING ADS STYLE)
+   FAST TASK WIDGET - AdsGram task widget, Level 2+, 3 claims/day
    ============================================================ */
-let _fastTaskWidgetMounted = false;
 let _fastTaskConfigCache = null;
+
 async function loadAndShowAdsgram() {
-    const container = document.getElementById('adsgram-container');
+    const container = document.getElementById('fast-task-widget-container');
     const remainingLabel = document.getElementById('fast-task-remaining');
-    
+    if (!container) return;
+
     try {
         const cfg = await secureFetch('/api/secure/fast-task-config');
+
         if (!cfg || !cfg.success) {
-            container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Failed to load config.</p>';
+            if (cfg?.unlocksAtLevel) {
+                if (remainingLabel) remainingLabel.innerText = `🔒 Lvl ${cfg.unlocksAtLevel}`;
+                container.innerHTML = `
+                    <button onclick="showLevelLockedOverlay(${cfg.unlocksAtLevel}, 'Fast Task unlocks at Level ${cfg.unlocksAtLevel}. Upgrade now!')"
+                        class="w-full text-center text-[10px] text-yellow-300 py-3 border border-yellow-500/20 rounded-xl bg-yellow-500/5 active:scale-95 transition-all">
+                        🔒 Unlocks at Level ${cfg.unlocksAtLevel} — Tap to upgrade
+                    </button>`;
+            } else {
+                container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Failed to load Fast Task.</p>';
+            }
             return;
         }
 
         _fastTaskConfigCache = cfg;
 
-        if (!cfg.enabled) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Fast Tasks disabled.</p>';
-            return;
-        }
-
-        if (!cfg.blockId) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Not configured yet.</p>';
+        if (!cfg.enabled || !cfg.blockId) {
+            if (remainingLabel) remainingLabel.innerText = '';
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Not available right now.</p>';
             return;
         }
 
         if (remainingLabel) {
-            remainingLabel.innerText = cfg.claimsRemainingToday === null
-                ? ''
-                : `${cfg.claimsRemainingToday} left today`;
+            remainingLabel.innerText = `${cfg.claimsRemainingToday}/${cfg.dailyLimit} left · +${cfg.reward} each`;
         }
 
-        if (cfg.dailyLimit && cfg.claimsRemainingToday === 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Daily limit reached. Come back tomorrow!</p>';
+        if (cfg.claimsRemainingToday <= 0) {
+            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">✅ Daily limit reached. Come back tomorrow!</p>';
             return;
         }
 
@@ -595,5 +600,28 @@ async function loadAndShowAdsgram() {
     } catch (err) {
         console.error('Adsgram load error:', err);
         container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Network error.</p>';
+    }
+}
+
+// Fires when the AdsGram task widget confirms the user completed the task.
+async function onFastTaskReward() {
+    try {
+        const res = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showAppReward(`⚡ +${res.reward} DASH!`, 'Fast Task complete');
+            updateHeaderBalances(res.newBalance);
+        } else if (res.unlocksAtLevel) {
+            showLevelLockedOverlay(res.unlocksAtLevel, res.error);
+        } else {
+            showNotificationToast(res.error || 'Could not record reward', 'error');
+        }
+    } catch (err) {
+        console.error('Fast task claim error:', err);
+        showNotificationToast('Network error claiming reward', 'error');
+    } finally {
+        // Refresh remaining count / reload next widget instance either way
+        loadAndShowAdsgram();
     }
 }
