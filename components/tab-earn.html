@@ -7,6 +7,22 @@
             <p class="text-xs text-slate-400">Pick a way to earn DASH</p>
         </div>
 
+        <!-- Fast Task (AdsGram) — featured, always at the top -->
+        <div id="fast-task-card" class="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-950/40 to-orange-950/20 p-5 mb-4 backdrop-blur-xl">
+            <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-yellow-500/15 blur-xl"></div>
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-yellow-500/15 border border-yellow-500/20 flex items-center justify-center text-2xl shrink-0">⚡</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-base font-black text-white">Fast Task</h3>
+                    <p class="text-[11px] text-slate-400">Quick tasks, instant rewards</p>
+                </div>
+                <span id="fast-task-remaining" class="text-[10px] font-black text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full whitespace-nowrap"></span>
+            </div>
+            <div id="fast-task-widget-container" class="min-h-[64px] flex items-center justify-center">
+                <p class="text-center text-[10px] text-slate-500 py-3">Loading...</p>
+            </div>
+        </div>
+
         <!-- Banner: YouTube Tasks -->
         <button onclick="openEarnSection('youtube')" class="w-full text-left relative overflow-hidden rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-950/40 to-rose-950/20 p-5 mb-4 backdrop-blur-xl active:scale-[0.98] transition-all">
             <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-red-500/15 blur-xl"></div>
