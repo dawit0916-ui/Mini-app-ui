@@ -25,6 +25,7 @@ if (btn) {
     tg.HapticFeedback.selectionChanged();
     
     if(tabId === 'home') loadAvailableTasks();
+    if(tabId === 'earn') loadAndShowAdsgram();
     if(tabId === 'history') loadUserHistory();
     if(tabId === 'friends') loadReferralData();
     if(tabId === 'admin') loadAdminData();
@@ -72,7 +73,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-payouts') loadPendingWithdrawals();
                     if (panelId === 'panel-proofs') loadPendingProofs();       
                     if (panelId === 'panel-task-manager') loadAdminTaskList();
-                    if (panelId === 'panel-settings') { loadAdminData(); loadAdminSettings(); loadFastTaskAdminPanel(); }
+                    if (panelId === 'panel-settings') { loadAdminData(); loadAdminSettings(); }
                     if (panelId === 'panel-support') loadAdminTickets('open');
                     if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-ad-manager') loadAdminAds();
