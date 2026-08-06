@@ -8,6 +8,42 @@
         </div>
 
         <!-- Fast Task (AdsGram) — featured, always at the top -->
+        <style>
+            #fast-task-widget-container adsgram-task {
+                --adsgram-task-font-size: 12px;
+                --adsgram-task-icon-size: 40px;
+                --adsgram-task-icon-title-gap: 10px;
+                --adsgram-task-icon-border-radius: 12px;
+                --adsgram-task-button-width: 92px;
+                width: 100%;
+                color: #fff;
+            }
+            .fast-task-slot-btn {
+                background: linear-gradient(135deg, #f59e0b, #ea580c);
+                color: #fff;
+                font-size: 10px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                padding: 8px 14px;
+                border-radius: 10px;
+                border: none;
+                transition: transform 0.15s ease;
+            }
+            .fast-task-slot-btn:active { transform: scale(0.95); }
+            .fast-task-slot-reward {
+                font-size: 11px;
+                font-weight: 900;
+                color: #facc15;
+            }
+            .fast-task-slot-done {
+                font-size: 10px;
+                font-weight: 900;
+                color: #4ade80;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+        </style>
         <div id="fast-task-card" class="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-950/40 to-orange-950/20 p-5 mb-4 backdrop-blur-xl">
             <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-yellow-500/15 blur-xl"></div>
             <div class="flex items-center gap-3 mb-3">
@@ -17,7 +53,7 @@
                     <p class="text-[11px] text-slate-400">Quick tasks, instant rewards</p>
                 </div>
                 <span id="fast-task-remaining" class="text-[10px] font-black text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full whitespace-nowrap"></span>
-                <button onclick="loadAndShowAdsgram()" class="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-sm active:scale-90 active:rotate-180 transition-all shrink-0" title="Refresh">🔄</button>
+                <button id="fast-task-refresh-btn" onclick="refreshFastTaskWidget()" class="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-sm active:scale-90 transition-all shrink-0" title="Refresh">🔄</button>
             </div>
             <div id="fast-task-widget-container" class="min-h-[64px] flex items-center justify-center">
                 <p class="text-center text-[10px] text-slate-500 py-3">Loading...</p>
