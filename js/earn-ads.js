@@ -673,7 +673,18 @@ async function loadAndShowAdsgram() {
 }
 
 // Fires when the AdsGram task widget confirms the user completed the task.
+let _fastTaskClaimInFlight = false;
+
 async function onFastTaskReward() {
+    // AdsGram's widget can fire 'reward' more than once for the same
+    // completion (re-renders, duplicate event dispatch). Without this
+    // guard, two near-simultaneous requests both read the same "claims so
+    // far" count before either saves, race to claim the same slot, and the
+    // loser gets a hard 500 — which is exactly the "Failed to record
+    // claim" while the counter never moves that was being seen.
+    if (_fastTaskClaimInFlight) return;
+    _fastTaskClaimInFlight = true;
+
     try {
         const res = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
 
@@ -690,6 +701,7 @@ async function onFastTaskReward() {
         console.error('Fast task claim error:', err);
         showNotificationToast('Network error claiming reward', 'error');
     } finally {
+        _fastTaskClaimInFlight = false;
         // Refresh remaining count / reload next widget instance either way
         loadAndShowAdsgram();
     }
