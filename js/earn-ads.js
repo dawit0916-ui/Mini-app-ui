@@ -546,6 +546,41 @@ async function loadAdsWatchList() {
    FAST TASK WIDGET - AdsGram task widget, Level 2+, 3 claims/day
    ============================================================ */
 let _fastTaskConfigCache = null;
+let _fastTaskRefreshCooldown = false;
+
+// Debounced wrapper for the refresh button — AdsGram needs a moment to
+// actually fetch fresh inventory, and spamming the button doesn't help.
+// Disables the button and shows a countdown for a few seconds after each tap.
+function refreshFastTaskWidget() {
+    if (_fastTaskRefreshCooldown) return;
+    _fastTaskRefreshCooldown = true;
+
+    const btn = document.getElementById('fast-task-refresh-btn');
+    let secondsLeft = 5;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-40');
+        btn.innerText = secondsLeft;
+    }
+
+    loadAndShowAdsgram();
+
+    const countdown = setInterval(() => {
+        secondsLeft--;
+        if (btn && secondsLeft > 0) {
+            btn.innerText = secondsLeft;
+        } else {
+            clearInterval(countdown);
+            _fastTaskRefreshCooldown = false;
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-40');
+                btn.innerText = '🔄';
+            }
+        }
+    }, 1000);
+}
 
 async function loadAndShowAdsgram() {
     const container = document.getElementById('fast-task-widget-container');
@@ -593,9 +628,41 @@ async function loadAndShowAdsgram() {
         const widget = document.createElement('adsgram-task');
         widget.setAttribute('data-block-id', cfg.blockId);
 
+        // Slots let us skin the widget's button/reward/done states to match
+        // the app instead of AdsGram's default look — see their docs:
+        // https://docs.adsgram.ai/publisher/task-integration-example
+        const rewardSlot = document.createElement('span');
+        rewardSlot.setAttribute('slot', 'reward');
+        rewardSlot.className = 'fast-task-slot-reward';
+        rewardSlot.textContent = `+${cfg.reward} DASH`;
+
+        const buttonSlot = document.createElement('button');
+        buttonSlot.setAttribute('slot', 'button');
+        buttonSlot.className = 'fast-task-slot-btn';
+        buttonSlot.textContent = 'Complete';
+
+        const claimSlot = document.createElement('button');
+        claimSlot.setAttribute('slot', 'claim');
+        claimSlot.className = 'fast-task-slot-btn';
+        claimSlot.textContent = 'Claim';
+
+        const doneSlot = document.createElement('span');
+        doneSlot.setAttribute('slot', 'done');
+        doneSlot.className = 'fast-task-slot-done';
+        doneSlot.textContent = '✅ Done';
+
+        widget.append(rewardSlot, buttonSlot, claimSlot, doneSlot);
+
         widget.addEventListener('reward', onFastTaskReward);
         widget.addEventListener('onBannerNotFound', () => {
             container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">No tasks available right now. Come back later.</p>';
+        });
+        widget.addEventListener('onError', (e) => {
+            console.error('AdsGram task widget error:', e);
+            container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Ad failed to load. Try refreshing.</p>';
+        });
+        widget.addEventListener('onTooLongSession', () => {
+            container.innerHTML = '<p class="text-center text-[10px] text-orange-400 py-3">Session expired — please reopen the app.</p>';
         });
         container.appendChild(widget);
 
