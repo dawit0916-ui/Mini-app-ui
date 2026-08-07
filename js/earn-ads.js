@@ -547,6 +547,8 @@ async function loadAdsWatchList() {
    ============================================================ */
 let _fastTaskConfigCache = null;
 let _fastTaskRefreshCooldown = false;
+let _fastTaskNextAvailableAt = 0; // timestamp; 0 = no cooldown active
+let _fastTaskCountdownInterval = null;
 
 // Debounced wrapper for the refresh button — AdsGram needs a moment to
 // actually fetch fresh inventory, and spamming the button doesn't help.
@@ -582,10 +584,44 @@ function refreshFastTaskWidget() {
     }, 1000);
 }
 
+// Shows a live "next task in MM:SS" countdown in place of the widget, and
+// automatically loads the next task once it hits zero.
+function showFastTaskCooldown(container, remainingLabel) {
+    if (_fastTaskCountdownInterval) clearInterval(_fastTaskCountdownInterval);
+
+    const render = () => {
+        const msLeft = _fastTaskNextAvailableAt - Date.now();
+        if (msLeft <= 0) {
+            clearInterval(_fastTaskCountdownInterval);
+            _fastTaskCountdownInterval = null;
+            _fastTaskNextAvailableAt = 0;
+            loadAndShowAdsgram();
+            return;
+        }
+        const totalSeconds = Math.ceil(msLeft / 1000);
+        const mm = Math.floor(totalSeconds / 60);
+        const ss = String(totalSeconds % 60).padStart(2, '0');
+        container.innerHTML = `<p class="text-center text-[10px] text-yellow-300/80 py-3">⏳ Next task in ${mm}:${ss}</p>`;
+        if (remainingLabel && _fastTaskConfigCache) {
+            remainingLabel.innerText = `${_fastTaskConfigCache.claimsRemainingToday}/${_fastTaskConfigCache.dailyLimit} left · +${_fastTaskConfigCache.reward} each`;
+        }
+    };
+
+    render();
+    _fastTaskCountdownInterval = setInterval(render, 1000);
+}
+
 async function loadAndShowAdsgram() {
     const container = document.getElementById('fast-task-widget-container');
     const remainingLabel = document.getElementById('fast-task-remaining');
     if (!container) return;
+
+    // Still cooling down from the last claim — show the countdown instead
+    // of hitting the server again.
+    if (_fastTaskNextAvailableAt > Date.now()) {
+        showFastTaskCooldown(container, remainingLabel);
+        return;
+    }
 
     container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Loading...</p>';
 
@@ -593,16 +629,7 @@ async function loadAndShowAdsgram() {
         const cfg = await secureFetch('/api/secure/fast-task-config');
 
         if (!cfg || !cfg.success) {
-            if (cfg?.unlocksAtLevel) {
-                if (remainingLabel) remainingLabel.innerText = `🔒 Lvl ${cfg.unlocksAtLevel}`;
-                container.innerHTML = `
-                    <button onclick="showLevelLockedOverlay(${cfg.unlocksAtLevel}, 'Fast Task unlocks at Level ${cfg.unlocksAtLevel}. Upgrade now!')"
-                        class="w-full text-center text-[10px] text-yellow-300 py-3 border border-yellow-500/20 rounded-xl bg-yellow-500/5 active:scale-95 transition-all">
-                        🔒 Unlocks at Level ${cfg.unlocksAtLevel} — Tap to upgrade
-                    </button>`;
-            } else {
-                container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Failed to load Fast Task.</p>';
-            }
+            container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Failed to load Fast Task.</p>';
             return;
         }
 
@@ -643,7 +670,7 @@ async function loadAndShowAdsgram() {
 
         const claimSlot = document.createElement('button');
         claimSlot.setAttribute('slot', 'claim');
-        claimSlot.className = 'fast-task-slot-btn';
+        claimSlot.className = 'fast-task-slot-btn fast-task-slot-claim';
         claimSlot.textContent = 'Claim';
 
         const doneSlot = document.createElement('span');
@@ -674,6 +701,7 @@ async function loadAndShowAdsgram() {
 
 // Fires when the AdsGram task widget confirms the user completed the task.
 let _fastTaskClaimInFlight = false;
+const FAST_TASK_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes between claims
 
 async function onFastTaskReward() {
     // AdsGram's widget can fire 'reward' more than once for the same
@@ -692,8 +720,11 @@ async function onFastTaskReward() {
             tg.HapticFeedback.notificationOccurred('success');
             showAppReward(`⚡ +${res.reward} DASH!`, 'Fast Task complete');
             updateHeaderBalances(res.newBalance);
-        } else if (res.unlocksAtLevel) {
-            showLevelLockedOverlay(res.unlocksAtLevel, res.error);
+            if (_fastTaskConfigCache) _fastTaskConfigCache.claimsRemainingToday = res.claimsRemainingToday;
+            // Give AdsGram a moment before asking for the next task instead
+            // of immediately re-requesting — smoother load, and avoids
+            // hammering their inventory right after every single claim.
+            _fastTaskNextAvailableAt = Date.now() + FAST_TASK_COOLDOWN_MS;
         } else {
             showNotificationToast(res.error || 'Could not record reward', 'error');
         }
@@ -702,7 +733,6 @@ async function onFastTaskReward() {
         showNotificationToast('Network error claiming reward', 'error');
     } finally {
         _fastTaskClaimInFlight = false;
-        // Refresh remaining count / reload next widget instance either way
         loadAndShowAdsgram();
     }
 }
