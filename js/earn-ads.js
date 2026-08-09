@@ -680,7 +680,7 @@ async function loadAndShowAdsgram() {
 
         widget.append(rewardSlot, buttonSlot, claimSlot, doneSlot);
 
-        widget.addEventListener('reward', onFastTaskReward);
+        widget.addEventListener('onReward', onFastTaskReward);
         widget.addEventListener('onBannerNotFound', () => {
             container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">No tasks available right now. Come back later.</p>';
         });
