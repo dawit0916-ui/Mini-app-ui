@@ -1,4 +1,3 @@
-
 // Optional: load preview text on Earn tab open too, so banner shows live info
 /* ============================================================
    YOUTUBE TASKS — LIST VIEW
@@ -183,18 +182,40 @@ async function loadAdminYoutubeTaskList() {
         }
 
         container.innerHTML = tasks.map(t => `
-            <div class="glass p-3 flex justify-between items-center border-white/5">
+            <div class="glass p-3 flex justify-between items-center border-white/5 ${t.enabled === false ? 'opacity-50' : ''}">
                 <div class="min-w-0">
                     <p class="text-xs font-bold truncate">${t.title}</p>
                     <p class="text-[9px] text-green-400">+${t.reward} DASH · ${(t.claimedBy || []).length} claimed</p>
                     <p class="text-[9px] text-slate-500 font-mono">Code: ${t.code}</p>
                 </div>
-                <button onclick="deleteYoutubeTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase shrink-0">Delete</button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" onchange="toggleYoutubeTask('${t.id}', this.checked)" ${t.enabled !== false ? 'checked' : ''} class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-800 rounded-full peer peer-checked:bg-green-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                    </label>
+                    <button onclick="deleteYoutubeTask('${t.id}')" class="bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] px-3 py-1 rounded-lg font-black uppercase">Delete</button>
+                </div>
             </div>
         `).join('');
 
     } catch (e) {
         container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load.</p>';
+    }
+}
+
+async function toggleYoutubeTask(id, enabled) {
+    try {
+        const res = await secureFetch('/api/admin/youtube-tasks/toggle', {
+            method: 'POST',
+            body: JSON.stringify({ id, enabled })
+        });
+        if (!res || !res.success) {
+            showNotificationToast(res?.error || 'Failed to update task', 'error');
+            loadAdminYoutubeTaskList(); // revert visual state on failure
+        }
+    } catch (err) {
+        showNotificationToast('Failed to update task', 'error');
+        loadAdminYoutubeTaskList();
     }
 }
 async function deleteYoutubeTask(id) {
