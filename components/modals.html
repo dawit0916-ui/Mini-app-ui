@@ -88,31 +88,38 @@
         <div class="sheet-handle"></div>
         
         <div class="flex justify-between items-start mb-4">
-            <h3 class="sheet-title">Add Lesson</h3>
+            <h3 class="sheet-title">Manage Lessons</h3>
             <button onclick="closeAdminLessonModal()" class="sheet-close">✕</button>
         </div>
- 
-        <div class="space-y-3">
-            <div>
-                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Module Name</p>
-                <input id="admin-lesson-module" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Module 1: Getting Started">
+
+        <div id="admin-lesson-existing-list" class="space-y-2 mb-4">
+            <p class="text-center text-[10px] text-slate-500 py-3">Loading...</p>
+        </div>
+
+        <div class="border-t border-white/10 pt-4">
+            <p class="text-[9px] text-slate-500 uppercase font-black mb-3 tracking-widest">Add New Lesson</p>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Module Name</p>
+                    <input id="admin-lesson-module" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Module 1: Getting Started">
+                </div>
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Lesson Name</p>
+                    <input id="admin-lesson-name" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Setting Up Your Account">
+                </div>
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Telegram File ID</p>
+                    <input id="admin-lesson-file-id" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Paste file_id here">
+                    <p class="text-[8px] text-slate-400 mt-1">Send video to bot, it will reply with file_id</p>
+                </div>
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Duration</p>
+                    <input id="admin-lesson-duration" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., 12:45">
+                </div>
+                <button onclick="addAdminLesson()" class="w-full py-3 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all">
+                    Add Lesson
+                </button>
             </div>
-            <div>
-                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Lesson Name</p>
-                <input id="admin-lesson-name" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., Setting Up Your Account">
-            </div>
-            <div>
-                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Telegram File ID</p>
-                <input id="admin-lesson-file-id" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="Paste file_id here">
-                <p class="text-[8px] text-slate-400 mt-1">Send video to bot, it will reply with file_id</p>
-            </div>
-            <div>
-                <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Duration</p>
-                <input id="admin-lesson-duration" type="text" class="w-full p-2 rounded-xl text-xs glass" placeholder="e.g., 12:45">
-            </div>
-            <button onclick="addAdminLesson()" class="w-full py-3 bg-purple-600 text-white rounded-xl text-xs font-black uppercase active:scale-95 transition-all">
-                Add Lesson
-            </button>
         </div>
     </div>
 </div>
