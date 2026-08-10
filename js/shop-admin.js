@@ -83,9 +83,50 @@ async function createAdminCourse() {
 }
 
 // Open lesson modal
-function openAdminLessonModal(courseId) {
+async function openAdminLessonModal(courseId) {
     shopState.adminCourseId = courseId;
     document.getElementById('admin-lesson-modal').classList.add('active');
+    await loadAdminLessonList(courseId);
+}
+
+async function loadAdminLessonList(courseId) {
+    const listEl = document.getElementById('admin-lesson-existing-list');
+    listEl.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Loading...</p>';
+    try {
+        const res = await secureFetch(`/api/admin/shop/course/${courseId}`, { method: 'GET' });
+        if (!res.success || !res.lessons || res.lessons.length === 0) {
+            listEl.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">No lessons yet</p>';
+            return;
+        }
+        listEl.innerHTML = res.lessons.map(lesson => `
+            <div class="glass p-2.5 rounded-xl border border-white/5 flex justify-between items-center">
+                <div class="min-w-0">
+                    <p class="text-[9px] text-slate-500 truncate">${lesson.moduleName}</p>
+                    <p class="text-xs font-bold text-white truncate">${lesson.lessonName}</p>
+                </div>
+                <button onclick="deleteAdminLesson('${lesson._id}', '${courseId}')" class="text-[10px] text-red-400 hover:text-red-300 shrink-0 ml-2">✕</button>
+            </div>
+        `).join('');
+    } catch (err) {
+        listEl.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Failed to load lessons</p>';
+    }
+}
+
+async function deleteAdminLesson(lessonId, courseId) {
+    showAppConfirm('Delete this lesson?', async (confirmed) => {
+        if (!confirmed) return;
+        try {
+            const res = await secureFetch(`/api/admin/shop/lesson/${lessonId}`, { method: 'DELETE' });
+            if (res.success) {
+                showNotificationToast('Lesson deleted', 'success');
+                loadAdminLessonList(courseId);
+            } else {
+                showNotificationToast(res.error || 'Failed to delete', 'error');
+            }
+        } catch (err) {
+            showNotificationToast('Failed to delete lesson', 'error');
+        }
+    });
 }
 
 function closeAdminLessonModal() {
@@ -118,11 +159,11 @@ async function addAdminLesson() {
 
         if (res.success) {
             showNotificationToast('Lesson added', 'success');
-            closeAdminLessonModal();
             document.getElementById('admin-lesson-module').value = '';
             document.getElementById('admin-lesson-name').value = '';
             document.getElementById('admin-lesson-file-id').value = '';
             document.getElementById('admin-lesson-duration').value = '';
+            loadAdminLessonList(shopState.adminCourseId);
         }
     } catch (err) {
         showNotificationToast(err.error || 'Failed to add lesson', 'error');
