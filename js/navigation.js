@@ -52,7 +52,8 @@ function switchAdminPanel(panelId) {
         'panel-shop-manager',
         'panel-console',
         'panel-support',
-        'panel-ad-manager'
+        'panel-ad-manager',
+        'panel-levels'
     ];
     
     if (panelId === 'hub') {
@@ -77,6 +78,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-support') loadAdminTickets('open');
                     if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-ad-manager') loadAdminAds();
+                    if (panelId === 'panel-levels') loadAdminLevelsConfig();
                     if (panelId === 'panel-shop-manager') loadAdminCourses();
                     if (panelId === 'panel-console') conStartBackendStream();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
