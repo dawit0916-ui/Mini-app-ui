@@ -499,3 +499,87 @@ Enhanced with touch barrier, custom controls, and anti-download measures
             </button>
         </div>
     </div>
+
+    <!-- ===== ADMIN: LEVEL CONFIG EDIT DRAWER ===== -->
+    <div id="admin-level-edit-drawer" class="sheet-backdrop" onclick="if(event.target===this) closeLevelConfigDrawer()">
+        <div class="sheet-drawer sheet-drawer-fullscreen">
+            <div class="sheet-handle"></div>
+
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="sheet-title">Edit Level <span id="edit-level-number">1</span></h3>
+                    <p class="sheet-subtitle">Price, rewards & perks for this level</p>
+                </div>
+                <button onclick="closeLevelConfigDrawer()" class="sheet-close">✕</button>
+            </div>
+
+            <div class="space-y-3 mb-4">
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Level Name</p>
+                    <input id="edit-level-name" type="text" class="w-full p-3 rounded-xl text-xs glass">
+                </div>
+                <div>
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Price (DASH)</p>
+                    <input id="edit-level-cost" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass">
+                </div>
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Daily Task Reward</p>
+                        <input id="edit-level-daily-reward" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass">
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Daily Task Limit</p>
+                        <input id="edit-level-daily-limit" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass">
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Commission %</p>
+                        <input id="edit-level-commission" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass">
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Course Discount Factor</p>
+                        <input id="edit-level-discount" type="number" step="1" class="w-full p-3 rounded-xl text-xs glass">
+                        <p class="text-[8px] text-slate-500 mt-1">100 = no discount, 80 = 20% off, 60 = 40% off, etc.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Features Unlocked at This Level</p>
+                <div class="grid grid-cols-2 gap-2" id="edit-level-features-grid">
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="daily_tasks" class="edit-level-feature-cb accent-cyan-500"> Daily Tasks
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="custom_tasks" class="edit-level-feature-cb accent-cyan-500"> Custom Tasks
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="weekly_tasks" class="edit-level-feature-cb accent-cyan-500"> Weekly Tasks
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="monthly_tasks" class="edit-level-feature-cb accent-cyan-500"> Monthly Tasks
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="three_month_tasks" class="edit-level-feature-cb accent-cyan-500"> 3-Month Tasks
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="analytics" class="edit-level-feature-cb accent-cyan-500"> Analytics
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="youtube_tasks" class="edit-level-feature-cb accent-cyan-500"> YouTube Tasks
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                        <input type="checkbox" value="priority_support" class="edit-level-feature-cb accent-cyan-500"> Priority Support
+                    </label>
+                </div>
+            </div>
+
+            <button id="btn-save-level-config" onclick="saveLevelConfig()" class="w-full btn-premium py-4 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98] mb-3">
+                💾 Save Changes
+            </button>
+            <button onclick="closeLevelConfigDrawer()" class="w-full glass py-3 rounded-xl font-bold text-xs text-slate-300 active:scale-[0.98] transition-all">
+                Close
+            </button>
+        </div>
+    </div>
