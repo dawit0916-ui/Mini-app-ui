@@ -24,7 +24,7 @@ FAST_TASK_ADSGRAM_BLOCK_ID=task-00000   # AdsGram dashboard → Blocks → Task 
 MAINTENANCE_ENABLED=false
 MAINTENANCE_BYPASS_IDS=111111111
 MAINTENANCE_METADATA={"message":"Upgrading, back soon.","targetTime":0,"accentAsset":"🛠️"}
-Section 2: Complete File Tree
+# Section 2: Complete File Tree
 Backend — server/
 server/
 ├── index.js                  — entry point: express app, mounts all 21 routers (adsgram router
@@ -107,7 +107,7 @@ server/
     ├── video.js                    — secure course video streaming
     └── shop.js                     — course/APK browse+purchase (level-based discount applied
                                        at checkout), admin CRUD incl. lesson delete
-Frontend — component/JS split
+# Frontend — component/JS split
 index.html                 — shell: mount points only, loads css/*, then js/loader.js
 js/loader.js                — fetches all components/*.html in parallel, injects, THEN loads all
                                js/*.js in strict order, THEN calls initApp()
@@ -144,7 +144,7 @@ js/*.js                      — 23 files, load order matters (loader.js SCRIPTS
   admin-proofs.js
   broadcast.js            — rich-text toolbar (bold/italic/underline/strike/bullet/link),
                             image attach, inline button
-Section 3: Database Models (key ones — see file tree above for full list)
+# Section 3: Database Models (key ones — see file tree above for full list)
 // User (models/user.js) — abbreviated to fields referenced elsewhere in this doc
 {
   user_id: Number, username: String, first_name: String,
@@ -189,7 +189,7 @@ Section 3: Database Models (key ones — see file tree above for full list)
   ref_commission_percent (default 10, used as fallback when referrer has no level),
   ref_bonus_amount, ref_tasks_required (default 3, added this session — was missing entirely,
   causing the admin-configurable milestone threshold to be silently dropped) }
-Section 4: API Contract (selected — the routes most modified/discussed this session; full route list is in Section 2's file tree with one-line descriptions)
+# Section 4: API Contract (selected — the routes most modified/discussed this session; full route list is in Section 2's file tree with one-line descriptions)
 POST /api/secure/fast-task-claim
 Auth: validateInitData (user)
 Body: {} (no body needed — user identified via auth)
@@ -227,13 +227,13 @@ Auth: validateAdmin
 Body: { title?, description?, category?, price?, thumbnail?, active?, telegram_file_id? } (partial update)
 Success (200): { success: true, product }
 Full endpoint list: every route file in Section 2 corresponds 1:1 to its mounted paths; cross-referencing frontend secureFetch() calls against backend router.*() registrations was done exhaustively this session (see Section 6) and is currently fully consistent except for intentionally-dead/commented-out legacy routes.
-Section 5: Frontend Data Flow
+# Section 5: Frontend Data Flow
 No framework, no Redux/Zustand/Context. Plain global let/const state per JS file (e.g., currentUserBalance, currentUserLevel in levels.js; _fastTaskConfigCache, _fastTaskNextAvailableAt in earn-ads.js; shopState object in shop.js/shop-admin.js).
 No localStorage/cookies for auth. Every authenticated request goes through secureFetch(url, options) (core.js), which reads window.Telegram.WebApp.initData fresh on every call and attaches it as the X-Telegram-Init-Data header. The backend's validateInitData/validateAdmin middleware verifies this HMAC signature server-side per request — there is no session token, no cookie, no localStorage-persisted credential.
 secureFetch's 403 handling: preserves the full error response body (not just .error) — this was a real bug fixed this session (return { error: ... } → return { ...errData, error: ... }), since it was silently stripping unlocksAtLevel and other useful fields from every 403 response.
 Inter-tab state sync: mostly via re-fetching on tab-open (switchTab()'s per-tab load hooks in navigation.js) rather than a shared store — e.g., balance is re-synced via updateHeaderBalances() called after any balance-changing action.
 Component loading: all HTML partials are fetched and injected via innerHTML by loader.js before any JS runs — this means no DOMContentLoaded listeners work as expected anywhere in the app (that event has already fired by the time loader.js finishes); found and fixed 3 instances of this exact bug this session (verification.js, video-player.js, reminders.js) where code was still trying to use it.
-Section 6: Roadmap / State
+# Section 6: Roadmap / State
 DONE (this session)
 Full monolith → component/module split (frontend: 14 HTML + 11 CSS + 23 JS; backend: 21 models + 21 routes + middleware/utils/bot).
 IP-tracking/whitelist system fully removed (frontend + backend), ban system kept and re-skinned with animated overlay.
