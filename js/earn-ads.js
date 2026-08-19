@@ -704,6 +704,7 @@ let _fastTaskClaimInFlight = false;
 const FAST_TASK_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes between claims
 
 async function onFastTaskReward() {
+    console.log("AdsGram fired reward! Is lock active?", _fastTaskClaimInFlight);
     // AdsGram's widget can fire 'reward' more than once for the same
     // completion (re-renders, duplicate event dispatch). Without this
     // guard, two near-simultaneous requests both read the same "claims so
