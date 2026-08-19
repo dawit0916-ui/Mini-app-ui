@@ -550,9 +550,7 @@ let _fastTaskRefreshCooldown = false;
 let _fastTaskNextAvailableAt = 0; // timestamp; 0 = no cooldown active
 let _fastTaskCountdownInterval = null;
 
-// Debounced wrapper for the refresh button — AdsGram needs a moment to
-// actually fetch fresh inventory, and spamming the button doesn't help.
-// Disables the button and shows a countdown for a few seconds after each tap.
+
 function refreshFastTaskWidget() {
     if (_fastTaskRefreshCooldown) return;
     _fastTaskRefreshCooldown = true;
@@ -601,7 +599,14 @@ function showFastTaskCooldown(container, remainingLabel) {
         const totalSeconds = Math.ceil(msLeft / 1000);
         const mm = Math.floor(totalSeconds / 60);
         const ss = String(totalSeconds % 60).padStart(2, '0');
-        container.innerHTML = `<p class="text-center text-[10px] text-yellow-300/80 py-3">⏳ Next task in ${mm}:${ss}</p>`;
+        container.innerHTML = `
+                    <div class="flex items-center justify-center py-3">
+                      <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-full px-4 py-1.5 flex items-center space-x-2">
+                          <span class="animate-pulse text-yellow-400 text-xs">⏳</span>
+                          <span class="text-yellow-300 text-[11px] font-medium tracking-wide">Ready in ${mm}:${ss}</span>
+                      </div>
+                   </div>
+                              `;
         if (remainingLabel && _fastTaskConfigCache) {
             remainingLabel.innerText = `${_fastTaskConfigCache.claimsRemainingToday}/${_fastTaskConfigCache.dailyLimit} left · +${_fastTaskConfigCache.reward} each`;
         }
@@ -616,8 +621,7 @@ async function loadAndShowAdsgram() {
     const remainingLabel = document.getElementById('fast-task-remaining');
     if (!container) return;
 
-    // Still cooling down from the last claim — show the countdown instead
-    // of hitting the server again.
+    
     if (_fastTaskNextAvailableAt > Date.now()) {
         showFastTaskCooldown(container, remainingLabel);
         return;
@@ -655,9 +659,6 @@ async function loadAndShowAdsgram() {
         const widget = document.createElement('adsgram-task');
         widget.setAttribute('data-block-id', cfg.blockId);
 
-        // Slots let us skin the widget's button/reward/done states to match
-        // the app instead of AdsGram's default look — see their docs:
-        // https://docs.adsgram.ai/publisher/task-integration-example
         const rewardSlot = document.createElement('span');
         rewardSlot.setAttribute('slot', 'reward');
         rewardSlot.className = 'fast-task-slot-reward';
@@ -705,12 +706,7 @@ const FAST_TASK_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes between claims
 
 async function onFastTaskReward() {
     console.log("AdsGram fired reward! Is lock active?", _fastTaskClaimInFlight);
-    // AdsGram's widget can fire 'reward' more than once for the same
-    // completion (re-renders, duplicate event dispatch). Without this
-    // guard, two near-simultaneous requests both read the same "claims so
-    // far" count before either saves, race to claim the same slot, and the
-    // loser gets a hard 500 — which is exactly the "Failed to record
-    // claim" while the counter never moves that was being seen.
+    
     if (_fastTaskClaimInFlight) return;
     _fastTaskClaimInFlight = true;
 
@@ -719,12 +715,10 @@ async function onFastTaskReward() {
 
         if (res.success) {
             tg.HapticFeedback.notificationOccurred('success');
-            showAppReward(`⚡ +${res.reward} DASH!`, 'Fast Task complete');
+            showAppReward(`🎉 You earned ${res.reward} DASH!`, 'Task Successfully Completed');
             updateHeaderBalances(res.newBalance);
             if (_fastTaskConfigCache) _fastTaskConfigCache.claimsRemainingToday = res.claimsRemainingToday;
-            // Give AdsGram a moment before asking for the next task instead
-            // of immediately re-requesting — smoother load, and avoids
-            // hammering their inventory right after every single claim.
+            
             _fastTaskNextAvailableAt = Date.now() + FAST_TASK_COOLDOWN_MS;
         } else {
             showNotificationToast(res.error || 'Could not record reward', 'error');
