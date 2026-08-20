@@ -715,7 +715,7 @@ async function onFastTaskReward() {
 
         if (res.success) {
             tg.HapticFeedback.notificationOccurred('success');
-            showAppReward(`🎉 You earned ${res.reward} DASH!`, 'Task Successfully Completed');
+            showNotificationToast(`🎯 Fast Task Claimed! +${res.reward} DASH added.`, 'success');
             updateHeaderBalances(res.newBalance);
             if (_fastTaskConfigCache) _fastTaskConfigCache.claimsRemainingToday = res.claimsRemainingToday;
             
