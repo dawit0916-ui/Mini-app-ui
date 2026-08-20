@@ -1,5 +1,3 @@
-
-        
 async function loadUserProfileMetrics() {
     try {
         let telegramId = 0, firstName = "You", username = "", photoUrl = "";
@@ -30,16 +28,32 @@ async function loadUserProfileMetrics() {
         const data = await secureFetch('/api/secure/profile');
         if (data) {
 
-// balance field = DASH
-const dash    = parseInt(data.balance   || 0);
-const profileDash    = document.getElementById('profile-dash');
-if (profileDash)    profileDash.innerText    = dash.toLocaleString();
+            // balance field = DASH
+            const dash    = parseInt(data.balance   || 0);
+            const profileDash    = document.getElementById('profile-dash');
+            if (profileDash)    profileDash.innerText    = dash.toLocaleString();
 
 
             if (data.createdAt) {
                 document.getElementById('profile-joined').innerText =
                     new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             }
+
+            // Level badge — same LEVEL_CONFIG source and level-0 fallback
+            // pattern already used in levels.js, kept consistent here.
+            const userLevel = data.level || 0;
+            const levelInfo = userLevel > 0 ? LEVEL_CONFIG[userLevel - 1] : { name: 'Free Tier', emoji: '🆓' };
+            document.getElementById('profile-level-number').innerText = userLevel;
+            document.getElementById('profile-level-name').innerText = levelInfo.name;
+            document.getElementById('profile-level-emoji').innerText = levelInfo.emoji;
+
+            // Stats grid — total_earned/referrals/tasksCompletedCount were
+            // already returned by /api/secure/profile but never displayed
+            // anywhere in the UI until now.
+            document.getElementById('profile-total-earned').innerText = (data.total_earned || 0).toLocaleString();
+            document.getElementById('profile-referrals').innerText = data.referrals || 0;
+            document.getElementById('profile-tasks-done').innerText = data.tasksCompletedCount || 0;
+
       // Ban status block
 const banBlock  = document.getElementById('profile-ban-block');
 const bannedRow = document.getElementById('profile-banned-row');
