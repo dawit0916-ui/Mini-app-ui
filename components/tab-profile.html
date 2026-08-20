@@ -1,89 +1,107 @@
- 
 <div id="tab-profile" class="tab-content">
-    <!-- Top Balance Card -->
- <div class="glass p-6 text-center glow-blue mb-6 relative overflow-hidden">
-    <div class="absolute -top-10 -left-10 w-40 h-40 bg-emerald-600/10 rounded-full blur-3xl"></div>
+    <!-- Top Balance + Level Card -->
+    <div class="glass p-6 text-center glow-blue mb-4 relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-emerald-600/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl"></div>
 
-    
-    <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">DASH</p>
-            <div class="flex items-center justify-center gap-1.5">
-                <img src="/assets/images/dash-coin.png" class="w-6 h-6 object-contain">
-                <span id="profile-dash" class="text-sm font-black text-orange-300">0</span>
+        <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mb-1">DASH Balance</p>
+        <div class="flex items-center justify-center gap-1.5 mb-4">
+            <img src="/assets/images/dash-coin.png" class="w-7 h-7 object-contain">
+            <span id="profile-dash" class="text-2xl font-black text-orange-300">0</span>
+        </div>
+
+        <!-- Level Badge -->
+        <button onclick="switchTab('levels', document.getElementById('nav-item'))" class="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-2xl p-3.5 mb-4 border border-white/10 active:scale-[0.98] transition-all text-left">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-600/20 border border-purple-500/20 flex items-center justify-center text-2xl shrink-0">
+                <span id="profile-level-emoji">🆓</span>
             </div>
-            <p class="text-[8px] text-orange-600 font-black mt-0.5">Keep Earning to unlock more</p>
+            <div class="flex-1 min-w-0">
+                <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider">Level <span id="profile-level-number">0</span></p>
+                <p id="profile-level-name" class="text-sm font-black text-white truncate">Free Tier</p>
+            </div>
+            <span class="text-slate-500 text-lg shrink-0">›</span>
+        </button>
 
-    <!-- Divider -->
-    <div class="flex items-center gap-2 mb-4">
-        <div class="flex-1 h-px bg-white/5"></div>
-        <span class="text-[8px] text-slate-600 uppercase font-black tracking-widest">To achieve new features upgrade level</span>
-        <div class="flex-1 h-px bg-white/5"></div>
+        <button onclick="upgradeToNextLevel()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
+            🎁 Upgrade to Next Level
+        </button>
     </div>
 
-    
-
-           <button onclick="upgradeToNextLevel()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
-    🎁 Upgrade to Next Level 
-</button>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-3 gap-2.5 mb-4">
+        <div class="glass p-3.5 rounded-2xl text-center border-orange-500/15">
+            <p class="text-base font-black text-orange-300" id="profile-total-earned">0</p>
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mt-0.5">Earned</p>
+        </div>
+        <div class="glass p-3.5 rounded-2xl text-center border-purple-500/15">
+            <p class="text-base font-black text-purple-300" id="profile-referrals">0</p>
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mt-0.5">Referrals</p>
+        </div>
+        <div class="glass p-3.5 rounded-2xl text-center border-cyan-500/15">
+            <p class="text-base font-black text-cyan-300" id="profile-tasks-done">0</p>
+            <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mt-0.5">Tasks Done</p>
+        </div>
     </div>
+
     <!-- User Info Card -->
-<div class="glass p-5 mb-6 border-white/5">
-    <div class="flex items-center gap-4 mb-5">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden flex-shrink-0">
-            <img id="profile-avatar" src="" alt="PFP" class="hidden w-full h-full object-cover">
-            <span id="profile-avatar-fallback" class="font-black text-xl uppercase">E</span>
-        </div>
-        <div class="min-w-0">
-            <h3 id="profile-name" class="text-lg font-black text-white truncate">User</h3>
-            <p id="profile-username" class="text-xs text-slate-400 truncate"></p>
-            <p class="text-[10px] text-slate-500 font-bold mt-0.5">📅 Joined <span id="profile-joined">-</span></p>
-        </div>
-    </div>
-
-    <div class="bg-white/5 p-3.5 rounded-xl flex justify-between items-center mb-3">
-        <div class="flex items-center gap-2">
-            <span class="text-slate-500 text-xs">>></span>
-            <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Telegram ID</span>
-        </div>
-        <div class="flex items-center gap-2">
-            <span id="profile-id" class="text-sm font-black text-white">-</span>
-            <button onclick="copyProfileTgId()" class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-[10px] active:scale-90 transition-all">📋</button>
-        </div>
-    </div>
-
-    <!-- Ban Status Block -->
-    <div id="profile-ban-block" class="hidden">
-
-        <!-- BANNED state -->
-        <div id="profile-banned-row" class="hidden bg-red-500/10 border border-red-500/30 p-3.5 rounded-xl mb-3">
-            <div class="flex items-center gap-2 mb-1">
-                <span class="text-base">🚫</span>
-                <span class="text-[10px] text-red-400 uppercase font-black tracking-wider">Account Suspended</span>
+    <div class="glass p-5 mb-6 border-white/5">
+        <div class="flex items-center gap-4 mb-5">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden flex-shrink-0">
+                <img id="profile-avatar" src="" alt="PFP" class="hidden w-full h-full object-cover">
+                <span id="profile-avatar-fallback" class="font-black text-xl uppercase">E</span>
             </div>
-            <p class="text-[9px] text-red-300/70 leading-relaxed">
-                Your account was suspended by an administrator. Contact support to appeal.
-            </p>
+            <div class="min-w-0">
+                <h3 id="profile-name" class="text-lg font-black text-white truncate">User</h3>
+                <p id="profile-username" class="text-xs text-slate-400 truncate"></p>
+                <p class="text-[10px] text-slate-500 font-bold mt-0.5">📅 Joined <span id="profile-joined">-</span></p>
+            </div>
         </div>
 
+        <div class="bg-white/5 p-3.5 rounded-xl flex justify-between items-center mb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-slate-500 text-xs">>></span>
+                <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Telegram ID</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="profile-id" class="text-sm font-black text-white">-</span>
+                <button onclick="copyProfileTgId()" class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-[10px] active:scale-90 transition-all">📋</button>
+            </div>
+        </div>
+
+        <!-- Ban Status Block -->
+        <div id="profile-ban-block" class="hidden">
+
+            <!-- BANNED state -->
+            <div id="profile-banned-row" class="hidden bg-red-500/10 border border-red-500/30 p-3.5 rounded-xl mb-3">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-base">🚫</span>
+                    <span class="text-[10px] text-red-400 uppercase font-black tracking-wider">Account Suspended</span>
+                </div>
+                <p class="text-[9px] text-red-300/70 leading-relaxed">
+                    Your account was suspended by an administrator. Contact support to appeal.
+                </p>
+            </div>
+
+        </div>
     </div>
-</div>
-<!-- Action Buttons -->
-<div class="grid grid-cols-3 gap-3 mb-6">
-    <button onclick="switchTab('home', document.getElementById('nav-home'))"
-        class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-yellow-500/20 active:scale-95 active:border-yellow-500/50 active:bg-yellow-500/5 transition-all duration-150">
-        <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(234,179,8,0.12),transparent_70%)] pointer-events-none"></div>
-        <img src="/assets/images/nav-home.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.4)] relative z-10">
-        <span class="text-[10px] font-black uppercase text-yellow-400 relative z-10 tracking-wider">Earn</span>
-    </button>
+    <!-- Action Buttons -->
+    <div class="grid grid-cols-3 gap-3 mb-6">
+        <button onclick="switchTab('home', document.getElementById('nav-home'))"
+            class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-yellow-500/20 active:scale-95 active:border-yellow-500/50 active:bg-yellow-500/5 transition-all duration-150">
+            <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(234,179,8,0.12),transparent_70%)] pointer-events-none"></div>
+            <img src="/assets/images/nav-home.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.4)] relative z-10">
+            <span class="text-[10px] font-black uppercase text-yellow-400 relative z-10 tracking-wider">Earn</span>
+        </button>
 
-    
+        
 
-    <button onclick="switchTab('friends', document.getElementById('nav-friends'))"
-        class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-purple-500/20 active:scale-95 active:border-purple-500/50 active:bg-purple-500/5 transition-all duration-150">
-        <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(168,85,247,0.12),transparent_70%)] pointer-events-none"></div>
-        <img src="/assets/images/nav-friends.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] relative z-10">
-        <span class="text-[10px] font-black uppercase text-purple-400 relative z-10 tracking-wider">Refer</span>
-    </button>
-</div>
+        <button onclick="switchTab('friends', document.getElementById('nav-friends'))"
+            class="glass relative p-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-purple-500/20 active:scale-95 active:border-purple-500/50 active:bg-purple-500/5 transition-all duration-150">
+            <div class="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_50%_30%,rgba(168,85,247,0.12),transparent_70%)] pointer-events-none"></div>
+            <img src="/assets/images/nav-friends.png" class="w-11 h-11 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] relative z-10">
+            <span class="text-[10px] font-black uppercase text-purple-400 relative z-10 tracking-wider">Refer</span>
+        </button>
+    </div>
 
     
     <button onclick="openLeaderboardDrawer('points')" class="w-full glass py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 mb-4 border-yellow-500/20 text-yellow-400 active:scale-95 transition-all">
