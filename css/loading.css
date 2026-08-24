@@ -100,7 +100,7 @@
 }
 .loading-tip-card {
     --tip-bg: #1a0e3f; /* matches your loading-screen-overlay bg */
-    margin-top: 48px;
+    margin-top: 56px;
     padding: 10px 18px;
     border-radius: 10px;
     background: rgba(59,130,246,0.06);
