@@ -17,14 +17,33 @@
     perspective: 700px;
 }
 
-.loading-logo-img {
+/* NEW: the 3D stage that actually spins */
+.loading-coin {
     width: 130px;
     height: 130px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: coinSpin 3s linear infinite;
+}
+
+.coin-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
+    backface-visibility: hidden;
     filter: drop-shadow(0 4px 20px rgba(59,130,246,0.5));
-    animation: coinSpin 3s linear infinite; /* NEW */
-    backface-visibility: hidden; /* NEW: avoids the image looking mirrored mid-flip */
-    
+}
+
+.coin-front {
+    transform: rotateY(0deg);
+}
+
+.coin-back {
+    transform: rotateY(180deg);
+    /* mirror it back so the design isn't reversed/backwards */
+    transform: rotateY(180deg) scaleX(-1);
 }
 
 @keyframes coinSpin {
@@ -35,6 +54,17 @@
         transform: rotateY(360deg);
     }
 }
+
+.loading-logo-img {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 20px rgba(59,130,246,0.5));
+    animation: coinSpin 3s linear infinite; /* NEW */
+    backface-visibility: hidden; /* NEW: avoids the image looking mirrored mid-flip */
+    
+}
+
 @keyframes loadingPulse {0%, 100% { box-shadow: 0 0 50px rgba(59,130,246,0.3), inset 0 0 30px rgba(59,130,246,0.1); }50% { box-shadow: 0 0 70px rgba(59,130,246,0.5), inset 0 0 40px rgba(59,130,246,0.2); }}
 
 .loading-title { font-size: 26px; font-weight: 900; letter-spacing: 0.08em; color: #f8fafc; text-shadow: 0 0 20px rgba(59,130,246,0.5); margin-bottom: 12px; }
@@ -45,14 +75,6 @@
 .loading-progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
 .loading-progress-fill { height: 100%; width: 0%; border-radius: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); box-shadow: 0 0 12px rgba(59,130,246,0.6); transition: width 0.4s ease; }
 
-/* NEW: the 3D stage that actually spins */
-.loading-coin { width: 130px; height: 130px; position: relative; transform-style: preserve-3d;animation: coinSpin 3s linear infinite; }
-.coin-face { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; backface-visibility: hidden; filter: drop-shadow(0 4px 20px rgba(59,130,246,0.5)); }
-.coin-front { transform: rotateY(0deg); }
-.coin-back { 
-    transform: rotateY(180deg);/* mirror it back so the design isn't reversed/backwards */
-    transform: rotateY(180deg) scaleX(-1);
-}
 .loading-status-wrap {
     position: relative;
     height: 16px; /* ~1 line of your 10px status text + breathing room */
