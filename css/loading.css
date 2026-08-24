@@ -65,39 +65,7 @@
 .loading-progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
 .loading-progress-fill { height: 100%; width: 0%; border-radius: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); box-shadow: 0 0 12px rgba(59,130,246,0.6); transition: width 0.4s ease; }
 
-.loading-status-wrap {
-    position: relative;
-    height: 16px; /* ~1 line of your 10px status text + breathing room */
-    overflow: hidden;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.loading-status-text {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #64748b;
-    position: absolute;
-    white-space: nowrap;
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
-    transform: translateY(0);
-    opacity: 1;
-}
-
-/* outgoing text slides up and fades */
-.loading-status-text.status-out {
-    transform: translateY(-140%);
-    opacity: 0;
-}
-
-/* incoming text starts below, slides up into place */
-.loading-status-text.status-in {
-    transform: translateY(140%);
-    opacity: 0;
-}
+.loading-status-text { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; }
 .loading-tip-card {
     --tip-bg: #1a0e3f; /* matches your loading-screen-overlay bg */
     margin-top: 56px;
