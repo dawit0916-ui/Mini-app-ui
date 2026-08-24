@@ -8,8 +8,26 @@ if (tg.disableVerticalSwipes) {
 function setLoadingProgress(percent, statusText) {
     const fill = document.getElementById('loading-progress-fill');
     const status = document.getElementById('loading-status-text');
+
     if (fill) fill.style.width = percent + '%';
-    if (status && statusText) status.innerText = statusText;
+
+    if (status && statusText && status.innerText !== statusText) {
+        // slide current text out
+        status.classList.add('status-out');
+
+        setTimeout(() => {
+            // swap text while it's invisible, jump it below the line
+            status.innerText = statusText;
+            status.classList.remove('status-out');
+            status.classList.add('status-in');
+
+            // force reflow so the browser registers the "start" position
+            // before we animate to translateY(0)
+            void status.offsetWidth;
+
+            status.classList.remove('status-in');
+        }, 350); // matches the CSS transition duration
+    }
 }
 
 function hideLoadingScreen() {
@@ -235,7 +253,7 @@ async function initApp() {
         }
 
         // 3. Fetch profile
-        setLoadingProgress(30, 'Loading your profile...');
+        setLoadingProgress(30, 'Loading profile...');
         const data = await secureFetch('/api/secure/profile');
 
         if (data && !data.error) {
@@ -262,21 +280,21 @@ async function initApp() {
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
-        setLoadingProgress(45, 'Loading your level...');
+        setLoadingProgress(45, 'Loading level...');
         await loadLevels();
         // 4. Load everything the app needs, in parallel where safe
         setLoadingProgress(60, 'Loading tasks...');
         await loadAvailableTasks();
 
-        setLoadingProgress(70, 'Loading your team...');
+        setLoadingProgress(70, 'Loading team...');
         await loadReferralData();
 
-        setLoadingProgress(85, 'Loading your stats...');
+        setLoadingProgress(85, 'Loading stats...');
         await loadUserProfileMetrics();
 
         // Admin-only data — only fetched if the user is actually an admin
         if (isCurrentUserAdmin) {
-            setLoadingProgress(92, 'Loading admin data...');
+            setLoadingProgress(92, 'Loading Ad...');
             await loadAdminData().catch(e => console.warn('Admin data load failed:', e.message));
         }
 
