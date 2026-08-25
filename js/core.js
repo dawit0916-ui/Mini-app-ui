@@ -312,6 +312,7 @@ let _pullRefreshing = false;
 const mainEl = document.querySelector('main');
 const pullIndicator = document.getElementById('pull-indicator');
 const pullIcon = document.getElementById('pull-icon');
+const pullLoader = document.getElementById('pull-loader');
 
 const PULL_THRESHOLD = 72;
 
@@ -337,7 +338,6 @@ mainEl.addEventListener('touchmove', (e) => {
     pullIcon.style.transform = `rotate(${rotate}deg)`;
     pullIcon.style.transition = 'none';
 
-    // Tint border more orange as threshold is crossed
     if (progress >= 1) {
         pullIndicator.style.borderColor = 'rgba(249,115,22,0.6)';
         pullIndicator.style.background = 'linear-gradient(135deg, rgba(249,115,22,0.2), rgba(139,92,246,0.2))';
@@ -352,7 +352,6 @@ mainEl.addEventListener('touchend', async (e) => {
     const delta = e.changedTouches[0].clientY - _pullStartY;
 
     if (delta < PULL_THRESHOLD || mainEl.scrollTop > 0) {
-        // Snap back
         pullIndicator.style.transition = 'opacity 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)';
         pullIndicator.style.opacity = '0';
         pullIndicator.style.transform = 'translateX(-50%) translateY(-60px) scale(0.8)';
@@ -366,17 +365,16 @@ mainEl.addEventListener('touchend', async (e) => {
     pullIndicator.style.transition = 'transform 0.2s ease';
     pullIndicator.style.transform = 'translateX(-50%) translateY(6px) scale(1)';
     pullIndicator.style.opacity = '1';
-    pullIcon.style.transition = 'transform 0.3s ease';
-    pullIcon.style.transform = 'rotate(360deg)';
-    // Start CSS spin
-    pullIcon.style.animation = 'spin 0.7s linear infinite';
+
+    // Crossfade: arrow fades out, ring loader fades/scales in
+    pullIcon.style.opacity = '0';
+    pullLoader.classList.add('active');
 
     const activeTab = document.querySelector('.tab-content.active')?.id.replace('tab-', '') || 'home';
 
     if (activeTab === 'home')    await loadAvailableTasks();
     if (activeTab === 'friends') await loadReferralData();
     if (activeTab === 'profile') await loadUserProfileMetrics();
-    
     if (activeTab === 'earn')    await loadAdsWatchList();
 
     try {
@@ -389,17 +387,16 @@ mainEl.addEventListener('touchend', async (e) => {
             const balMain = document.getElementById('balance-main');
             if (balMain) balMain.innerText = parseInt(profile.balance || 0).toLocaleString();
 
-            const homeDash   = document.getElementById('home-usdt-val');
-            
-            if (homeDash)   homeDash.innerText   = parseFloat(profile.points || 0).toFixed(2);
-            
-            
+            const homeDash = document.getElementById('home-usdt-val');
+            if (homeDash) homeDash.innerText = parseFloat(profile.points || 0).toFixed(2);
         }
     } catch (e) {
         console.error('Pull refresh error:', e);
     }
 
-    // Done — animate out with spring
+    // Done — crossfade loader back to checkmark
+    pullLoader.classList.remove('active');
+    pullIcon.style.opacity = '1';
     pullIcon.style.animation = 'none';
     pullIcon.innerHTML = `<path d="M20 6L9 17l-5-5" stroke="rgba(167,139,250,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
 
@@ -409,7 +406,6 @@ mainEl.addEventListener('touchend', async (e) => {
     pullIndicator.style.opacity = '0';
     pullIndicator.style.transform = 'translateX(-50%) translateY(-60px) scale(0.8)';
 
-    // Reset icon for next pull
     setTimeout(() => {
         pullIcon.innerHTML = `<path d="M12 2v10M12 2l-3.5 3.5M12 2l3.5 3.5"/><path d="M20 16.5A8 8 0 1 1 4 16"/>`;
         pullIcon.style.transform = 'none';
@@ -418,7 +414,6 @@ mainEl.addEventListener('touchend', async (e) => {
         _pullRefreshing = false;
     }, 400);
 });
-
 
 document.addEventListener('contextmenu', (e) => {
     const tag = e.target.tagName;
