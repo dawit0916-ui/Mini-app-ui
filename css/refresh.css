@@ -1,44 +1,66 @@
-#pull-icon {
-  transition: opacity 0.25s ease;
+#pull-indicator.threshold {
+  border-color: rgba(249,115,22,0.6) !important;
+  background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(139,92,246,0.2)) !important;
 }
 
+/* Adapted from Uiverse.io by Shoh2008 */
 .pull-loader {
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -10px;
-  margin-left: -10px;
-  border-width: 2px 1.5px 2px 1.5px;
-  border-style: solid dotted solid dotted;
-  border-color: #f97316 rgba(255, 255, 255, 0.3) #fff rgba(139, 92, 246, 0.3);
-  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  background: #f97316;
+  display: block;
+  position: relative;
   box-sizing: border-box;
-  animation: pull-loader-rotate 0.9s linear infinite;
+  opacity: 1;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.pull-loader::before {
+  content: '';
+  box-sizing: border-box;
+  left: 0;
+  top: 0;
+  transform: rotate(45deg);
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #a78bfa;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+.pull-loader::after {
+  content: '';
+  box-sizing: border-box;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #1a1025; /* match your app's --bg / dark surface color */
+  transform: translate(-50%, -50%);
+}
+
+/* Spin only while refreshing */
+#pull-indicator.refreshing .pull-loader {
+  animation: pull-loader-spin 0.9s ease-in-out infinite reverse;
+}
+@keyframes pull-loader-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+/* Checkmark, hidden until "done" */
+.pull-check {
+  position: absolute;
   opacity: 0;
   transform: scale(0.5);
   transition: opacity 0.25s ease, transform 0.25s ease;
   pointer-events: none;
 }
-.pull-loader.active {
+#pull-indicator.done .pull-loader {
+  opacity: 0;
+  transform: scale(0.5);
+}
+#pull-indicator.done .pull-check {
   opacity: 1;
   transform: scale(1);
-}
-.pull-loader::before,
-.pull-loader::after {
-  content: "";
-  top: 0;
-  left: 0;
-  position: absolute;
-  border: 4px solid transparent;
-  border-bottom-color: #fff;
-  transform: translate(-4px, 8px) rotate(-35deg);
-}
-.pull-loader::after {
-  border-color: #f97316 #0000 #0000 #0000;
-  transform: translate(13px, 1px) rotate(-35deg);
-}
-@keyframes pull-loader-rotate {
-  100% { transform: rotate(360deg); }
 }
