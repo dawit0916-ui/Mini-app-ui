@@ -294,8 +294,6 @@ let _pullStartY = 0;
 let _pullRefreshing = false;
 const mainEl = document.querySelector('main');
 const pullIndicator = document.getElementById('pull-indicator');
-const pullIcon = document.getElementById('pull-icon');
-const pullLoader = document.getElementById('pull-loader');
 
 const PULL_THRESHOLD = 72;
 
@@ -314,20 +312,12 @@ mainEl.addEventListener('touchmove', (e) => {
     const progress = Math.min(clamped / PULL_THRESHOLD, 1);
     const translateY = -60 + (clamped * 0.65);
     const scale = 0.8 + (progress * 0.25);
-    const rotate = progress * 180;
 
+    pullIndicator.style.transition = 'none';
     pullIndicator.style.opacity = Math.min(progress * 1.5, 1);
     pullIndicator.style.transform = `translateX(-50%) translateY(${translateY}px) scale(${scale})`;
-    pullIcon.style.transform = `rotate(${rotate}deg)`;
-    pullIcon.style.transition = 'none';
 
-    if (progress >= 1) {
-        pullIndicator.style.borderColor = 'rgba(249,115,22,0.6)';
-        pullIndicator.style.background = 'linear-gradient(135deg, rgba(249,115,22,0.2), rgba(139,92,246,0.2))';
-    } else {
-        pullIndicator.style.borderColor = 'rgba(139,92,246,0.4)';
-        pullIndicator.style.background = 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(249,115,22,0.15))';
-    }
+    pullIndicator.classList.toggle('threshold', progress >= 1);
 }, { passive: true });
 
 mainEl.addEventListener('touchend', async (e) => {
@@ -338,20 +328,17 @@ mainEl.addEventListener('touchend', async (e) => {
         pullIndicator.style.transition = 'opacity 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)';
         pullIndicator.style.opacity = '0';
         pullIndicator.style.transform = 'translateX(-50%) translateY(-60px) scale(0.8)';
+        pullIndicator.classList.remove('threshold');
         return;
     }
 
     _pullRefreshing = true;
     tg.HapticFeedback.impactOccurred('medium');
 
-    // Lock into spinning state
     pullIndicator.style.transition = 'transform 0.2s ease';
     pullIndicator.style.transform = 'translateX(-50%) translateY(6px) scale(1)';
     pullIndicator.style.opacity = '1';
-
-    // Crossfade: arrow fades out, ring loader fades/scales in
-    pullIcon.style.opacity = '0';
-    pullLoader.classList.add('active');
+    pullIndicator.classList.add('refreshing');
 
     const activeTab = document.querySelector('.tab-content.active')?.id.replace('tab-', '') || 'home';
 
@@ -377,11 +364,9 @@ mainEl.addEventListener('touchend', async (e) => {
         console.error('Pull refresh error:', e);
     }
 
-    // Done — crossfade loader back to checkmark
-    pullLoader.classList.remove('active');
-    pullIcon.style.opacity = '1';
-    pullIcon.style.animation = 'none';
-    pullIcon.innerHTML = `<path d="M20 6L9 17l-5-5" stroke="rgba(167,139,250,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    // Done — CSS class swap handles the checkmark morph
+    pullIndicator.classList.remove('refreshing');
+    pullIndicator.classList.add('done');
 
     await new Promise(r => setTimeout(r, 350));
 
@@ -390,10 +375,7 @@ mainEl.addEventListener('touchend', async (e) => {
     pullIndicator.style.transform = 'translateX(-50%) translateY(-60px) scale(0.8)';
 
     setTimeout(() => {
-        pullIcon.innerHTML = `<path d="M12 2v10M12 2l-3.5 3.5M12 2l3.5 3.5"/><path d="M20 16.5A8 8 0 1 1 4 16"/>`;
-        pullIcon.style.transform = 'none';
-        pullIndicator.style.borderColor = 'rgba(139,92,246,0.4)';
-        pullIndicator.style.background = 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(249,115,22,0.15))';
+        pullIndicator.classList.remove('done', 'threshold');
         _pullRefreshing = false;
     }, 400);
 });
