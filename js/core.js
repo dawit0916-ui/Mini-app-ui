@@ -10,24 +10,7 @@ function setLoadingProgress(percent, statusText) {
     const status = document.getElementById('loading-status-text');
 
     if (fill) fill.style.width = percent + '%';
-
-    if (status && statusText && status.innerText !== statusText) {
-        // slide current text out
-        status.classList.add('status-out');
-
-        setTimeout(() => {
-            // swap text while it's invisible, jump it below the line
-            status.innerText = statusText;
-            status.classList.remove('status-out');
-            status.classList.add('status-in');
-
-            // force reflow so the browser registers the "start" position
-            // before we animate to translateY(0)
-            void status.offsetWidth;
-
-            status.classList.remove('status-in');
-        }, 350); // matches the CSS transition duration
-    }
+    if (status && statusText) status.innerText = statusText;
 }
 
 function hideLoadingScreen() {
