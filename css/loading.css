@@ -79,7 +79,7 @@
 .loading-tip-card {
     --tip-bg: #1a0e3f;
     position: absolute;         /* NEW */
-    bottom: 60px;                /* NEW — distance from bottom of screen, adjust freely */
+    bottom: 18px;                /* NEW — distance from bottom of screen, adjust freely */
     left: 50%;                   /* NEW */
     transform: translateX(-50%); /* NEW — centers it horizontally without flex */
     padding: 10px 18px;
