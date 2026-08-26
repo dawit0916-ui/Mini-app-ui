@@ -67,8 +67,9 @@ let tasksRequired = 5;
 async function secureFetch(url, options = {}) {
     // 1. Automatically inject authorization header configurations natively
     const absoluteUrl = url.startsWith('http') ? url : `${RENDER_URL}${url}`;
+    const isFormData = options.body instanceof FormData;
     const headers = {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || ''
     };
 
