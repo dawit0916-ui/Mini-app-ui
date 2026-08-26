@@ -1,0 +1,347 @@
+:root{
+  --ig-neon-purple:#a855f7;
+  --ig-neon-blue:#38bdf8;
+  --ig-neon-orange:#fb923c;
+  --ig-glass-bg: rgba(255,255,255,0.06);
+  --ig-glass-border: rgba(255,255,255,0.14);
+  --ig-text-main:#f4f2ff;
+  --ig-text-dim:#b8b3d9;
+}
+
+.imagegen-overlay{
+  position:fixed; inset:0;
+  background:rgba(6,4,14,0.72);
+  backdrop-filter: blur(4px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+  padding:16px;
+}
+.imagegen-overlay.active{ display:flex; }
+
+.imagegen-card{
+  width:100%;
+  max-width:420px;
+  background:var(--ig-glass-bg);
+  border:1px solid var(--ig-glass-border);
+  border-radius:24px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 0 1px rgba(168,85,247,0.15), 0 20px 60px rgba(0,0,0,0.5), inset 0 0 40px rgba(168,85,247,0.05);
+  padding:24px;
+  color:var(--ig-text-main);
+  position:relative;
+  max-height:88vh;
+  overflow-y:auto;
+  scroll-behavior:smooth;
+}
+
+.imagegen-close{
+  position:absolute; top:16px; right:16px;
+  width:32px; height:32px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--ig-glass-border);
+  color:var(--ig-text-dim);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:16px;
+  z-index:5;
+}
+.imagegen-close:hover{ color:var(--ig-text-main); }
+
+.imagegen-header{ margin-bottom:14px; }
+.imagegen-title{
+  font-size:20px;
+  font-weight:700;
+  margin:0 0 4px 0;
+  background:linear-gradient(90deg,var(--ig-neon-purple),var(--ig-neon-blue));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.imagegen-sub{ font-size:13px; color:var(--ig-text-dim); margin:0; }
+
+.imagegen-step-pill{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--ig-neon-blue);
+  background:rgba(56,189,248,0.1);
+  border:1px solid rgba(56,189,248,0.25);
+  padding:4px 10px;
+  border-radius:999px;
+  margin-bottom:14px;
+}
+
+/* ===== 3D drag carousel — style picker ===== */
+.imagegen-carousel-stage{
+  position:relative;
+  width:100%;
+  height:190px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:10px;
+  overflow:hidden;
+  border-radius:16px;
+  background:rgba(0,0,0,0.25);
+  border:1px solid var(--ig-glass-border);
+}
+
+.imagegen-card-3d{
+  position: relative;
+  width: 240px;
+  height: 120px;
+  transform-style: preserve-3d;
+  transform: perspective(800px) rotateY(0deg);
+  will-change: transform;
+  touch-action: none;
+  cursor: grab;
+}
+.imagegen-card-3d:active{ cursor: grabbing; }
+
+.imagegen-card-3d .imagegen-style-card{
+  position: absolute;
+  width: 62px;
+  height: 88px;
+  background-color: rgb(40,32,58);
+  border: solid 2px var(--ig-glass-border);
+  border-radius: 0.5rem;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  transition: box-shadow 200ms, border-color 200ms, transform 200ms;
+  will-change: transform, filter;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 5px 14px rgba(0,0,0,0.5);
+}
+
+.imagegen-card-3d .imagegen-style-card img{
+  width:100%; height:100%; object-fit:cover; display:block;
+  border-radius:calc(0.5rem - 2px);
+}
+
+.imagegen-card-3d .imagegen-style-card .imagegen-name-tag{
+  position:absolute; bottom:0; left:0; right:0;
+  font-size:7px; font-weight:700; text-align:center;
+  padding:2px 0;
+  background:rgba(0,0,0,0.8);
+  color:#fff;
+}
+
+.imagegen-style-card.selected{
+  border-color: var(--ig-neon-purple) !important;
+  box-shadow: 0 0 0 3px rgba(168,85,247,0.35), 0 0 20px rgba(168,85,247,0.6) !important;
+  transform: translate(-50%, -50%) scale(1.15) !important;
+  z-index: 20;
+  filter: brightness(1) !important;
+}
+
+.imagegen-carousel-hint{
+  text-align:center;
+  font-size:11px;
+  color:var(--ig-text-dim);
+  margin-bottom:16px;
+}
+
+.imagegen-selected-style-row{
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(168,85,247,0.08);
+  border:1px solid rgba(168,85,247,0.3);
+  margin-bottom:16px;
+  font-size:13px;
+}
+.imagegen-selected-style-row.active{ display:flex; }
+.imagegen-selected-style-row img{ width:34px; height:34px; border-radius:8px; object-fit:cover; }
+.imagegen-selected-style-row b{ color:var(--ig-neon-purple); }
+
+/* ===== upload ===== */
+.imagegen-upload{
+  width:100%;
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  cursor:pointer;
+  border:2px dashed rgba(168,85,247,0.4);
+  background:rgba(255,255,255,0.03);
+  padding:1.2rem;
+  border-radius:16px;
+  transition: border-color .2s ease, background .2s ease;
+  margin-bottom:16px;
+}
+.imagegen-upload:hover{ border-color:var(--ig-neon-purple); background:rgba(168,85,247,0.06); }
+.imagegen-upload .icon svg{ height:48px; fill:var(--ig-neon-purple); }
+.imagegen-upload .text span{ font-weight:500; color:var(--ig-text-dim); font-size:13px; }
+.imagegen-upload input{ display:none; }
+.imagegen-preview-wrap{
+  display:none;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--ig-glass-border);
+}
+.imagegen-preview-wrap.active{ display:flex; }
+.imagegen-preview-wrap img{ width:56px; height:56px; border-radius:10px; object-fit:cover; }
+.imagegen-preview-wrap .info{ flex:1; }
+.imagegen-preview-wrap .info b{ font-size:13px; display:block; }
+.imagegen-preview-wrap .info span{ font-size:12px; color:var(--ig-text-dim); }
+.imagegen-preview-wrap .change-btn{ font-size:12px; color:var(--ig-neon-blue); cursor:pointer; background:none; border:none; }
+
+.imagegen-meta-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--ig-glass-border);
+  margin-bottom:18px;
+  font-size:13px;
+}
+.imagegen-meta-row .cost{ color:var(--ig-neon-orange); font-weight:700; }
+.imagegen-meta-row .uses{ color:var(--ig-text-dim); }
+
+.imagegen-btn-generate{
+  width:100%;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  transition: all .35s;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+}
+.imagegen-btn-generate .inner-label{
+  width:100%;
+  letter-spacing:2px;
+  font-weight:700;
+  font-size:13px;
+  background:linear-gradient(90deg, var(--ig-neon-purple), var(--ig-neon-blue));
+  border-radius:14px;
+  color:white;
+  padding:14px;
+  text-align:center;
+}
+.imagegen-btn-generate:hover{ filter:brightness(1.15); transform:translateY(-2px); }
+.imagegen-btn-generate:active{ filter:brightness(1.3); transform:translateY(0); }
+.imagegen-btn-generate:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+
+.imagegen-loader-wrapper{
+  position:relative;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:18px;
+  height:180px;
+  font-size:1.3em;
+  font-weight:600;
+  color:var(--ig-text-main);
+}
+.imagegen-loader-wrapper.active{ display:flex; }
+
+.imagegen-loader-text{ position:relative; letter-spacing:0.05em; }
+.imagegen-loader-letter{
+  display:inline-block;
+  opacity:0;
+  animation: imagegen-loader-letter-anim 1.8s infinite linear;
+  background:linear-gradient(90deg,var(--ig-neon-purple),var(--ig-neon-blue));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.imagegen-loader-letter:nth-child(1){ animation-delay:0.05s; }
+.imagegen-loader-letter:nth-child(2){ animation-delay:0.1s; }
+.imagegen-loader-letter:nth-child(3){ animation-delay:0.15s; }
+.imagegen-loader-letter:nth-child(4){ animation-delay:0.2s; }
+.imagegen-loader-letter:nth-child(5){ animation-delay:0.25s; }
+.imagegen-loader-letter:nth-child(6){ animation-delay:0.3s; }
+.imagegen-loader-letter:nth-child(7){ animation-delay:0.35s; }
+.imagegen-loader-letter:nth-child(8){ animation-delay:0.4s; }
+.imagegen-loader-letter:nth-child(9){ animation-delay:0.45s; }
+.imagegen-loader-letter:nth-child(10){ animation-delay:0.5s; }
+
+@keyframes imagegen-loader-letter-anim{
+  0%{ opacity:0; transform:translateY(0); }
+  20%{ opacity:1; text-shadow:0 0 8px rgba(168,85,247,0.8); transform:translateY(-3px); }
+  50%{ opacity:0.3; }
+  100%{ opacity:0; transform:translateY(0); }
+}
+
+.imagegen-loader-ring{
+  width:56px; height:56px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,0.08);
+  border-top-color:var(--ig-neon-purple);
+  border-right-color:var(--ig-neon-blue);
+  animation:imagegen-spin 1s linear infinite;
+}
+@keyframes imagegen-spin{ to{ transform:rotate(360deg); } }
+
+.imagegen-result-wrap{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+.imagegen-result-wrap.active{ display:flex; }
+.imagegen-result-wrap img{
+  width:100%;
+  border-radius:16px;
+  border:1px solid var(--ig-glass-border);
+  box-shadow:0 0 30px rgba(168,85,247,0.25);
+}
+.imagegen-result-actions{ display:flex; gap:10px; width:100%; }
+
+.imagegen-btn-download{
+  flex:1;
+  padding:0.75em 1em;
+  font-size:13px;
+  font-weight:700;
+  border-radius:14px;
+  color:#f4f2ff;
+  letter-spacing:0.15em;
+  text-shadow:-1px 1px 6px rgba(168,85,247,0.6);
+  background-color:transparent;
+  border:2px solid rgba(168,85,247,0.6);
+  box-shadow: 0 0 0px 1px rgba(168,85,247,0.4),
+    0 0 10px 2px rgba(168,85,247,0.35),
+    inset 0 0 0px 1px rgba(168,85,247,0.3),
+    inset 0 0 10px 2px rgba(168,85,247,0.15);
+  transition: 150ms;
+  cursor:pointer;
+}
+.imagegen-btn-download:hover{
+  box-shadow: 0 0 0px 1px rgba(56,189,248,0.5),
+    0 0 14px 2px rgba(56,189,248,0.4),
+    inset 0 0 0px 1px rgba(56,189,248,0.3),
+    inset 0 0 22px 2px rgba(56,189,248,0.2);
+  text-shadow:0 0 10px rgba(56,189,248,0.8);
+  transform:translateY(-3px);
+}
+.imagegen-btn-download:active{ transform:translateY(1px); }
+
+.imagegen-btn-again{
+  flex:1;
+  padding:0.75em 1em;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  border-radius:14px;
+  color:var(--ig-text-dim);
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--ig-glass-border);
+  cursor:pointer;
+  transition:150ms;
+}
+.imagegen-btn-again:hover{ color:var(--ig-text-main); background:rgba(255,255,255,0.09); }
