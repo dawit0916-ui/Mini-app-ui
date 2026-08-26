@@ -1,16 +1,14 @@
 // Switch between shop sections
+// Switch between shop sections (now includes 'menu' as the hub view)
 function switchShopSection(section) {
     shopState.currentSection = section;
     document.querySelectorAll('.shop-section').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('.shop-tab-btn').forEach(el => el.classList.remove('active', 'bg-blue-600/30'));
-    
     document.getElementById(`shop-section-${section}`).classList.remove('hidden');
-    event.target.classList.add('active', 'bg-blue-600/30');
 
     if (section === 'courses') loadShopCourses();
     if (section === 'apk') loadShopAPKs();
     if (section === 'my-purchases') loadMyPurchases();
-        }
+}
 // Load courses from backend
 async function loadShopCourses() {
     try {
