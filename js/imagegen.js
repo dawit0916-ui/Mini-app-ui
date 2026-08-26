@@ -207,21 +207,19 @@ async function startImagegenGeneration(){
         fd.append('styleId', imagegenState.selectedStyle);
         fd.append('referenceImage', imagegenState.selectedFile);
 
-        const response = await fetch(`${RENDER_URL}/api/secure/shop/imagegen/generate`, {
+        const res = await secureFetch('/api/secure/shop/imagegen/generate', {
             method: 'POST',
-            headers: { 'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || '' },
             body: fd
         });
 
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-            throw new Error(data.error || 'Generation failed');
+        if (res.error) {
+            throw new Error(res.error);
         }
 
-        document.getElementById('imagegenResultImg').src = data.imageBase64;
-        if (cachedUserProfile) cachedUserProfile.balance = data.newBalance;
-        imagegenState.usesToday = imagegenState.dailyCap - data.usesRemaining;
-        if (typeof updateHeaderBalances === 'function') updateHeaderBalances();
+        document.getElementById('imagegenResultImg').src = res.imageBase64;
+        if (cachedUserProfile) cachedUserProfile.balance = res.newBalance;
+        imagegenState.usesToday = imagegenState.dailyCap - res.usesRemaining;
+        if (typeof updateHeaderBalances === 'function') updateHeaderBalances(res.newBalance);
 
         igShowStep('result');
     } catch (err) {
