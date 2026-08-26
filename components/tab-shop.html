@@ -1,53 +1,55 @@
-
 <div id="tab-shop" class="tab-content">
-    <!-- Shop Section Tabs (horizontal scroll) -->
-    <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-        <button onclick="switchShopSection('courses')" class="shop-tab-btn active px-4 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap glass transition-all">
-            📚 Courses
+
+    <!-- ===== SHOP HUB (default view) ===== -->
+    <div id="shop-section-menu" class="shop-section grid grid-cols-2 gap-3 pb-20">
+        <button onclick="switchShopSection('courses')" class="glass p-5 rounded-2xl border border-purple-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
+            <span class="text-3xl">📚</span>
+            <span class="text-xs font-black uppercase text-white">Courses</span>
         </button>
-        <button onclick="switchShopSection('apk')" class="shop-tab-btn px-4 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap glass transition-all">
-            📱 APK
+        <button onclick="switchShopSection('apk')" class="glass p-5 rounded-2xl border border-blue-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
+            <span class="text-3xl">📱</span>
+            <span class="text-xs font-black uppercase text-white">APK</span>
         </button>
-        <button onclick="switchShopSection('my-purchases')" class="shop-tab-btn px-4 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap glass transition-all">
-            ⭐ My Store
+        <button onclick="switchShopSection('my-purchases')" class="glass p-5 rounded-2xl border border-green-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
+            <span class="text-3xl">⭐</span>
+            <span class="text-xs font-black uppercase text-white">My Store</span>
+        </button>
+        <button onclick="openImageGenModal()" class="glass p-5 rounded-2xl border border-pink-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
+            <span class="text-3xl">🎨</span>
+            <span class="text-xs font-black uppercase text-white">AI Image</span>
         </button>
     </div>
- 
+
     <!-- COURSES SECTION -->
-    <div id="shop-section-courses" class="shop-section">
-        <!-- Course Category Filter -->
+    <div id="shop-section-courses" class="shop-section hidden">
+        <button onclick="switchShopSection('menu')" class="flex items-center gap-1 text-[11px] font-black uppercase text-slate-400 mb-3">
+            ← Back
+        </button>
         <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-            <button onclick="filterCourses('all')" class="course-filter-btn active px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all bg-blue-600/30">
-                All
-            </button>
-            <button onclick="filterCourses('tiktok')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">
-                TikTok
-            </button>
-            <button onclick="filterCourses('youtube')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">
-                YouTube
-            </button>
-            <button onclick="filterCourses('dropshipping')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">
-                Dropship
-            </button>
+            <button onclick="filterCourses('all')" class="course-filter-btn active px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all bg-blue-600/30">All</button>
+            <button onclick="filterCourses('tiktok')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">TikTok</button>
+            <button onclick="filterCourses('youtube')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">YouTube</button>
+            <button onclick="filterCourses('dropshipping')" class="course-filter-btn px-3 py-1.5 rounded-full text-[11px] font-black uppercase whitespace-nowrap glass transition-all">Dropship</button>
         </div>
- 
-        <!-- Courses Grid -->
         <div id="shop-courses-grid" class="grid grid-cols-2 gap-3 pb-20">
             <p class="text-center text-slate-500 text-xs py-10 col-span-2">Loading courses...</p>
         </div>
     </div>
- 
+
     <!-- APK SECTION -->
     <div id="shop-section-apk" class="shop-section hidden">
+        <button onclick="switchShopSection('menu')" class="flex items-center gap-1 text-[11px] font-black uppercase text-slate-400 mb-3">← Back</button>
         <div id="shop-apk-grid" class="grid grid-cols-2 gap-3 pb-20">
             <p class="text-center text-slate-500 text-xs py-10 col-span-2">Loading APKs...</p>
         </div>
     </div>
- 
+
     <!-- MY PURCHASES SECTION -->
     <div id="shop-section-my-purchases" class="shop-section hidden">
+        <button onclick="switchShopSection('menu')" class="flex items-center gap-1 text-[11px] font-black uppercase text-slate-400 mb-3">← Back</button>
         <div id="shop-my-purchases-list" class="space-y-3 pb-20">
             <p class="text-center text-slate-500 text-xs py-10">Loading your purchases...</p>
         </div>
     </div>
+
 </div>
