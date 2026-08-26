@@ -128,7 +128,7 @@ function renderImagegenStyleCards(){
         <div class="imagegen-style-card" data-style-id="${style.styleId}" data-name="${style.name}"
              style="transform: translate(-50%, -50%) rotateY(${angle}deg) translateZ(150px);"
              onclick="selectImagegenStyle(this)">
-            <img src="${style.previewImageUrl}" alt="${style.name}">
+            <img src="assets/thumbnails/${style.previewThumbnail}" onerror="this.src='assets/thumbnails/default.png'" alt="${style.name}">
             <div class="imagegen-name-tag">${style.name}</div>
         </div>`;
     }).join('');
