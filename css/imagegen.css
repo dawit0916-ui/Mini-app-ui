@@ -76,11 +76,9 @@
 .imagegen-carousel-stage{
   position:relative;
   width:100%;
+  max-width:210px;
+  margin:0 auto 10px;
   height:190px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-bottom:10px;
   overflow:hidden;
   border-radius:16px;
   background:rgba(0,0,0,0.25);
@@ -89,11 +87,9 @@
 
 .imagegen-card-3d{
   position: relative;
-  width: 240px;
-  height: 120px;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
-  transform: perspective(800px) rotateY(0deg);
-  will-change: transform;
   touch-action: none;
   cursor: grab;
 }
@@ -108,12 +104,10 @@
   border-radius: 0.5rem;
   top: 50%;
   left: 50%;
-  transform-origin: center center;
-  transition: box-shadow 200ms, border-color 200ms, transform 200ms;
-  will-change: transform, filter;
   overflow:hidden;
   cursor:pointer;
   box-shadow:0 5px 14px rgba(0,0,0,0.5);
+  /* no transform/transition here anymore — JS sets transform every frame */
 }
 
 .imagegen-card-3d .imagegen-style-card img{
@@ -132,9 +126,7 @@
 .imagegen-style-card.selected{
   border-color: var(--ig-neon-purple) !important;
   box-shadow: 0 0 0 3px rgba(168,85,247,0.35), 0 0 20px rgba(168,85,247,0.6) !important;
-  transform: translate(-50%, -50%) scale(1.15) !important;
   z-index: 20;
-  filter: brightness(1) !important;
 }
 
 .imagegen-carousel-hint{
