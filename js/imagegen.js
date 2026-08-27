@@ -12,8 +12,9 @@ let imagegenState = {
 };
 
 // ===== drag-enabled 3D carousel state =====
-let igRotation = 0;
-let igStartRotation = 0;
+// ===== three-loop chain carousel state =====
+let igT = 0;
+let igStartT = 0;
 let igStartX = 0;
 let igIsPointerDown = false;
 let igDragMoved = 0;
@@ -21,13 +22,52 @@ const igDragThreshold = 6;
 let igJustDragged = false;
 let igAutoRotating = true;
 let igAutoRotateTimeout = null;
-const igAutoRotateSpeed = 0.05;
-let igAnglePerCard = 36;
+const igAutoRotateSpeed = 0.014;
+const IG_R = 68;         // radius of each loop
+const IG_SPACING = 150;  // distance between loop centers — must exceed stage's visible half-width to clip side loops
+const IG_TWO_PI = Math.PI * 2;
+const IG_FRONT_S = IG_TWO_PI * 1 + Math.PI / 2; // "front of middle loop" target for selection snap
 
 const igCarouselEl = document.getElementById('imagegenStyleCarousel');
 
-function igApplyRotation(){
-    igCarouselEl.style.transform = `perspective(800px) rotateY(${igRotation}deg)`;
+// position of one card at combined phase s, across a 3-loop chain (loop index cycles 0,1,2)
+function igLoopPos(s){
+    const loopIdx = (((Math.floor(s / IG_TWO_PI) % 3) + 3) % 3);
+    const angle = ((s % IG_TWO_PI) + IG_TWO_PI) % IG_TWO_PI;
+    const centerX = (loopIdx - 1) * IG_SPACING;
+    const x = centerX + IG_R * Math.cos(angle);
+    const z = IG_R * Math.sin(angle);
+    return { x, z };
+}
+
+function igApplyPositions(){
+    const cards = igCarouselEl.querySelectorAll('.imagegen-style-card');
+    const count = cards.length;
+    if (count === 0) return;
+
+    const positions = [];
+    cards.forEach((card, i) => {
+        const s = igT + i * (3 * IG_TWO_PI / count);
+        positions.push(igLoopPos(s));
+    });
+
+    const zVals = positions.map(p => p.z);
+    const zMin = Math.min(...zVals), zMax = Math.max(...zVals);
+    const zRange = (zMax - zMin) || 1;
+
+    cards.forEach((card, i) => {
+        const { x, z } = positions[i];
+        const depth = (z - zMin) / zRange;
+        const isSelected = card.dataset.styleId === imagegenState.selectedStyle;
+
+        const scale = (0.55 + depth * 0.55) * (isSelected ? 1.15 : 1);
+        const opacity = 0.4 + depth * 0.6;
+        const zIndex = Math.round(depth * 100) + (isSelected ? 200 : 0);
+
+        card.style.transform = `translate(${x}px, -50%) translateX(-50%) scale(${scale})`;
+        card.style.opacity = opacity;
+        card.style.zIndex = zIndex;
+    });
 }
 
 function igOnPointerDown(e){
@@ -35,23 +75,20 @@ function igOnPointerDown(e){
     igAutoRotating = false;
     if (igAutoRotateTimeout) clearTimeout(igAutoRotateTimeout);
     igStartX = e.clientX;
-    igStartRotation = igRotation;
+    igStartT = igT;
     igDragMoved = 0;
-    igCarouselEl.style.transition = 'none';
 }
 
 function igOnPointerMove(e){
     if (!igIsPointerDown) return;
     const delta = e.clientX - igStartX;
     igDragMoved += Math.abs(e.movementX || 0);
-    igRotation = igStartRotation + delta * 0.4;
-    igApplyRotation();
+    igT = igStartT + delta * 0.015;
 }
 
 function igOnPointerUp(){
     if (!igIsPointerDown) return;
     igIsPointerDown = false;
-    igCarouselEl.style.transition = 'transform 200ms';
 
     if (igDragMoved > igDragThreshold){
         igJustDragged = true;
@@ -69,9 +106,9 @@ window.addEventListener('pointercancel', igOnPointerUp);
 
 function igAutoRotateLoop(){
     if (igAutoRotating && !igIsPointerDown){
-        igRotation -= igAutoRotateSpeed;
-        igApplyRotation();
+        igT += igAutoRotateSpeed;
     }
+    igApplyPositions();
     requestAnimationFrame(igAutoRotateLoop);
 }
 igAutoRotateLoop();
@@ -148,13 +185,13 @@ function selectImagegenStyle(el){
     const displayName = el.dataset.name;
     const imgSrc = el.querySelector('img').src;
 
-    const index = Array.from(el.parentNode.children).indexOf(el);
-    let targetAngle = -(index * igAnglePerCard);
-    const current = igRotation % 360;
-    let diff = ((targetAngle - current + 540) % 360) - 180;
-    igCarouselEl.style.transition = 'transform 450ms cubic-bezier(0.25, 1, 0.5, 1)';
-    igRotation = igRotation + diff;
-    igApplyRotation();
+    const cards = Array.from(el.parentNode.children);
+    const index = cards.indexOf(el);
+    const count = cards.length;
+    const cardPhase = igT + index * (3 * IG_TWO_PI / count);
+
+    let diff = ((IG_FRONT_S - cardPhase + Math.PI) % IG_TWO_PI) - Math.PI;
+    igT += diff;
 
     document.getElementById('imagegenSelectedStyleImg').src = imgSrc;
     document.getElementById('imagegenSelectedStyleName').textContent = displayName;
@@ -166,7 +203,6 @@ function selectImagegenStyle(el){
         document.getElementById('imagegenUploadBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 400);
 }
-
 // ===== File upload =====
 function handleImagegenFileSelect(e){
     const file = e.target.files[0];
