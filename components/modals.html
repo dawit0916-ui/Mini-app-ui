@@ -652,3 +652,19 @@ Enhanced with touch barrier, custom controls, and anti-download measures
 
   </div>
 </div>
+<div class="sheet-backdrop" id="admin-imagegen-edit-drawer">
+    <div class="sheet-drawer">
+        <div class="sheet-title">Edit Style: <span id="edit-imagegen-display-id"></span></div>
+        <input id="edit-imagegen-name" type="text" placeholder="Display name" class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white mb-2">
+        <textarea id="edit-imagegen-prompt" rows="3" class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white mb-2"></textarea>
+        <input id="edit-imagegen-thumbnail" type="text" placeholder="Thumbnail filename" class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white mb-2">
+        <input id="edit-imagegen-order" type="number" class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white mb-2">
+        <label class="flex items-center gap-2 text-xs text-slate-400 mb-3">
+            <input id="edit-imagegen-active" type="checkbox"> Active
+        </label>
+        <div class="flex gap-2">
+            <button onclick="closeImagegenEditDrawer()" class="flex-1 py-2 bg-white/10 text-slate-300 rounded-lg text-xs font-black uppercase">Cancel</button>
+            <button id="btn-save-imagegen-edit" onclick="saveImagegenEdit()" class="flex-1 py-2 bg-purple-600 text-white rounded-lg text-xs font-black uppercase">💾 Save Changes</button>
+        </div>
+    </div>
+</div>
