@@ -8,8 +8,7 @@ function switchShopAdminTab(tab) {
         el.classList.remove('bg-purple-600', 'text-white');
         el.classList.add('text-slate-400');
     });
-    // Only hide content panels, not the tab bar buttons
-    ['courses', 'apk', 'stats'].forEach(t => {
+    ['courses', 'apk', 'imagegen', 'stats'].forEach(t => {
         document.getElementById(`admin-shop-${t}`).classList.add('hidden');
     });
 
@@ -18,6 +17,7 @@ function switchShopAdminTab(tab) {
 
     if (tab === 'courses') loadAdminCourses();
     if (tab === 'apk') loadAdminAPKs();
+    if (tab === 'imagegen') loadAdminImagegenPanel();
     if (tab === 'stats') loadShopStats();
 }
 // Load admin courses
@@ -350,6 +350,189 @@ async function saveShopEdit() {
     } finally {
         btn.disabled = false;
         btn.textContent = '💾 Save Changes';
+    }
+}
+// ===== AI IMAGE GENERATOR ADMIN =====
+
+async function loadAdminImagegenPanel() {
+    await loadAdminImagegenStyles();
+    await loadAdminImagegenConfig();
+}
+
+async function loadAdminImagegenStyles() {
+    try {
+        const res = await secureFetch('/api/admin/shop/imagegen/styles', { method: 'GET' });
+        const styles = res.styles || [];
+
+        let html = styles.map(style => `
+            <div class="glass p-3 rounded-xl border border-pink-500/20">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1 min-w-0">
+                        <h5 class="text-xs font-black text-white truncate">${style.name}${style.active === false ? ' <span class="text-[8px] text-orange-400">(inactive)</span>' : ''}</h5>
+                        <p class="text-[8px] text-slate-500">${style.styleId} • order ${style.order}</p>
+                    </div>
+                    <div class="flex gap-2 shrink-0 ml-2">
+                        <button onclick="openImagegenEditDrawer('${style.styleId}')" class="text-[10px] text-blue-400 hover:text-blue-300">Edit</button>
+                        <button onclick="deleteAdminImagegenStyle('${style.styleId}')" class="text-[10px] text-red-400 hover:text-red-300">✕</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('admin-imagegen-list').innerHTML = html || '<p class="text-center text-[10px] text-slate-500 py-3">No styles yet</p>';
+    } catch (err) {
+        console.error('Load admin imagegen styles error:', err);
+    }
+}
+
+async function createAdminImagegenStyle() {
+    try {
+        const styleId = document.getElementById('admin-imagegen-styleid').value.trim();
+        const name = document.getElementById('admin-imagegen-name').value.trim();
+        const promptTemplate = document.getElementById('admin-imagegen-prompt').value.trim();
+        const previewThumbnail = document.getElementById('admin-imagegen-thumbnail').value.trim();
+        const order = parseInt(document.getElementById('admin-imagegen-order').value) || 0;
+
+        if (!styleId || !name || !promptTemplate) {
+            showNotificationToast('Style ID, name, and prompt required', 'error');
+            return;
+        }
+
+        const res = await secureFetch('/api/admin/shop/imagegen/style/create', {
+            method: 'POST',
+            body: JSON.stringify({ styleId, name, promptTemplate, previewThumbnail, order })
+        });
+
+        if (res.success) {
+            showNotificationToast('Style created', 'success');
+            document.getElementById('admin-imagegen-styleid').value = '';
+            document.getElementById('admin-imagegen-name').value = '';
+            document.getElementById('admin-imagegen-prompt').value = '';
+            document.getElementById('admin-imagegen-thumbnail').value = '';
+            document.getElementById('admin-imagegen-order').value = '';
+            loadAdminImagegenStyles();
+        } else {
+            showNotificationToast(res.error || 'Failed to create style', 'error');
+        }
+    } catch (err) {
+        showNotificationToast(err.error || 'Failed to create style', 'error');
+    }
+}
+
+async function deleteAdminImagegenStyle(styleId) {
+    showAppConfirm('Delete this style?', async (confirmed) => {
+        if (!confirmed) return;
+        try {
+            const res = await secureFetch(`/api/admin/shop/imagegen/style/${styleId}`, { method: 'DELETE' });
+            if (res.success) {
+                showNotificationToast('Style deleted', 'success');
+                loadAdminImagegenStyles();
+            } else {
+                showNotificationToast(res.error || 'Failed to delete', 'error');
+            }
+        } catch (err) {
+            showNotificationToast('Failed to delete style', 'error');
+        }
+    });
+}
+
+let currentEditingImagegenStyleId = null;
+
+async function openImagegenEditDrawer(styleId) {
+    try {
+        const res = await secureFetch('/api/admin/shop/imagegen/styles', { method: 'GET' });
+        const style = (res.styles || []).find(s => s.styleId === styleId);
+        if (!style) return showNotificationToast('Style not found', 'error');
+
+        currentEditingImagegenStyleId = styleId;
+
+        document.getElementById('edit-imagegen-display-id').textContent = styleId;
+        document.getElementById('edit-imagegen-name').value = style.name || '';
+        document.getElementById('edit-imagegen-prompt').value = style.promptTemplate || '';
+        document.getElementById('edit-imagegen-thumbnail').value = style.previewThumbnail || '';
+        document.getElementById('edit-imagegen-order').value = style.order || 0;
+        document.getElementById('edit-imagegen-active').checked = style.active !== false;
+
+        document.getElementById('admin-imagegen-edit-drawer').classList.add('active');
+    } catch (err) {
+        console.error('openImagegenEditDrawer error:', err);
+        showNotificationToast('Failed to load style', 'error');
+    }
+}
+
+function closeImagegenEditDrawer() {
+    document.getElementById('admin-imagegen-edit-drawer').classList.remove('active');
+    currentEditingImagegenStyleId = null;
+}
+
+async function saveImagegenEdit() {
+    if (!currentEditingImagegenStyleId) return;
+
+    const updates = {
+        name: document.getElementById('edit-imagegen-name').value,
+        promptTemplate: document.getElementById('edit-imagegen-prompt').value,
+        previewThumbnail: document.getElementById('edit-imagegen-thumbnail').value,
+        order: parseInt(document.getElementById('edit-imagegen-order').value) || 0,
+        active: document.getElementById('edit-imagegen-active').checked
+    };
+
+    const btn = document.getElementById('btn-save-imagegen-edit');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    try {
+        const res = await secureFetch(`/api/admin/shop/imagegen/style/${currentEditingImagegenStyleId}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates)
+        });
+
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showNotificationToast('Style updated', 'success');
+            closeImagegenEditDrawer();
+            loadAdminImagegenStyles();
+        } else {
+            showNotificationToast(res.error || 'Failed to update', 'error');
+        }
+    } catch (err) {
+        console.error('saveImagegenEdit error:', err);
+        showNotificationToast('Failed to save changes', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Changes';
+    }
+}
+
+// ===== pricing/cap config =====
+async function loadAdminImagegenConfig() {
+    try {
+        const res = await secureFetch('/api/admin/shop/imagegen/config', { method: 'GET' });
+        if (res.success) {
+            document.getElementById('admin-imagegen-cost').value = res.config.cost;
+            document.getElementById('admin-imagegen-cap').value = res.config.dailyCap;
+        }
+    } catch (err) {
+        console.error('Load imagegen config error:', err);
+    }
+}
+
+async function saveAdminImagegenConfig() {
+    try {
+        const cost = parseInt(document.getElementById('admin-imagegen-cost').value);
+        const dailyCap = parseInt(document.getElementById('admin-imagegen-cap').value);
+
+        const res = await secureFetch('/api/admin/shop/imagegen/config', {
+            method: 'PUT',
+            body: JSON.stringify({ cost, dailyCap })
+        });
+
+        if (res.success) {
+            showNotificationToast('Config saved', 'success');
+        } else {
+            showNotificationToast(res.error || 'Failed to save config', 'error');
+        }
+    } catch (err) {
+        showNotificationToast('Failed to save config', 'error');
     }
 }
 
