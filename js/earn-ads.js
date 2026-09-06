@@ -702,7 +702,7 @@ async function loadAndShowAdsgram() {
 
 // Fires when the AdsGram task widget confirms the user completed the task.
 let _fastTaskClaimInFlight = false;
-const FAST_TASK_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes between claims
+const FAST_TASK_COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes between claims
 
 async function onFastTaskReward() {
     console.log("AdsGram fired reward! Is lock active?", _fastTaskClaimInFlight);
