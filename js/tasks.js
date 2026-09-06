@@ -357,7 +357,7 @@ async function loadAvailableTasks() {
                             <div class="min-w-0">
                                 <h4 class="text-sm font-bold text-white truncate">${task.title}</h4>
                                 ${isDaily ? `<span class="text-[9px] text-green-400 font-black">Daily Task</span>` : ''}
-                                <span class="text-[10px] text-green-400 font-black tracking-wide block mt-0.5">+${task.reward.toFixed(2)} DASH</span>
+                                <span class="text-[10px] text-amber-400 font-black tracking-wide block mt-0.5">+${task.reward.toFixed(2)} DASH</span>
                             </div>
                         </div>
                         <button id="btn-task-${taskId}" 
