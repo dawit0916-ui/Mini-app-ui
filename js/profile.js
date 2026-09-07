@@ -77,16 +77,7 @@ if (isBanned) {
         console.error("Profile loader error:", err);
     }
 }
-let currentReferralLink = data.profile.referralLink || '';
 
-function copyReferralLink() {
-    if (!currentReferralLink) return;
-    navigator.clipboard.writeText(currentReferralLink).then(() => {
-        showNotificationToast('Referral link copied!'); // reuse your existing toast fn
-    }).catch(() => {
-        showNotificationToast('Could not copy link');
-    });
-}
 function copyProfileTgId() {
     const id = document.getElementById('profile-id').innerText;
     navigator.clipboard.writeText(id);
@@ -174,16 +165,3 @@ async function updateHeaderBalances(dash, usdt, tickets) {
     const dashEl = document.getElementById('header-dash-val');
     if (dashEl) dashEl.innerText = parseInt(dash || 0).toLocaleString();
 }
-// =====================================================
-// SHOP FUNCTIONS
-// ======= 
-// Current shop state
-let shopState = {
-    currentSection: 'courses',
-    currentFilter: 'all',
-    courses: [],
-    apks: [],
-    myPurchases: [],
-    selectedProduct: null,
-    adminCourseId: null
-};
