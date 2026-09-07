@@ -15,6 +15,7 @@
 const COMPONENTS = [
     { url: 'components/loading-screen.html', mount: 'mount-loading-screen' },
     { url: 'components/verify-gate.html',    mount: 'mount-verify-gate' },
+    { url: 'components/streak.html',         mount: 'mount-streak' },
     { url: 'components/header.html',         mount: 'mount-header' },
     { url: 'components/tab-home.html',       mount: 'mount-tab-home' },
     { url: 'components/tab-friends.html',    mount: 'mount-tab-friends' },
@@ -27,7 +28,7 @@ const COMPONENTS = [
     { url: 'components/modals.html',         mount: 'mount-modals' },
     { url: 'components/popups.html',         mount: 'mount-popups' },
     { url: 'components/bottom-nav.html',     mount: 'mount-bottom-nav' },
-   { url: 'components/streak.html',         mount: 'mount-streak' },
+   
 
 ];
 
