@@ -288,6 +288,7 @@ async function initApp() {
         console.error("Initialization pipeline caught an execution error:", err.message);
     } finally {
         hideLoadingScreen();
+        checkStreakOnAppStart();
     }
         }
     // pull-to-refresh setup continues below, unchanged
