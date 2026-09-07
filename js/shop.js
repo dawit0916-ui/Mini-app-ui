@@ -1,3 +1,17 @@
+// =====================================================
+// SHOP FUNCTIONS
+// ======= 
+// Current shop state
+let shopState = {
+    currentSection: 'courses',
+    currentFilter: 'all',
+    courses: [],
+    apks: [],
+    myPurchases: [],
+    selectedProduct: null,
+    adminCourseId: null
+};
+
 // Switch between shop sections
 // Switch between shop sections (now includes 'menu' as the hub view)
 function switchShopSection(section) {
