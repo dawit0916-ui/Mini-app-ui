@@ -1,4 +1,4 @@
-tyasync function loadUserProfileMetrics() {
+async function loadUserProfileMetrics() {
     try {
         let telegramId = 0, firstName = "You", username = "", photoUrl = "";
         if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
