@@ -9,6 +9,9 @@
             <img src="/assets/images/dash-coin.png" class="w-7 h-7 object-contain">
             <span id="profile-dash" class="text-2xl font-black text-orange-300">0</span>
         </div>
+        <div class="flex items-center justify-center gap-1.5 text-[10px] font-bold text-amber-300 mb-3">
+        🔥 <span id="profile-streak">0</span>-day streak
+        </div>
 
         <!-- Level Badge -->
         <button onclick="switchTab('levels', document.getElementById('nav-item'))" class="w-full flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-2xl p-3.5 mb-4 border border-white/10 active:scale-[0.98] transition-all text-left">
@@ -21,6 +24,9 @@
             </div>
             <span class="text-slate-500 text-lg shrink-0">›</span>
         </button>
+        <div class="flex items-center justify-center gap-1.5 text-[9px] font-bold text-cyan-300 mt-1.5">
+         🏅 Rank <span id="profile-rank">-</span> · Top <span id="profile-top-percent">-</span>%
+        </div>
 
         <button onclick="upgradeToNextLevel()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
             🎁 Upgrade to Next Level
@@ -42,6 +48,9 @@
             <p class="text-[8px] text-slate-500 uppercase font-black tracking-wider mt-0.5">Tasks Done</p>
         </div>
     </div>
+    <button onclick="copyReferralLink()" class="w-full glass py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 mb-4 border-emerald-500/20 text-emerald-400 active:scale-95 transition-all">
+      🔗 Copy Referral Link
+    </button>
 
     <!-- User Info Card -->
     <div class="glass p-5 mb-6 border-white/5">
