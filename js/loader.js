@@ -27,6 +27,8 @@ const COMPONENTS = [
     { url: 'components/modals.html',         mount: 'mount-modals' },
     { url: 'components/popups.html',         mount: 'mount-popups' },
     { url: 'components/bottom-nav.html',     mount: 'mount-bottom-nav' },
+   { url: 'components/streak.html',         mount: 'mount-streak' },
+
 ];
 
 // Order matters — this mirrors the original single <script> block's
@@ -34,6 +36,7 @@ const COMPONENTS = [
 const SCRIPTS = [
     'js/core.js',
     'js/utils.js',
+    'js/streak.js',
     'js/notifications.js',
     'js/navigation.js',
     'js/verification.js',
