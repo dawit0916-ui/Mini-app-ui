@@ -2,8 +2,7 @@ const DAILY_REWARDS = [50, 75, 100, 150, 200, 300, 500];
 
 async function checkStreakOnAppStart() {
     try {
-        const res = await secureFetch('/api/secure/streak/status');
-        const data = await res.json();
+        const data = await secureFetch('/api/secure/streak/status');
         if (!data.success) return;
 
         renderStreakDays(data.streakDay, data.claimedToday);
@@ -40,8 +39,7 @@ function renderStreakDays(activeDay, claimedToday) {
 
 async function claimStreakReward() {
     try {
-        const res = await secureFetch('/api/secure/streak/claim', { method: 'POST' });
-        const data = await res.json();
+        const data = await secureFetch('/api/secure/streak/claim', { method: 'POST' });
         if (!data.success) {
             showNotificationToast(data.error || 'Could not claim reward');
             return;
@@ -54,7 +52,6 @@ async function claimStreakReward() {
         showNotificationToast('Something went wrong claiming your reward');
     }
 }
-
 function closeStreakModal() {
     document.getElementById('streak-modal-overlay').classList.add('hidden');
 }
