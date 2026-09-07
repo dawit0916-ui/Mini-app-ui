@@ -27,9 +27,8 @@
         <div class="flex items-center justify-center gap-1.5 text-[9px] font-bold text-cyan-300 mt-1.5">
          🏅 Rank <span id="profile-rank">-</span> · Top <span id="profile-top-percent">-</span>%
         </div>
-
-        <button onclick="upgradeToNextLevel()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
-            🎁 Upgrade to Next Level
+        <button onclick="openLeaderboardDrawer('points')" class="w-full glass py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 mb-4 border-yellow-500/20 text-yellow-400 active:scale-95 transition-all">
+         🏆 View Dash Leaderboard
         </button>
     </div>
 
@@ -94,14 +93,10 @@
         </div>
     </div>
 
-    <button onclick="openLeaderboardDrawer('points')" class="w-full glass py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 mb-4 border-yellow-500/20 text-yellow-400 active:scale-95 transition-all">
-    🏆 View Dash Leaderboard
-   </button>
-
     <!-- Contact Support Card -->
     <button onclick="openSupportDrawer()" class="w-full glass p-6 rounded-3xl flex flex-col items-center gap-2 border-white/5 active:scale-[0.98] transition-all">
         <img src="/assets/images/icon-help.png" class="w-12 h-12 object-contain drop-shadow-lg">
         <p class="text-xs font-bold text-slate-400">Having Trouble?</p>
-        <p class="text-sm font-black text-white">Contact Support </p>
+        <p class="text-sm font-black text-white">Contact Support we'll answer</p>
     </button>
 </div>
