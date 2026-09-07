@@ -1,4 +1,4 @@
-async function loadUserProfileMetrics() {
+tyasync function loadUserProfileMetrics() {
     try {
         let telegramId = 0, firstName = "You", username = "", photoUrl = "";
         if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
@@ -53,6 +53,10 @@ async function loadUserProfileMetrics() {
             document.getElementById('profile-total-earned').innerText = (data.total_earned || 0).toLocaleString();
             document.getElementById('profile-referrals').innerText = data.referrals || 0;
             document.getElementById('profile-tasks-done').innerText = data.tasksCompletedCount || 0;
+            // inside your existing profile-render function, alongside the other field sets:
+            document.getElementById('profile-streak').textContent = data.profile.currentStreak ?? 0;
+            document.getElementById('profile-rank').textContent = data.profile.rank ?? '-';
+            document.getElementById('profile-top-percent').textContent = data.profile.topPercent ?? '-';
 
       // Ban status block
 const banBlock  = document.getElementById('profile-ban-block');
@@ -73,7 +77,16 @@ if (isBanned) {
         console.error("Profile loader error:", err);
     }
 }
+let currentReferralLink = data.profile.referralLink || '';
 
+function copyReferralLink() {
+    if (!currentReferralLink) return;
+    navigator.clipboard.writeText(currentReferralLink).then(() => {
+        showNotificationToast('Referral link copied!'); // reuse your existing toast fn
+    }).catch(() => {
+        showNotificationToast('Could not copy link');
+    });
+}
 function copyProfileTgId() {
     const id = document.getElementById('profile-id').innerText;
     navigator.clipboard.writeText(id);
