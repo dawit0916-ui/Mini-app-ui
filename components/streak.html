@@ -1,0 +1,25 @@
+<!-- Streak Claim Modal — hidden by default, shown by JS on app start if claimedToday === false -->
+<div id="streak-modal-overlay" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass max-w-sm w-full p-6 rounded-3xl relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl"></div>
+
+        <div class="text-center mb-5">
+            <p class="text-3xl mb-1">🔥</p>
+            <h3 class="text-lg font-black text-white">Daily Streak</h3>
+            <p class="text-xs text-slate-400 mt-1">Come back every day for bigger rewards</p>
+        </div>
+
+        <!-- 7-day row -->
+        <div id="streak-days-grid" class="grid grid-cols-7 gap-1.5 mb-5">
+            <!-- populated by JS: 7 pills, each showing day number + reward, current day highlighted -->
+        </div>
+
+        <button id="streak-claim-btn" onclick="claimStreakReward()" class="w-full btn-premium py-3 rounded-xl font-black uppercase text-sm transition-all active:scale-[0.98]">
+            🎁 Claim Day <span id="streak-claim-day-label">1</span> Reward
+        </button>
+
+        <button onclick="closeStreakModal()" class="w-full text-center text-[10px] text-slate-500 font-bold mt-3 uppercase tracking-wider">
+            Maybe later
+        </button>
+    </div>
+</div>
