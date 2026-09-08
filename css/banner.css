@@ -91,3 +91,71 @@
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+.admin-panel { padding: 16px; }
+.admin-panel.hidden { display: none; }
+
+.admin-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 14px;
+}
+
+.banner-sort-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-weight: 700;
+}
+.banner-sort-btn.active {
+  background: var(--accent-color, #00ffcc);
+  color: #000;
+}
+
+.banner-admin-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  align-items: center;
+}
+.banner-admin-thumb {
+  width: 80px;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.banner-admin-info { flex: 1; min-width: 0; }
+.banner-admin-title { color: #fff; font-weight: 700; font-size: 13px; }
+.banner-admin-meta { color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 2px; }
+.banner-admin-inactive { opacity: 0.4; }
+.banner-admin-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.banner-admin-actions button {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 11px;
+}
+
+.modal.hidden { display: none; }
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: flex-end;
+  z-index: 1000;
+}
+.modal-content {
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+}
