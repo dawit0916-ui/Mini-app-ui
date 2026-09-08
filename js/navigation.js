@@ -24,7 +24,7 @@ if (btn) {
 
     tg.HapticFeedback.selectionChanged();
     
-    if(tabId === 'home') loadAvailableTasks();
+    if(tabId === 'home') { loadAvailableTasks(); initBannerCarousel(); }
     if(tabId === 'earn') loadAndShowAdsgram();
     if(tabId === 'history') loadUserHistory();
     if(tabId === 'friends') loadReferralData();
