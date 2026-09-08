@@ -186,3 +186,245 @@ function startAutoAdvance() {
 function stopAutoAdvance() {
   if (autoAdvanceTimer) clearInterval(autoAdvanceTimer);
 }
+
+// ============================================
+// ADMIN — BANNER MANAGEMENT
+// ============================================
+
+let adminBannerSlides = [];
+let bannerSortMode = 'order'; // 'order' | 'clicks'
+let editingBannerId = null;
+
+const BANNER_ACTION_TARGETS = {
+  'tab': ['home', 'earn', 'history', 'friends', 'admin', 'profile', 'levels', 'shop', 'reminders'],
+  'shop-section': ['courses', 'apk', 'my-purchases'],
+  'earn-section': ['ads', 'daily', 'youtube']
+};
+
+async function loadAdminBanners() {
+  try {
+    const res = await secureFetch('/api/admin/banners');
+    const data = await res.json();
+    adminBannerSlides = data.slides || [];
+    renderAdminBannerList();
+  } catch (err) {
+    console.error('Load admin banners error:', err);
+    showAppAlert('Failed to load banners', 'error');
+  }
+}
+
+function setBannerSort(mode) {
+  bannerSortMode = mode;
+  document.getElementById('bannerSortDefault').classList.toggle('active', mode === 'order');
+  document.getElementById('bannerSortClicks').classList.toggle('active', mode === 'clicks');
+  renderAdminBannerList();
+}
+
+function renderAdminBannerList() {
+  const list = document.getElementById('bannerAdminList');
+  if (!list) return;
+
+  const sorted = [...adminBannerSlides].sort((a, b) => {
+    return bannerSortMode === 'clicks'
+      ? b.clickCount - a.clickCount
+      : a.order - b.order;
+  });
+
+  if (sorted.length === 0) {
+    list.innerHTML = `<p class="text-white/50 text-sm text-center py-6">No banners yet. Tap "+ Add Slide" to create one.</p>`;
+    return;
+  }
+
+  list.innerHTML = sorted.map(s => `
+    <div class="banner-admin-row ${!s.isActive ? 'banner-admin-inactive' : ''}">
+      <img src="${s.imageUrl}" class="banner-admin-thumb">
+      <div class="banner-admin-info">
+        <div class="banner-admin-title">${s.title || '(untitled)'}</div>
+        <div class="banner-admin-meta">
+          Order ${s.order} · ${s.actionType}${s.actionTarget ? ' → ' + s.actionTarget : ''}
+        </div>
+        <div class="banner-admin-meta">
+          ${s.clickCount || 0} clicks${s.resetClicksAt ? ' · reset ' + timeAgo(s.resetClicksAt) : ''}
+        </div>
+      </div>
+      <div class="banner-admin-actions">
+        <button onclick="openBannerForm('${s._id}')">Edit</button>
+        <button onclick="resetBannerClicks('${s._id}')">Reset</button>
+        <button onclick="deleteBannerSlide('${s._id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function timeAgo(dateStr) {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diffMs / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return '1d ago';
+  return `${days}d ago`;
+}
+
+// ---- Create / Edit form ----
+
+function openBannerForm(slideId) {
+  editingBannerId = slideId;
+  const modal = document.getElementById('bannerFormModal');
+  const title = document.getElementById('bannerFormTitle');
+
+  if (slideId) {
+    const s = adminBannerSlides.find(b => b._id === slideId);
+    if (!s) return;
+    title.textContent = 'Edit Banner';
+    document.getElementById('bannerImageUrlField').value = s.imageUrl;
+    document.getElementById('bannerImagePreview').src = s.imageUrl;
+    document.getElementById('bannerImagePreview').classList.remove('hidden');
+    document.getElementById('bannerTitleField').value = s.title || '';
+    document.getElementById('bannerSubtitleField').value = s.subtitle || '';
+    document.getElementById('bannerOrderField').value = s.order || 0;
+    document.getElementById('bannerActionTypeField').value = s.actionType || 'none';
+    document.getElementById('bannerActiveField').checked = s.isActive !== false;
+    updateBannerActionTargetOptions();
+    if (s.actionType === 'url') {
+      document.getElementById('bannerActionTargetUrl').value = s.actionTarget || '';
+    } else {
+      document.getElementById('bannerActionTargetSelect').value = s.actionTarget || '';
+    }
+  } else {
+    title.textContent = 'Add Banner';
+    document.getElementById('bannerImageUrlField').value = '';
+    document.getElementById('bannerImagePreview').classList.add('hidden');
+    document.getElementById('bannerTitleField').value = '';
+    document.getElementById('bannerSubtitleField').value = '';
+    document.getElementById('bannerOrderField').value = adminBannerSlides.length; // sensible default: append to end
+    document.getElementById('bannerActionTypeField').value = 'none';
+    document.getElementById('bannerActiveField').checked = true;
+    updateBannerActionTargetOptions();
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeBannerForm() {
+  document.getElementById('bannerFormModal').classList.add('hidden');
+  document.getElementById('bannerImageInput').value = '';
+  editingBannerId = null;
+}
+
+function updateBannerActionTargetOptions() {
+  const type = document.getElementById('bannerActionTypeField').value;
+  const selectEl = document.getElementById('bannerActionTargetSelect');
+  const urlEl = document.getElementById('bannerActionTargetUrl');
+
+  if (type === 'url') {
+    selectEl.classList.add('hidden');
+    urlEl.classList.remove('hidden');
+    return;
+  }
+  urlEl.classList.add('hidden');
+
+  if (type === 'none' || !BANNER_ACTION_TARGETS[type]) {
+    selectEl.classList.add('hidden');
+    return;
+  }
+
+  selectEl.classList.remove('hidden');
+  selectEl.innerHTML = BANNER_ACTION_TARGETS[type]
+    .map(val => `<option value="${val}">${val}</option>`)
+    .join('');
+}
+
+async function uploadBannerImage() {
+  const fileInput = document.getElementById('bannerImageInput');
+  if (!fileInput.files[0]) return showAppAlert('Pick an image first', 'error');
+
+  const formData = new FormData();
+  formData.append('image', fileInput.files[0]);
+
+  try {
+    const res = await fetch('/api/admin/banners/upload', {
+      method: 'POST',
+      headers: { 'X-Admin-Init-Data': window.Telegram.WebApp.initData },
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      const imageUrl = `/api/image/${data.fileId}`;
+      document.getElementById('bannerImageUrlField').value = imageUrl;
+      document.getElementById('bannerImagePreview').src = imageUrl;
+      document.getElementById('bannerImagePreview').classList.remove('hidden');
+      showAppAlert('Image uploaded', 'success');
+    } else {
+      showAppAlert('Upload failed', 'error');
+    }
+  } catch (err) {
+    console.error('Banner upload error:', err);
+    showAppAlert('Upload failed', 'error');
+  }
+}
+
+async function saveBannerSlide() {
+  const imageUrl = document.getElementById('bannerImageUrlField').value;
+  if (!imageUrl) return showAppAlert('Upload an image first', 'error');
+
+  const actionType = document.getElementById('bannerActionTypeField').value;
+  const actionTarget = actionType === 'url'
+    ? document.getElementById('bannerActionTargetUrl').value
+    : document.getElementById('bannerActionTargetSelect').value;
+
+  const payload = {
+    imageUrl,
+    title: document.getElementById('bannerTitleField').value,
+    subtitle: document.getElementById('bannerSubtitleField').value,
+    order: Number(document.getElementById('bannerOrderField').value) || 0,
+    actionType,
+    actionTarget: actionType === 'none' ? '' : actionTarget,
+    isActive: document.getElementById('bannerActiveField').checked
+  };
+
+  try {
+    const url = editingBannerId ? `/api/admin/banners/${editingBannerId}` : '/api/admin/banners';
+    const method = editingBannerId ? 'PUT' : 'POST';
+    const res = await secureFetch(url, { method, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      showAppAlert('Banner saved', 'success');
+      closeBannerForm();
+      loadAdminBanners();
+    } else {
+      showAppAlert('Save failed', 'error');
+    }
+  } catch (err) {
+    console.error('Save banner error:', err);
+    showAppAlert('Save failed', 'error');
+  }
+}
+
+async function deleteBannerSlide(slideId) {
+  if (!confirm('Delete this banner?')) return;
+  try {
+    const res = await secureFetch(`/api/admin/banners/${slideId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      showAppAlert('Banner deleted', 'success');
+      loadAdminBanners();
+    }
+  } catch (err) {
+    console.error('Delete banner error:', err);
+    showAppAlert('Delete failed', 'error');
+  }
+}
+
+async function resetBannerClicks(slideId) {
+  if (!confirm('Reset click count for this banner?')) return;
+  try {
+    const res = await secureFetch(`/api/admin/banners/${slideId}/reset-clicks`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showAppAlert('Clicks reset', 'success');
+      loadAdminBanners();
+    }
+  } catch (err) {
+    console.error('Reset clicks error:', err);
+    showAppAlert('Reset failed', 'error');
+  }
+}
