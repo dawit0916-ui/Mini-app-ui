@@ -53,7 +53,8 @@ function switchAdminPanel(panelId) {
         'panel-console',
         'panel-support',
         'panel-ad-manager',
-        'panel-levels'
+        'panel-levels',
+        'panel-banners'
     ];
     
     if (panelId === 'hub') {
@@ -82,6 +83,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-shop-manager') loadAdminCourses();
                     if (panelId === 'panel-console') conStartBackendStream();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
+                    if (panelId === 'panel-banners') loadAdminBanners();
                 } else {
                     el.classList.add('hidden');
                 }
