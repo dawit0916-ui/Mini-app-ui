@@ -18,8 +18,8 @@ async function initBannerCarousel() {
   renderBannerSkeleton();
   try {
     const res = await secureFetch('/api/banners');
-    const data = await res.json();
-    bannerSlides = (data.slides && data.slides.length > 0) ? data.slides : [DEFAULT_BANNER_SLIDE];
+    
+    bannerSlides = (res.slides && res.slides.length > 0) ? res.slides : [DEFAULT_BANNER_SLIDE];
   } catch (err) {
     console.error('Failed to load banners:', err);
     bannerSlides = [DEFAULT_BANNER_SLIDE];
@@ -203,8 +203,8 @@ const BANNER_ACTION_TARGETS = {
 async function loadAdminBanners() {
   try {
     const res = await secureFetch('/api/admin/banners');
-    const data = await res.json();
-    adminBannerSlides = data.slides || [];
+    
+    adminBannerSlides = res.slides || [];
     renderAdminBannerList();
   } catch (err) {
     console.error('Load admin banners error:', err);
@@ -274,17 +274,13 @@ function updateBannerActionTargetOptions() {
 async function uploadBannerImage() {
   const fileInput = document.getElementById('banner-image-file');
   if (!fileInput.files[0]) return showAppAlert('Pick an image first', 'error');
-
   const formData = new FormData();
   formData.append('image', fileInput.files[0]);
-
   try {
-    const res = await fetch('/api/admin/banners/upload', {
+    const data = await secureFetch('/api/admin/banners/upload', {
       method: 'POST',
-      headers: { 'X-Admin-Init-Data': window.Telegram.WebApp.initData },
       body: formData
     });
-    const data = await res.json();
     if (data.success) {
       const url = `/api/image/${data.fileId}`;
       document.getElementById('banner-image-url').value = url;
@@ -363,8 +359,8 @@ async function saveBannerSlide() {
     const url = editingBannerId ? `/api/admin/banners/${editingBannerId}` : '/api/admin/banners';
     const method = editingBannerId ? 'PUT' : 'POST';
     const res = await secureFetch(url, { method, body: JSON.stringify(payload) });
-    const data = await res.json();
-    if (data.success) {
+
+    if (res.success) {
       showAppAlert('Banner saved', 'success');
       resetBannerForm();
       loadAdminBanners();
@@ -381,8 +377,8 @@ async function deleteBannerSlide(id) {
   if (!confirm('Delete this banner?')) return;
   try {
     const res = await secureFetch(`/api/admin/banners/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) {
+    
+    if (res.success) {
       showAppAlert('Banner deleted', 'success');
       loadAdminBanners();
     }
@@ -395,8 +391,8 @@ async function resetBannerClicks(id) {
   if (!confirm('Reset click count?')) return;
   try {
     const res = await secureFetch(`/api/admin/banners/${id}/reset-clicks`, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) {
+    
+    if (res.success) {
       showAppAlert('Clicks reset', 'success');
       loadAdminBanners();
     }
