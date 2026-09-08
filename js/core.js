@@ -266,6 +266,9 @@ async function initApp() {
         }
         setLoadingProgress(45, 'Loading level...');
         await loadLevels();
+
+        setLoadingProgress(50, 'Loading ...');
+        await initBannerCarousel();
         // 4. Load everything the app needs, in parallel where safe
         setLoadingProgress(60, 'Loading tasks...');
         await loadAvailableTasks();
