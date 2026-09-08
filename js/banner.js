@@ -190,9 +190,8 @@ function stopAutoAdvance() {
 // ============================================
 // ADMIN — BANNER MANAGEMENT
 // ============================================
-
 let adminBannerSlides = [];
-let bannerSortMode = 'order'; // 'order' | 'clicks'
+let bannerSortMode = 'order';
 let editingBannerId = null;
 
 const BANNER_ACTION_TARGETS = {
@@ -209,132 +208,71 @@ async function loadAdminBanners() {
     renderAdminBannerList();
   } catch (err) {
     console.error('Load admin banners error:', err);
-    showAppAlert('Failed to load banners', 'error');
   }
 }
 
 function setBannerSort(mode) {
   bannerSortMode = mode;
-  document.getElementById('bannerSortDefault').classList.toggle('active', mode === 'order');
-  document.getElementById('bannerSortClicks').classList.toggle('active', mode === 'clicks');
+  document.getElementById('banner-sort-order').classList.toggle('bg-pink-600', mode === 'order');
+  document.getElementById('banner-sort-order').classList.toggle('text-white', mode === 'order');
+  document.getElementById('banner-sort-order').classList.toggle('text-slate-400', mode !== 'order');
+  document.getElementById('banner-sort-clicks').classList.toggle('bg-pink-600', mode === 'clicks');
+  document.getElementById('banner-sort-clicks').classList.toggle('text-white', mode === 'clicks');
+  document.getElementById('banner-sort-clicks').classList.toggle('text-slate-400', mode !== 'clicks');
   renderAdminBannerList();
 }
 
 function renderAdminBannerList() {
-  const list = document.getElementById('bannerAdminList');
-  if (!list) return;
-
-  const sorted = [...adminBannerSlides].sort((a, b) => {
-    return bannerSortMode === 'clicks'
-      ? b.clickCount - a.clickCount
-      : a.order - b.order;
-  });
+  const list = document.getElementById('admin-banners-list');
+  const sorted = [...adminBannerSlides].sort((a, b) =>
+    bannerSortMode === 'clicks' ? b.clickCount - a.clickCount : a.order - b.order
+  );
 
   if (sorted.length === 0) {
-    list.innerHTML = `<p class="text-white/50 text-sm text-center py-6">No banners yet. Tap "+ Add Slide" to create one.</p>`;
+    list.innerHTML = `<p class="text-center text-[10px] text-slate-500 py-4">No banners yet.</p>`;
     return;
   }
 
   list.innerHTML = sorted.map(s => `
-    <div class="banner-admin-row ${!s.isActive ? 'banner-admin-inactive' : ''}">
-      <img src="${s.imageUrl}" class="banner-admin-thumb">
-      <div class="banner-admin-info">
-        <div class="banner-admin-title">${s.title || '(untitled)'}</div>
-        <div class="banner-admin-meta">
-          Order ${s.order} · ${s.actionType}${s.actionTarget ? ' → ' + s.actionTarget : ''}
-        </div>
-        <div class="banner-admin-meta">
-          ${s.clickCount || 0} clicks${s.resetClicksAt ? ' · reset ' + timeAgo(s.resetClicksAt) : ''}
-        </div>
+    <div class="bg-white/5 p-3 rounded-xl flex gap-3 items-center ${!s.isActive ? 'opacity-40' : ''}">
+      <img src="${s.imageUrl}" class="w-16 rounded-lg" style="aspect-ratio:16/9; object-fit:cover;">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-bold text-white truncate">${s.title || '(untitled)'}</p>
+        <p class="text-[9px] text-slate-500">Order ${s.order} · ${s.actionType}${s.actionTarget ? ' → ' + s.actionTarget : ''}</p>
+        <p class="text-[9px] text-slate-500">${s.clickCount || 0} clicks${s.resetClicksAt ? ' · reset ' + timeAgoShort(s.resetClicksAt) : ''}</p>
       </div>
-      <div class="banner-admin-actions">
-        <button onclick="openBannerForm('${s._id}')">Edit</button>
-        <button onclick="resetBannerClicks('${s._id}')">Reset</button>
-        <button onclick="deleteBannerSlide('${s._id}')">Delete</button>
+      <div class="flex flex-col gap-1">
+        <button onclick="editBannerSlide('${s._id}')" class="text-[9px] font-black uppercase text-blue-400 px-2 py-1">Edit</button>
+        <button onclick="resetBannerClicks('${s._id}')" class="text-[9px] font-black uppercase text-yellow-400 px-2 py-1">Reset</button>
+        <button onclick="deleteBannerSlide('${s._id}')" class="text-[9px] font-black uppercase text-red-400 px-2 py-1">Delete</button>
       </div>
     </div>
   `).join('');
 }
 
-function timeAgo(dateStr) {
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const days = Math.floor(diffMs / 86400000);
-  if (days === 0) return 'today';
-  if (days === 1) return '1d ago';
-  return `${days}d ago`;
-}
-
-// ---- Create / Edit form ----
-
-function openBannerForm(slideId) {
-  editingBannerId = slideId;
-  const modal = document.getElementById('bannerFormModal');
-  const title = document.getElementById('bannerFormTitle');
-
-  if (slideId) {
-    const s = adminBannerSlides.find(b => b._id === slideId);
-    if (!s) return;
-    title.textContent = 'Edit Banner';
-    document.getElementById('bannerImageUrlField').value = s.imageUrl;
-    document.getElementById('bannerImagePreview').src = s.imageUrl;
-    document.getElementById('bannerImagePreview').classList.remove('hidden');
-    document.getElementById('bannerTitleField').value = s.title || '';
-    document.getElementById('bannerSubtitleField').value = s.subtitle || '';
-    document.getElementById('bannerOrderField').value = s.order || 0;
-    document.getElementById('bannerActionTypeField').value = s.actionType || 'none';
-    document.getElementById('bannerActiveField').checked = s.isActive !== false;
-    updateBannerActionTargetOptions();
-    if (s.actionType === 'url') {
-      document.getElementById('bannerActionTargetUrl').value = s.actionTarget || '';
-    } else {
-      document.getElementById('bannerActionTargetSelect').value = s.actionTarget || '';
-    }
-  } else {
-    title.textContent = 'Add Banner';
-    document.getElementById('bannerImageUrlField').value = '';
-    document.getElementById('bannerImagePreview').classList.add('hidden');
-    document.getElementById('bannerTitleField').value = '';
-    document.getElementById('bannerSubtitleField').value = '';
-    document.getElementById('bannerOrderField').value = adminBannerSlides.length; // sensible default: append to end
-    document.getElementById('bannerActionTypeField').value = 'none';
-    document.getElementById('bannerActiveField').checked = true;
-    updateBannerActionTargetOptions();
-  }
-
-  modal.classList.remove('hidden');
-}
-
-function closeBannerForm() {
-  document.getElementById('bannerFormModal').classList.add('hidden');
-  document.getElementById('bannerImageInput').value = '';
-  editingBannerId = null;
+function timeAgoShort(dateStr) {
+  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  return days === 0 ? 'today' : `${days}d ago`;
 }
 
 function updateBannerActionTargetOptions() {
-  const type = document.getElementById('bannerActionTypeField').value;
-  const selectEl = document.getElementById('bannerActionTargetSelect');
-  const urlEl = document.getElementById('bannerActionTargetUrl');
+  const type = document.getElementById('banner-action-type').value;
+  const selectEl = document.getElementById('banner-action-target-select');
+  const urlEl = document.getElementById('banner-action-target-url');
+
+  urlEl.classList.add('hidden');
+  selectEl.classList.add('hidden');
 
   if (type === 'url') {
-    selectEl.classList.add('hidden');
     urlEl.classList.remove('hidden');
-    return;
+  } else if (BANNER_ACTION_TARGETS[type]) {
+    selectEl.classList.remove('hidden');
+    selectEl.innerHTML = BANNER_ACTION_TARGETS[type].map(v => `<option value="${v}">${v}</option>`).join('');
   }
-  urlEl.classList.add('hidden');
-
-  if (type === 'none' || !BANNER_ACTION_TARGETS[type]) {
-    selectEl.classList.add('hidden');
-    return;
-  }
-
-  selectEl.classList.remove('hidden');
-  selectEl.innerHTML = BANNER_ACTION_TARGETS[type]
-    .map(val => `<option value="${val}">${val}</option>`)
-    .join('');
 }
 
 async function uploadBannerImage() {
-  const fileInput = document.getElementById('bannerImageInput');
+  const fileInput = document.getElementById('banner-image-file');
   if (!fileInput.files[0]) return showAppAlert('Pick an image first', 'error');
 
   const formData = new FormData();
@@ -348,10 +286,11 @@ async function uploadBannerImage() {
     });
     const data = await res.json();
     if (data.success) {
-      const imageUrl = `/api/image/${data.fileId}`;
-      document.getElementById('bannerImageUrlField').value = imageUrl;
-      document.getElementById('bannerImagePreview').src = imageUrl;
-      document.getElementById('bannerImagePreview').classList.remove('hidden');
+      const url = `/api/image/${data.fileId}`;
+      document.getElementById('banner-image-url').value = url;
+      const preview = document.getElementById('banner-image-preview');
+      preview.src = url;
+      preview.classList.remove('hidden');
       showAppAlert('Image uploaded', 'success');
     } else {
       showAppAlert('Upload failed', 'error');
@@ -362,23 +301,62 @@ async function uploadBannerImage() {
   }
 }
 
+function editBannerSlide(id) {
+  const s = adminBannerSlides.find(b => b._id === id);
+  if (!s) return;
+  editingBannerId = id;
+
+  document.getElementById('banner-form-heading').textContent = 'Edit Banner';
+  document.getElementById('banner-image-url').value = s.imageUrl;
+  document.getElementById('banner-image-preview').src = s.imageUrl;
+  document.getElementById('banner-image-preview').classList.remove('hidden');
+  document.getElementById('banner-title').value = s.title || '';
+  document.getElementById('banner-subtitle').value = s.subtitle || '';
+  document.getElementById('banner-order').value = s.order || 0;
+  document.getElementById('banner-action-type').value = s.actionType || 'none';
+  document.getElementById('banner-active').checked = s.isActive !== false;
+  updateBannerActionTargetOptions();
+  if (s.actionType === 'url') {
+    document.getElementById('banner-action-target-url').value = s.actionTarget || '';
+  } else {
+    document.getElementById('banner-action-target-select').value = s.actionTarget || '';
+  }
+  document.getElementById('banner-cancel-edit-btn').classList.remove('hidden');
+  document.getElementById('panel-banners').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetBannerForm() {
+  editingBannerId = null;
+  document.getElementById('banner-form-heading').textContent = 'Add Banner';
+  document.getElementById('banner-image-file').value = '';
+  document.getElementById('banner-image-url').value = '';
+  document.getElementById('banner-image-preview').classList.add('hidden');
+  document.getElementById('banner-title').value = '';
+  document.getElementById('banner-subtitle').value = '';
+  document.getElementById('banner-order').value = '';
+  document.getElementById('banner-action-type').value = 'none';
+  document.getElementById('banner-active').checked = true;
+  updateBannerActionTargetOptions();
+  document.getElementById('banner-cancel-edit-btn').classList.add('hidden');
+}
+
 async function saveBannerSlide() {
-  const imageUrl = document.getElementById('bannerImageUrlField').value;
+  const imageUrl = document.getElementById('banner-image-url').value;
   if (!imageUrl) return showAppAlert('Upload an image first', 'error');
 
-  const actionType = document.getElementById('bannerActionTypeField').value;
+  const actionType = document.getElementById('banner-action-type').value;
   const actionTarget = actionType === 'url'
-    ? document.getElementById('bannerActionTargetUrl').value
-    : document.getElementById('bannerActionTargetSelect').value;
+    ? document.getElementById('banner-action-target-url').value
+    : document.getElementById('banner-action-target-select').value;
 
   const payload = {
     imageUrl,
-    title: document.getElementById('bannerTitleField').value,
-    subtitle: document.getElementById('bannerSubtitleField').value,
-    order: Number(document.getElementById('bannerOrderField').value) || 0,
+    title: document.getElementById('banner-title').value,
+    subtitle: document.getElementById('banner-subtitle').value,
+    order: Number(document.getElementById('banner-order').value) || 0,
     actionType,
     actionTarget: actionType === 'none' ? '' : actionTarget,
-    isActive: document.getElementById('bannerActiveField').checked
+    isActive: document.getElementById('banner-active').checked
   };
 
   try {
@@ -388,7 +366,7 @@ async function saveBannerSlide() {
     const data = await res.json();
     if (data.success) {
       showAppAlert('Banner saved', 'success');
-      closeBannerForm();
+      resetBannerForm();
       loadAdminBanners();
     } else {
       showAppAlert('Save failed', 'error');
@@ -399,10 +377,10 @@ async function saveBannerSlide() {
   }
 }
 
-async function deleteBannerSlide(slideId) {
+async function deleteBannerSlide(id) {
   if (!confirm('Delete this banner?')) return;
   try {
-    const res = await secureFetch(`/api/admin/banners/${slideId}`, { method: 'DELETE' });
+    const res = await secureFetch(`/api/admin/banners/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
       showAppAlert('Banner deleted', 'success');
@@ -410,14 +388,13 @@ async function deleteBannerSlide(slideId) {
     }
   } catch (err) {
     console.error('Delete banner error:', err);
-    showAppAlert('Delete failed', 'error');
   }
 }
 
-async function resetBannerClicks(slideId) {
-  if (!confirm('Reset click count for this banner?')) return;
+async function resetBannerClicks(id) {
+  if (!confirm('Reset click count?')) return;
   try {
-    const res = await secureFetch(`/api/admin/banners/${slideId}/reset-clicks`, { method: 'POST' });
+    const res = await secureFetch(`/api/admin/banners/${id}/reset-clicks`, { method: 'POST' });
     const data = await res.json();
     if (data.success) {
       showAppAlert('Clicks reset', 'success');
@@ -425,6 +402,5 @@ async function resetBannerClicks(slideId) {
     }
   } catch (err) {
     console.error('Reset clicks error:', err);
-    showAppAlert('Reset failed', 'error');
   }
 }
