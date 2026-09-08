@@ -38,6 +38,7 @@ const SCRIPTS = [
     'js/core.js',
     'js/utils.js',
     'js/streak.js',
+    'js/banner.js',
     'js/notifications.js',
     'js/navigation.js',
     'js/verification.js',
