@@ -282,7 +282,7 @@ async function uploadBannerImage() {
       body: formData
     });
     if (data.success) {
-      const url = `/api/image/${data.fileId}`;
+      const url = data.imageUrl;
       document.getElementById('banner-image-url').value = url;
       const preview = document.getElementById('banner-image-preview');
       preview.src = url;
