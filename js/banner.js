@@ -271,32 +271,16 @@ function updateBannerActionTargetOptions() {
   }
 }
 
-async function uploadBannerImage() {
-  const fileInput = document.getElementById('banner-image-file');
-  if (!fileInput.files[0]) return showAppAlert('Pick an image first', 'error');
-  const formData = new FormData();
-  formData.append('image', fileInput.files[0]);
-  try {
-    const data = await secureFetch('/api/admin/banners/upload', {
-      method: 'POST',
-      body: formData
-    });
-    if (data.success) {
-      const url = data.imageUrl;
-      document.getElementById('banner-image-url').value = url;
-      const preview = document.getElementById('banner-image-preview');
-      preview.src = url;
-      preview.classList.remove('hidden');
-      showAppAlert('Image uploaded', 'success');
-    } else {
-      showAppAlert('Upload failed', 'error');
-    }
-  } catch (err) {
-    console.error('Banner upload error:', err);
-    showAppAlert('Upload failed', 'error');
+function previewBannerImage() {
+  const url = document.getElementById('banner-image-url').value.trim();
+  const preview = document.getElementById('banner-image-preview');
+  if (url) {
+    preview.src = url;
+    preview.classList.remove('hidden');
+  } else {
+    preview.classList.add('hidden');
   }
 }
-
 function editBannerSlide(id) {
   const s = adminBannerSlides.find(b => b._id === id);
   if (!s) return;
@@ -324,7 +308,6 @@ function editBannerSlide(id) {
 function resetBannerForm() {
   editingBannerId = null;
   document.getElementById('banner-form-heading').textContent = 'Add Banner';
-  document.getElementById('banner-image-file').value = '';
   document.getElementById('banner-image-url').value = '';
   document.getElementById('banner-image-preview').classList.add('hidden');
   document.getElementById('banner-title').value = '';
