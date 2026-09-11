@@ -97,28 +97,73 @@ document.getElementById('countryChipGrid').addEventListener('click', (e) => {
     : `${selectedCountries.size} countr${selectedCountries.size === 1 ? 'y' : 'ies'} selected`;
 });
 
-// ---- post form: thumbnail preview (regex extract video ID from link) ----
-function extractVideoId(url) {
-  const match = url.match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{6,})/);
-  return match ? match[1] : null;
-}
-document.getElementById('youtubeLink').addEventListener('input', (e) => {
-  const id = extractVideoId(e.target.value);
-  const preview = document.getElementById('thumbPreview');
-  if (id) {
-    document.getElementById('previewImg').src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-    document.getElementById('previewTitle').textContent = id;
-    preview.classList.remove('hidden');
-  } else {
-    preview.classList.add('hidden');
+// ---- post form: fetch title + video ID + thumbnail from pasted link ----
+let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
+
+async function fetchVideoMeta(url) {
+  const videoId = extractVideoId(url);
+  if (!videoId) return null;
+
+  try {
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+    const res = await fetch(oembedUrl);
+    if (!res.ok) throw new Error('oEmbed request failed');
+    const data = await res.json();
+
+    return {
+      videoId,
+      title: data.title,
+      thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+    };
+  } catch (err) {
+    console.error('fetchVideoMeta failed', err);
+    // fallback: we still have the ID + thumbnail even if oEmbed fails
+    return { videoId, title: null, thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` };
   }
+}
+
+let fetchDebounce;
+document.getElementById('youtubeLink').addEventListener('input', (e) => {
+  clearTimeout(fetchDebounce);
+  const url = e.target.value.trim();
+  const preview = document.getElementById('thumbPreview');
+
+  if (!url) {
+    preview.classList.add('hidden');
+    currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
+    return;
+  }
+
+  // debounce so we don't fire a request on every keystroke
+  fetchDebounce = setTimeout(async () => {
+    document.getElementById('previewTitle').textContent = 'Loading...';
+    preview.classList.remove('hidden');
+
+    const meta = await fetchVideoMeta(url);
+    if (!meta) {
+      preview.classList.add('hidden');
+      return;
+    }
+
+    currentVideoMeta = meta;
+    document.getElementById('previewImg').src = meta.thumbnailUrl;
+    document.getElementById('previewTitle').textContent = meta.title || `Video ID: ${meta.videoId} (title unavailable)`;
+  }, 500);
 });
 
 // ---- post form submit (placeholder — wire to your API next) ----
 document.getElementById('postTaskForm').addEventListener('submit', (e) => {
   e.preventDefault();
+
+  if (!currentVideoMeta.videoId) {
+    alert('Please paste a valid YouTube link first.');
+    return;
+  }
+
   console.log('TODO: POST /marketplace/post', {
-    youtubeLink: document.getElementById('youtubeLink').value,
+    videoId: currentVideoMeta.videoId,
+    title: currentVideoMeta.title,
+    thumbnailUrl: currentVideoMeta.thumbnailUrl,
     watchDuration: document.getElementById('watchDuration').value,
     pointCost: document.getElementById('pointCost').value,
     allowedCountries: document.getElementById('allowedCountries').value
