@@ -28,6 +28,7 @@ if (btn) {
     if(tabId === 'earn') loadAndShowAdsgram();
     if(tabId === 'history') loadUserHistory();
     if(tabId === 'friends') loadReferralData();
+    if(tabId === 'marketplace') loadMarketplaceTasks();
     if(tabId === 'admin') loadAdminData();
     if(tabId === 'profile') loadUserProfileMetrics();
     if(tabId === 'levels') loadLevels();
