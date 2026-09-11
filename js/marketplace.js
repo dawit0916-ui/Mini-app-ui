@@ -11,7 +11,17 @@ const sampleTasks = [
     allowedCountries: []
   }
 ];
-
+// add near the top of marketplace.js, alongside sampleTasks
+const sampleMyPosts = [
+  {
+    id: "task_001",
+    title: "Messi and The World Cup 2026!",
+    thumbnailUrl: "https://i.ytimg.com/vi/DQDHW-N317Y/hqdefault.jpg",
+    status: "active",
+    dashSpent: 40,
+    viewsApproved: 2
+  }
+];
 function loadMarketplaceTasks() {
   renderTaskFeed(sampleTasks);
   renderMyPosts(sampleMyPosts);
@@ -106,31 +116,20 @@ document.getElementById('countryChipGrid').addEventListener('click', (e) => {
 });
 
 // ---- post form: fetch title + video ID + thumbnail from pasted link ----
-let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
-
 async function fetchVideoMeta(url) {
-  const videoId = extractVideoId(url);
-  if (!videoId) return null;
-
   try {
-    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
-    const res = await fetch(oembedUrl);
-    if (!res.ok) throw new Error('oEmbed request failed');
-    const data = await res.json();
-
-    return {
-      videoId,
-      title: data.title,
-      thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
-    };
+    const res = await fetch(`/api/marketplace/fetch-meta?url=${encodeURIComponent(url)}`);
+    if (!res.ok) return null;
+    return await res.json(); // { videoId, title, thumbnailUrl }
   } catch (err) {
     console.error('fetchVideoMeta failed', err);
-    // fallback: we still have the ID + thumbnail even if oEmbed fails
-    return { videoId, title: null, thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` };
+    return null;
   }
 }
 
+let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
 let fetchDebounce;
+
 document.getElementById('youtubeLink').addEventListener('input', (e) => {
   clearTimeout(fetchDebounce);
   const url = e.target.value.trim();
@@ -142,7 +141,6 @@ document.getElementById('youtubeLink').addEventListener('input', (e) => {
     return;
   }
 
-  // debounce so we don't fire a request on every keystroke
   fetchDebounce = setTimeout(async () => {
     document.getElementById('previewTitle').textContent = 'Loading...';
     preview.classList.remove('hidden');
