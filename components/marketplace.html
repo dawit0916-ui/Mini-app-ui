@@ -1,12 +1,11 @@
 <div id="tab-marketplace" class="tab-content">
- <div class="marketplace-container">
-
-  <nav class="marketplace-tabs">
+ <nav class="marketplace-tabs">
     <button class="tab-btn active" data-tab="tasks">Tasks</button>
     <button class="tab-btn" data-tab="post">Post</button>
     <button class="tab-btn" data-tab="myposts">My Posts</button>
   </nav>
 
+ <div class="marketplace-container">
   <div class="marketplace-panels">
 
     <!-- TASKS TAB -->
@@ -87,36 +86,5 @@
 
   </div>
  </div>
-  <!-- TASK DETAIL MODAL (shared, opens over any tab) -->
-  <div id="taskDetailModal" class="task-detail-modal hidden">
-    <button class="btn-close" id="closeDetailBtn">❌ Close</button>
-
-    <img class="task-detail-thumb" id="detailThumb" src="" alt="">
-    <h2 class="task-detail-title" id="detailTitle"></h2>
-
-    <div class="video-id-row">
-      <code id="detailVideoId"></code>
-      <button class="btn-copy" id="copyVideoIdBtn">Copy video ID</button>
-      <span class="badge badge-points" id="detailPoints"></span>
-    </div>
-
-    <div class="country-badges" id="detailCountries"></div>
-
-    <a href="#" id="watchOnYoutubeBtn" class="btn-watch-youtube" target="_blank" rel="noopener">▶ Watch on YouTube</a>
-    <span class="badge badge-time" id="detailDuration"></span>
-
-    <div class="instructions-box">
-      <h4>Instructions</h4>
-      <p>Search this video on YouTube using the copied video ID and watch it for the required duration with "Stats for Nerds" enabled.</p>
-    </div>
-
-    <div class="proof-box">
-      <h4>Submit your proof</h4>
-      <p>Upload a screenshot showing the YouTube "Stats for Nerds" overlay open while the video plays.</p>
-      <input type="file" id="proofScreenshot" accept="image/*">
-      <button class="btn-primary" id="submitProofBtn">Submit proof</button>
-      <p class="proof-status hidden" id="proofStatus"></p>
-    </div>
-  </div>
-
+                                                                             
 </div>
