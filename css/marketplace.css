@@ -162,3 +162,14 @@
   cursor: pointer;
 }
 .btn-delete:hover { background: rgba(220, 38, 38, 0.25); }
+.badge-paused {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.btn-topup {
+  margin-bottom: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  width: auto;
+}
