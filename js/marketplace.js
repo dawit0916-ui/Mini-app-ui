@@ -12,6 +12,10 @@ const sampleTasks = [
   }
 ];
 
+function loadMarketplaceTasks() {
+  renderTaskFeed(sampleTasks);
+  renderMyPosts(sampleMyPosts);
+}
 const countryNames = {
   US: '🇺🇸 US', GB: '🇬🇧 UK', CA: '🇨🇦 CA', AU: '🇦🇺 AU',
   DE: '🇩🇪 DE', FR: '🇫🇷 FR', IN: '🇮🇳 IN', NG: '🇳🇬 NG', ET: '🇪🇹 ET'
@@ -54,7 +58,7 @@ function renderTaskFeed(tasks) {
     ? activeTasks.map(renderTaskCard).join('')
     : '<p class="form-hint">No tasks available right now.</p>';
 }
-renderTaskFeed(sampleTasks);
+
 
 document.getElementById('taskFeed').addEventListener('click', (e) => {
   if (e.target.matches('.btn-start-earning')) {
