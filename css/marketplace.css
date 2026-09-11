@@ -89,7 +89,7 @@
 }
 .btn-start-earning:hover, .btn-primary:hover { box-shadow: 0 4px 20px rgba(244, 81, 30, 0.5); }
 
-.task-detail-modal { position: fixed; inset: 0; padding: 20px; overflow-y: auto; z-index: 100; border-radius: 0; }
+.task-detail-modal { position: fixed; inset: 0; padding: 20px; overflow-y: auto; z-index: 10000; border-radius: 0; }
 .task-detail-modal.hidden { display: none; }
 .btn-close { background: none; border: none; color: var(--text-primary); font-size: 20px; }
 .task-detail-thumb { width: 100%; border-radius: 8px; margin: 12px 0; }
