@@ -79,6 +79,7 @@ document.getElementById('taskFeed').addEventListener('click', (e) => {
 
 // ---- task detail modal ----
 function openTaskDetail(task) {
+  currentTaskId = task.id;
   document.getElementById('detailThumb').src = task.thumbnailUrl;
   document.getElementById('detailTitle').textContent = task.title;
   document.getElementById('detailVideoId').textContent = task.videoId;
@@ -179,8 +180,31 @@ function renderMyPosts(tasks) {
     ? tasks.map(renderMyPostCard).join('')
     : '<p class="form-hint">You haven\'t posted any tasks yet.</p>';
 }
+// merged version — use this one
+document.getElementById('myPostsList').addEventListener('click', async (e) => {
+  if (e.target.matches('.btn-topup')) {
+    const earnBtn = document.getElementById('nav-earn');
+    switchTab('earn', earnBtn);
+    return;
+  }
+
+  if (e.target.matches('.btn-delete')) {
+    const taskId = e.target.dataset.taskId;
+    if (!confirm('Delete this task? This cannot be undone.')) return;
+
+    try {
+      console.log('TODO: DELETE /api/marketplace/task/' + taskId);
+      const idx = sampleMyPosts.findIndex(t => t.id === taskId);
+      if (idx > -1) sampleMyPosts.splice(idx, 1);
+      renderMyPosts(sampleMyPosts);
+    } catch (err) {
+      console.error('Delete failed', err);
+      alert('Could not delete task — try again.');
+    }
+  }
+});
 // ---- post form submit (placeholder — wire to your API next) ----
-document.getElementById('postTaskForm').addEventListener('submit', (e) => {
+document.getElementById('postTaskForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   if (!currentVideoMeta.videoId) {
@@ -188,17 +212,72 @@ document.getElementById('postTaskForm').addEventListener('submit', (e) => {
     return;
   }
 
-  console.log('TODO: POST /marketplace/post', {
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Posting...';
+
+  const payload = {
     videoId: currentVideoMeta.videoId,
     title: currentVideoMeta.title,
     thumbnailUrl: currentVideoMeta.thumbnailUrl,
     watchDuration: document.getElementById('watchDuration').value,
     pointCost: document.getElementById('pointCost').value,
     allowedCountries: document.getElementById('allowedCountries').value
-  });
+  };
+
+  try {
+    // TODO: replace with real call once the post route exists
+    // const res = await fetch('/api/marketplace/post', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(payload)
+    // });
+    console.log('TODO: POST /api/marketplace/post', payload);
+
+    alert('Task posted!');
+    e.target.reset();
+    document.getElementById('thumbPreview').classList.add('hidden');
+  } catch (err) {
+    console.error('Post task failed', err);
+    alert('Could not post task — try again.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Post task';
+  }
 });
 
 // ---- submit proof (placeholder — wire to your API next) ----
-document.getElementById('submitProofBtn').addEventListener('click', () => {
-  console.log('TODO: POST /marketplace/submit with screenshot file');
+let currentTaskId = null; // set this in openTaskDetail()
+
+document.getElementById('submitProofBtn').addEventListener('click', async () => {
+  const fileInput = document.getElementById('proofScreenshot');
+  const statusEl = document.getElementById('proofStatus');
+
+  if (!fileInput.files.length) {
+    statusEl.textContent = 'Please choose a screenshot first.';
+    statusEl.classList.remove('hidden');
+    return;
+  }
+
+  statusEl.textContent = 'Reviewing... Checking Stats for Nerds and video match.';
+  statusEl.classList.remove('hidden');
+  document.getElementById('submitProofBtn').disabled = true;
+
+  try {
+    // TODO: replace with real submission once the endpoint exists
+    // const formData = new FormData();
+    // formData.append('screenshot', fileInput.files[0]);
+    // formData.append('taskId', currentTaskId);
+    // const res = await fetch('/api/marketplace/submit', { method: 'POST', body: formData });
+    // const result = await res.json();
+    console.log('TODO: POST /api/marketplace/submit', { taskId: currentTaskId, file: fileInput.files[0].name });
+
+    // placeholder success path
+    statusEl.textContent = 'Proof submitted — pending review.';
+  } catch (err) {
+    console.error('Proof submission failed', err);
+    statusEl.textContent = 'Something went wrong — try again.';
+  } finally {
+    document.getElementById('submitProofBtn').disabled = false;
+  }
 });
