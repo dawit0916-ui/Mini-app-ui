@@ -29,6 +29,9 @@ if (btn) {
     if(tabId === 'history') loadUserHistory();
     if(tabId === 'friends') loadReferralData();
     if(tabId === 'marketplace') loadMarketplaceTasks();
+    if(tabId === 'tasks');
+    if(tabId === 'posts');
+    if(tabId === 'myposts');
     if(tabId === 'admin') loadAdminData();
     if(tabId === 'profile') loadUserProfileMetrics();
     if(tabId === 'levels') loadLevels();
