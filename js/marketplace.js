@@ -39,7 +39,7 @@ function renderTaskCard(task) {
         <h3 class="task-title">${task.title}</h3>
         <div class="task-badges">
           ${task.promoted ? '<span class="badge badge-promoted">Promoted</span>' : ''}
-          <span class="badge badge-points">${task.pointCost} Points</span>
+          <span class="badge badge-points">${task.pointCost} DASH</span>
           <span class="badge badge-time">${task.watchDurationSeconds / 60} minutes</span>
         </div>
         <button class="btn-start-earning" data-task-id="${task.id}">Start earning</button>
@@ -47,8 +47,12 @@ function renderTaskCard(task) {
     </div>`;
 }
 
+// Tasks feed: only show active tasks to viewers
 function renderTaskFeed(tasks) {
-  document.getElementById('taskFeed').innerHTML = tasks.map(renderTaskCard).join('');
+  const activeTasks = tasks.filter(t => t.status !== 'paused');
+  document.getElementById('taskFeed').innerHTML = activeTasks.length
+    ? activeTasks.map(renderTaskCard).join('')
+    : '<p class="form-hint">No tasks available right now.</p>';
 }
 renderTaskFeed(sampleTasks);
 
@@ -150,7 +154,29 @@ document.getElementById('youtubeLink').addEventListener('input', (e) => {
     document.getElementById('previewTitle').textContent = meta.title || `Video ID: ${meta.videoId} (title unavailable)`;
   }, 500);
 });
+// My Posts: creator needs to see paused tasks clearly, with a way to fix it
+function renderMyPostCard(task) {
+  const isPaused = task.status === 'paused';
+  return `
+    <div class="mypost-card">
+      <img class="mypost-thumb" src="${task.thumbnailUrl}" alt="">
+      <div class="mypost-body">
+        <h3>${task.title}</h3>
+        <span class="badge ${isPaused ? 'badge-paused' : 'badge-active'}">
+          ${isPaused ? 'Paused — insufficient balance' : 'Active'}
+        </span>
+        <p class="mypost-stats">DASH spent: ${task.dashSpent || 0} · Approved: ${task.viewsApproved || 0}</p>
+        ${isPaused ? `<button class="btn-primary btn-topup" data-task-id="${task.id}">EARN MORE</button>` : ''}
+        <button class="btn-delete" data-task-id="${task.id}">Delete</button>
+      </div>
+    </div>`;
+}
 
+function renderMyPosts(tasks) {
+  document.getElementById('myPostsList').innerHTML = tasks.length
+    ? tasks.map(renderMyPostCard).join('')
+    : '<p class="form-hint">You haven\'t posted any tasks yet.</p>';
+}
 // ---- post form submit (placeholder — wire to your API next) ----
 document.getElementById('postTaskForm').addEventListener('submit', (e) => {
   e.preventDefault();
