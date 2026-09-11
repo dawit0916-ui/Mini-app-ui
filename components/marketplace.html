@@ -48,9 +48,15 @@
             <option value="660">11 minutes</option>
           </select>
 
-          <label>Point cost (DASH per approved view)</label>
-          <input type="number" id="pointCost" min="1" placeholder="e.g. 20" required>
-
+          <label>DASH cost per approved view</label>
+<select id="pointCost" required>
+  <option value="" disabled selected>Select amount</option>
+  <option value="1000">1,000 DASH</option>
+  <option value="1500">1,500 DASH</option>
+  <option value="2000">2,000 DASH</option>
+  <option value="2500">2,500 DASH</option>
+  <option value="5000">5,000 DASH</option>
+</select>
           <label>Allowed countries</label>
           <div class="country-chip-grid" id="countryChipGrid">
             <button type="button" class="country-toggle" data-code="US">🇺🇸 US</button>
