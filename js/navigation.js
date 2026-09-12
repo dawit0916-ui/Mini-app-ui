@@ -58,7 +58,8 @@ function switchAdminPanel(panelId) {
         'panel-support',
         'panel-ad-manager',
         'panel-levels',
-        'panel-banners'
+        'panel-banners',
+        'panel-marketplace-review'
     ];
     
     if (panelId === 'hub') {
@@ -88,6 +89,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-console') conStartBackendStream();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
                     if (panelId === 'panel-banners') loadAdminBanners();
+                    if (panelId === 'panel-marketplace-review') loadMarketplaceReviewQueue();
                 } else {
                     el.classList.add('hidden');
                 }
