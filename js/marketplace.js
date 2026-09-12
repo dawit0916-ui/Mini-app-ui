@@ -23,17 +23,21 @@ const sampleMyPosts = [
   }
 ];
 async function loadMarketplaceTasks() {
-  try {
-    const [tasksData, myPostsData] = await Promise.all([
-      secureFetch('/api/marketplace/tasks'),
-      secureFetch('/api/marketplace/my-posts'),
-    ]);
+  const tasksData = await secureFetch('/api/marketplace/tasks');
+  const myPostsData = await secureFetch('/api/marketplace/my-posts');
 
-    renderTaskFeed(tasksData.tasks);
-    renderMyPosts(myPostsData.tasks);
-  } catch (err) {
-    console.error('loadMarketplaceTasks failed', err);
+  if (tasksData.error) {
+    console.error('loadMarketplaceTasks failed', tasksData.error);
     document.getElementById('taskFeed').innerHTML = '<p class="form-hint">Failed to load tasks.</p>';
+  } else {
+    renderTaskFeed(tasksData.tasks || []);
+  }
+
+  if (myPostsData.error) {
+    console.error('loadMarketplaceTasks (my-posts) failed', myPostsData.error);
+    document.getElementById('myPostsList').innerHTML = '<p class="form-hint">Failed to load your posts.</p>';
+  } else {
+    renderMyPosts(myPostsData.tasks || []);
   }
 }
 const countryNames = {
@@ -129,14 +133,12 @@ document.getElementById('countryChipGrid').addEventListener('click', (e) => {
 
 // ---- post form: fetch title + video ID + thumbnail from pasted link ----
 async function fetchVideoMeta(url) {
-  try {
-    const res = await fetch(`/api/marketplace/fetch-meta?url=${encodeURIComponent(url)}`);
-    if (!res.ok) return null;
-    return await res.json(); // { videoId, title, thumbnailUrl }
-  } catch (err) {
-    console.error('fetchVideoMeta failed', err);
+  const result = await secureFetch(`/api/marketplace/fetch-meta?url=${encodeURIComponent(url)}`);
+  if (result.error) {
+    console.error('fetchVideoMeta failed', result.error);
     return null;
   }
+  return result; // { videoId, title, thumbnailUrl }
 }
 
 let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
