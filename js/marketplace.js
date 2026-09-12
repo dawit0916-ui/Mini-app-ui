@@ -1,27 +1,11 @@
-// ---- sample data (swap for real API calls later) ----
-const sampleTasks = [
-  {
-    id: "task_001",
-    videoId: "DQDHW-N317Y",
-    title: "Messi and The World Cup 2026!",
-    thumbnailUrl: "https://i.ytimg.com/vi/DQDHW-N317Y/hqdefault.jpg",
-    pointCost: 20,
-    watchDurationSeconds: 660,
-    promoted: true,
-    allowedCountries: []
-  }
-];
-// add near the top of marketplace.js, alongside sampleTasks
-const sampleMyPosts = [
-  {
-    id: "task_001",
-    title: "Messi and The World Cup 2026!",
-    thumbnailUrl: "https://i.ytimg.com/vi/DQDHW-N317Y/hqdefault.jpg",
-    status: "active",
-    dashSpent: 40,
-    viewsApproved: 2
-  }
-];
+let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
+let fetchDebounce;
+let currentTaskId = null; // set this in openTaskDetail()
+let currentTaskStartedAt = null;
+let currentTaskList = [];   // populated by loadMarketplaceTasks()
+let currentMyPosts = [];    // same, for My Posts
+
+
 async function loadMarketplaceTasks() {
   const tasksData = await secureFetch('/api/marketplace/tasks');
   const myPostsData = await secureFetch('/api/marketplace/my-posts');
@@ -70,30 +54,28 @@ function renderTaskCard(task) {
           <span class="badge badge-points">${task.pointCost} DASH</span>
           <span class="badge badge-time">${task.watchDurationSeconds / 60} minutes</span>
         </div>
-        <button class="btn-start-earning" data-task-id="${task.id}">Start earning</button>
+        <button class="btn-start-earning" data-task-id="${task._id}">Start earning</button>
       </div>
     </div>`;
 }
 
-// Tasks feed: only show active tasks to viewers
 function renderTaskFeed(tasks) {
-  const activeTasks = tasks.filter(t => t.status !== 'paused');
-  document.getElementById('taskFeed').innerHTML = activeTasks.length
-    ? activeTasks.map(renderTaskCard).join('')
+  currentTaskList = tasks; // ← store for lookup on click
+  document.getElementById('taskFeed').innerHTML = tasks.length
+    ? tasks.map(renderTaskCard).join('')
     : '<p class="form-hint">No tasks available right now.</p>';
 }
 
-
 document.getElementById('taskFeed').addEventListener('click', (e) => {
   if (e.target.matches('.btn-start-earning')) {
-    const task = sampleTasks.find(t => t.id === e.target.dataset.taskId);
+    const task = currentTaskList.find(t => t._id === e.target.dataset.taskId);
     if (task) openTaskDetail(task);
   }
-});
+})
 
 // ---- task detail modal ----
 function openTaskDetail(task) {
-  currentTaskId = task.id;
+  currentTaskId = task._id;
   currentTaskStartedAt = new Date().toISOString();
   document.getElementById('detailThumb').src = task.thumbnailUrl;
   document.getElementById('detailTitle').textContent = task.title;
@@ -141,9 +123,6 @@ async function fetchVideoMeta(url) {
   return result; // { videoId, title, thumbnailUrl }
 }
 
-let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
-let fetchDebounce;
-
 document.getElementById('youtubeLink').addEventListener('input', (e) => {
   clearTimeout(fetchDebounce);
   const url = e.target.value.trim();
@@ -182,13 +161,14 @@ function renderMyPostCard(task) {
           ${isPaused ? 'Paused — insufficient balance' : 'Active'}
         </span>
         <p class="mypost-stats">DASH spent: ${task.dashSpent || 0} · Approved: ${task.viewsApproved || 0}</p>
-        ${isPaused ? `<button class="btn-primary btn-topup" data-task-id="${task.id}">EARN MORE</button>` : ''}
-        <button class="btn-delete" data-task-id="${task.id}">Delete</button>
+        ${isPaused ? `<button class="btn-primary btn-topup" data-task-id="${task._id}">Earn more</button>` : ''}
+        <button class="btn-delete" data-task-id="${task._id}">Delete</button>
       </div>
     </div>`;
 }
 
 function renderMyPosts(tasks) {
+  currentMyPosts = tasks;
   document.getElementById('myPostsList').innerHTML = tasks.length
     ? tasks.map(renderMyPostCard).join('')
     : '<p class="form-hint">You haven\'t posted any tasks yet.</p>';
@@ -259,8 +239,7 @@ if (result.error) throw new Error(result.error);
   }
 });
 // ---- submit proof (placeholder — wire to your API next) ----
-let currentTaskId = null; // set this in openTaskDetail()
-let currentTaskStartedAt = null; 
+ 
 document.getElementById('submitProofBtn').addEventListener('click', async () => {
   const fileInput = document.getElementById('proofScreenshot');
   const statusEl = document.getElementById('proofStatus');
