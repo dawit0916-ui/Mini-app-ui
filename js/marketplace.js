@@ -22,9 +22,21 @@ const sampleMyPosts = [
     viewsApproved: 2
   }
 ];
-function loadMarketplaceTasks() {
-  renderTaskFeed(sampleTasks);
-  renderMyPosts(sampleMyPosts);
+async function loadMarketplaceTasks() {
+  try {
+    const [tasksRes, myPostsRes] = await Promise.all([
+      secureFetch('/api/marketplace/tasks'),
+      secureFetch('/api/marketplace/my-posts'),
+    ]);
+    const { tasks } = await tasksRes.json();
+    const { tasks: myPosts } = await myPostsRes.json();
+
+    renderTaskFeed(tasks);
+    renderMyPosts(myPosts);
+  } catch (err) {
+    console.error('loadMarketplaceTasks failed', err);
+    document.getElementById('taskFeed').innerHTML = '<p class="form-hint">Failed to load tasks.</p>';
+  }
 }
 const countryNames = {
   US: '🇺🇸 US', GB: '🇬🇧 UK', CA: '🇨🇦 CA', AU: '🇦🇺 AU',
@@ -80,6 +92,7 @@ document.getElementById('taskFeed').addEventListener('click', (e) => {
 // ---- task detail modal ----
 function openTaskDetail(task) {
   currentTaskId = task.id;
+  currentTaskStartedAt = new Date().toISOString();
   document.getElementById('detailThumb').src = task.thumbnailUrl;
   document.getElementById('detailTitle').textContent = task.title;
   document.getElementById('detailVideoId').textContent = task.videoId;
@@ -193,10 +206,10 @@ document.getElementById('myPostsList').addEventListener('click', async (e) => {
     if (!confirm('Delete this task? This cannot be undone.')) return;
 
     try {
-      console.log('TODO: DELETE /api/marketplace/task/' + taskId);
-      const idx = sampleMyPosts.findIndex(t => t.id === taskId);
-      if (idx > -1) sampleMyPosts.splice(idx, 1);
-      renderMyPosts(sampleMyPosts);
+      const res = await secureFetch(`/api/marketplace/task/${taskId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+
+      loadMarketplaceTasks(); // re-fetch instead of manually splicing local state
     } catch (err) {
       console.error('Delete failed', err);
       alert('Could not delete task — try again.');
@@ -222,36 +235,39 @@ document.getElementById('postTaskForm').addEventListener('submit', async (e) => 
     thumbnailUrl: currentVideoMeta.thumbnailUrl,
     watchDuration: document.getElementById('watchDuration').value,
     pointCost: document.getElementById('pointCost').value,
-    allowedCountries: document.getElementById('allowedCountries').value
+    allowedCountries: document.getElementById('allowedCountries').value,
   };
 
   try {
-    // TODO: replace with real call once the post route exists
-    // const res = await fetch('/api/marketplace/post', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload)
-    // });
-    console.log('TODO: POST /api/marketplace/post', payload);
+    const res = await secureFetch('/api/marketplace/post', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const result = await res.json();
+
+    if (!res.ok) throw new Error(result.error || 'Post failed');
 
     alert('Task posted!');
     e.target.reset();
     document.getElementById('thumbPreview').classList.add('hidden');
+    document.querySelectorAll('.country-toggle.selected').forEach(b => b.classList.remove('selected'));
+    selectedCountries.clear();
   } catch (err) {
     console.error('Post task failed', err);
-    alert('Could not post task — try again.');
+    alert(err.message || 'Could not post task — try again.');
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Post task';
   }
 });
-
 // ---- submit proof (placeholder — wire to your API next) ----
 let currentTaskId = null; // set this in openTaskDetail()
-
+let currentTaskStartedAt = null; 
 document.getElementById('submitProofBtn').addEventListener('click', async () => {
   const fileInput = document.getElementById('proofScreenshot');
   const statusEl = document.getElementById('proofStatus');
+  const submitBtn = document.getElementById('submitProofBtn');
 
   if (!fileInput.files.length) {
     statusEl.textContent = 'Please choose a screenshot first.';
@@ -259,25 +275,46 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     return;
   }
 
+  // basic client-side size/type check before upload
+  const file = fileInput.files[0];
+  if (!file.type.startsWith('image/')) {
+    statusEl.textContent = 'Please upload an image file.';
+    statusEl.classList.remove('hidden');
+    return;
+  }
+  if (file.size > 8 * 1024 * 1024) {
+    statusEl.textContent = 'File too large — max 8MB.';
+    statusEl.classList.remove('hidden');
+    return;
+  }
+
   statusEl.textContent = 'Reviewing... Checking Stats for Nerds and video match.';
   statusEl.classList.remove('hidden');
-  document.getElementById('submitProofBtn').disabled = true;
+  submitBtn.disabled = true;
 
   try {
-    // TODO: replace with real submission once the endpoint exists
-    // const formData = new FormData();
-    // formData.append('screenshot', fileInput.files[0]);
-    // formData.append('taskId', currentTaskId);
-    // const res = await fetch('/api/marketplace/submit', { method: 'POST', body: formData });
-    // const result = await res.json();
-    console.log('TODO: POST /api/marketplace/submit', { taskId: currentTaskId, file: fileInput.files[0].name });
+    const formData = new FormData();
+    formData.append('screenshot', file);
+    formData.append('taskId', currentTaskId);
+    formData.append('taskStartedAt', currentTaskStartedAt);
 
-    // placeholder success path
-    statusEl.textContent = 'Proof submitted — pending review.';
+    const res = await secureFetch('/api/marketplace/submit', {
+      method: 'POST',
+      body: formData,
+    });
+    const result = await res.json();
+
+    if (!res.ok) {
+      statusEl.textContent = result.error || 'Submission rejected.';
+    } else if (result.status === 'approved') {
+      statusEl.textContent = '✅ Approved! DASH added to your balance.';
+    } else {
+      statusEl.textContent = '⏳ Submitted — pending review.';
+    }
   } catch (err) {
     console.error('Proof submission failed', err);
     statusEl.textContent = 'Something went wrong — try again.';
   } finally {
-    document.getElementById('submitProofBtn').disabled = false;
+    submitBtn.disabled = false;
   }
 });
