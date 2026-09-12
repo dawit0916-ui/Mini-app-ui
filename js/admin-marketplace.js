@@ -3,14 +3,13 @@ async function loadMarketplaceReviewQueue() {
   container.innerHTML = '<p class="form-hint">Loading...</p>';
 
   try {
-    const res = await secureFetch('/api/admin/marketplace/pending');
-    const { submissions } = await res.json();
+    const data = await secureFetch('/api/admin/marketplace/pending');
+    const submissions = data.submissions;
 
     if (!submissions.length) {
       container.innerHTML = '<p class="form-hint">No pending submissions.</p>';
       return;
     }
-
     container.innerHTML = submissions.map(renderReviewCard).join('');
   } catch (err) {
     console.error('loadMarketplaceReviewQueue failed', err);
