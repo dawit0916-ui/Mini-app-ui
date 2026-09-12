@@ -24,15 +24,13 @@ const sampleMyPosts = [
 ];
 async function loadMarketplaceTasks() {
   try {
-    const [tasksRes, myPostsRes] = await Promise.all([
+    const [tasksData, myPostsData] = await Promise.all([
       secureFetch('/api/marketplace/tasks'),
       secureFetch('/api/marketplace/my-posts'),
     ]);
-    const { tasks } = await tasksRes.json();
-    const { tasks: myPosts } = await myPostsRes.json();
 
-    renderTaskFeed(tasks);
-    renderMyPosts(myPosts);
+    renderTaskFeed(tasksData.tasks);
+    renderMyPosts(myPostsData.tasks);
   } catch (err) {
     console.error('loadMarketplaceTasks failed', err);
     document.getElementById('taskFeed').innerHTML = '<p class="form-hint">Failed to load tasks.</p>';
@@ -206,10 +204,9 @@ document.getElementById('myPostsList').addEventListener('click', async (e) => {
     if (!confirm('Delete this task? This cannot be undone.')) return;
 
     try {
-      const res = await secureFetch(`/api/marketplace/task/${taskId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Delete failed');
-
-      loadMarketplaceTasks(); // re-fetch instead of manually splicing local state
+      const result = await secureFetch(`/api/marketplace/task/${taskId}`, { method: 'DELETE' });
+        if (result.error) throw new Error(result.error);
+           loadMarketplaceTasks();    
     } catch (err) {
       console.error('Delete failed', err);
       alert('Could not delete task — try again.');
@@ -239,14 +236,12 @@ document.getElementById('postTaskForm').addEventListener('submit', async (e) => 
   };
 
   try {
-    const res = await secureFetch('/api/marketplace/post', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const result = await res.json();
-
-    if (!res.ok) throw new Error(result.error || 'Post failed');
+    const result = await secureFetch('/api/marketplace/post', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload),
+});
+if (result.error) throw new Error(result.error);
 
     alert('Task posted!');
     e.target.reset();
@@ -298,19 +293,18 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     formData.append('taskId', currentTaskId);
     formData.append('taskStartedAt', currentTaskStartedAt);
 
-    const res = await secureFetch('/api/marketplace/submit', {
-      method: 'POST',
-      body: formData,
-    });
-    const result = await res.json();
-
-    if (!res.ok) {
-      statusEl.textContent = result.error || 'Submission rejected.';
-    } else if (result.status === 'approved') {
-      statusEl.textContent = '✅ Approved! DASH added to your balance.';
-    } else {
-      statusEl.textContent = '⏳ Submitted — pending review.';
-    }
+   const result = await secureFetch('/api/marketplace/submit', {
+  method: 'POST',
+  body: formData,
+});
+// result is already the parsed JSON — no res.ok / res.json() here
+if (result.error) {
+  statusEl.textContent = result.error;
+} else if (result.status === 'approved') {
+  statusEl.textContent = '✅ Approved! DASH added to your balance.';
+} else {
+  statusEl.textContent = '⏳ Submitted — pending review.';
+}
   } catch (err) {
     console.error('Proof submission failed', err);
     statusEl.textContent = 'Something went wrong — try again.';
