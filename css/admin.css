@@ -1,5 +1,20 @@
 
-
+.review-card {
+  display: flex;
+  gap: 12px;
+  background: var(--card-bg, rgba(30,20,20,0.4));
+  border: 1px solid var(--card-border, rgba(232,163,61,0.25));
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+.review-screenshot { width: 120px; height: 90px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+.review-details { flex: 1; font-size: 12px; color: var(--text-secondary, #9ca3af); }
+.review-details p { margin: 3px 0; }
+.review-details strong { color: var(--text-primary, #f5f5f5); }
+.review-actions { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.btn-approve { background: rgba(76,175,80,0.15); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); padding: 6px 12px; border-radius: 6px; font-size: 12px; }
+.btn-reject { background: rgba(220,38,38,0.15); color: #ff6b6b; border: 1px solid rgba(220,38,38,0.3); padding: 6px 12px; border-radius: 6px; font-size: 12px; }
 /* Sweep Button Styling */
 .sweep-active { border-color: #f97316 !important; color: #fb923c; }
 @keyframes glow-pulse {
