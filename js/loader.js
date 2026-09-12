@@ -63,6 +63,7 @@ const SCRIPTS = [
     'js/admin-console.js',
     'js/admin-proofs.js',
     'js/broadcast.js',
+    'js/admin-marketplace.js',
 ];
 
 async function injectComponent({ url, mount }) {
