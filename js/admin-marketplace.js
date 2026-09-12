@@ -2,19 +2,15 @@ async function loadMarketplaceReviewQueue() {
   const container = document.getElementById('reviewQueue');
   container.innerHTML = '<p class="form-hint">Loading...</p>';
 
-  try {
-    const data = await secureFetch('/api/admin/marketplace/pending');
-    const submissions = data.submissions;
-
-    if (!submissions.length) {
-      container.innerHTML = '<p class="form-hint">No pending submissions.</p>';
-      return;
-    }
-    container.innerHTML = submissions.map(renderReviewCard).join('');
-  } catch (err) {
-    console.error('loadMarketplaceReviewQueue failed', err);
+  const data = await secureFetch('/api/admin/marketplace/pending');
+  if (data.error) {
     container.innerHTML = '<p class="form-hint">Failed to load queue.</p>';
+    return;
   }
+
+  container.innerHTML = data.submissions.length
+    ? data.submissions.map(renderReviewCard).join('')
+    : '<p class="form-hint">No pending submissions.</p>';
 }
 
 function renderReviewCard(sub) {
