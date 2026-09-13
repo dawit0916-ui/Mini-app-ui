@@ -27,6 +27,7 @@ function renderReviewCard(sub) {
         <p><strong>Reason flagged:</strong> ${sub.rejectionReason || 'review threshold'}</p>
         <p><strong>Filename timestamp:</strong> ${sub.filenameTimestampMatch}</p>
         <p><strong>Filename app:</strong> ${sub.filenameAppMatch}</p>
+        <p><strong>Filename app:</strong> ${sub.filenameAppMatch}${sub.filenameAppRaw ? ` (${sub.filenameAppRaw})` : ''}</p>
       </div>
       <div class="review-actions">
         <button class="btn-approve" data-id="${sub._id}">Approve</button>
