@@ -230,9 +230,9 @@ async function addNewTask() {
 // always use the Telegram icon (Telegram verifies them, so it's the only
 // sensible icon), everything else picks from a small set of platform icons.
 const TASK_ICON_PATHS = {
-    telegram: 'assets/icons/telegram.png',
+    telegram: 'assets/images/icon-tele.png',
     twitter: 'assets/icons/twitter.png',
-    youtube: 'assets/icons/youtube.png',
+    youtube: 'assets/images/icon-youtube.png',
     instagram: 'assets/icons/instagram.png',
     tiktok: 'assets/icons/tiktok.png'
 };
