@@ -25,6 +25,8 @@ function renderReviewCard(sub) {
         <p><strong>OCR video ID:</strong> ${sub.ocrVideoId || '—'} (expected: ${task?.videoId || '—'})</p>
         <p><strong>OCR elapsed:</strong> ${sub.ocrElapsedSeconds ?? '—'}s (required: ${task?.watchDurationSeconds ?? '—'}s)</p>
         <p><strong>Reason flagged:</strong> ${sub.rejectionReason || 'review threshold'}</p>
+        <p><strong>Filename timestamp:</strong> ${sub.filenameTimestampMatch}</p>
+        <p><strong>Filename app:</strong> ${sub.filenameAppMatch}</p>
       </div>
       <div class="review-actions">
         <button class="btn-approve" data-id="${sub._id}">Approve</button>
