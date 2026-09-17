@@ -32,7 +32,7 @@ async function loadMarketplaceTasks() {
 }
 const countryNames = {
   US: '🇺🇸 US', GB: '🇬🇧 UK', CA: '🇨🇦 CA', AU: '🇦🇺 AU',
-  DE: '🇩🇪 DE', FR: '🇫🇷 FR', IN: '🇮🇳 IN', NG: '🇳🇬 NG', ET: '🇪🇹 ET'
+  DE: '🇩🇪 DE', FR: '🇫🇷 FR'
 };
 
 // ---- tab switching ----
