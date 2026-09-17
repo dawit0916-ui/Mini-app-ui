@@ -9,6 +9,7 @@ let currentMyPosts = [];    // same, for My Posts
 async function loadMarketplaceTasks() {
   const tasksData = await secureFetch('/api/marketplace/tasks');
   const myPostsData = await secureFetch('/api/marketplace/my-posts');
+  const mySubmissionsData = await secureFetch('/api/marketplace/my-submissions'); // ← new
 
   if (tasksData.error) {
     console.error('loadMarketplaceTasks failed', tasksData.error);
@@ -22,6 +23,11 @@ async function loadMarketplaceTasks() {
     document.getElementById('myPostsList').innerHTML = '<p class="form-hint">Failed to load your posts.</p>';
   } else {
     renderMyPosts(myPostsData.tasks || []);
+  }
+  if (mySubmissionsData.error) {
+    document.getElementById('submissionsList').innerHTML = '<p class="form-hint">Failed to load submissions.</p>';
+  } else {
+    renderSubmissions(mySubmissionsData.submissions || []);
   }
 }
 const countryNames = {
@@ -195,6 +201,36 @@ document.getElementById('myPostsList').addEventListener('click', async (e) => {
     }
   }
 });
+function renderSubmissionCard(sub) {
+  const task = sub.taskId;
+  const statusMap = {
+    approved: { label: 'Passed', cls: 'status-passed' },
+    pending_review: { label: 'Reviewing...', cls: 'status-pending' },
+    rejected: { label: 'Failed', cls: 'status-failed' },
+  };
+  const status = statusMap[sub.status] || statusMap.pending_review;
+
+  return `
+    <div class="submission-card">
+      <img class="submission-thumb" src="${task?.thumbnailUrl || ''}" alt="">
+      <div class="submission-body">
+        <h3>${task?.title || task?.videoId || 'Unknown task'}</h3>
+        <span class="badge ${status.cls}">${status.label}</span>
+        ${sub.status === 'rejected' && sub.rejectionReason
+          ? `<p class="submission-reason">Reason: ${sub.rejectionReason.replace(/_/g, ' ')}</p>`
+          : ''}
+        ${sub.status === 'approved'
+          ? `<p class="submission-reason">+${task?.pointCost ?? ''} DASH earned</p>`
+          : ''}
+      </div>
+    </div>`;
+}
+
+function renderSubmissions(submissions) {
+  document.getElementById('submissionsList').innerHTML = submissions.length
+    ? submissions.map(renderSubmissionCard).join('')
+    : '<p class="form-hint">You haven\'t submitted any proofs yet.</p>';
+}
 // ---- post form submit (placeholder — wire to your API next) ----
 document.getElementById('postTaskForm').addEventListener('submit', async (e) => {
   e.preventDefault();
