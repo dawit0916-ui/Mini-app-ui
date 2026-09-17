@@ -173,3 +173,20 @@
   font-size: 13px;
   width: auto;
 }
+.submission-card {
+  display: flex;
+  gap: 12px;
+  background: var(--card-bg);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.submission-thumb { width: 100px; height: 60px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+.submission-body h3 { font-size: 14px; margin: 0 0 6px; color: var(--text-primary); }
+.submission-reason { font-size: 12px; color: var(--text-secondary); margin: 8px 0 0; }
+
+.status-passed  { background: rgba(76,175,80,0.12); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); }
+.status-pending { background: rgba(240,180,41,0.12); color: var(--gold); border: 1px solid rgba(240,180,41,0.3); }
+.status-failed  { background: rgba(220,38,38,0.12); color: #ff6b6b; border: 1px solid rgba(220,38,38,0.3); }
