@@ -174,7 +174,6 @@ async function loadReminderStats() {
     } catch (err) {
         // ✅ FIX 5: Show error to user
         console.error('Error loading reminder stats:', err);
-        showAppAlert('❌ Error loading reminder stats: ' + err.message, 'error');
         document.getElementById('recentRemindersContainer').innerHTML = 
             `<div class="empty-state">
                 <div class="empty-state-icon">⚠️</div>
