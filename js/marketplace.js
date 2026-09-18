@@ -66,12 +66,11 @@ function renderTaskCard(task) {
 }
 
 function renderTaskFeed(tasks) {
-  currentTaskList = tasks; // ← store for lookup on click
+  currentTaskList = tasks;
   document.getElementById('taskFeed').innerHTML = tasks.length
     ? tasks.map(renderTaskCard).join('')
-    : '<p class="form-hint">No tasks available right now.</p>';
+    : getEmptyStateHTML('📭', 'No Tasks', 'Check back soon for new tasks');
 }
-
 document.getElementById('taskFeed').addEventListener('click', (e) => {
   if (e.target.matches('.btn-start-earning')) {
     const task = currentTaskList.find(t => t._id === e.target.dataset.taskId);
@@ -177,7 +176,7 @@ function renderMyPosts(tasks) {
   currentMyPosts = tasks;
   document.getElementById('myPostsList').innerHTML = tasks.length
     ? tasks.map(renderMyPostCard).join('')
-    : '<p class="form-hint">You haven\'t posted any tasks yet.</p>';
+    : getEmptyStateHTML('📝', 'No Posts Yet', 'Post your first task to get started');
 }
 // merged version — use this one
 document.getElementById('myPostsList').addEventListener('click', async (e) => {
@@ -229,7 +228,7 @@ function renderSubmissionCard(sub) {
 function renderSubmissions(submissions) {
   document.getElementById('submissionsList').innerHTML = submissions.length
     ? submissions.map(renderSubmissionCard).join('')
-    : '<p class="form-hint">You haven\'t submitted any proofs yet.</p>';
+    : getEmptyStateHTML('🕵️', 'No Submissions', 'Submit proof for a task to see it here');
 }
 // ---- post form submit (placeholder — wire to your API next) ----
 document.getElementById('postTaskForm').addEventListener('submit', async (e) => {
