@@ -267,7 +267,7 @@ async function initApp() {
         setLoadingProgress(45, 'Loading level...');
         await loadLevels();
 
-        setLoadingProgress(50, 'Loading ...');
+        setLoadingProgress(50, 'Loading YT view...');
         await initBannerCarousel();
         // 4. Load everything the app needs, in parallel where safe
         setLoadingProgress(60, 'Loading tasks...');
@@ -347,10 +347,11 @@ mainEl.addEventListener('touchend', async (e) => {
 
     const activeTab = document.querySelector('.tab-content.active')?.id.replace('tab-', '') || 'home';
 
-    if (activeTab === 'home')    await loadAvailableTasks();
-    if (activeTab === 'friends') await loadReferralData();
-    if (activeTab === 'profile') await loadUserProfileMetrics();
-    if (activeTab === 'earn')    await loadAdsWatchList();
+    if (activeTab === 'home')           await loadAvailableTasks();
+    if (activeTab === 'friends')        await loadReferralData();
+    if (activeTab === 'profile')        await loadUserProfileMetrics();
+    if (activeTab === 'earn')           await loadAdsWatchList();
+    if (activeTab === 'marketplace')    await loadMarketplaceTasks()
 
     try {
         const data = await secureFetch('/api/secure/profile');
