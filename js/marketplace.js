@@ -286,7 +286,6 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     statusEl.classList.remove('hidden');
     return;
   }
-
   const file = fileInput.files[0];
   if (!file.type.startsWith('image/')) {
     statusEl.textContent = 'Please upload an image file.';
@@ -299,36 +298,63 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     return;
   }
 
-  statusEl.textContent = 'Reviewing... Checking Stats for Nerds and video match.';
-  statusEl.classList.remove('hidden');
+  statusEl.classList.add('hidden');
+  resetChecklist();
   submitBtn.disabled = true;
 
-  try {
-    const formData = new FormData();
-    formData.append('screenshot', file);
-    formData.append('taskId', currentTaskId);
-    formData.append('taskStartedAt', currentTaskStartedAt);
+  const formData = new FormData();
+  formData.append('screenshot', file);
+  formData.append('taskId', currentTaskId);
+  formData.append('taskStartedAt', currentTaskStartedAt);
 
-    const result = await secureFetch('/api/marketplace/submit', {
-      method: 'POST',
-      body: formData,
-    });
+  const [result] = await Promise.all([
+    secureFetch('/api/marketplace/submit', { method: 'POST', body: formData }),
+    animateChecklist(), // run the visual pacing alongside the real request
+  ]);
 
-    if (result.error) {
-      statusEl.textContent = result.error;
-    } else {
-      // close the detail modal and jump to My Submissions so they see the result land
-      document.getElementById('taskDetailModal').classList.add('hidden');
-
-      const submissionsTabBtn = document.querySelector('[data-tab="mysubmissions"]');
-      submissionsTabBtn.click(); // reuses the existing inner tab-switch listener
-
-      await loadMarketplaceTasks(); // refresh so the new submission appears immediately
-    }
-  } catch (err) {
-    console.error('Proof submission failed', err);
-    statusEl.textContent = 'Something went wrong — try again.';
-  } finally {
-    submitBtn.disabled = false;
+  if (result.error) {
+    ['check-screenshot', 'check-vpn', 'check-country', 'check-time'].forEach(id => setCheckState(id, 'fail'));
+    statusEl.textContent = result.error;
+    statusEl.classList.remove('hidden');
+  } else {
+    applyChecklistResult(result);
+    document.getElementById('taskDetailModal').classList.add('hidden');
+    document.querySelector('[data-tab="mysubmissions"]').click();
+    await loadMarketplaceTasks();
   }
+
+  submitBtn.disabled = false;
 });
+
+function setCheckState(id, state) {
+  document.getElementById(id).dataset.state = state;
+}
+
+function resetChecklist() {
+  ['check-screenshot', 'check-vpn', 'check-country', 'check-time'].forEach(id => setCheckState(id, 'pending'));
+  document.getElementById('reviewChecklist').classList.remove('hidden');
+}
+
+async function animateChecklist() {
+  const steps = ['check-screenshot', 'check-vpn', 'check-country', 'check-time'];
+  for (const id of steps) {
+    setCheckState(id, 'checking');
+    await new Promise(r => setTimeout(r, 400)); // brief visual pacing, purely cosmetic
+  }
+}
+
+function applyChecklistResult(result) {
+  // screenshot: fingerprint + OCR video ID match
+  const screenshotOk = !result.duplicateFlag && result.ocrVideoId === result.expectedVideoId;
+  setCheckState('check-screenshot', screenshotOk ? 'pass' : 'fail');
+
+  // vpn/network: based on fraud action
+  setCheckState('check-vpn', result.vpnAction === 'block' ? 'fail' : 'pass');
+
+  // country
+  setCheckState('check-country', result.countryBlocked ? 'fail' : 'pass');
+
+  // watch time
+  const timeOk = result.ocrElapsedSeconds !== null && result.ocrElapsedSeconds >= result.requiredSeconds;
+  setCheckState('check-time', timeOk ? 'pass' : 'fail');
+}
