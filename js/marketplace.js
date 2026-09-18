@@ -287,7 +287,6 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     return;
   }
 
-  // basic client-side size/type check before upload
   const file = fileInput.files[0];
   if (!file.type.startsWith('image/')) {
     statusEl.textContent = 'Please upload an image file.';
@@ -310,18 +309,22 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     formData.append('taskId', currentTaskId);
     formData.append('taskStartedAt', currentTaskStartedAt);
 
-   const result = await secureFetch('/api/marketplace/submit', {
-  method: 'POST',
-  body: formData,
-});
-// result is already the parsed JSON — no res.ok / res.json() here
-if (result.error) {
-  statusEl.textContent = result.error;
-} else if (result.status === 'approved') {
-  statusEl.textContent = '✅ Approved! DASH added to your balance.';
-} else {
-  statusEl.textContent = '⏳ Submitted — pending review.';
-}
+    const result = await secureFetch('/api/marketplace/submit', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (result.error) {
+      statusEl.textContent = result.error;
+    } else {
+      // close the detail modal and jump to My Submissions so they see the result land
+      document.getElementById('taskDetailModal').classList.add('hidden');
+
+      const submissionsTabBtn = document.querySelector('[data-tab="mysubmissions"]');
+      submissionsTabBtn.click(); // reuses the existing inner tab-switch listener
+
+      await loadMarketplaceTasks(); // refresh so the new submission appears immediately
+    }
   } catch (err) {
     console.error('Proof submission failed', err);
     statusEl.textContent = 'Something went wrong — try again.';
