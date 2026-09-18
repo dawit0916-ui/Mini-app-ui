@@ -697,6 +697,20 @@ Enhanced with touch barrier, custom controls, and anti-download measures
       <p>Upload a screenshot showing the YouTube "Stats for Nerds" overlay open while the video plays.</p>
       <input type="file" id="proofScreenshot" accept="image/*">
       <button class="btn-primary" id="submitProofBtn">Submit proof</button>
-      <p class="proof-status hidden" id="proofStatus"></p>
+      <div class="proof-box">
+  <h4>Submit your proof</h4>
+  <p>Upload a screenshot showing the YouTube "Stats for Nerds" overlay open while the video plays.</p>
+  <input type="file" id="proofScreenshot" accept="image/*">
+  <button class="btn-primary" id="submitProofBtn">Submit proof</button>
+
+  <ul class="review-checklist hidden" id="reviewChecklist">
+    <li id="check-screenshot" data-state="pending"><span class="check-icon"></span> Verifying screenshot</li>
+    <li id="check-vpn" data-state="pending"><span class="check-icon"></span> Checking network</li>
+    <li id="check-country" data-state="pending"><span class="check-icon"></span> Checking region</li>
+    <li id="check-time" data-state="pending"><span class="check-icon"></span> Checking watch time</li>
+  </ul>
+
+  <p class="proof-status hidden" id="proofStatus"></p>
+</div>
     </div>
   </div>
