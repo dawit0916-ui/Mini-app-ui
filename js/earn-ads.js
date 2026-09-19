@@ -231,8 +231,11 @@ async function loadAdminAds() {
         `).join('');
 
     } catch (e) {
-        container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load ads.</p>';
-    }
+    const offline = navigator.onLine === false;
+    container.innerHTML = offline
+        ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+        : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
+}
 }
 
 // Save individual ad settings
@@ -641,7 +644,7 @@ async function loadAndShowAdsgram() {
 
         if (!cfg.enabled || !cfg.blockId) {
             if (remainingLabel) remainingLabel.innerText = '';
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">Not available right now.</p>';
+            container.innerHTML = getEmptyStateHTML('⏳', 'Not available', 'Not available right now.');
             return;
         }
 
@@ -650,7 +653,7 @@ async function loadAndShowAdsgram() {
         }
 
         if (cfg.claimsRemainingToday <= 0) {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">✅ Daily limit reached. Come back tomorrow!</p>';
+            container.innerHTML = getEmptyStateHTML('✅', 'Daily limit reached', 'Come back tomorrow!');
             return;
         }
 
@@ -683,21 +686,24 @@ async function loadAndShowAdsgram() {
 
         widget.addEventListener('reward', onFastTaskReward);
         widget.addEventListener('onBannerNotFound', () => {
-            container.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-3">No tasks available right now. Come back later.</p>';
+         container.innerHTML = getEmptyStateHTML('📭', 'No tasks available', 'Come back later.');
         });
         widget.addEventListener('onError', (e) => {
-            console.error('AdsGram task widget error:', e);
-            container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Ad failed to load. Try refreshing.</p>';
+         console.error('AdsGram task widget error:', e);
+         container.innerHTML = getErrorStateHTML('⚠️', 'Ad failed to load', 'Try refreshing.');
         });
         widget.addEventListener('onTooLongSession', () => {
-            container.innerHTML = '<p class="text-center text-[10px] text-orange-400 py-3">Session expired — please reopen the app.</p>';
+            container.innerHTML = getErrorStateHTML('⏰', 'Session expired', 'Please reopen the Tab.');
         });
         container.appendChild(widget);
 
-    } catch (err) {
-        console.error('Adsgram load error:', err);
-        container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-3">Network error.</p>';
-    }
+    } catch (e) {
+    console.error('Ads list error:', e);
+    const offline = navigator.onLine === false;
+    container.innerHTML = offline
+        ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+        : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
+}
 }
 
 // Fires when the AdsGram task widget confirms the user completed the task.
