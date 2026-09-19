@@ -48,7 +48,7 @@ document.getElementById('reviewQueue').addEventListener('click', async (e) => {
       await secureFetch(`/api/admin/marketplace/${id}/approve`, { method: 'POST' });
       e.target.closest('.review-card').remove();
     } catch (err) {
-      ShowNotificationToast('Approve failed — try again.', 'error');
+      showNotificationToast('Approve failed — try again.', 'error');
       e.target.disabled = false;
     }
   }
@@ -63,7 +63,7 @@ document.getElementById('reviewQueue').addEventListener('click', async (e) => {
       });
       e.target.closest('.review-card').remove();
     } catch (err) {
-      ShowNotificationToast('Reject failed — try again.','error');
+      showNotificationToast('Reject failed — try again.','error');
       e.target.disabled = false;
     }
   }
