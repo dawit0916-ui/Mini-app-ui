@@ -27,32 +27,70 @@ function switchShopSection(section) {
 async function loadShopCourses() {
     try {
         const res = await secureFetch('/api/shop/products?type=course', { method: 'GET' });
+        const grid = document.getElementById('shop-courses-grid');
+
+        if (res.error) {
+            console.error('Load courses error:', res.error);
+            grid.innerHTML = getErrorStateHTML('⚠️', 'Failed to load', res.error);
+            return;
+        }
+
         shopState.courses = res.products || [];
         renderCourses();
         loadMyPurchases();
     } catch (err) {
         console.error('Load courses error:', err);
+        const offline = navigator.onLine === false;
+        grid.innerHTML = offline
+            ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+            : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
     }
 }
+
 // Load APKs from backend
 async function loadShopAPKs() {
     try {
         const res = await secureFetch('/api/shop/products?type=apk', { method: 'GET' });
+        const grid = document.getElementById('shop-apk-grid');
+
+        if (res.error) {
+            console.error('Load APKs error:', res.error);
+            grid.innerHTML = getErrorStateHTML('⚠️', 'Failed to load', res.error);
+            return;
+        }
+
         shopState.apks = res.products || [];
         renderAPKs();
         loadMyPurchases();
     } catch (err) {
         console.error('Load APKs error:', err);
+        const offline = navigator.onLine === false;
+        grid.innerHTML = offline
+            ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+            : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
     }
 }
+
 // Load user's purchases
 async function loadMyPurchases() {
     try {
         const res = await secureFetch('/api/secure/my-shop-purchases', { method: 'GET' });
+        const list = document.getElementById('shop-my-purchases-list');
+        
+        if (res.error) {
+            console.error('Load purchases error:', res.error);
+            list.innerHTML = getErrorStateHTML('⚠️', 'Failed to load', res.error);
+            return;
+        }
+
         shopState.myPurchases = res.purchases || [];
         renderMyPurchases();
     } catch (err) {
         console.error('Load purchases error:', err);
+        const offline = navigator.onLine === false;
+        list.innerHTML = offline
+            ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+            : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
     }
 }
 // Filter courses by category
@@ -74,9 +112,9 @@ function renderCourses() {
     }
 
     if (filtered.length === 0) {
-        grid.innerHTML = '<p class="text-center text-slate-500 text-xs py-10 col-span-2">No courses available</p>';
-        return;
-    }
+    grid.innerHTML = getEmptyStateHTML('📚', 'No courses available', 'Check back later.');
+    return;
+}
 
     grid.innerHTML = filtered.map(course => {
 
@@ -123,9 +161,9 @@ function renderAPKs() {
     const grid = document.getElementById('shop-apk-grid');
     
     if (shopState.apks.length === 0) {
-        grid.innerHTML = '<p class="text-center text-slate-500 text-xs py-10 col-span-2">No APKs available</p>';
-        return;
-    }
+    grid.innerHTML = getEmptyStateHTML('📦', 'No APKs available', 'Check back later.');
+    return;
+}
 
     grid.innerHTML = shopState.apks.map(apk => `
         <div onclick="openAPKDetail('${apk._id}')" class="glass p-3 rounded-2xl border border-blue-500/20 cursor-pointer hover:bg-white/10 active:scale-95 transition-all">
@@ -176,10 +214,9 @@ function renderMyPurchases() {
     const list = document.getElementById('shop-my-purchases-list');
 
     if (shopState.myPurchases.length === 0) {
-        list.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">You haven\'t purchased anything yet!</p>';
-        return;
-    }
-
+    list.innerHTML = getEmptyStateHTML('🛒', 'No purchases yet', "You haven't purchased anything yet!");
+    return;
+}
     list.innerHTML = shopState.myPurchases.map(purchase => {
         const thumbnail = purchase.productId.thumbnail
             ? `assets/thumbnails/${purchase.productId.thumbnail}`
