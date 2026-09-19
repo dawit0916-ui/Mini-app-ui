@@ -7,28 +7,46 @@ let currentMyPosts = [];    // same, for My Posts
 
 
 async function loadMarketplaceTasks() {
-  const tasksData = await secureFetch('/api/marketplace/tasks');
-  const myPostsData = await secureFetch('/api/marketplace/my-posts');
-  const mySubmissionsData = await secureFetch('/api/marketplace/my-submissions'); // ← new
+    try {
+        const tasksData = await secureFetch('/api/marketplace/tasks');
+        const myPostsData = await secureFetch('/api/marketplace/my-posts');
+        const mySubmissionsData = await secureFetch('/api/marketplace/my-submissions');
 
-  if (tasksData.error) {
-    console.error('loadMarketplaceTasks failed', tasksData.error);
-    document.getElementById('taskFeed').innerHTML = '<p class="form-hint">Failed to load tasks.</p>';
-  } else {
-    renderTaskFeed(tasksData.tasks || []);
-  }
+        if (tasksData.error) {
+            console.error('loadMarketplaceTasks failed', tasksData.error);
+            document.getElementById('taskFeed').innerHTML =
+                getErrorStateHTML('⚠️', 'Failed to load', tasksData.error);
+        } else {
+            renderTaskFeed(tasksData.tasks || []);
+        }
 
-  if (myPostsData.error) {
-    console.error('loadMarketplaceTasks (my-posts) failed', myPostsData.error);
-    document.getElementById('myPostsList').innerHTML = '<p class="form-hint">Failed to load your posts.</p>';
-  } else {
-    renderMyPosts(myPostsData.tasks || []);
-  }
-  if (mySubmissionsData.error) {
-    document.getElementById('submissionsList').innerHTML = '<p class="form-hint">Failed to load submissions.</p>';
-  } else {
-    renderSubmissions(mySubmissionsData.submissions || []);
-  }
+        if (myPostsData.error) {
+            console.error('loadMarketplaceTasks (my-posts) failed', myPostsData.error);
+            document.getElementById('myPostsList').innerHTML =
+                getErrorStateHTML('⚠️', 'Failed to load', myPostsData.error);
+        } else {
+            renderMyPosts(myPostsData.tasks || []);
+        }
+
+        if (mySubmissionsData.error) {
+            console.error('loadMarketplaceTasks (my-submissions) failed', mySubmissionsData.error);
+            document.getElementById('submissionsList').innerHTML =
+                getErrorStateHTML('⚠️', 'Failed to load', mySubmissionsData.error);
+        } else {
+            renderSubmissions(mySubmissionsData.submissions || []);
+        }
+
+    } catch (err) {
+        console.error('loadMarketplaceTasks network failure', err.message);
+        const offline = navigator.onLine === false;
+        const errorHTML = offline
+            ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+            : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again in a moment.');
+
+        document.getElementById('taskFeed').innerHTML = errorHTML;
+        document.getElementById('myPostsList').innerHTML = errorHTML;
+        document.getElementById('submissionsList').innerHTML = errorHTML;
+    }
 }
 const countryNames = {
   US: '🇺🇸 US', GB: '🇬🇧 UK', CA: '🇨🇦 CA', AU: '🇦🇺 AU',
@@ -260,7 +278,7 @@ document.getElementById('postTaskForm').addEventListener('submit', async (e) => 
 });
 if (result.error) throw new Error(result.error);
 
-    alert('Task posted!');
+    ShowNotification('Task posted!');
     e.target.reset();
     document.getElementById('thumbPreview').classList.add('hidden');
     document.querySelectorAll('.country-toggle.selected').forEach(b => b.classList.remove('selected'));
