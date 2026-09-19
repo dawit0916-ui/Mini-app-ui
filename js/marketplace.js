@@ -214,7 +214,7 @@ document.getElementById('myPostsList').addEventListener('click', async (e) => {
            loadMarketplaceTasks();    
     } catch (err) {
       console.error('Delete failed', err);
-      alert('Could not delete task — try again.');
+      showNotificationToast('Could not delete task — try again.', 'error');
     }
   }
 });
@@ -253,7 +253,7 @@ document.getElementById('postTaskForm').addEventListener('submit', async (e) => 
   e.preventDefault();
 
   if (!currentVideoMeta.videoId) {
-    alert('Please paste a valid YouTube link first.');
+    showNotificationToast('Please paste a valid YouTube link first.', 'error');
     return;
   }
 
@@ -278,14 +278,14 @@ document.getElementById('postTaskForm').addEventListener('submit', async (e) => 
 });
 if (result.error) throw new Error(result.error);
 
-    ShowNotification('Task posted!');
+    showNotificationToast('Task posted!', 'success');
     e.target.reset();
     document.getElementById('thumbPreview').classList.add('hidden');
     document.querySelectorAll('.country-toggle.selected').forEach(b => b.classList.remove('selected'));
     selectedCountries.clear();
   } catch (err) {
     console.error('Post task failed', err);
-    alert(err.message || 'Could not post task — try again.');
+    showNotificationToast(err.message || 'Could not post task — try again.', 'error');
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Post task';
