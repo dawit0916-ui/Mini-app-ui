@@ -53,9 +53,12 @@ async function loadYoutubeTasks() {
         `).join('');
 
     } catch (e) {
-        console.error("YouTube task list error:", e);
-        container.innerHTML = '<p class="text-center text-xs text-red-400 py-6">Error</p>';
-    }
+    console.error("YouTube task list error:", e);
+    const offline = navigator.onLine === false;
+    container.innerHTML = offline
+        ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+        : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
+}
 }
 
 /* ============================================================
@@ -199,8 +202,11 @@ async function loadAdminYoutubeTaskList() {
         `).join('');
 
     } catch (e) {
-        container.innerHTML = '<p class="text-center text-[10px] text-red-400 py-4">Failed to load.</p>';
-    }
+    const offline = navigator.onLine === false;
+    container.innerHTML = offline
+        ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+        : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
+}
 }
 
 async function toggleYoutubeTask(id, enabled) {
