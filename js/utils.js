@@ -7,7 +7,15 @@ function getEmptyStateHTML(icon, title, subtitle) {
         </div>
     `;
 }
-
+function getErrorStateHTML(icon, title, subtitle) {
+    return `
+        <div class="flex flex-col items-center justify-center py-20 opacity-40">
+            <div class="text-5xl mb-4">${icon}</div>
+            <h4 class="text-sm font-black uppercase tracking-widest text-red-500">${title}</h4>
+            <p class="text-[10px] font-bold text-red-400/60 mt-1">${subtitle}</p>
+        </div>
+    `;
+}
 // Level Configuration (matches backend)
 const LEVEL_CONFIG = [
     {
