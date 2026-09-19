@@ -2,7 +2,7 @@
 function shareInvite() {
     const botUsername = "Dashearn_bot"; // 🚩 CHANGE THIS
     const refLink = `https://t.me/${botUsername}?start=${user.id}`;
-    const text = "💰 Join Dash earn Bot and start earning USDT with me! It's free and easy.";
+    const text = "💰 Join Dash earn Bot and start earning DASH and let's grow with me! It's free and easy.";
     
     // Telegram's native sharing method
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`;
@@ -179,7 +179,10 @@ async function loadReferralData() {
         document.getElementById('earned-points').innerText = commTotal.toFixed(2);
 
     } catch (e) {
-        console.error(e);
-        listContainer.innerHTML = '<p class="text-red-500 text-[10px]">Error syncing team.</p>';
-    }
+    console.error(e);
+    const offline = navigator.onLine === false;
+    listContainer.innerHTML = offline
+        ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+        : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
+}
 }
