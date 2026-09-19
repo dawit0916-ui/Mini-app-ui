@@ -4,13 +4,13 @@ async function loadMarketplaceReviewQueue() {
 
   const data = await secureFetch('/api/admin/marketplace/pending');
   if (data.error) {
-    container.innerHTML = '<p class="form-hint">Failed to load queue.</p>';
+       container.innerHTML = getErrorStateHTML('⚠️', 'Failed to load', data.error);
     return;
   }
 
   container.innerHTML = data.submissions.length
     ? data.submissions.map(renderReviewCard).join('')
-    : '<p class="form-hint">No pending submissions.</p>';
+     : getEmptyStateHTML('📭', 'No pending submissions', 'You\'re all caught up.');
 }
 
 function renderReviewCard(sub) {
@@ -48,7 +48,7 @@ document.getElementById('reviewQueue').addEventListener('click', async (e) => {
       await secureFetch(`/api/admin/marketplace/${id}/approve`, { method: 'POST' });
       e.target.closest('.review-card').remove();
     } catch (err) {
-      alert('Approve failed — try again.');
+      ShowNotificationToast('Approve failed — try again.', 'error');
       e.target.disabled = false;
     }
   }
@@ -63,7 +63,7 @@ document.getElementById('reviewQueue').addEventListener('click', async (e) => {
       });
       e.target.closest('.review-card').remove();
     } catch (err) {
-      alert('Reject failed — try again.');
+      ShowNotificationToast('Reject failed — try again.','error');
       e.target.disabled = false;
     }
   }
