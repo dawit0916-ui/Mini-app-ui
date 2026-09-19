@@ -395,9 +395,12 @@ async function loadAvailableTasks() {
         taskContainer.innerHTML = htmlBuffer;
         
     } catch (e) {
-        console.error("Task Load Error:", e);
-        taskContainer.innerHTML = '<p class="text-center text-xs text-red-400 py-6">Error</p>';
-    }
+    console.error("Task Load Error:", e);
+    const offline = navigator.onLine === false;
+    taskContainer.innerHTML = offline
+        ? getErrorStateHTML('📡', 'No connection', 'Check your internet and try again.')
+        : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
+}
 }
 
 // Helper to open manual proof area
