@@ -34,7 +34,7 @@ if (btn) {
     if(tabId === 'myposts');
     if(tabId === 'admin') loadAdminData();
     if(tabId === 'profile') loadUserProfileMetrics();
-    if(tabId === 'levels') loadLevels();
+
     if(tabId === 'shop') { if (shopState.courses.length === 0) loadShopCourses(); }
     if(tabId === 'reminders') {
     loadReminderConfig();  // ✅ FIX: Load toggle config FIRST (which also loads stats)
@@ -57,7 +57,6 @@ function switchAdminPanel(panelId) {
         'panel-console',
         'panel-support',
         'panel-ad-manager',
-        'panel-levels',
         'panel-banners',
         'panel-marketplace-review'
     ];
@@ -84,7 +83,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-support') loadAdminTickets('open');
                     if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-ad-manager') loadAdminAds();
-                    if (panelId === 'panel-levels') loadAdminLevelsConfig();
+                    
                     if (panelId === 'panel-shop-manager') loadAdminCourses();
                     if (panelId === 'panel-console') conStartBackendStream();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
