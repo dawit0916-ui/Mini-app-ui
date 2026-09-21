@@ -195,7 +195,7 @@ let bannerSortMode = 'order';
 let editingBannerId = null;
 
 const BANNER_ACTION_TARGETS = {
-  'tab': ['home', 'earn', 'history', 'friends', 'admin', 'profile', 'levels', 'shop', 'reminders'],
+  'tab': ['home', 'earn', 'history', 'friends', 'admin', 'profile', 'marketplace', 'shop', 'reminders'],
   'shop-section': ['courses', 'apk', 'my-purchases'],
   'earn-section': ['ads', 'daily', 'youtube']
 };
