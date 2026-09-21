@@ -39,14 +39,7 @@ async function loadUserProfileMetrics() {
                     new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             }
 
-            // Level badge — same LEVEL_CONFIG source and level-0 fallback
-            // pattern already used in levels.js, kept consistent here.
-            const userLevel = data.level || 0;
-            const levelInfo = userLevel > 0 ? LEVEL_CONFIG[userLevel - 1] : { name: 'Free Tier', emoji: '🆓' };
-            document.getElementById('profile-level-number').innerText = userLevel;
-            document.getElementById('profile-level-name').innerText = levelInfo.name;
-            document.getElementById('profile-level-emoji').innerText = levelInfo.emoji;
-
+            
             // Stats grid — total_earned/referrals/tasksCompletedCount were
             // already returned by /api/secure/profile but never displayed
             // anywhere in the UI until now.
