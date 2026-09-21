@@ -546,7 +546,7 @@ async function loadAdsWatchList() {
     }
 }
 /* ============================================================
-   FAST TASK WIDGET - AdsGram task widget, Level 2+, 3 claims/day
+   FAST TASK WIDGET - AdsGram task widget, 3 claims/day
    ============================================================ */
 let _fastTaskConfigCache = null;
 let _fastTaskRefreshCooldown = false;
