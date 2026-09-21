@@ -42,12 +42,6 @@ async function fetchAdminStatus() {
             // Set primary admin ID (first in list)
             OWNER_ID = allAdmins.length > 0 ? allAdmins[0] : null;
             
-            console.log("✅ Admin Status Fetched:", {
-                isAdmin: isCurrentUserAdmin,
-                totalAdmins: allAdmins.length,
-                adminIds: allAdmins
-            });
-            
             return isCurrentUserAdmin;
         }
     } catch (err) {
@@ -264,8 +258,7 @@ async function initApp() {
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
-        setLoadingProgress(45, 'Loading level...');
-        await loadLevels();
+        
 
         setLoadingProgress(50, 'Loading YT view...');
         await initBannerCarousel();
