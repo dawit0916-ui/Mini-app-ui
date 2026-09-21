@@ -37,7 +37,7 @@ function openUserEditDrawer(u) {
     document.getElementById('edit-user-tasks-done').innerText = u.tasksCompleted || 0;
 
     document.getElementById('edit-user-balance-input').value = u.balance || 0;
-    document.getElementById('edit-user-level-input').value = u.level || 0;
+    
     document.getElementById('edit-user-banned-input').checked = !!u.is_banned;
     document.getElementById('edit-user-redflag-input').checked = !!u.red_flag;
 
@@ -52,7 +52,7 @@ async function saveUserEdit() {
     if (!currentEditingUserId) return;
 
     const newBalance = parseFloat(document.getElementById('edit-user-balance-input').value);
-    const newLevel = parseInt(document.getElementById('edit-user-level-input').value);
+    
     const newBanned = document.getElementById('edit-user-banned-input').checked;
     const newRedFlag = document.getElementById('edit-user-redflag-input').checked;
 
@@ -82,17 +82,9 @@ async function saveUserEdit() {
             });
         }
 
-        // Level changes go through the dedicated set-level route, since it
-        // also recomputes purchased_levels and features_unlocked correctly
-        let levelRes = { success: true };
-        if (newLevel !== (currentEditingUserData?.level || 0)) {
-            levelRes = await secureFetch('/api/admin/user/set-level', {
-                method: 'POST',
-                body: JSON.stringify({ target_user_id: currentEditingUserId, level: newLevel })
-            });
-        }
+        
 
-        if (res.success && banRes.success && levelRes.success) {
+        if (res.success && banRes.success) {
             tg.HapticFeedback.notificationOccurred('success');
             showAppAlert("User updated successfully.", 'success');
             closeUserEditDrawer();
