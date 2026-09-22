@@ -3,13 +3,11 @@
    1) Fetches every HTML partial in /components and injects it into its
       mount point (in parallel — order doesn't matter here, each partial
       has its own target div).
-   2) Once ALL partials are in the DOM, loads every feature JS file in
-      /js as a classic <script> tag, STRICTLY IN ORDER (each waits for
-      the previous one's onload), so global functions/vars are defined
-      before anything that depends on them runs.
-   3) Once the last JS file has loaded, calls initApp() — exactly like
-      the old single-file version did at the bottom of its <script>
-      block, except now it's guaranteed the full DOM already exists.
+   2) Fetches every feature script's source TEXT in parallel, then runs
+      them as inline scripts in the original order (same global scope,
+      same load order as classic <script src>, just no per-file network
+      wait).
+   3) Once the last JS file has run, calls initApp() — same as before.
    ========================================================================== */
 
 const COMPONENTS = [
@@ -28,8 +26,6 @@ const COMPONENTS = [
     { url: 'components/modals.html',         mount: 'mount-modals' },
     { url: 'components/popups.html',         mount: 'mount-popups' },
     { url: 'components/bottom-nav.html',     mount: 'mount-bottom-nav' },
-   
-
 ];
 
 // Order matters — this mirrors the original single <script> block's
@@ -64,6 +60,24 @@ const SCRIPTS = [
     'js/admin-marketplace.js',
 ];
 
+// Status text shown while scripts are downloading/starting (step 2-3 below).
+// core.js (and its setLoadingProgress helper) hasn't run yet at that point,
+// so this loader updates the bar directly rather than depending on it.
+const BOOT_MESSAGES = [
+    'Counting your DASH...',
+    'Warming up the vault...',
+    'Waking the earn engine...',
+    'Polishing the coins...',
+    'Untangling the wires...',
+];
+
+function updateLoadingUI(percent, text) {
+    const fill = document.getElementById('loading-progress-fill');
+    const status = document.getElementById('loading-status-text');
+    if (fill) fill.style.width = percent + '%';
+    if (status && text) status.innerText = text;
+}
+
 async function injectComponent({ url, mount }) {
     const target = document.getElementById(mount);
     if (!target) {
@@ -80,30 +94,55 @@ async function injectComponent({ url, mount }) {
     }
 }
 
-function loadScript(src) {
-    return new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = resolve;
-        s.onerror = () => reject(new Error(`Loader: failed to load ${src}`));
-        document.body.appendChild(s);
-    });
+async function fetchScriptText(src) {
+    const res = await fetch(src, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Loader: failed to fetch ${src} (${res.status})`);
+    return { src, code: await res.text() };
+}
+
+// Runs a fetched script's source as an inline <script>. Inline scripts
+// execute synchronously in document order and share the same global scope
+// as a real <script src="...">, so behavior/order is identical to before —
+// the only thing that changes is WHEN the bytes arrived (all at once,
+// in parallel, instead of one-by-one over the network).
+function runScript(src, code) {
+    const s = document.createElement('script');
+    s.textContent = `//# sourceURL=${src}\n${code}`;
+    document.body.appendChild(s);
 }
 
 async function boot() {
-    // Step 1 — inject all HTML partials in parallel.
+    // Step 1 — inject all HTML partials in parallel. This also brings the
+    // loading-screen markup (progress bar, status text) into the DOM, so
+    // it's the earliest point we can actually move the bar.
     await Promise.all(COMPONENTS.map(injectComponent));
+    updateLoadingUI(10, 'Loading interface...');
 
-    // Step 2 — load feature JS files one at a time, in order.
-    for (const src of SCRIPTS) {
-        await loadScript(src);
+    // Step 2 — fetch every feature script's SOURCE TEXT in parallel. This
+    // used to be 27 sequential network round-trips (each one waiting for
+    // the last to finish loading before starting the next) — now it's a
+    // single parallel batch, which is the main speed win on slow connections.
+    updateLoadingUI(20, BOOT_MESSAGES[0]);
+    const fetched = await Promise.all(SCRIPTS.map(fetchScriptText));
+
+    // Step 3 — run them in the original order, synchronously, with no
+    // per-file network wait. Order is preserved because Promise.all keeps
+    // the SCRIPTS array order in its results.
+    let i = 0;
+    for (const { src, code } of fetched) {
+        runScript(src, code);
+        i++;
+        const pct = 25 + Math.round((i / fetched.length) * 25); // 25% → 50%
+        updateLoadingUI(pct, BOOT_MESSAGES[i % BOOT_MESSAGES.length]);
     }
 
-    // Step 3 — DOM is complete and every function is defined. Boot the app.
+    // Step 4 — DOM is complete and every function is defined. Boot the app.
+    // initApp() takes over progress reporting from here (50% → 100%).
     if (typeof initApp === 'function') {
         initApp();
     } else {
         console.error('Loader: initApp() was not found after loading all scripts.');
+        updateLoadingUI(50, 'Something went wrong — reload to try again');
     }
 }
 
