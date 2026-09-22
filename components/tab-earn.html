@@ -100,17 +100,7 @@
             </div>
         </button>
 
-       <button onclick="openEarnSection('daily')" class="w-full text-left relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-blue-950/20 p-5 mb-4 backdrop-blur-xl active:scale-[0.98] transition-all">
-    <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-cyan-500/15 blur-xl"></div>
-    <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-cyan-500/15 border border-cyan-500/20 flex items-center justify-center text-2xl shrink-0">📝</div>
-        <div class="flex-1 min-w-0">
-            <h3 class="text-base font-black text-white">Daily Task</h3>
-            <p class="text-[11px] text-slate-400 truncate" id="dailyTaskPreview">Loading today's task...</p>
-        </div>
-        <span class="text-slate-500 text-lg">›</span>
-    </div>
-</button>
+       
     </div>
 
     <!-- ===== SUB-PAGE: YOUTUBE TASKS LIST ===== -->
@@ -166,56 +156,5 @@
             <p class="text-center text-[10px] text-slate-500 py-6">Loading ads...</p>
         </div>
     </div>
-
-<div id="earn-section-daily" class="hidden">
-    <div class="flex items-center gap-3 mb-5">
-        <button onclick="closeEarnSection()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
-        <div>
-            <h3 class="text-sm font-black uppercase tracking-widest text-cyan-400">📝 Daily Task</h3>
-            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider" id="dailyTaskLimitLabel">One task per day</p>
-        </div>
-    </div>
-
-    <!-- COMMENT (secret word) VARIANT -->
-    <div id="dailyTask-comment" class="hidden">
-        <div class="glass p-5 rounded-2xl border border-white/5 mb-4">
-            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">🔤 Secret / Comment / Word</h4>
-            <div class="bg-white/5 rounded-xl p-4 mb-4 text-center">
-                <p class="text-[10px] text-slate-500 mb-2">TODAY'S WORD</p>
-                <p class="text-2xl font-black text-cyan-400 tracking-wider" id="dailyCommentWord"></p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="copySecretWord()" class="flex-1 glass py-3 rounded-xl font-bold text-xs text-cyan-400 border border-cyan-500/30 active:scale-95 transition-all">📋 Copy Word</button>
-                <button onclick="goToGroup()" class="flex-1 btn-premium py-3 rounded-xl font-black text-xs active:scale-95 transition-all">🚀 Go to Group</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- REACTION VARIANT -->
-    <div id="dailyTask-reaction" class="hidden">
-        <div class="glass p-5 rounded-2xl border border-white/5 mb-4">
-            <h4 class="text-[10px] font-black uppercase text-slate-400 mb-3 tracking-widest">🔥 React to Post</h4>
-            <div class="bg-white/5 rounded-xl p-4 mb-4 text-center">
-                <p class="text-[10px] text-slate-500 mb-2">React with</p>
-                <p class="text-4xl" id="dailyReactionEmoji">🔥</p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="goToPost()" class="flex-1 btn-premium py-3 rounded-xl font-black text-xs active:scale-95 transition-all">🔥 Go to Post</button>
-                <button id="verifyReactionBtn" onclick="verifyReaction()" class="flex-1 glass py-3 rounded-xl font-bold text-xs text-green-400 border border-green-500/30 active:scale-95 transition-all">✓ Verify</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- SHARED: reward + status -->
-    <div class="glass p-4 rounded-2xl border border-white/5 flex items-center justify-between mb-4">
-        <span class="text-[10px] text-slate-400">Reward</span>
-        <span class="text-sm font-black text-orange-400" id="dailyTaskReward">+50 DASH</span>
-    </div>
-
-    <div id="dailyTaskCompletedMsg" class="hidden glass p-4 rounded-2xl border border-green-500/30 bg-green-500/5 text-center">
-        <p class="text-sm font-black text-green-400 mb-1">✅ Completed!</p>
-        <p class="text-[10px] text-green-300/70">Come back tomorrow for a new task</p>
-    </div>
-</div>
 
 </div>
