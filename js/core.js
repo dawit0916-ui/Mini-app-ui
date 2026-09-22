@@ -191,10 +191,10 @@ function renderGlobalMaintenanceViewportScreen(meta) {
         
 async function initApp() {
     try {
-        setLoadingProgress(10, 'Connecting...');
+        setLoadingProgress(50, 'Connecting...');
         await fetchAdminStatus();
 
-        setLoadingProgress(20, 'Verifying account...');
+        setLoadingProgress(55, 'Verifying account...');
         cachedUserProfile = null;
 
         const user = window.Telegram?.WebApp?.initDataUnsafe?.user || {
@@ -231,7 +231,7 @@ async function initApp() {
         }
 
         // 3. Fetch profile
-        setLoadingProgress(30, 'Loading profile...');
+        setLoadingProgress(60, 'Loading profile...');
         const data = await secureFetch('/api/secure/profile');
 
         if (data && !data.error) {
@@ -260,21 +260,21 @@ async function initApp() {
         }
         
 
-        setLoadingProgress(50, 'Loading YT view...');
+        setLoadingProgress(70, 'Loading YT view...');
         await initBannerCarousel();
         // 4. Load everything the app needs, in parallel where safe
-        setLoadingProgress(60, 'Loading tasks...');
+        setLoadingProgress(75, 'Loading tasks...');
         await loadAvailableTasks();
 
-        setLoadingProgress(70, 'Loading team...');
+        setLoadingProgress(80, 'Loading team...');
         await loadReferralData();
 
-        setLoadingProgress(85, 'Loading stats...');
+        setLoadingProgress(88, 'Loading stats...');
         await loadUserProfileMetrics();
 
         // Admin-only data — only fetched if the user is actually an admin
         if (isCurrentUserAdmin) {
-            setLoadingProgress(92, 'Loading Ad...');
+            setLoadingProgress(96, 'Loading Ad...');
             await loadAdminData().catch(e => console.warn('Admin data load failed:', e.message));
         }
 
