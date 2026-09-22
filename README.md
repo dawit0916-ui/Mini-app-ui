@@ -1,16 +1,17 @@
 # Mini-app-ui
 # Dash Earn (EMBT Vault) — System Architecture
 
-_Generated from project session history. This documents the split, audited, and rebuilt version of the app — not the original single-file monolith._
+_Generated from a live pull of both repos (frontend: `dawit0916-ui/Mini-app-ui`, backend: `dawit0916-ui/embt-hub-v2`), not from memory. Supersedes the previous version, which still documented the level system and Secret Word/Emoji Reaction feature — both fully removed._
 
 ---
 
 ## Section 1: Environment Stack
 
-**Backend:** Node.js, Express 4.19.2, Mongoose 8.3.2 (MongoDB), Telegraf 4.16.3 (Telegram Bot API), CORS, Axios, dotenv.
+**Backend:** Node.js, Express 4.19.2, Mongoose 8.3.2 (MongoDB), Telegraf 4.16.3 (Telegram Bot API), CORS, Axios, dotenv, node-cron.
+**Anti-fraud / media stack (new — marketplace feature):** `sharp` (image processing for perceptual hashing), `blockhash-core` (pHash generation), `tesseract.js` (OCR for "Stats for Nerds" screenshot verification), `multer` (memory-storage file uploads, used by marketplace submissions, banner uploads, and shop APK/course uploads), IPQualityScore API (VPN/proxy/Tor + fraud-score lookups).
 **Frontend:** Vanilla HTML/CSS/JS (no framework/bundler), Tailwind CDN, custom `loader.js` for component/script injection.
-**Third-party:** AdsGram SDK (`sad.min.js`, `libtl.com/sdk.js`) — rewarded video ads + Task-widget ads; Monetag (S2S postback only).
-**Deployment (as of last discussion):** Backend on Render, frontend on Vercel.
+**Third-party:** AdsGram SDK (`sad.min.js`, `libtl.com/sdk.js`) — rewarded video ads + Fast Task widget ads; Monetag (S2S postback only).
+**Deployment:** Backend on Render, frontend on Vercel.
 **Database:** MongoDB (must be a replica set — required for the transaction used in Fast Task claims; MongoDB Atlas, including free M0 tier, satisfies this by default).
 
 ### `.env` schema
@@ -18,10 +19,9 @@ _Generated from project session history. This documents the split, audited, and 
 ```env
 # Telegram
 BOT_TOKEN=123456:ABC-DEF_dummy_token
+BOT_USERNAME=Dashearn_bot
 ADMINS=111111111,222222222          # comma-separated Telegram user IDs
-STORAGE_CHANNEL_ID=-1001234567890   # private channel for course video / APK file storage
-TELEGRAM_GROUP_URL=https://t.me/your_group
-TELEGRAM_CHANNEL_NAME=your_channel_username
+STORAGE_CHANNEL_ID=-1001234567890   # private channel for course video / APK / screenshot storage
 
 # Database
 MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
@@ -30,14 +30,20 @@ MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
 PORT=3000
 
 # AdsGram
-ADSGRAM_SECRET=dummy_s2s_secret
 FAST_TASK_ADSGRAM_BLOCK_ID=task-00000   # AdsGram dashboard → Blocks → Task format
+
+# Marketplace anti-fraud (new)
+IPQS_API_KEY=dummy_ipqualityscore_key
+VPN_BLOCK_THRESHOLD=85    # fraud score (0-100) at/above which a submission is auto-rejected
+VPN_REVIEW_THRESHOLD=60   # fraud score at/above which a submission is queued for manual review
 
 # Maintenance mode (optional, all have safe defaults if unset)
 MAINTENANCE_ENABLED=false
 MAINTENANCE_BYPASS_IDS=111111111
 MAINTENANCE_METADATA={"message":"Upgrading, back soon.","targetTime":0,"accentAsset":"🛠️"}
 ```
+
+> `CONFIG_CHANNEL_ID`, `PUBLIC_GROUP_ID`, `PUBLIC_CHANNEL_ID` are now hardcoded numeric literals directly in `config/constants.js` rather than env vars — update them there, not in `.env`, if they ever change. `TELEGRAM_GROUP_URL`/`TELEGRAM_CHANNEL_NAME` from the old schema are no longer referenced anywhere in the codebase.
 
 ---
 
@@ -47,315 +53,200 @@ MAINTENANCE_METADATA={"message":"Upgrading, back soon.","targetTime":0,"accentAs
 
 ```
 server/
-├── index.js                  — entry point: express app, mounts all 21 routers (adsgram router
-│                                mounted BEFORE the maintenance gate on purpose — see comment
-│                                in file), requires bot/* for side effects, connects Mongo, launches bot
+├── index.js                    — entry point: express app, mounts 23 routers, requires bot/* for
+│                                  side effects, connects Mongo, self-pings every 10 min, launches bot
 ├── package.json
 ├── config/
-│   └── constants.js          — admins[], channel IDs, PORT, FAST_TASK_ADSGRAM_BLOCK_ID
-├── models/                   — 21 Mongoose models + barrel index.js (lowercase filenames)
-│   ├── index.js               re-exports all models
-│   ├── user.js                 core user doc: balance, level, referrals, ban state, history[]
-│   ├── task.js                  admin-created one-time/daily/custom tasks
-│   ├── settings.js              singleton global settings doc
-│   ├── ticket.js                support tickets
-│   ├── proofSubmission.js       manual-proof task submissions
-│   ├── adminActivity.js         admin action audit log
-│   ├── adWatch.js               ad-watch session tracking (rewarded ads) — see note below
-│   ├── dailyTaskProgress.js     SUPERSEDED — legacy daily-task progress, route commented out
-│   ├── activeAd.js              admin-configured ad units (adgrams/google_ads/monetag)
-│   ├── youtubeTask.js           YouTube watch-and-enter-code tasks
-│   ├── telegramVerification.js  channel/group join verification cache
-│   ├── reminderConfig.js        reminder system config singleton
-│   ├── userReminder.js          per-user reminder state
-│   ├── levelConfig.js           10-level progression config (price/reward/commission/discount/features)
-│   ├── featureUsageLog.js       (legacy, low usage)
-│   ├── pendingReaction.js       staged emoji-reaction verification (5s delayed write)
-│   ├── completedTask.js         generic daily-completion ledger — used by Secret Word/Emoji AND
-│   │                             Fast Task (taskType discriminates), dateKey-scoped for daily reset
-│   ├── shopProduct.js           courses + APKs
-│   ├── courseLesson.js          lessons under a course product
-│   ├── userPurchase.js          shop purchase records
-│   └── referralEarning.js       per-referral commission ledger
+│   └── constants.js            — admins[], channel IDs, PORT, FAST_TASK_ADSGRAM_BLOCK_ID,
+│                                  VPN_BLOCK_THRESHOLD, VPN_REVIEW_THRESHOLD
+├── models/                     — 26 Mongoose models + barrel index.js
+│   ├── index.js                  re-exports all 26 models
+│   ├── user.js                    core user doc: balance, total_earned, referrals, ban state,
+│   │                               history[], streak fields (currentStreak/longestStreak/
+│   │                               lastStreakDate/streakDay/lastClaimDate) — NO level fields
+│   ├── task.js                    admin-created one-time/daily/custom tasks
+│   ├── settings.js                singleton global settings (withdraw min, ref commission %, etc.)
+│   ├── ticket.js                  support tickets
+│   ├── proofSubmission.js         manual-proof task submissions
+│   ├── adminActivity.js           admin action audit log
+│   ├── adWatch.js                 ad-watch session tracking — TTL index removed (see note below)
+│   ├── dailyTaskProgress.js       SUPERSEDED — legacy, model file remains but its route is gone
+│   ├── activeAd.js                admin-configured ad units (adgrams/google_ads/monetag)
+│   ├── youtubeTask.js             YouTube watch-and-enter-code tasks
+│   ├── telegramVerification.js    channel/group join verification cache
+│   ├── reminderConfig.js          reminder system config singleton
+│   ├── userReminder.js            per-user reminder state
+│   ├── featureUsageLog.js         (legacy, low usage)
+│   ├── completedTask.js           generic daily-completion ledger, dateKey-scoped
+│   ├── shopProduct.js             courses + APKs
+│   ├── courseLesson.js            lessons under a course product
+│   ├── userPurchase.js            shop purchase records
+│   ├── referralEarning.js         per-referral commission ledger
+│   ├── bannerSlide.js             NEW — home-screen promo carousel slides
+│   ├── marketplaceTask.js         NEW — creator-posted watch jobs (Tasks/Post marketplace)
+│   ├── marketplaceSubmission.js   NEW — viewer proof-of-watch submissions + fraud review state
+│   ├── screenshotFingerprint.js   NEW — global sha256+pHash registry, dedup across all users
+│   ├── imageStylePreset.js        NEW — AI Image Generator style presets (prompt templates)
+│   ├── imageGenLog.js             NEW — per-generation usage/cost log
+│   └── imageGenConfig.js          NEW — singleton: cost per generation, daily cap
 ├── middleware/
 │   ├── verifyTelegramInitData.js — shared HMAC verification helper
 │   ├── validateInitData.js       — user auth (sets req.tgUser)
 │   ├── validateAdmin.js          — admin auth (sets req.adminUser, req.tgUser)
-│   └── maintenanceGate.js        — global maintenance-mode gate, tester bypass by ID
+│   ├── maintenanceGate.js        — global maintenance-mode gate, tester bypass by ID
+│   ├── checkVpn.js               — NEW: IPQualityScore lookup, sets req.vpnCheck.action
+│   │                                (allow/review/block), 30-min in-memory cache per IP
+│   ├── fingerprintCheck.js       — NEW: sha256 exact-match + pHash Hamming-distance dedup
+│   │                                (scans latest 5000 records), sets req.fingerprintCheck
+│   └── ocrStatsForNerds.js       — NEW: tesseract.js OCR of YouTube "Stats for Nerds" overlay,
+│                                    parses video ID + elapsed/total time, sets req.ocrResult
 ├── utils/
 │   ├── logAdminAction.js
-│   ├── channel.js               — postToChannel, postPhotoToChannel, replyInChannel (via bot)
-│   ├── settings.js               — getSettings() (auto-seeds defaults incl. ref_tasks_required)
-│   └── time.js                   — getUTCDayStart, getNextResetTime, getResetPeriodStart
+│   ├── channel.js                — postToChannel, postPhotoToChannel, replyInChannel (via bot)
+│   ├── settings.js                — getSettings() (auto-seeds defaults)
+│   ├── time.js                    — getUTCDayStart, getNextResetTime, getResetPeriodStart
+│   ├── filenameCheck.js           — NEW: parses Android Screenshot_YYYYMMDD-HHMMSS_App filenames,
+│   │                                 flags known photo-editor app names as a soft "likely edited" signal
+│   └── telegramStorage.js         — NEW: uploadScreenshotToStorage / getStorageFileUrl — stores
+│                                     marketplace proof screenshots as Telegram-hosted files
 ├── bot/
-│   ├── bot.js                    — Telegraf instance
-│   ├── config.js                 — shared mutable state: taskState.tasks[] (Secret Word/Emoji pool)
-│   ├── handlers.js               — bot.start/on(message,video,text,document)/action/catch,
-│   │                                 admin video/APK upload wizard, comment-task matcher
-│   ├── dailyConfig.js            — polls pinned CMS message, parses multi-task pool (--- separated)
-│   ├── ghostValidator.js         — sweeps users for left/kicked channel status, penalizes;
-│   │                                 returns {success, caughtCount} for both bot-triggered and HTTP use
-│   ├── reminders.js               — reminder send/check workers
-│   └── adWatchCleanup.js         — deletes only ABANDONED (never-claimed) AdWatch sessions after 1h;
-│                                     replaces a removed TTL index (see Section 6)
-└── routes/                    — 21 Express routers, mounted at '/' in index.js
-    ├── verification.js         — channel/group join check
-    ├── adsgram.js               — AdsGram + Monetag S2S reward postbacks (public, no auth)
-    ├── adminStats.js            — dashboard stats, registry, health-check (/api/admin/test)
-    ├── adminUsers.js            — user search/directory/ban/update (whitelist system removed)
-    ├── reminders.js              — admin reminder config
-    ├── console.js                — SSE log stream + remote eval for admin diagnostics
-    ├── profile.js                 — /api/secure/profile
-    ├── settings.js                — global settings CRUD incl. /api/admin/settings/all
-    ├── tasks.js                   — admin task CRUD (full edit support), claim-task, referral
-    │                                 commission (now level-based) + milestone bonus (now uses
-    │                                 settings.ref_tasks_required instead of hardcoded 3)
-    ├── proofs.js                  — manual proof submit/review + /api/admin/run-sweep
-    ├── ads.js                     — rewarded-ad watch sessions + Fast Task (config/claim,
-    │                                 transaction-protected, no level gate, 3/day @ 100 DASH)
-    ├── levels.js                  — user level/purchase + admin level config CRUD
-    ├── dailyTasks.js              — Secret Word + Emoji Reaction (multi-task pool, random
-    │                                 no-repeat, shared dailyLimit); legacy complete-daily-task
-    │                                 commented out
-    ├── support.js                  — ticket create/reply/resolve
-    ├── referrals.js                — referral list + earnings
-    ├── broadcast.js                — global broadcast, now supports image (photo+caption) and
-    │                                 inline button
-    ├── leaderboard.js
-    ├── youtubeTasks.js             — admin CRUD + toggle enable/disable
-    ├── history.js
-    ├── video.js                    — secure course video streaming
-    └── shop.js                     — course/APK browse+purchase (level-based discount applied
-                                       at checkout), admin CRUD incl. lesson delete
+│   ├── bot.js                     — 5-line Telegraf instance export, nothing else
+│   ├── handlers.js                — bot.start / action(start_bot_reminder) / on(video, text,
+│   │                                 document) / catch-all; admin video/APK upload wizard,
+│   │                                 comment-task matcher
+│   ├── ghostValidator.js          — runGhostValidator(): daily sweep (setInterval, 24h) that
+│   │                                 checks users are still in required Telegram channels for
+│   │                                 completed 'telegram'-type tasks, penalizes + flags leavers
+│   ├── reminders.js               — getReminderConfig / sendReminderMessage / checkAndSendReminders
+│   └── adWatchCleanup.js          — cleanupAbandonedAdWatches(): every 30 min + once on startup,
+│                                     deletes never-claimed AdWatch sessions older than 1 hour
+└── routes/                        — 23 files, one per feature area (full endpoint list in Section 4)
+    adminMarketplace.js  adminStats.js   adminUsers.js  ads.js         adsgram.js
+    banners.js           broadcast.js    console.js     history.js     leaderboard.js
+    marketplace.js       profile.js      proofs.js      referrals.js   reminders.js
+    settings.js          shop.js         streak.js      support.js     tasks.js
+    verification.js      video.js        youtubeTasks.js
 ```
 
-### Frontend — component/JS split
+> **Removed since the last version of this doc:** `models/levelConfig.js`, `models/pendingReaction.js`, `routes/levels.js`, `routes/dailyTasks.js`, `bot/config.js` (taskState), `bot/dailyConfig.js` (pinned-CMS-message parser) — the entire level system and Secret Word + Emoji Reaction daily-task system. **Also fixed this session:** `index.js` still had `require('./routes/levels')` and `require('./routes/dailyTasks')` left in — two files that no longer exist, which would throw `Cannot find module` and crash the server on boot before it binds the port. Removed both require lines.
+
+### Frontend — `Mini-app-ui/`
 
 ```
-index.html                 — shell: mount points only, loads css/*, then js/loader.js
-js/loader.js                — fetches all components/*.html in parallel, injects, THEN loads all
-                               js/*.js in strict order, THEN calls initApp()
-css/*.css                   — 11 files: base, loading, verify-gate, nav, sheets, toast, popup,
-                               tasks, admin, misc, video-player
-components/*.html            — 14 files: loading-screen, verify-gate, header, tab-home,
-                               tab-friends, tab-earn, tab-levels, tab-shop, tab-profile,
-                               tab-reminders, tab-admin, modals, popups, bottom-nav
-js/*.js                      — 23 files, load order matters (loader.js SCRIPTS array):
-  core.js         — secureFetch (auth header injection, 403/banned handling), initApp
-  utils.js        — LEVEL_CONFIG (client-side mirror of LevelConfig, incl. courseDiscount)
-  notifications.js — toast/alert/confirm/reward popup system
-  navigation.js    — switchTab, switchAdminPanel (registers all admin panel IDs + load hooks)
-  verification.js  — verify-gate logic, ban overlay, _verifyClicked state
-  tasks.js         — task list, claim (one-time + daily via claimDailyTask), admin task editor
-                      w/ platform-icon picker (auto→telegram.png, else Twitter/YouTube/
-                      Instagram/TikTok picker)
-  youtube-tasks.js — YT task claim + admin CRUD + enable/disable toggle
-  earn-ads.js       — earn hub, rewarded ads, Secret Word/Emoji UI, Fast Task widget
-                      (AdsGram <adsgram-task>, custom slots, 10-min cooldown, race guard)
-  levels.js         — level grid/drawer, purchase flow, showLevelLockedOverlay()
-  referrals.js       — friend list, commission badge (level-based, live), invite link
-  leaderboard.js
-  profile.js          — header balance sync, profile card population
-  reminders.js
-  shop.js             — course/APK browse, purchase, discount-aware pricing
-  shop-admin.js        — course/APK/lesson CRUD incl. lesson delete list
-  video-player.js
-  support.js
-  admin-users.js        — user search + full-sheet edit drawer (balance/level/ban/red-flag)
-  admin-settings.js      — settings forms + Level Config admin panel (NEW)
-  admin-tickets.js
-  admin-console.js
-  admin-proofs.js
-  broadcast.js            — rich-text toolbar (bold/italic/underline/strike/bullet/link),
-                            image attach, inline button
+Mini-app-ui/
+├── index.html                — shell only: mount-point <div>s for every component, loads loader.js
+├── css/ — 11 files (loading.css, plus one per major feature area)
+├── components/ — 15 HTML partials, fetched + injected by loader.js:
+│   loading-screen.html   verify-gate.html   streak.html        header.html
+│   tab-home.html         tab-friends.html   tab-earn.html      marketplace.html
+│   tab-shop.html         tab-profile.html   tab-reminders.html tab-admin.html
+│   modals.html           popups.html        bottom-nav.html
+└── js/ — 27 files, loaded in this exact order by loader.js's SCRIPTS array:
+    core.js            utils.js           streak.js          banner.js
+    notifications.js   navigation.js      verification.js    tasks.js
+    marketplace.js     youtube-tasks.js   earn-ads.js        referrals.js
+    leaderboard.js      profile.js         reminders.js       shop.js
+    imagegen.js         shop-admin.js      video-player.js    support.js
+    admin-users.js      admin-settings.js  admin-tickets.js   admin-console.js
+    admin-proofs.js     broadcast.js       admin-marketplace.js
 ```
+
+> **Removed since the last version of this doc:** `js/levels.js`, `components/tab-levels.html`, the admin level-config panel, and all Secret Word/Emoji Reaction UI. Confirmed via a fresh pull — only a stray unused image asset (`assets/images/nav-levels.png`) remains from the old feature; no dead code references to it.
+> **New today:** `js/loader.js` rewritten — see Section 7.
 
 ---
 
-## Section 3: Database Models (key ones — see file tree above for full list)
+## Section 3: New Feature — Tasks/Post Marketplace
 
-```js
-// User (models/user.js) — abbreviated to fields referenced elsewhere in this doc
-{
-  user_id: Number, username: String, first_name: String,
-  balance: Number, level: Number (default 0),           // 0 = free tier, every new user
-  purchased_levels: [Number], features_unlocked: { daily_tasks, custom_tasks, ... },
-  total_earned: Number, referralCount: Number, referred_by: Number,
-  referral_tasks_done: Number, referral_paid: Boolean,
-  is_banned: Boolean, red_flag: Boolean,
-  completed_tasks: [String], history: [{ title, reward, taskId, date }],
-  createdAt: Date
-  // NOTE: 'tasks_added' was referenced in 3 places (adminUsers.js x2, profile.js) but was
-  // NEVER a real schema field — always silently dropped by Mongoose. Removed from all
-  // call sites this session.
-}
+A two-sided watch-to-earn marketplace, separate from the older YouTube Task feature. Funded directly by DASH (no separate points currency, no escrow — creator pays per approval).
 
-// LevelConfig (models/levelConfig.js)
-{ level, name, cost, features: [String], daily_task_limit, daily_task_reward,
-  cost_discount_percent,  // 100 = no discount, 80 = 20% off courses, etc.
-  commission_percent }
-
-// CompletedTask (models/completedTask.js) — shared daily-ledger for both Secret Word/Emoji
-// and Fast Task
-{ userId, taskType: 'comment'|'reaction'|'fast_task', taskKey, dateKey: 'YYYY-MM-DD',
-  createdAt }
-// unique index: (userId, taskType, taskKey, dateKey) — lets the same task be redone next day
-
-// AdWatch (models/adWatch.js)
-{ sessionId (unique, required), userId, adId, adNetwork, reward,
-  serverConfirmed, clientDone, claimed, blurDetected, createdAt }
-// NOTE: previously had a TTL (`expires: 600`) that auto-deleted ALL records after 10 min,
-// including claimed ones — this broke admin-configured resetIntervalHours limits for any
-// period longer than 10 minutes. TTL removed; replaced by bot/adWatchCleanup.js which only
-// deletes claimed:false records older than 1 hour. REQUIRES a manual one-time DB step —
-// see Section 6.
-
-// ActiveAd (models/activeAd.js)
-{ adId (unique), network: enum['adgrams','google_ads','monetag'], unitId, reward,
-  resetIntervalHours (default 24), watchesPerReset (default 2), enabled }
-
-// Settings (models/settings.js) — singleton
-{ min_withdraw, ref_bonus, penalty_fee, withdrawals_enabled, maintenance_mode,
-  ref_commission_percent (default 10, used as fallback when referrer has no level),
-  ref_bonus_amount, ref_tasks_required (default 3, added this session — was missing entirely,
-  causing the admin-configurable milestone threshold to be silently dropped) }
-```
+- **Creator side** (`marketplace.html` → Post/My Posts tabs, `js/marketplace.js`, `routes/marketplace.js`): posts a YouTube link (`/fetch-meta` auto-pulls video ID/title/thumbnail), sets watch duration + point cost, optional `allowedCountries` allow-list. `MarketplaceTask` tracks `viewsApproved`/`dashSpent`; auto-pauses (`pauseReason: 'insufficient_balance'`) if the creator's balance runs out.
+- **Viewer side:** scrollable feed of active tasks (`GET /api/marketplace/tasks`), taps "Start earning" (records `taskStartedAt`), watches, then submits a screenshot of YouTube's "Stats for Nerds" overlay as proof.
+- **Verification pipeline** on `POST /api/marketplace/submit` (order matters — each is Express middleware, see `routes/marketplace.js` line ~186):
+  1. `checkVpn` — IPQualityScore lookup on the submitter's IP → `req.vpnCheck.action` (`allow`/`review`/`block`), based on fraud score vs. `VPN_BLOCK_THRESHOLD`/`VPN_REVIEW_THRESHOLD` plus raw VPN/proxy/Tor flags.
+  2. `fingerprintCheck` — sha256 exact match + pHash perceptual match (Hamming distance ≤ 6) against the global `ScreenshotFingerprint` registry, scanning the latest 5000 records. Catches re-uploading the same screenshot under a different account.
+  3. `ocrStatsForNerds` — tesseract.js OCR reads the video ID and elapsed/total time off the screenshot itself.
+  4. Route logic combines all three: `vpnCheck.action === 'block'` → auto-reject; a filename/timestamp mismatch, OCR mismatch, or `vpnCheck.action === 'review'` → `pending_review`; otherwise auto-`approved` and the creator's DASH balance is debited atomically (Mongo transaction).
+- **Admin review** (`tab-admin.html` marketplace panel, `js/admin-marketplace.js`, `routes/adminMarketplace.js`): `GET /pending` lists queued submissions, `POST /:id/approve` / `/:id/reject` resolve them manually.
+- `utils/filenameCheck.js` additionally parses the Android `Screenshot_YYYYMMDD-HHMMSS_AppName` filename pattern as a soft signal — flags known photo-editor app names (Snapseed, InShot, Picsart, etc.) as "likely edited," and flags a missing pattern entirely as `present: false` (renamed file, iOS, or not a real screenshot).
 
 ---
 
-## Section 4: API Contract (selected — the routes most modified/discussed this session; full route list is in Section 2's file tree with one-line descriptions)
+## Section 4: Other Features Added Since Last Doc Version
 
-### `POST /api/secure/fast-task-claim`
-- **Auth:** validateInitData (user)
-- **Body:** `{}` (no body needed — user identified via auth)
-- **Success (200):** `{ success: true, reward: 100, newBalance: Number, claimsRemainingToday: Number }`
-- **Errors:**
-  - `404` `{ success: false, error: 'User not found' }`
-  - `403` `{ success: false, error: 'Account banned' }`
-  - `400` `{ success: false, error: 'Daily limit reached (X/3)' }`
-  - `500` `{ success: false, error: 'Failed to record claim' }`
-- **Implementation note:** wrapped in a Mongoose session transaction — claim-record creation and balance credit either both commit or both roll back. Previously these were separate steps and could desync (claim marked used, balance never credited) if anything failed between them.
-
-### `GET /api/secure/fast-task-config`
-- **Auth:** validateInitData
-- **Success (200):** `{ success: true, enabled: Boolean, blockId: String|null, reward: 100, dailyLimit: 3, claimsRemainingToday: Number }`
-- No level gate (removed this session — previously required Level 2, now available to all).
-
-### `POST /api/admin/levels/update`
-- **Auth:** validateAdmin
-- **Body:** `{ level, name, cost, features: [String], daily_task_limit, daily_task_reward, commission_percent, cost_discount_percent }`
-- **Success (200):** `{ success: true, level: <updated LevelConfig doc> }`
-
-### `POST /api/admin/broadcast`
-- **Auth:** validateAdmin
-- **Body:** `{ message: String (HTML subset), imageFileId?: String, buttonText?: String, buttonUrl?: String }`
-- **Success (200):** `{ success: true, total: Number }` — fires immediately, sends async in background with 75ms throttle between users
-- **Errors:** `400` if message exceeds length limit (4096 chars text, or 1024 if imageFileId present — Telegram's caption limit is shorter than its message limit)
-
-### `POST /api/secure/claim-task`
-- **Auth:** validateInitData
-- **Body:** `{ taskId: String }`
-- **Success (200):** `{ success: true, reward: Number, newBalance: Number }`
-- **Errors:** `403` with `{ error, unlocksAtLevel }` for custom/duration-gated tasks the user's level doesn't cover; `400` for already-claimed/not-found
-
-### `GET /api/secure/daily-tasks/today`
-- **Auth:** validateInitData
-- **Success (200):** one randomly-selected not-yet-completed-today task from the pool:
-  `{ success: true, task_key, task_type: 'comment'|'reaction', secret_word?, target_emoji?, message_id?, reward, completedToday, dailyLimit }`
-- **No tasks / limit reached (200):** `{ success: false, message: String, completedToday?, dailyLimit? }`
-
-### `PUT /api/admin/shop/product/:productId`
-- **Auth:** validateAdmin
-- **Body:** `{ title?, description?, category?, price?, thumbnail?, active?, telegram_file_id? }` (partial update)
-- **Success (200):** `{ success: true, product }`
-
-**Full endpoint list:** every route file in Section 2 corresponds 1:1 to its mounted paths; cross-referencing frontend `secureFetch()` calls against backend `router.*()` registrations was done exhaustively this session (see Section 6) and is currently fully consistent except for intentionally-dead/commented-out legacy routes.
+- **Home banner carousel** (`js/banner.js`, `routes/banners.js`, `BannerSlide` model): admin-managed image slides with drag/swipe navigation, auto-advance, per-slide click tracking (`clickCount`, resettable), and an `actionType` (`tab` / `shop-section` / `earn-section` / `url` / `none`) that drives what tapping a slide does.
+- **Daily streak system** (`js/streak.js`, `routes/streak.js`, fields on `User`: `currentStreak`, `longestStreak`, `lastStreakDate`, `streakDay` 1–7, `lastClaimDate`): a 7-day calendar popup with an escalating bonus, checked via `checkStreakOnAppStart()` every time the mini app opens.
+- **AI Image Generator** (`js/imagegen.js`, `routes/shop.js` imagegen endpoints, `ImageStylePreset`/`ImageGenLog`/`ImageGenConfig` models): built into the Shop tab. Per-style prompt templates, a flat daily generation cap and per-generation cost (both admin-configurable via `ImageGenConfig`, not level-tiered), uploaded reference photo discarded after each generation (no reuse across styles).
 
 ---
 
-## Section 5: Frontend Data Flow
+## Section 5: API Contract — Full Endpoint List
 
-- **No framework, no Redux/Zustand/Context.** Plain global `let`/`const` state per JS file (e.g., `currentUserBalance`, `currentUserLevel` in levels.js; `_fastTaskConfigCache`, `_fastTaskNextAvailableAt` in earn-ads.js; `shopState` object in shop.js/shop-admin.js).
-- **No localStorage/cookies for auth.** Every authenticated request goes through `secureFetch(url, options)` (core.js), which reads `window.Telegram.WebApp.initData` fresh on every call and attaches it as the `X-Telegram-Init-Data` header. The backend's `validateInitData`/`validateAdmin` middleware verifies this HMAC signature server-side per request — there is no session token, no cookie, no localStorage-persisted credential.
-- **secureFetch's 403 handling:** preserves the full error response body (not just `.error`) — this was a real bug fixed this session (`return { error: ... }` → `return { ...errData, error: ... }`), since it was silently stripping `unlocksAtLevel` and other useful fields from every 403 response.
-- **Inter-tab state sync:** mostly via re-fetching on tab-open (`switchTab()`'s per-tab load hooks in navigation.js) rather than a shared store — e.g., balance is re-synced via `updateHeaderBalances()` called after any balance-changing action.
-- **Component loading:** all HTML partials are fetched and injected via `innerHTML` by `loader.js` before any JS runs — this means no `DOMContentLoaded` listeners work as expected anywhere in the app (that event has already fired by the time loader.js finishes); found and fixed 3 instances of this exact bug this session (verification.js, video-player.js, reminders.js) where code was still trying to use it.
+Grouped by route file; `validateInitData` = user auth, `validateAdmin` = admin auth, no tag = public.
 
----
+**adminMarketplace.js:** `GET /pending`, `POST /:id/approve`, `POST /:id/reject` — all `validateAdmin`
+**adminStats.js:** `GET /api/admin/stats`, `GET /api/admin/registry`, `GET /api/admin/test` — all `validateAdmin`
+**adminUsers.js:** `GET /api/admin/directory`, `GET /api/admin/users`, `POST /api/admin/user/update`, `POST /api/admin/users/ban` — all `validateAdmin`
+**ads.js:** `POST /api/secure/ads/start-session`, `POST /api/secure/ads/claim`, `GET /api/admin/ads`, `POST /api/admin/ads/update`, `GET /api/secure/available-ads`, `POST /api/secure/watch-ad`, `GET /api/secure/fast-task-config`, `POST /api/secure/fast-task-claim`
+**adsgram.js:** `GET /api/adsgram/reward-callback`, `GET /api/ads/monetag-reward-callback` — public (S2S callbacks; mounted before the maintenance gate on purpose)
+**banners.js:** `GET /api/banners` (public), `GET/POST /api/admin/banners`, `PUT/DELETE /api/admin/banners/:id`, `POST /api/admin/banners/upload` (multer), `GET /api/image/:fileId` (public), `POST /api/banners/:id/click` (public), `POST /api/admin/banners/:id/reset-clicks`
+**broadcast.js:** `POST /api/admin/broadcast`
+**console.js:** `GET /api/admin/console/stream`, `POST /api/admin/console/eval`
+**history.js:** `GET /api/secure/history`
+**leaderboard.js:** `GET /api/secure/leaderboard`
+**marketplace.js** (mounted at `/api/marketplace`): `GET /fetch-meta` (public), `POST /post`, `GET /tasks`, `GET /my-posts`, `DELETE /task/:id`, `POST /submit` (multer + checkVpn + fingerprintCheck + ocrStatsForNerds chain), `GET /my-submissions`
+**profile.js:** `GET /api/secure/profile`
+**proofs.js:** `POST /api/admin/run-sweep`, `POST /api/secure/submit-proof`, `GET /api/admin/proofs/pending`, `GET /api/admin/proof-image/:proofId`, `POST /api/admin/proof-action`
+**referrals.js:** `GET /api/secure/referrals`
+**reminders.js:** `POST/GET /api/admin/reminder-config`, `POST /api/admin/reminder-config/toggle`, `GET /api/admin/reminder-stats`
+**settings.js:** `POST /api/admin/settings`, `GET /api/settings` (public), `GET /api/admin/settings/all`, `POST /api/settings/update`
+**shop.js:** `GET /api/shop/products` (public), `GET /api/shop/product/:productId` (public), `GET /api/secure/my-shop-purchases`, `POST /api/secure/purchase-course`, `GET /api/download-apk`, `POST /api/admin/shop/create-course`, `POST /api/admin/shop/lesson/add`, `GET /api/admin/shop/products`, `GET /api/admin/shop/course/:courseId`, `PUT /api/admin/shop/product/:productId`, `DELETE /api/admin/shop/lesson/:lessonId`, `DELETE /api/admin/shop/product/:productId`, `GET /api/admin/shop/stats`, `GET /api/secure/shop/imagegen/config`, `POST /api/secure/shop/imagegen/generate` (multer), `GET /api/admin/shop/imagegen/styles`, `POST /api/admin/shop/imagegen/style/create`, `PUT /api/admin/shop/imagegen/style/:styleId`, `DELETE /api/admin/shop/imagegen/style/:styleId`, `GET/PUT /api/admin/shop/imagegen/config`
+**streak.js:** `GET /api/secure/streak/status`, `POST /api/secure/streak/claim`
+**support.js:** `POST /api/support/create`, `POST /api/admin/reply-ticket`, `POST /api/admin/tickets/resolve`, `GET /api/admin/tickets`
+**tasks.js:** `GET /api/admin/tasks`, `POST /api/admin/tasks/add`, `GET /api/secure/available-tasks`, `POST /api/secure/claim-task`, `DELETE /api/admin/tasks/delete/:id`, `PUT /api/admin/tasks/update/:id`, `GET /api/secure/tasks-with-progress`
+**verification.js:** `GET /api/admin/check`, `POST /api/verify-membership`
+**video.js:** `GET /api/stream-video` (Range-header support)
+**youtubeTasks.js:** `GET/POST/DELETE /api/admin/youtube-tasks*`, `GET /api/secure/youtube-tasks`, `POST /api/secure/youtube-tasks/claim`
 
-## Section 6: File Connection Map
-
-Extracted directly from every `require()` in the delivered codebase (not from memory) — this is the actual, current dependency graph.
-
-### Backend — who requires what
-
-**Foundation layer** (required by almost everything downstream):
-- `config/constants.js` — required by 8 route files, 3 bot files, `utils/channel.js`, `middleware/validateAdmin.js`. No dependencies of its own.
-- `models/index.js` — required by every route file, `utils/logAdminAction.js`, `utils/settings.js`, `bot/ghostValidator.js`, `bot/handlers.js`, `bot/reminders.js`, `bot/adWatchCleanup.js`. Each individual model file depends on nothing but `mongoose`.
-- `bot/bot.js` — required by 10 route files (any route that sends a Telegram message), `utils/channel.js`, and 3 other bot files (`dailyConfig.js`, `ghostValidator.js`, `reminders.js`). Depends only on `telegraf`.
-
-**Middleware layer:**
-- `middleware/verifyTelegramInitData.js` — required by both `validateInitData.js` and `validateAdmin.js` (shared HMAC logic, not duplicated).
-- `middleware/validateInitData.js` — required by 11 route files (any user-facing endpoint).
-- `middleware/validateAdmin.js` — required by 14 route files (any admin endpoint). Itself depends on `config/constants` (for `admins[]`) and `models` (to stamp `last_admin_active`).
-- `middleware/maintenanceGate.js` — required only by `index.js`, mounted globally on `/api`.
-
-**Utils layer:**
-- `utils/logAdminAction.js` — required by 11 route files. Depends on `models` (writes to `AdminActivity`).
-- `utils/channel.js` — required by `routes/proofs.js`, `routes/support.js`, `routes/youtubeTasks.js`. Depends on `bot/bot.js` + `config/constants`.
-- `utils/settings.js` — required by `routes/adminStats.js`, `routes/settings.js`, `routes/tasks.js`, `bot/ghostValidator.js`. Depends on `models`.
-- `utils/time.js` — required by `routes/ads.js`, `routes/dailyTasks.js`, `routes/tasks.js`. No dependencies (pure functions).
-
-**Bot layer:**
-- `bot/config.js` — the only file with **no dependencies at all** — deliberately, since it just holds shared mutable state (`taskState.tasks[]`) that both `bot/dailyConfig.js` (writer) and `bot/handlers.js` + `routes/dailyTasks.js` (readers) need to reference the *same* object.
-- `bot/dailyConfig.js` → `bot/bot.js`, `bot/config.js`, `config/constants`.
-- `bot/handlers.js` → `bot/bot.js`, `bot/config.js`, `config/constants`, `models`, `utils/logAdminAction`, `telegraf` (for `Markup`).
-- `bot/ghostValidator.js` → `bot/bot.js`, `models`, `utils/settings`. Also required *by* `routes/proofs.js` (for the `run-sweep` HTTP trigger) — this is the one case of a route requiring a bot file directly rather than the reverse.
-- `bot/reminders.js` → `bot/bot.js`, `models`. Also required by `routes/reminders.js` (for `getReminderConfig`).
-- `bot/adWatchCleanup.js` → `models` only. Runs its own `setInterval`, nothing depends on it.
-
-**Routes layer** — each route file is a leaf node (nothing requires a route file except `index.js`). The busiest are `routes/tasks.js`, `routes/ads.js`, `routes/shop.js`, and `routes/support.js` (5–7 dependencies each); the lightest are `routes/adsgram.js` and `routes/leaderboard.js` (just `models` + auth).
-
-**`index.js`** — depends on `config/constants` (for `PORT`), `middleware/maintenanceGate`, all 21 `routes/*.js`, and `bot/bot.js` + `bot/config.js` + `bot/handlers.js` + `bot/dailyConfig.js` + `bot/ghostValidator.js` + `bot/reminders.js` + `bot/adWatchCleanup.js` (the last 4 required purely for their side effects — registering handlers, starting `setInterval` workers — not for anything they export).
-
-### Frontend — load order and cross-file dependencies
-
-No import/require system — everything is global scope, loaded in this exact order by `loader.js`'s `SCRIPTS` array (order matters — a file using a function from a later-loaded file would break):
-
-```
-core.js → utils.js → notifications.js → navigation.js → verification.js → tasks.js →
-youtube-tasks.js → earn-ads.js → levels.js → referrals.js → leaderboard.js → profile.js →
-reminders.js → shop.js → shop-admin.js → video-player.js → support.js → admin-users.js →
-admin-settings.js → admin-tickets.js → admin-console.js → admin-proofs.js → broadcast.js
-```
-
-Key real cross-file dependencies (function calls, not just load order):
-- **Almost everything** depends on `core.js`'s `secureFetch()` and `utils.js`'s `LEVEL_CONFIG`.
-- `tasks.js`'s `claimTask()`/`claimDailyTask()` calls `levels.js`'s `showLevelLockedOverlay()` on a level-gated 403 — this is why `levels.js` must load before `tasks.js` is *used* (though not necessarily before it's defined, since the call happens later at click-time, not load-time).
-- `earn-ads.js`'s Fast Task flow calls `notifications.js`'s `showAppReward()`/`showNotificationToast()` and `profile.js`'s `updateHeaderBalances()`.
-- `levels.js`'s `upgradeToNextLevel()` calls `navigation.js`'s `switchTab()`.
-- `admin-settings.js`'s Level Config editor and `shop-admin.js`'s lesson manager both call `notifications.js`'s `showAppConfirm()`/`showNotificationToast()`.
-- `verification.js`'s `showBanOverlay()` is called from `core.js` (on a 403 banned response) — meaning `core.js`, despite loading *first*, calls a function defined in a file that loads *fifth*. This works only because the call happens inside an async function triggered by a later user action, not at load time — by the time it actually runs, `verification.js` has long since finished loading.
+**Route mount order in `index.js`:** `adsgram` (before the maintenance gate — deliberate, so ad-network S2S callbacks keep working during maintenance) → `enforceGlobalMaintenanceGate` on `/api` → `verification` → `adminStats` → `reminders` → `banners` → `console` → `profile` → `settings` → `tasks` → `adminUsers` → `proofs` → `marketplace` (at `/api/marketplace`) → `adminMarketplace` (at `/api/admin/marketplace`) → `ads` → `streak` → `support` → `referrals` → `broadcast` → `leaderboard` → `youtubeTasks` → `history` → `video` → `shop`; bot handlers required after routes for side effects (`bot.js`, `handlers.js`, `ghostValidator.js`, `reminders.js`, `adWatchCleanup.js`).
 
 ---
 
+## Section 6: Frontend Data Flow
 
+- **No framework, no Redux/Zustand/Context.** Plain global `let`/`const` state per file.
+- **No localStorage/cookies for auth.** Every authenticated request goes through `secureFetch(url, options)` (`core.js`), which reads `window.Telegram.WebApp.initData` fresh on every call and attaches it as the `X-Telegram-Init-Data` header. Backend's `validateInitData`/`validateAdmin` verifies the HMAC signature server-side per request — no session token, no persisted credential.
+- **Component loading:** all HTML partials are fetched and injected via `innerHTML` by `loader.js` before any JS runs — meaning no `DOMContentLoaded` listener anywhere in the app will ever fire (that event has already passed by the time loader.js finishes). Previously fixed in `verification.js`, `video-player.js`, `reminders.js`.
+- **Inter-tab state sync:** mostly re-fetch-on-tab-open (`switchTab()`'s per-tab load hooks in `navigation.js`), e.g. balance is re-synced via `updateHeaderBalances()` after any balance-changing action.
+- **Key cross-file calls:** `tasks.js` and `earn-ads.js` call into `notifications.js`'s `showNotificationToast()`/`showAppReward()`/`showAppConfirm()` throughout; `admin-marketplace.js`'s `loadMarketplaceReviewQueue()` and `marketplace.js`'s own loaders call `secureFetch()` from `core.js`; `core.js`'s `initApp()` calls `checkStreakOnAppStart()` (`streak.js`) and `initBannerCarousel()` (`banner.js`) on every app open, and `showBanOverlay()` (`verification.js`, loaded 7th) on a 403-banned response, despite `core.js` itself loading first — safe only because that call happens inside an async handler triggered later, not at load time.
 
-### DONE (this session)
-- Full monolith → component/module split (frontend: 14 HTML + 11 CSS + 23 JS; backend: 21 models + 21 routes + middleware/utils/bot).
-- IP-tracking/whitelist system fully removed (frontend + backend), ban system kept and re-skinned with animated overlay.
-- Level system fully connected: commission (was flat-rate, now per-level), course discounts (was unused field, now applied at checkout), affordability-aware purchase button, "already owned" guard, upgrade-required overlay wired into level-gated failures.
-- Secret Word + Emoji Reaction rebuilt: single-task → multi-task pool (parsed from one pinned message), random no-repeat assignment, shared dailyLimit, real per-level reward (was hardcoded `50 × level`).
-- Fast Task (AdsGram widget) built end-to-end: widget mount, custom-styled slots, transaction-protected claim (fixed a real "claim recorded but never paid" bug), 10-minute cooldown, no level gate (removed per instruction), correct `onReward` event name (was incorrectly `reward` — this was the actual root cause of "claim shows done but nothing happens").
-- AdWatch reset-period bug fixed (TTL was silently capping all reset periods at 10 minutes regardless of admin config).
-- Full admin CRUD built for User, Task, Shop (course+APK+lesson), YouTube Tasks (toggle), and Levels — all previously create/delete-only or missing entirely.
-- Broadcast: rich-text toolbar, image-as-photo support, inline button support.
-- Profile tab redesigned: added Level badge card and Stats grid (total earned / referrals / tasks done) — data was already being fetched from the backend but never displayed anywhere.
+---
+
+## Section 7: Today's Change — Loader Speed + Progress Bar
+
+**Problem reported:** app felt stuck on the loading screen — progress bar sat at 0% ("INITIALIZING...") for the whole load, then jumped to 100%, making it look broken even though it was just slow.
+
+**Root cause:** `loader.js`'s old `boot()` loaded all 27 feature scripts **sequentially** — each `<script src>` waited for the previous one's `onload` before the next even started downloading (27 back-to-back network round-trips). And `setLoadingProgress()` — the function that moves the bar — lives inside `core.js`, which is itself the *first* of those 27 sequentially-loaded scripts, so the bar couldn't move at all until the slow part was already almost over.
+
+**Fix:**
+1. `js/loader.js` now fetches all 27 scripts' source **in parallel** (`Promise.all`), then executes them as inline `<script>` tags in the original order (same global scope, same load order, just no per-file network wait). This is the main speed win, especially on mobile data.
+2. The loader now updates the progress bar **directly** (`updateLoadingUI()`), independent of `core.js`, so it can move during the fetch/execute phase instead of sitting frozen: 0→10% after HTML partials inject, →20-50% as scripts land, with rotating status text ("Counting your DASH...", "Warming up the vault...", etc.) instead of a static "Initializing...".
+3. `core.js`'s existing `initApp()` progress calls were rescaled from 10–100 down to 50–100, so the two phases hand off smoothly (asset loading owns 0–50%, app-data loading owns 50–100%) instead of the bar resetting.
+
+---
+
+### DONE (this session + carried forward)
+- Loader rewritten for parallel script loading + real progress reporting (Section 7).
+- **Fixed a server-crashing bug:** `index.js` was still requiring two deleted route files (`./routes/levels`, `./routes/dailyTasks`) — `Cannot find module` at boot, crash before the port binds. Removed both lines.
+- **Fixed a silent fraud-gate bug:** `VPN_BLOCK_THRESHOLD`/`VPN_REVIEW_THRESHOLD` were referenced by `middleware/checkVpn.js` but never defined in `config/constants.js`, so the fraud-score-based block/review gate on marketplace submissions never actually fired (raw VPN/Tor flags still worked). Added both constants with env-var overrides and sane defaults.
+- Level system and Secret Word/Emoji Reaction fully removed, frontend and backend, confirmed via live repo pull (no dead references found).
+- Tasks/Post marketplace, banner carousel, daily streak, and AI Image Generator all fully built and live — documented in this version for the first time.
 
 ### BROKEN / NEEDS ACTION
-- **AdWatch TTL fix requires a manual one-time step**: removing the `expires: 600` from the Mongoose schema does NOT drop the index from an already-live MongoDB collection. Must run `db.adwatches.dropIndex("createdAt_1")` (confirm exact name via `db.adwatches.getIndexes()`) once against production, or the old 10-minute auto-delete keeps happening regardless of the code fix.
-- **Fast Task transaction requires a replica-set MongoDB.** If the production DB is a standalone instance (not Atlas or otherwise not a replica set), every Fast Task claim will fail with a transaction-support error. Not yet confirmed which the production DB is.
-- **Profile tab (tab-profile.html) was mid-rewrite when this document was requested** — the new HTML (Level badge + Stats grid cards) has been written and delivered, but `js/profile.js` has NOT yet been updated to actually populate `#profile-level-emoji`, `#profile-level-number`, `#profile-level-name`, `#profile-total-earned`, `#profile-referrals`, `#profile-tasks-done`. Right now those elements exist in the DOM but will show their static placeholder values (0, "Free Tier", 🆓) forever until that wiring is added.
+- **Both fixes above are only applied to the local working copy fetched this session** — need to be committed/pushed to `dawit0916-ui/embt-hub-v2` and redeployed on Render, or the crash bug is still live in production.
+- **AdWatch TTL fix requires a manual one-time step** (carried forward, unconfirmed whether ever applied): removing `expires: 600` from the schema does NOT drop the index from an already-live collection — run `db.adwatches.dropIndex("createdAt_1")` (confirm exact name via `getIndexes()`) once against production.
+- **`VPN_BLOCK_THRESHOLD`/`VPN_REVIEW_THRESHOLD` default values (85/60) are placeholders** — not yet tuned against real submission data. Watch the `pending_review` queue after deploy and adjust if too many/few submissions land there.
+- **`dailyTaskProgress.js` model is still present** despite its only route (`routes/dailyTasks.js`) being deleted — harmless (nothing requires it except the barrel file), but worth deleting outright next cleanup pass since it's dead weight.
 
 ### NEXT STEP
-Edit `js/profile.js`, inside `loadUserProfileMetrics()` (or equivalent profile-load function): after the existing `secureFetch('/api/secure/profile')` call, add population of the 6 new element IDs listed above — `level`/`total_earned`/`referrals`/`tasksCompletedCount` are already present in that endpoint's response (confirmed in Section 4), and level name/emoji should be looked up from the client-side `LEVEL_CONFIG` array in `utils.js` (same pattern already used in `levels.js`'s `FREE_TIER_CONFIG` fallback for level 0).
+Commit and deploy the two backend fixes from this session (`index.js`, `config/constants.js`) — the crash-on-boot one especially shouldn't wait. After that, decide on real `VPN_BLOCK_THRESHOLD`/`VPN_REVIEW_THRESHOLD` values once there's submission volume to look at.
