@@ -208,7 +208,7 @@ async function loadReminderConfig() {
     } catch (err) {
         // ✅ FIX 5: Show error to user
         console.error('Error loading reminder config:', err);
-        showAppAlert('❌ Error loading reminder config: ' + err.message, 'error');
+        
         
         // ✅ FIX 6: Reset UI to safe state
         const toggleElement = document.getElementById('remindersToggle');
