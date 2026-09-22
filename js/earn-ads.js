@@ -301,7 +301,7 @@ function openEarnSection(section, task) {
   // known section -> element id map
   const map = {
     'ads': 'earn-section-ads',
-    'daily': 'earn-section-daily',
+    
     'youtube': 'earn-section-youtube',
     'youtube-detail': 'earn-section-youtube-detail'
   };
@@ -327,8 +327,7 @@ function openEarnSection(section, task) {
   // call associated loader functions if they exist
   if (section === 'ads' && typeof loadAdsWatchList === 'function') {
     loadAdsWatchList();
-  } else if (section === 'daily' && typeof loadDailyTask === 'function') {
-    loadDailyTask();
+  
  
   } else if (section === 'youtube' && typeof loadYoutubeTasks === 'function') {
     loadYoutubeTasks();
@@ -343,8 +342,8 @@ function closeEarnSection() {
   const ids = [
     'earn-section-youtube',
     'earn-section-youtube-detail',
-    'earn-section-ads',
-    'earn-section-daily'
+    'earn-section-ads'
+    
   ];
 
   ids.forEach(id => {
@@ -353,109 +352,7 @@ function closeEarnSection() {
 
   document.getElementById('earn-hub-view')?.classList.remove('hidden');
 }
-let todaysTask = null;
 
-async function loadDailyTask() {
-    try {
-        const res = await secureFetch('/api/secure/daily-tasks/today');
-        todaysTask = res;
-
-        document.getElementById('dailyTask-comment').classList.add('hidden');
-        document.getElementById('dailyTask-reaction').classList.add('hidden');
-        document.getElementById('dailyTaskCompletedMsg').classList.add('hidden');
-
-        if (!res.success) {
-            // Either the daily limit is reached for today, or there are no
-            // tasks in the pool at all right now — both show the same
-            // "come back later" state, just with different wording.
-            const msgBox = document.getElementById('dailyTaskCompletedMsg');
-            const title = msgBox.querySelector('p:first-child');
-            const subtitle = msgBox.querySelector('p:last-child');
-            if (typeof res.dailyLimit === 'number') {
-                title.textContent = '✅ Daily Limit Reached!';
-                subtitle.textContent = `You've completed ${res.completedToday}/${res.dailyLimit} tasks today — come back tomorrow`;
-                document.getElementById('dailyTaskLimitLabel').textContent = `${res.completedToday}/${res.dailyLimit} done today`;
-            } else {
-                title.textContent = '😴 No Tasks Right Now';
-                subtitle.textContent = res.message || 'Check back again soon';
-            }
-            msgBox.classList.remove('hidden');
-            document.getElementById('dailyTaskPreview').textContent = 'No task available right now';
-            return;
-        }
-
-        if (typeof res.dailyLimit === 'number') {
-            document.getElementById('dailyTaskLimitLabel').textContent = `${res.completedToday}/${res.dailyLimit} done today`;
-        }
-
-        document.getElementById('dailyTaskReward').textContent = `+${res.reward} DASH`;
-
-        if (res.task_type === 'comment') {
-            document.getElementById('dailyCommentWord').textContent = res.secret_word;
-            document.getElementById('dailyTaskPreview').textContent = `Secret word · +${res.reward} DASH`;
-            document.getElementById('dailyTask-comment').classList.remove('hidden');
-        } else if (res.task_type === 'reaction') {
-            document.getElementById('dailyReactionEmoji').textContent = res.target_emoji;
-            document.getElementById('dailyTaskPreview').textContent = `React ${res.target_emoji} · +${res.reward} DASH`;
-            document.getElementById('dailyTask-reaction').classList.remove('hidden');
-        }
-
-    } catch (err) {
-        console.error('Error loading daily task:', err);
-    }
-}
-
-function copySecretWord() {
-    navigator.clipboard.writeText(todaysTask.secret_word).then(() => {
-        showAppAlert(`Copied: ${todaysTask.secret_word}`, 'success');
-    });
-}
-
-function goToGroup() {
-    window.open(todaysTask.group_url, '_blank');
-}
-
-function goToPost() {
-    secureFetch('/api/secure/daily-tasks/mark-pending-reaction', {
-        method: 'POST',
-        body: JSON.stringify({ taskKey: todaysTask.task_key })
-    }).catch(() => {});
-    window.open(todaysTask.post_direct_link, '_blank');
-}
-async function verifyReaction() {
-    const btn = document.getElementById('verifyReactionBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳...';
-    try {
-        const res = await secureFetch('/api/secure/daily-tasks/verify-reaction', {
-            method: 'POST',
-            body: JSON.stringify({ taskKey: todaysTask.task_key })
-        });
-        if (res.success) {
-            showAppReward('✅ Verified!', `+${todaysTask.reward} DASH`);
-            await updateHeaderBalances();
-            // Multiple tasks can be done per day now — load the next one
-            // (loadDailyTask itself shows the "limit reached" state if
-            // this was the last one they're allowed today).
-            await loadDailyTask();
-        } else {
-            showAppAlert(res.message || 'Not detected yet — react first', 'info');
-            btn.disabled = false;
-            btn.textContent = '✓ Verify';
-        }
-    } catch (err) {
-        console.error(err);
-        btn.disabled = false;
-        btn.textContent = '✓ Verify';
-    }
-}
-
-// Hook: call loadDailyTask() when the daily section opens
-const _origOpenEarnSection = window.openEarnSection;
-window.openEarnSection = function(section) {
-    _origOpenEarnSection(section);
-    if (section === 'daily') loadDailyTask();
-};
 /* ============================================================
    WATCH & EARN (ADS) — moved into its own Earn sub-page.
    Uses your existing /api/secure/available-ads + playAdAndTrack.
