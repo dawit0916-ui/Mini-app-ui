@@ -74,20 +74,13 @@ async function loadReferralData() {
     if (linkInput) linkInput.value = `https://t.me/Dashearn_bot?start=${user.id}`;
     const listContainer = document.getElementById('friends-list');
     try {
-        const [data, settings, levelRes] = await Promise.all([
+        const [data, settings] = await Promise.all([
             secureFetch('/api/secure/referrals'),
-            secureFetch('/api/settings').catch(() => null),
-            secureFetch('/api/secure/user/level').catch(() => null)
+            secureFetch('/api/settings').catch(() => null)
         ]);
 
-        // Commission rate: same rule the backend actually pays out with —
-        // the user's own level's rate if they've bought one, otherwise the
-        // global default. Keeps this badge from lying about your real rate.
-        const myLevel = levelRes?.level || 0;
-        const globalCommission = settings?.ref_commission_percent ?? 10;
-        const commissionRate = (myLevel > 0 && LEVEL_CONFIG[myLevel - 1])
-            ? LEVEL_CONFIG[myLevel - 1].commission
-            : globalCommission;
+        // Flat referral commission for everyone
+        const commissionRate = settings?.ref_commission_percent ?? 10;
         const commissionEl = document.getElementById('ref-commission-rate');
         if (commissionEl) commissionEl.textContent = `${commissionRate}%`;
 
