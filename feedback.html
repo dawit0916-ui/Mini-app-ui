@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feedback — Dash Earn</title>
+  <link rel="stylesheet" href="/css/feedback.css">
+</head>
+<body>
+  <div class="feedback-container">
+    <h2>Send Feedback</h2>
+    <select id="fbType">
+      <option value="bug">🐞 Bug Report</option>
+      <option value="suggestion">💡 Suggestion</option>
+      <option value="complaint">😠 Complaint</option>
+      <option value="other">Other</option>
+    </select>
+    <textarea id="fbMessage" placeholder="Tell us what's on your mind..." rows="6"></textarea>
+    <button id="fbSubmit">Submit</button>
+    <p id="fbStatus"></p>
+  </div>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="/js/feedback.js"></script>
+</body>
+</html>
