@@ -58,7 +58,8 @@ function switchAdminPanel(panelId) {
         'panel-support',
         'panel-ad-manager',
         'panel-banners',
-        'panel-marketplace-review'
+        'panel-marketplace-review',
+        'panel-feedback'
     ];
     
     if (panelId === 'hub') {
@@ -83,7 +84,7 @@ function switchAdminPanel(panelId) {
                     if (panelId === 'panel-support') loadAdminTickets('open');
                     if (panelId === 'panel-admins') loadAdminRegistry();
                     if (panelId === 'panel-ad-manager') loadAdminAds();
-                    
+                    if (panelId === 'panel-feedback') loadAdminFeedback('new');
                     if (panelId === 'panel-shop-manager') loadAdminCourses();
                     if (panelId === 'panel-console') conStartBackendStream();
                     if (panelId === 'panel-broadcast') { document.getElementById('broadcast-msg').value = '';}
