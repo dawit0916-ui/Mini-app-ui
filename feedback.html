@@ -1,24 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Feedback — Dash Earn</title>
-  <link rel="stylesheet" href="/css/feedback.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Feedback | Dash Earn</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
 </head>
-<body>
-  <div class="feedback-container">
-    <h2>Send Feedback</h2>
-    <select id="fbType">
-      <option value="bug">🐞 Bug Report</option>
-      <option value="suggestion">💡 Suggestion</option>
-      <option value="complaint">😠 Complaint</option>
-      <option value="other">Other</option>
-    </select>
-    <textarea id="fbMessage" placeholder="Tell us what's on your mind..." rows="6"></textarea>
-    <button id="fbSubmit">Submit</button>
-    <p id="fbStatus"></p>
-  </div>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="/js/feedback.js"></script>
+<body class="p-6">
+    <div class="max-w-md mx-auto pt-10">
+        <div class="flex items-center gap-3 mb-6">
+            <button onclick="tg.close()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-widest text-yellow-300">Feedback</h3>
+                <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Tell us what's on your mind</p>
+            </div>
+        </div>
+
+        <div class="glass p-5 space-y-4">
+            <div>
+                <label class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-1 block">Type</label>
+                <select id="fbType" class="w-full p-3 rounded-xl text-xs bg-black/20 border border-white/10 text-slate-200">
+                    <option value="bug">🐞 Bug Report</option>
+                    <option value="suggestion">💡 Suggestion</option>
+                    <option value="complaint">😠 Complaint</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-1 block">Message</label>
+                <textarea id="fbMessage" rows="6" placeholder="Tell us what's on your mind..." class="w-full p-3 rounded-xl text-xs bg-black/20 border border-white/10 text-slate-200 resize-none"></textarea>
+            </div>
+            <button id="fbSubmit" class="w-full py-3 bg-yellow-500 text-black rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-all">
+                Submit Feedback
+            </button>
+            <p id="fbStatus" class="text-center text-[10px] font-bold"></p>
+        </div>
+    </div>
+
+    <script src="js/feedback.js"></script>
 </body>
 </html>
