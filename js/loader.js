@@ -58,6 +58,7 @@ const SCRIPTS = [
     'js/admin-proofs.js',
     'js/broadcast.js',
     'js/admin-marketplace.js',
+    'js/admin-feedback.js',
 ];
 
 // Status text shown while scripts are downloading/starting (step 2-3 below).
