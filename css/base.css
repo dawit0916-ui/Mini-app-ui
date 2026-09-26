@@ -20,8 +20,16 @@ html, body {
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none; /* stops iOS/Android long-press image-save & selection popup */
+     touch-action: pan-x pan-y;
 }
 
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    user-drag: none;
+    pointer-events: auto; /* keep clicks working, just block drag/save */
+}
 body::before {
     content: '';
     position: fixed;
