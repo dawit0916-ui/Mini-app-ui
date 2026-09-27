@@ -375,23 +375,18 @@ function closeCourseDetail() {
 }
 async function downloadAPK(productId) {
     try {
-        showNotificationToast('Preparing download...', 'info');
-        const response = await fetch(`${RENDER_URL}/api/download-apk?productId=${productId}`, {
-            headers: { 'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || '' }
-        });
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            throw new Error(err.error || 'Download failed');
+        showNotificationToast('Sending APK to your Telegram chat...', 'info');
+        const data = await secureFetch(`/api/download-apk?productId=${productId}`);
+
+        if (!data || data.error) {
+            throw new Error((data && data.error) || 'Download failed');
         }
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = 'app.apk';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(blobUrl);
+
+        showNotificationToast(data.message || 'Check your Telegram chat for the APK', 'success');
+
+        if (data.botUsername && window.Telegram?.WebApp?.openTelegramLink) {
+            window.Telegram.WebApp.openTelegramLink(`https://t.me/${data.botUsername}`);
+        }
     } catch (err) {
         console.error('Download APK error:', err);
         showNotificationToast(err.message || 'Failed to download APK', 'error');
