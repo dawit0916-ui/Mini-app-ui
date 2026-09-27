@@ -49,7 +49,17 @@ async function fetchAdminStatus() {
     }
     return false;
 }
+function handleDeepLinkSection() {
+    const section = new URLSearchParams(window.location.search).get('section');
+    if (!section) return;
 
+    if (section === 'shop') {
+        switchTab('shop', document.getElementById('nav-shop'));
+    } else if (section === 'support') {
+        switchTab('profile', document.getElementById('nav-profile'));
+        openSupportDrawer();
+    }
+}
 // Current User Data
 const user = tg.initDataUnsafe?.user || { id: OWNER_ID, username: "TestUser", first_name: "Test" }; 
 let currentEditingUserId = null;
@@ -285,6 +295,7 @@ async function initApp() {
     } finally {
         hideLoadingScreen();
         checkStreakOnAppStart();
+        handleDeepLinkSection();
     }
         }
     // pull-to-refresh setup continues below, unchanged
