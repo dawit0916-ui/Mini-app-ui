@@ -6,35 +6,32 @@
     <title>DASH | Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        (function () {
-            var BOT_URL = 'https://t.me/Dashearn_bot'; // change to your bot
-            var isLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    (function () {
+        var isLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+        var MAX_AGE = 24 * 60 * 60; // keep equal to MAX_AGE_SECONDS on the backend
 
-  var tg = window.Telegram && window.Telegram.WebApp;
-  var hasData = !!(tg && tg.initData && tg.initData.length > 0);
+        var tg = window.Telegram && window.Telegram.WebApp;
+        var hasData = !!(tg && tg.initData && tg.initData.length > 0);
 
-  // Android / iOS / Telegram Desktop inject this bridge; a plain browser never has it
-  var hasNativeBridge = typeof window.TelegramWebviewProxy !== 'undefined';
-  // Telegram Web (webk/webz) runs mini apps inside an iframe
-  var inFrame = window.parent && window.parent !== window;
+        // Real launches carry a fresh auth_date; a copied/old link does not
+        var fresh = false;
+        try {
+            var authDate = Number(new URLSearchParams(tg.initData).get('auth_date'));
+            fresh = authDate > 0 && (Date.now() / 1000 - authDate) < MAX_AGE;
+        } catch (e) {}
 
-  var insideTMA = hasData && (hasNativeBridge || inFrame);
+        var hasNativeBridge = typeof window.TelegramWebviewProxy !== 'undefined';
+        var inFrame = window.parent && window.parent !== window;
 
-  if (!insideTMA && !isLocal) {
-    window.__NOT_TMA = true;
-    window.stop(); // halt the parser so loader.js and the rest never load
-    document.documentElement.innerHTML =
-      '<body style="margin:0;height:100vh;display:flex;flex-direction:column;' +
-      'align-items:center;justify-content:center;background:#05070d;color:#fff;' +
-      'font-family:system-ui,sans-serif;text-align:center;padding:24px">' +
-      '<h2 style="margin:0 0 8px">Open in Telegram</h2>' +
-      '<p style="opacity:.7;margin:0 0 20px">This app only runs inside Telegram.</p>' +
-      '<a href="' + BOT_URL + '" style="background:#00e5ff;color:#000;padding:12px 24px;' +
-      'border-radius:10px;text-decoration:none;font-weight:600">Open the bot</a></body>';
-    setTimeout(function () { location.replace(BOT_URL); }, 1500);
-  }
-})();
-    </script>
+        var insideTMA = hasData && fresh && (hasNativeBridge || inFrame);
+
+        if (!insideTMA && !isLocal) {
+            window.__NOT_TMA = true;
+            window.stop();                      // halt the parser: loader.js never runs
+            location.replace('/fallback.html'); // fallback page -> bot
+        }
+    })();
+</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <!-- AdGrams SDK -->
