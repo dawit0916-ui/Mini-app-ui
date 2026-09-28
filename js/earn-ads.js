@@ -76,8 +76,7 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
 
         try {
             for (let attempt = 0; attempt < 3; attempt++) {
-                const { result, clicks } = await showAdsgramOnce(blockId);
-
+                const { result, clicks, urls } = await showAdsgramOnce(blockId);
                 if (!result?.done) {
                     showAppAlert('Complete the full ad to earn your reward.', 'warning');
                     return;
@@ -107,7 +106,7 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
                 }
 
                 if (claimRes?.code === 'NOT_ENOUGH_CLICKS') {
-                    const choice = await showNoClickPopup(claimRes);
+                    const choice = await showNoClickPopup({ ...claimRes, debugUrls: urls });
                     if (choice === 'retry' && claimRes.attemptsLeft > 0) continue;
                     return;
                 }
