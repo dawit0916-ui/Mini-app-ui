@@ -148,4 +148,4 @@ async function boot() {
     }
 }
 
-boot();
+if (!window.__NOT_TMA) boot();
