@@ -1,14 +1,17 @@
 function createAdsgramClickTracker() {
-  const shown = new Set(), clicked = new Set();
+  const shown = new Set(), clicked = new Set(), urls = [];
   let oFetch, oOpen, oSend, oBeacon, active = false;
 
   const record = (url) => {
     if (!url || !String(url).includes("api.adsgram.ai/event")) return;
-    const id = (String(url).match(/[?&]record=([^&]+)/) || [])[1] || url;
-    if (url.includes("type=Show"))  shown.add(id);
-    if (url.includes("type=Click")) clicked.add(id);
+    const u = String(url);
+    const id = (u.match(/[?&]record=([^&]+)/) || [])[1] || u;
+    const type = u.includes("type=Click") ? "Click" : u.includes("type=Show") ? "Show" : "other";
+    if (type === "Show")  shown.add(id);
+    if (type === "Click") clicked.add(id);
+    urls.push(type + " " + u.slice(0, 110));
+    console.log("[AdTracker]", type, u);
   };
-
   return {
     start() {
       if (active) return; active = true;
@@ -33,7 +36,7 @@ function createAdsgramClickTracker() {
       if (oBeacon) navigator.sendBeacon = oBeacon;
     },
     summary: () => ({ adsShown: shown.size, adsClicked: clicked.size }),
-  };
+    debugUrls: () => urls,  };
 }
 
 async function showAdsgramOnce(blockId) {
@@ -43,10 +46,13 @@ async function showAdsgramOnce(blockId) {
   try { result = await window.Adsgram.init({ blockId }).show(); }
   catch (e) { result = e; }
   finally { await new Promise(r => setTimeout(r, 500)); t.stop(); }
-  return { result, clicks: t.summary() };
+  console.log("[AdTracker] summary", t.summary());
+  return { result, clicks: t.summary(), urls: t.debugUrls() };
 }
 
-function showNoClickPopup({ clicked = 0, required = 1, attemptsLeft = 0 }) {
+const ADS_DEBUG = true; // set false when you're done testing
+
+function showNoClickPopup({ shown = 0, clicked = 0, required = 1, attemptsLeft = 0, debugUrls = [] }) {
   return new Promise((resolve) => {
     const el = document.createElement("div");
     el.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);padding:20px";
@@ -54,11 +60,12 @@ function showNoClickPopup({ clicked = 0, required = 1, attemptsLeft = 0 }) {
       <div style="max-width:320px;width:100%;background:#0b0f1a;border:1px solid #00e5ff;border-radius:16px;padding:22px;text-align:center;color:#fff;box-shadow:0 0 24px rgba(0,229,255,.35)">
         <div style="font-size:38px">👆</div>
         <h3 style="margin:8px 0;color:#00e5ff">Click the ad to earn</h3>
-        <p style="font-size:14px;opacity:.85;margin:0 0 6px">
-          ${clicked === 0 ? "You didn't click the ad." : `You clicked ${clicked} of ${required} required.`}
-          Watch again and tap the ad button before it closes.
+        <p style="font-size:14px;opacity:.9;margin:0 0 6px">
+          ${shown} ad${shown === 1 ? "" : "s"} shown, ${clicked} click${clicked === 1 ? "" : "s"}.
+          You need ${required}. Watch again and tap the ad button before it closes.
         </p>
-        <p style="font-size:12px;opacity:.6;margin:0 0 16px">${attemptsLeft} attempt${attemptsLeft === 1 ? "" : "s"} left</p>
+        <p style="font-size:12px;opacity:.6;margin:0 0 12px">${attemptsLeft} attempt${attemptsLeft === 1 ? "" : "s"} left</p>
+        ${ADS_DEBUG ? `<pre style="text-align:left;font-size:9px;opacity:.6;white-space:pre-wrap;word-break:break-all;max-height:90px;overflow:auto;margin:0 0 12px">${debugUrls.length ? debugUrls.slice(-6).join("\n") : "no adsgram beacons seen"}</pre>` : ""}
         <button id="ncp-retry" style="width:100%;padding:12px;border:0;border-radius:10px;background:#00e5ff;color:#000;font-weight:700">Watch again</button>
         <button id="ncp-cancel" style="width:100%;padding:10px;margin-top:8px;border:0;background:none;color:#fff;opacity:.6">Cancel</button>
       </div>`;
