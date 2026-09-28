@@ -67,72 +67,60 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
             return;
         }
 
-        // ===== ADSGRAM ADS (existing code) =====
+        // ===== ADSGRAM ADS (click-gated) =====
         if (!window.Adsgram) {
             showAppAlert('Ad service is still loading.', 'warning');
             _adInProgress = false;
             return;
         }
 
-        let blurDetected = false;
+        try {
+            for (let attempt = 0; attempt < 3; attempt++) {
+                const { result, clicks } = await showAdsgramOnce(blockId);
 
-        function onBlur() { 
-            blurDetected = true;
-            console.log('[Ad] Blur detected');
-        }
-
-        function onFocus() { 
-            blurDetected = true;
-            console.log('[Ad] Focus regained');
-        }
-
-        window.addEventListener('blur', onBlur);
-        window.addEventListener('focus', onFocus);
-
-        const controller = window.Adsgram.init({ blockId });
-
-        controller.show()
-            .then(async (result) => {
-                window.removeEventListener('blur', onBlur);
-                window.removeEventListener('focus', onFocus);
-      
-                if (!result.done) {
+                if (!result?.done) {
                     showAppAlert('Complete the full ad to earn your reward.', 'warning');
-                    _adInProgress = false;
                     return;
                 }
 
-                if (!blurDetected) {
-                    showAppAlert('Tap the button in the ad to earn your reward.', 'warning');
-                    _adInProgress = false;
-                    return;
+                let claimRes;
+                for (let i = 0; i < 6; i++) {            // wait for S2S postback
+                    claimRes = await secureFetch('/api/secure/ads/claim', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            sessionId,
+                            clientDone: true,
+                            blurDetected: clicks.adsClicked > 0,
+                            ...clicks
+                        })
+                    });
+                    if (!claimRes?.pending) break;
+                    await new Promise(r => setTimeout(r, 1500));
                 }
 
-                const claimRes = await secureFetch('/api/secure/ads/claim', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        sessionId,
-                        clientDone: true,
-                        blurDetected
-                    })
-                });
-
-                if (claimRes && claimRes.success) {
+                if (claimRes?.success) {
                     tg.HapticFeedback.notificationOccurred('success');
                     showNotificationToast(`+${claimRes.reward} DASH earned! 🎉`, 'success');
                     updateHeaderBalances(claimRes.newBalance, claimRes.newPoints, claimRes.newCoins);
                     loadAdsWatchList();
-                } else {
-                    showAppAlert(claimRes?.error || 'Claim failed.', 'error');
+                    return;
                 }
-            })
-            .catch(() => {
-                window.removeEventListener('blur', onBlur);
-                showAppAlert('No ad available right now.', 'error');
-            })
-            .finally(() => {
-                _adInProgress = false;
-            });
+
+                if (claimRes?.code === 'NOT_ENOUGH_CLICKS') {
+                    const choice = await showNoClickPopup(claimRes);
+                    if (choice === 'retry' && claimRes.attemptsLeft > 0) continue;
+                    return;
+                }
+
+                showAppAlert(claimRes?.error || 'Claim failed.', 'error');
+                return;
+            }
+        } catch (e) {
+            showAppAlert('No ad available right now.', 'error');
+        } finally {
+            _adInProgress = false;
+        }
+        return;
 
     } catch (err) {
         console.error('Ad playback error:', err);
