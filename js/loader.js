@@ -41,6 +41,7 @@ const SCRIPTS = [
     'js/tasks.js',
     'js/marketplace.js',
     'js/youtube-tasks.js',
+    'js/ad-click-gate.js',
     'js/earn-ads.js',
     'js/referrals.js',
     'js/leaderboard.js',
@@ -65,8 +66,8 @@ const SCRIPTS = [
 // core.js (and its setLoadingProgress helper) hasn't run yet at that point,
 // so this loader updates the bar directly rather than depending on it.
 const BOOT_MESSAGES = [
-    'Counting your DASH...',
     'Warming up the vault...',
+    'Counting your DASH...',
     'Waking the earn engine...',
     'Polishing the coins...',
     'Untangling the wires...',
