@@ -629,14 +629,19 @@
             <p class="text-[9px] text-slate-500">Runs as async JS on your live Render server. Logged to admin activity.</p>
         </div>
 
-        <textarea id="con-backend-code" rows="8" class="w-full p-3 rounded-xl text-xs glass" style="font-family:'JetBrains Mono',monospace;" placeholder="// example:
+        <div class="relative">
+    <textarea id="con-backend-code" rows="8" class="w-full p-3 pr-16 rounded-xl text-xs glass" style="font-family:'JetBrains Mono',monospace;" placeholder="// example:
 const count = await require('mongoose').model('User').countDocuments();
 console.log('Users:', count);
 return count;"></textarea>
+    <button onclick="conPasteBackend()" id="con-backend-paste-btn" class="absolute top-2 right-2 bg-slate-700/40 text-slate-300 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider border border-white/10 active:scale-95 transition-all">
+        📋 Paste
+    </button>
+</div>
 
-        <button onclick="conRunBackend()" id="con-backend-run-btn" class="w-full bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-500/30 active:scale-95 transition-all">
-            ▶ Execute on Server
-        </button>
+<button onclick="conRunBackend()" id="con-backend-run-btn" class="w-full bg-red-600/20 text-red-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-500/30 active:scale-95 transition-all">
+    ▶ Execute on Server
+</button>
 
         <div id="con-backend-output" class="glass border-white/5 rounded-2xl p-3" style="max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;">
             <p class="text-slate-600 text-[10px]">Output will appear here...</p>
