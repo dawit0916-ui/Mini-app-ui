@@ -201,6 +201,7 @@ function renderGlobalMaintenanceViewportScreen(meta) {
         
 async function initApp() {
     try {
+        if (window.__NOT_TMA) return;
         setLoadingProgress(50, 'Connecting...');
         await fetchAdminStatus();
 
