@@ -119,7 +119,7 @@ if (response.status === 403) {
         // Return standard raw object maps out to calling layers if structural clearance passes
         if (!response.ok) {
             const errorPayload = await response.json().catch(() => ({}));
-            return { error: errorPayload.error || `HTTP Error: ${response.status}` };
+            return { ...errorPayload, error: errorPayload.error || `HTTP Error: ${response.status}` };
         }
 
         return await response.json();
