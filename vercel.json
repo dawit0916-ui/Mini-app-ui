@@ -1,27 +1,13 @@
 {
-  "rewrites": [
-    {
-      
-      "source": "/((?!fallback\\.html).*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": "(?i).*(curl|wget|httpie|python|axios|node-fetch|go-http|postman|insomnia|libwww|java|okhttp|scrapy|spider|crawl|bot).*"
-        }
-      ],
-      "destination": "/fallback.html"
-    }
-  ],
   "headers": [
-  {
-    "source": "/(.*)",
-    "headers": [
-      {
-        "key": "Content-Security-Policy",
-        "value": "frame-ancestors 'self' https://web.telegram.org https://webk.telegram.org https://webz.telegram.org https://*.telegram.org"
-      }
-    ]
-  }
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' https://web.telegram.org https://webk.telegram.org https://webz.telegram.org https://*.telegram.org"
+        }
+      ]
+    }
   ]
 }
