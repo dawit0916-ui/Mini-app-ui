@@ -1,4 +1,4 @@
-
+let _conEntriesView = [];
 function conRender() {
     const container = document.getElementById('con-entries');
     const stats = document.getElementById('con-stats');
@@ -10,7 +10,7 @@ function conRender() {
         (_conFilter === 'all' || e.level === _conFilter) &&
         (!search || e.message.toLowerCase().includes(search))
     );
-
+    _conEntriesView = filtered; // keeps indexes in sync for copy buttons
     const counts = { log:0, info:0, warn:0, error:0, debug:0 };
     _conHistory.forEach(e => { if (counts[e.level] !== undefined) counts[e.level]++; });
 
@@ -37,13 +37,14 @@ function conRender() {
     const COLORS = { log:'#cdd6f4', info:'#89b4fa', warn:'#f9e2af', error:'#f38ba8', debug:'#a6e3a1' };
     const BADGES = { log:'#45475a', info:'#1e3a5f', warn:'#5f4a00', error:'#5f1a2a', debug:'#1a3a1a' };
 
-    container.innerHTML = filtered.map(e => `
-        <div style="display:flex;gap:8px;padding:4px 12px;align-items:flex-start;border-left:2px solid ${COLORS[e.level]}20;" 
+    container.innerHTML = filtered.map((e, i) => `
+        <div data-con-idx="${i}" style="display:flex;gap:8px;padding:4px 12px;align-items:flex-start;border-left:2px solid ${COLORS[e.level]}20;" 
              onmouseover="this.style.background='rgba(255,255,255,0.03)'" 
              onmouseout="this.style.background='transparent'">
             <span style="color:#45475a;font-size:9px;min-width:55px;padding-top:3px;flex-shrink:0">${e.time}</span>
             <span style="font-size:9px;padding:1px 5px;border-radius:3px;background:${BADGES[e.level]};color:${COLORS[e.level]};min-width:38px;text-align:center;flex-shrink:0;font-weight:800">${e.level.toUpperCase()}</span>
             <span style="color:${COLORS[e.level]};font-size:11px;flex:1;white-space:pre-wrap;word-break:break-all">${e.message}</span>
+            <button onclick="conCopyEntry(this)" title="Copy" style="flex-shrink:0;font-size:11px;padding:0 4px;color:#6c7086;background:transparent;border:none;cursor:pointer;">⧉</button>
         </div>
     `).join('');
 
@@ -73,6 +74,37 @@ function conTogglePause() {
 function conClear() {
     _conHistory.length = 0;
     conRender();
+}
+
+function conCopyText(text, btn) {
+    const done = () => {
+        if (!btn) return;
+        const old = btn.innerText;
+        btn.innerText = '✓';
+        setTimeout(() => btn.innerText = old, 1000);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallback());
+    } else {
+        fallback();
+    }
+    function fallback() {
+        const t = document.createElement('textarea');
+        t.value = text;
+        t.style.position = 'fixed';
+        t.style.opacity = '0';
+        document.body.appendChild(t);
+        t.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        document.body.removeChild(t);
+    }
+}
+
+function conCopyEntry(btn) {
+    const row = btn.closest('[data-con-idx]');
+    if (!row) return;
+    const e = _conEntriesView[parseInt(row.dataset.conIdx, 10)];
+    if (e) conCopyText(`[${e.time}] ${e.level.toUpperCase()} ${e.message}`, btn);
 }
 
 _conListeners.push(conRender);
@@ -195,6 +227,26 @@ async function conStartBackendStream() {
         _backendStreamActive = false;
     }
 }        
+async function conPasteBackend() {
+    const ta = document.getElementById('con-backend-code');
+    const btn = document.getElementById('con-backend-paste-btn');
+    if (!ta) return;
+    try {
+        const text = await navigator.clipboard.readText();
+        if (!text) throw new Error('empty');
+        // Insert at cursor position, replacing any selection
+        const start = ta.selectionStart ?? ta.value.length;
+        const end = ta.selectionEnd ?? ta.value.length;
+        ta.value = ta.value.slice(0, start) + text + ta.value.slice(end);
+        ta.selectionStart = ta.selectionEnd = start + text.length;
+        ta.focus();
+        if (btn) { btn.innerText = '✓ Pasted'; setTimeout(() => btn.innerText = '📋 Paste', 1200); }
+    } catch (err) {
+        // Clipboard read is often blocked in Telegram WebViews, so fall back to native paste
+        ta.focus();
+        if (btn) { btn.innerText = 'Long-press → Paste'; setTimeout(() => btn.innerText = '📋 Paste', 2500); }
+    }
+}
  async function loadAdminRegistry() {
     const registryList = document.getElementById('admin-registry-list');
     const activityLog = document.getElementById('admin-activity-log');
