@@ -373,22 +373,30 @@ function closeShopDetail() {
 function closeCourseDetail() {
     document.getElementById('shop-course-detail-modal').classList.remove('active');
 }
+const BOT_USERNAME = 'Dashearn_bot'; 
+
 async function downloadAPK(productId) {
     try {
-        showNotificationToast('Sending APK to your Telegram chat...', 'info');
-        const data = await secureFetch(`/api/download-apk?productId=${productId}`);
+        showNotificationToast('Sending APK to your Telegram chat…');
+        const data = await secureFetch(`/api/download-apk?productId=${encodeURIComponent(productId)}`, { method: 'GET' });
 
-        if (!data || data.error) {
-            throw new Error((data && data.error) || 'Download failed');
+        if (data && data.success) {
+            showNotificationToast('✅ APK sent! Check your bot chat.');
+            setTimeout(() => {
+                Telegram.WebApp.openTelegramLink(`https://t.me/${BOT_USERNAME}`);
+            }, 1200);
+            return;
         }
 
-        showNotificationToast(data.message || 'Check your Telegram chat for the APK', 'success');
-
-        if (data.botUsername && window.Telegram?.WebApp?.openTelegramLink) {
-            window.Telegram.WebApp.openTelegramLink(`https://t.me/${data.botUsername}`);
+        if (data && data.code === 'bot_not_started') {
+            showNotificationToast('Start the bot first, then tap download again.');
+            Telegram.WebApp.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=apk`);
+            return;
         }
+
+        showNotificationToast((data && data.error) || 'Download failed');
     } catch (err) {
-        console.error('Download APK error:', err);
-        showNotificationToast(err.message || 'Failed to download APK', 'error');
+        console.error('downloadAPK error:', err);
+        showNotificationToast('Download failed, please try again.');
     }
 }
