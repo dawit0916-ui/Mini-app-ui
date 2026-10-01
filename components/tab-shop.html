@@ -1,14 +1,17 @@
 <div id="tab-shop" class="tab-content">
 
     <!-- ===== SHOP HUB (default view) ===== -->
+<!-- ===== SHOP HUB (default view) ===== -->
     <div id="shop-section-menu" class="shop-section grid grid-cols-2 gap-3 pb-20">
-         <!-- Description -->
-    <div class="col-span-2 glass p-4 rounded-2xl border border-white/10 text-center">
-        <h2 class="text-sm font-black uppercase text-white mb-1">🛍️ Dash Shop</h2>
-        <p class="text-[11px] text-gray-400 leading-relaxed">
-            Spend your DASH on courses, APKs, and AI tools. Tap a category below to start, or open My Store to see what you've purchased.
-        </p>
-    </div>
+
+        <!-- Description -->
+        <div class="col-span-2 glass p-4 rounded-2xl border border-white/10 text-center">
+            <h2 class="text-sm font-black uppercase text-white mb-1">🛍️ Dash Shop</h2>
+            <p class="text-[11px] text-gray-400 leading-relaxed">
+                Spend your DASH on courses and APKs. Tap a category below to start, or open My Store to see what you've purchased.
+            </p>
+        </div>
+
         <button onclick="switchShopSection('courses')" class="glass p-5 rounded-2xl border border-purple-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
             <span class="text-3xl">📚</span>
             <span class="text-xs font-black uppercase text-white">Courses</span>
@@ -17,14 +20,17 @@
             <span class="text-3xl">📱</span>
             <span class="text-xs font-black uppercase text-white">APK</span>
         </button>
-        <button onclick="switchShopSection('my-purchases')" class="glass p-5 rounded-2xl border border-green-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
+        <button onclick="switchShopSection('my-purchases')" class="col-span-2 glass p-5 rounded-2xl border border-green-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
             <span class="text-3xl">⭐</span>
             <span class="text-xs font-black uppercase text-white">My Store</span>
         </button>
+
+        <!-- AI IMAGE (disabled for now, uncomment to re-enable)
         <button onclick="openImageGenModal()" class="glass p-5 rounded-2xl border border-pink-500/20 flex flex-col items-center gap-2 active:scale-95 transition-all">
             <span class="text-3xl">🎨</span>
             <span class="text-xs font-black uppercase text-white">AI Image</span>
         </button>
+        -->
     </div>
 
     <!-- COURSES SECTION -->
