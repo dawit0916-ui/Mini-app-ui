@@ -353,15 +353,25 @@ async function purchaseProduct(productId) {
             method: 'POST',
             body: JSON.stringify({ productId })
         });
-        if (res.success) {
+
+        if (res && res.success) {
             showNotificationToast(res.message, 'success');
             closeCourseDetail();
             loadMyPurchases();
             if (cachedUserProfile) cachedUserProfile.balance = res.newBalance;
-            }
+        } else {
+            // Server responded but rejected the purchase (e.g. insufficient balance)
+            showNotificationToast(
+                (res && (res.error || res.message)) || 'Purchase failed',
+                'error'
+            );
+        }
     } catch (err) {
         console.error('Purchase error:', err);
-        showNotificationToast(err.error || 'Purchase failed', 'error');
+        showNotificationToast(
+            err?.error || err?.message || 'Purchase failed',
+            'error'
+        );
     } finally {
         purchaseInProgress = false;
     }
