@@ -19,11 +19,7 @@ function startTask(url, taskId, reward, duration) {
             btn.disabled = false;
             btn.classList.remove('btn-premium');
             btn.classList.add('bg-green-600', 'px-5', 'py-2', 'rounded-xl', 'text-[10px]', 'font-black');
-            // Daily-type tasks reset every day and are level-gated — they
-            // need the dedicated daily-task endpoint, not the one-time
-            // claim-task endpoint (which would permanently mark them done
-            // and never let them reset).
-            btn.onclick = () => isDaily ? claimDailyTask(taskId) : claimTask(taskId);
+            btn.onclick = () => claimTask(taskId);
         }
     }, 1000);
 }
@@ -95,11 +91,7 @@ updateHeaderBalances(
     showNotificationToast(`+${result.reward || ''} DASH earned! 🎉`, 'success');
 }
      else {
-            if (result.unlocksAtLevel && typeof showLevelLockedOverlay === 'function' && showLevelLockedOverlay(result.unlocksAtLevel, result.error)) {
-                // upgrade-required overlay shown instead of the generic alert
-            } else {
-                showAppAlert(result.error || "Verification failed.", 'error', 'Not Joined Yet')
-            }
+            showAppAlert(result.error || "Verification failed.", 'error', 'Not Joined Yet');
             btn.disabled = false;
             btn.innerText = "Claim Reward";
         }
@@ -109,46 +101,7 @@ updateHeaderBalances(
     }
         }
 
-// Daily-type tasks reset every day and are level-gated, so they need their
-// own dedicated endpoint instead of the one-time claim-task used above.
-async function claimDailyTask(taskId) {
-    const btn = document.getElementById(`btn-task-${taskId}`);
-    if (btn) { btn.disabled = true; btn.innerText = "Verifying..."; }
 
-    try {
-        const result = await secureFetch('/api/secure/complete-daily-task', {
-            method: 'POST',
-            body: JSON.stringify({ taskId: taskId })
-        });
-
-        if (result.success) {
-            tg.HapticFeedback.notificationOccurred('success');
-
-            const newDash = parseInt(result.newBalance || 0);
-            const balMain = document.getElementById('balance-main');
-            if (balMain) balMain.innerText = newDash.toLocaleString();
-            updateHeaderBalances(result.newBalance || 0);
-
-            showNotificationToast(`+${result.reward || ''} DASH earned! 🎉`, 'success');
-
-            // Unlike a one-time task, this card shouldn't disappear — reload
-            // so it re-renders in its "completed today, resets at midnight"
-            // state instead.
-            await loadAvailableTasks();
-        } else {
-            if (result.unlocksAtLevel && typeof showLevelLockedOverlay === 'function' && showLevelLockedOverlay(result.unlocksAtLevel, result.error)) {
-                // upgrade-required overlay shown instead of the generic alert
-            } else {
-                showAppAlert(result.error || "Couldn't complete task.", 'error', 'Daily Task');
-            }
-            if (btn) { btn.disabled = false; btn.innerText = "✅ Claim"; }
-        }
-    } catch (err) {
-        console.error('Claim daily task error:', err);
-        showAppAlert("Connection error. Check your internet.", 'error');
-        if (btn) { btn.disabled = false; btn.innerText = "✅ Claim"; }
-    }
-}
 
 // Admin: Add Task Function
 function updateTaskAddDurationVisibility() {
@@ -338,57 +291,29 @@ async function loadAvailableTasks() {
         
         filteredTasks.forEach(task => {
             const taskId = task.id || task._id;
-            const isDaily = task.type === 'daily';
-            const isManual = task.type === 'manual' || !task.url;
             const isCompleted = task.completed;
-            const progressPercent = (task.progress / task.requirementCount) * 100;
 
             htmlBuffer += `
-                <div id="task-card-${taskId}" class="glass mb-4 overflow-hidden border border-white/5 rounded-2xl transition-all ${isDaily ? 'border-l-4 border-green-500' : ''}">
+                <div id="task-card-${taskId}" class="glass mb-4 overflow-hidden border border-white/5 rounded-2xl transition-all">
                     <div class="p-4 flex justify-between items-center gap-3">
                         <div class="flex items-center gap-4 min-w-0">
                             ${task.image ? `
                                 <img src="${task.image}" class="w-12 h-12 rounded-full object-cover border border-white/10 shrink-0">
                             ` : `
-                                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-xl shrink-0">
-                                    ${isDaily ? '📅' : (isManual ? '📢' : '🔗')}
-                                </div>
+                                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-xl shrink-0">🔗</div>
                             `}
                             <div class="min-w-0">
                                 <h4 class="text-sm font-bold text-white truncate">${task.title}</h4>
-                                ${isDaily ? `<span class="text-[9px] text-green-400 font-black">Daily Task</span>` : ''}
                                 <span class="text-[10px] text-amber-400 font-black tracking-wide block mt-0.5">+${task.reward.toFixed(2)} DASH</span>
                             </div>
                         </div>
-                        <button id="btn-task-${taskId}" 
-                            onclick="${isManual ? `toggleProofSection('${taskId}', '${task.url || ''}')` : `startTask('${task.url || ''}', '${taskId}', ${task.reward}, 10, ${isDaily})`}"
+                        <button id="btn-task-${taskId}"
+                            onclick="startTask('${task.url || ''}', '${taskId}', ${task.reward}, 10)"
                             class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase shrink-0 ${isCompleted ? 'opacity-50 cursor-default' : ''}"
                             ${isCompleted ? 'disabled' : ''}>
-                            ${isCompleted ? '✓ Done' : (isManual ? 'Submit' : 'Start')}
+                            ${isCompleted ? '✓ Done' : 'Start'}
                         </button>
                     </div>
-
-                    ${isDaily && !isCompleted ? `
-                        <div class="px-4 pb-3 border-t border-white/5 pt-2">
-                            <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-green-500 transition-all" style="width: ${progressPercent}%"></div>
-                            </div>
-                            <span class="text-[9px] text-slate-400 mt-1 block">Resets at midnight UTC</span>
-                        </div>
-                    ` : ''}
-
-                    ${isManual && !isCompleted ? `
-                        <div id="proof-${taskId}" class="proof-section px-4 pb-4 border-t border-white/[0.02] pt-3 bg-black/10">
-                            <div class="flex gap-2 mb-3 bg-black/20 p-1 rounded-xl">
-                                <button onclick="switchProofMode('${taskId}','text',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white">✏️ Text</button>
-                                <button onclick="switchProofMode('${taskId}','img',this)" class="proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase text-slate-400">📸 Screenshot</button>
-                            </div>
-                            <div id="proof-text-${taskId}">
-                                <input id="input-proof-${taskId}" type="text" class="w-full p-3 rounded-xl text-xs mb-2.5 bg-black/40 text-white border border-white/5" placeholder="Username / Proof link...">
-                            </div>
-                            <button onclick="submitManualProof('${taskId}')" class="w-full bg-green-600/20 text-green-400 py-2.5 rounded-xl text-[10px] font-black uppercase active:scale-[0.99]">Send Proof</button>
-                        </div>
-                    ` : ''}
                 </div>`;
         });
         
