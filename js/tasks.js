@@ -43,7 +43,8 @@ async function loadAdminTaskList() {
                 <div class="flex items-center gap-2 mt-0.5 flex-wrap">
                     <span class="text-[9px] text-green-400">${t.reward} DASH</span>
                     <span class="text-[8px] text-slate-500 uppercase font-black">${t.type || 'auto'}</span>
-                    ${t.duration ? `<span class="text-[8px] text-purple-400 uppercase font-black">${t.duration}</span>` : ''}
+                    ${t.type === 'manual' ? `<span class="text-[8px] text-indigo-400 uppercase font-black">${t.proof_type || 'either'}</span>` : ''}
+                    <span class="text-[8px] text-slate-500 font-black">${t.completions || 0}${t.max_users ? '/' + t.max_users : ''} done</span>
                     ${t.enabled === false ? '<span class="text-[8px] text-red-400 uppercase font-black">Disabled</span>' : ''}
                 </div>
             </div>
@@ -99,16 +100,19 @@ updateHeaderBalances(
         showAppAlert("Connection error. Check your internet.", 'error')
         btn.disabled = false;
     }
-        }
+}
 
+// Shows/hides the proof selector, swaps the link hint, and updates the icon area
+function updateTaskTypeFields(prefix) {
+    const radioName = prefix === 'add' ? 'task-add-verify-type' : 'edit-task-type';
+    const idBase = prefix === 'add' ? 'task-add' : 'edit-task';
+    const type = document.querySelector(`input[name="${radioName}"]:checked`)?.value || 'auto';
 
+    document.getElementById(`${idBase}-proof-wrap`)?.classList.toggle('hidden', type !== 'manual');
+    const link = document.getElementById(`${idBase}-link`);
+    if (link) link.placeholder = type === 'auto' ? 'https://t.me/channelname' : 'URL (https://...)';
 
-// Admin: Add Task Function
-function updateTaskAddDurationVisibility() {
-    const type = document.querySelector('input[name="task-add-verify-type"]:checked')?.value;
-    const wrap = document.getElementById('task-add-duration-wrap');
-    if (!wrap) return;
-    wrap.classList.toggle('hidden', type === 'daily');
+    updateTaskIconVisibility(prefix);
 }
 
 async function addNewTask() {
@@ -120,7 +124,6 @@ async function addNewTask() {
     const rewardEl = document.getElementById('task-add-reward');
     const categoryEl = document.getElementById('task-add-category');
     const typeEl = document.querySelector('input[name="task-add-verify-type"]:checked');
-    const durationEl = document.getElementById('task-add-duration');
     const maxUsersEl = document.getElementById('task-add-max-users');
 
     if (!titleEl || !linkEl || !descEl || !iconValueEl || !rewardEl || !categoryEl || !typeEl) {
@@ -137,12 +140,15 @@ async function addNewTask() {
     const reward = rewardEl.value;
     const category = categoryEl.value;
     const type = typeEl.value;
-    const duration = (durationEl && type !== 'daily') ? durationEl.value : '';
     const maxUsers = maxUsersEl && maxUsersEl.value ? parseInt(maxUsersEl.value) : undefined;
 
     if (!title || !link || !reward) return showAppAlert("Title, Link, and Reward are required.", 'warning');
+    if (type === 'auto' && !/^https:\/\/t\.me\/[A-Za-z0-9_]{4,}/.test(link.trim())) {
+        return showAppAlert("Auto tasks need a public Telegram link like https://t.me/channelname", 'warning');
+    }
 
-    const taskData = { title, url: link, description: desc, image: imageString, reward: parseFloat(reward), category, type, duration, max_users: maxUsers };
+    const proofType = document.getElementById('task-add-proof-type')?.value || 'either';
+    const taskData = { title, url: link, description: desc, image: imageString, reward: parseFloat(reward), category, type, proof_type: proofType, max_users: maxUsers };
 
     const res = await secureFetch('/api/admin/tasks/add', {
         method: 'POST',
@@ -167,8 +173,7 @@ async function addNewTask() {
         });
         const autoTypeRadio = document.querySelector('input[name="task-add-verify-type"][value="auto"]');
         if (autoTypeRadio) autoTypeRadio.checked = true;
-        updateTaskIconVisibility('add');
-        updateTaskAddDurationVisibility();
+        updateTaskTypeFields('add');
 
         loadAdminTaskList();
     } else {
@@ -200,21 +205,6 @@ function selectTaskIcon(prefix, platform) {
     });
 }
 
-function updateTaskIconVisibility(prefix) {
-    const type = document.querySelector(`input[name="${prefix === 'add' ? 'task-add-verify-type' : 'edit-task-type'}"]:checked`)?.value;
-    const autoNote = document.getElementById(`${prefix}-task-icon-auto-note`);
-    const picker = document.getElementById(`${prefix}-task-icon-picker`);
-    if (!autoNote || !picker) return;
-
-    if (type === 'auto') {
-        autoNote.classList.remove('hidden');
-        picker.classList.add('hidden');
-        document.getElementById(`${prefix}-task-icon-value`).value = TASK_ICON_PATHS.telegram;
-    } else {
-        autoNote.classList.add('hidden');
-        picker.classList.remove('hidden');
-    }
-}
 
 // Sets the icon picker's selected state to match an existing task's image
 // path when opening the edit drawer.
@@ -291,7 +281,17 @@ async function loadAvailableTasks() {
         
         filteredTasks.forEach(task => {
             const taskId = task.id || task._id;
-            const isCompleted = task.completed;
+            const isManual = task.type === 'manual';
+            const isCompleted = !!task.completed;
+            const isPending = !!task.pending;
+            const isFull = !!task.full && !isCompleted;
+            const locked = isCompleted || isPending || isFull;
+            const label = isCompleted ? '✓ Done' : isPending ? '⏳ Pending' : isFull ? 'Full' : (isManual ? 'Submit' : 'Start');
+            const action = isManual
+                ? `toggleProofSection('${taskId}', '${task.url || ''}')`
+                : `startTask('${task.url || ''}', '${taskId}', ${task.reward}, 10)`;
+            const showText = task.proof_type !== 'screenshot';
+            const showShot = task.proof_type !== 'text';
 
             htmlBuffer += `
                 <div id="task-card-${taskId}" class="glass mb-4 overflow-hidden border border-white/5 rounded-2xl transition-all">
@@ -300,23 +300,34 @@ async function loadAvailableTasks() {
                             ${task.image ? `
                                 <img src="${task.image}" class="w-12 h-12 rounded-full object-cover border border-white/10 shrink-0">
                             ` : `
-                                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-xl shrink-0">🔗</div>
+                                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-xl shrink-0">${isManual ? '📢' : '🔗'}</div>
                             `}
                             <div class="min-w-0">
                                 <h4 class="text-sm font-bold text-white truncate">${task.title}</h4>
                                 <span class="text-[10px] text-amber-400 font-black tracking-wide block mt-0.5">+${task.reward.toFixed(2)} DASH</span>
                             </div>
                         </div>
-                        <button id="btn-task-${taskId}"
-                            onclick="startTask('${task.url || ''}', '${taskId}', ${task.reward}, 10)"
-                            class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase shrink-0 ${isCompleted ? 'opacity-50 cursor-default' : ''}"
-                            ${isCompleted ? 'disabled' : ''}>
-                            ${isCompleted ? '✓ Done' : 'Start'}
-                        </button>
+                        <button id="btn-task-${taskId}" onclick="${action}"
+                            class="btn-premium px-5 py-2 rounded-xl text-[10px] font-black uppercase shrink-0 ${locked ? 'opacity-50 cursor-default' : ''}"
+                            ${locked ? 'disabled' : ''}>${label}</button>
                     </div>
+
+                    ${isManual && !locked ? `
+                        <div id="proof-${taskId}" class="hidden px-4 pb-4 border-t border-white/[0.02] pt-3 bg-black/10">
+                            ${task.description ? `<p class="text-[10px] text-slate-400 mb-3">${task.description}</p>` : ''}
+                            ${showText ? `<input id="input-proof-${taskId}" type="text" class="w-full p-3 rounded-xl text-xs mb-2.5 bg-black/40 text-white border border-white/5" placeholder="Username / proof link...">` : ''}
+                            ${showShot ? `
+                                <label for="proof-file-${taskId}" id="proof-upload-label-${taskId}" class="block w-full p-3 rounded-xl text-center bg-black/40 border border-dashed border-white/10 mb-2.5 cursor-pointer">
+                                    <span class="text-[10px] font-bold text-slate-400">📸 Upload screenshot</span>
+                                </label>
+                                <input id="proof-file-${taskId}" type="file" accept="image/*" class="hidden" onchange="previewProofImage(this, '${taskId}')">
+                                <img id="proof-preview-${taskId}" class="hidden w-full max-h-48 object-contain rounded-xl mb-2.5">
+                            ` : ''}
+                            <button id="btn-send-proof-${taskId}" onclick="submitManualProof('${taskId}')" class="w-full bg-green-600/20 text-green-400 py-2.5 rounded-xl text-[10px] font-black uppercase active:scale-[0.99]">Send Proof</button>
+                        </div>
+                    ` : ''}
                 </div>`;
         });
-        
         taskContainer.innerHTML = htmlBuffer;
         
     } catch (e) {
@@ -327,59 +338,66 @@ async function loadAvailableTasks() {
         : getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again.');
 }
 }
-
-// Helper to open manual proof area
 function toggleProofSection(taskId, url) {
-    tg.openLink(url); // Open the link first
     const section = document.getElementById(`proof-${taskId}`);
-    section.classList.remove('hidden');
-    section.classList.toggle('open');
+    if (!section) return;
+    const opening = section.classList.contains('hidden');
+    section.classList.toggle('hidden');
+    if (opening && url) tg.openLink(url);
     tg.HapticFeedback.impactOccurred('light');
 }
+
+// Shrinks screenshots before upload (keeps requests well under the 5 MB limit)
+function compressProofImage(file, maxSide = 1280, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objUrl = URL.createObjectURL(file);
+        img.onload = () => {
+            const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(objUrl);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('Could not read image')); };
+        img.src = objUrl;
+    });
+}
+
 async function submitManualProof(taskId) {
-    const textInput = document.getElementById(`input-proof-${taskId}`);
-    const fileInput = document.getElementById(`proof-file-${taskId}`);
-    const previewImg = document.getElementById(`proof-preview-${taskId}`);
-    const isImageMode = !document.getElementById(`proof-img-${taskId}`).classList.contains('hidden');
+    const btn = document.getElementById(`btn-send-proof-${taskId}`);
+    const proof = document.getElementById(`input-proof-${taskId}`)?.value?.trim() || '';
+    const file = document.getElementById(`proof-file-${taskId}`)?.files?.[0];
+    if (!proof && !file) return showAppAlert("Add your proof first.", 'warning');
 
-    let payload = { taskId };
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+    try {
+        const payload = { taskId };
+        if (proof) payload.proof = proof;
+        if (file) payload.screenshot = await compressProofImage(file);
 
-    if (isImageMode) {
-        const file = fileInput?.files[0];
-        if (!file) return showAppAlert("Please upload a screenshot.", 'warning');
-        const base64 = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
+        const res = await secureFetch('/api/secure/submit-proof', {
+            method: 'POST',
+            body: JSON.stringify(payload)
         });
-        payload.screenshot = base64;
-    } else {
-        const proof = textInput?.value?.trim();
-        if (!proof) return showAppAlert("Please enter your proof.", 'warning');
-        payload.proof = proof;
-    }
 
-    const res = await secureFetch('/api/secure/submit-proof', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-    });
-
-    if (res.success) {
-        showAppAlert(`Proof submitted! REF: ${res.proofId}`, 'success');
-        loadAvailableTasks();
-    } else {
-        showAppAlert(res.error || "Submission failed.", 'error');
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showAppAlert(`Proof submitted! REF: ${res.proofId}`, 'success');
+            loadAvailableTasks();
+        } else {
+            showAppAlert(res.error || "Submission failed.", 'error');
+        }
+    } catch (e) {
+        console.error('submitManualProof error:', e);
+        showAppAlert("Could not send your proof. Try again.", 'error');
+    } finally {
+        if (btn && document.body.contains(btn)) { btn.disabled = false; btn.textContent = 'Send Proof'; }
     }
 }
-        function switchProofMode(taskId, mode, btn) {
-    document.querySelectorAll(`#proof-${taskId} .proof-mode-btn`).forEach(b => {
-        b.className = 'proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase text-slate-400';
-    });
-    btn.className = 'proof-mode-btn flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white';
-    document.getElementById(`proof-text-${taskId}`).classList.toggle('hidden', mode !== 'text');
-    document.getElementById(`proof-img-${taskId}`).classList.toggle('hidden', mode !== 'img');
-}
+
 
 function previewProofImage(input, taskId) {
     const file = input.files[0];
@@ -393,14 +411,6 @@ function previewProofImage(input, taskId) {
         label.innerHTML = `<span class="text-[10px] font-bold text-green-400">✅ ${file.name.substring(0, 20)}</span>`;
     };
     reader.readAsDataURL(file);
-            }
-
-
-function updateTaskEditDurationVisibility() {
-    const type = document.querySelector('input[name="edit-task-type"]:checked')?.value;
-    const wrap = document.getElementById('edit-task-duration-wrap');
-    if (!wrap) return;
-    wrap.classList.toggle('hidden', type === 'daily');
 }
 
 let currentEditingTaskId = null;
@@ -419,14 +429,13 @@ async function openTaskEditDrawer(taskId) {
         document.getElementById('edit-task-desc').value = task.description || '';
         document.getElementById('edit-task-category').value = task.category || 'Crypto';
         document.getElementById('edit-task-reward').value = task.reward || '';
-        document.getElementById('edit-task-duration').value = task.duration || '';
         document.getElementById('edit-task-max-users').value = task.max_users || '';
         document.getElementById('edit-task-enabled').checked = task.enabled !== false;
 
         const typeRadio = document.querySelector(`input[name="edit-task-type"][value="${task.type || 'auto'}"]`);
         if (typeRadio) typeRadio.checked = true;
-        updateTaskEditDurationVisibility();
-        updateTaskIconVisibility('edit');
+         document.getElementById('edit-task-proof-type').value = task.proof_type || 'either';
+        updateTaskTypeFields('edit');
         setTaskEditIconFromPath(task.image);
 
         document.getElementById('admin-task-edit-drawer').classList.add('active');
@@ -458,8 +467,8 @@ async function saveTaskEdit() {
             category: document.getElementById('edit-task-category').value,
             reward: parseFloat(document.getElementById('edit-task-reward').value) || 0,
             type,
-            duration: type !== 'daily' ? document.getElementById('edit-task-duration').value : '',
-            max_users: document.getElementById('edit-task-max-users').value ? parseInt(document.getElementById('edit-task-max-users').value) : undefined,
+            proof_type: document.getElementById('edit-task-proof-type').value,
+            max_users: document.getElementById('edit-task-max-users').value ? parseInt(document.getElementById('edit-task-max-users').value) : null,
             enabled: document.getElementById('edit-task-enabled').checked
         };
 
