@@ -78,51 +78,7 @@ function copyProfileTgId() {
     showNotificationToast('Telegram ID copied!', 'success');
 }
 
-// Frontend data engine balance mapping extraction routine
-async function syncWalletBalances() {
-    try {
-        const networkResponseObject = await secureFetch('/api/secure/profile');
-        if (!networkResponseObject || networkResponseObject.error) {
-            showNotificationToast(networkResponseObject?.error || "Ecosystem data pipeline sync failed", "error");
-            return;
-        }
-        
-        let targetDatasetProfileNode = null;
-        if (typeof networkResponseObject.balance === 'number') targetDatasetProfileNode = networkResponseObject;
-        else if (networkResponseObject.success && networkResponseObject.profile) targetDatasetProfileNode = networkResponseObject.profile;
-        
-        if (!targetDatasetProfileNode) return;
-        
-        const extractedFiatCashUSDT = parseFloat(targetDatasetProfileNode.balance || 0);
-        const extractedTokensCoins = parseInt(targetDatasetProfileNode.coins || 0);
-        const extractedYieldPoints = parseFloat(targetDatasetProfileNode.points || 0);
-        
-        // Compute total combined aggregate net asset portfolio metrics layout calculations
-        const computedCombinedNetWorthUSDT = extractedFiatCashUSDT + (extractedTokensCoins * 0.10) + (extractedYieldPoints * 0.001);
-        
-        // Push interpolated mathematical animations metrics updates safely down to DOM visual slots
-        animateNumericalValueDisplayUpdate('wallet-total-value', computedCombinedNetWorthUSDT, 2);
-        // FIXED ✅
-        animateNumericalValueDisplayUpdate('asset-bal-usdt', extractedYieldPoints, 2);    // points = USDT
-        animateNumericalValueDisplayUpdate('asset-bal-coins', extractedTokensCoins, 0);   // coins = TICKET
-        animateNumericalValueDisplayUpdate('asset-bal-points', extractedFiatCashUSDT, 0); // balance = DASH;
-            
-        // Sync header pills with new currency mapping
-updateHeaderBalances(
-    extractedFiatCashUSDT   // DASH  (balance field)
-    
-);
-        // Extract invite stats and update corresponding unlock milestones
-        const activeTeamInvitesCount = parseInt(targetDatasetProfileNode.total_invited || 0);
-        processEcosystemReferralMilestonesState(activeTeamInvitesCount);
-        
-        // Refresh structural ledger transaction card statements layout logs views
-        loadWalletStatementLedgerLogs();
-        
-    } catch (catastrophicInternalAppCrash) {
-        console.error("Critical crash tracing balance loops execution routines:", catastrophicInternalAppCrash);
-    }
-}
+
 
 
         // ==========================================================================
@@ -136,7 +92,7 @@ const POPUP_THEMES = {
 };
 
 let _popupConfirmCallback = null;
-async function updateHeaderBalances(dash, usdt, tickets) {
+async function updateHeaderBalances(dash) {
     // Self-healing: if called with no args, fetch the real current balance instead of defaulting to 0
     if (dash === undefined) {
         try {
@@ -144,9 +100,7 @@ async function updateHeaderBalances(dash, usdt, tickets) {
             const profile = (typeof data.balance === 'number') ? data : (data.profile || null);
             if (profile) {
                 cachedUserProfile = profile;
-                dash = profile.balance;
-                usdt = profile.points;
-                tickets = profile.coins;
+                dash = profile.balance;              
             }
         } catch (err) {
             console.error('updateHeaderBalances: failed to fetch fresh profile', err);
