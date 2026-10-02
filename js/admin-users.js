@@ -104,9 +104,9 @@ async function saveUserEdit() {
 function filterUserDirectory(filterType) {
     userDirectoryFilter = filterType;
     
-    const allBtn = document.getElementById('btn-btn-dir-all') || document.getElementById('btn-dir-all');
-    const banBtn = document.getElementById('btn-btn-dir-banned') || document.getElementById('btn-dir-banned');
-
+       const allBtn = document.getElementById('btn-dir-all');
+       const banBtn = document.getElementById('btn-dir-banned');
+    
     if(allBtn && banBtn) {
         if(filterType === 'all') {
             allBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-blue-600 text-white transition-all";
