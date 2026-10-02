@@ -1,4 +1,4 @@
-function startTask(url, taskId, reward, duration, isDaily = false) {
+function startTask(url, taskId, reward, duration) {
     tg.openLink(url);
     
     const btn = document.getElementById(`btn-task-${taskId}`);
