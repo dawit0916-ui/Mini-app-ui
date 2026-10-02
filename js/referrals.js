@@ -97,7 +97,7 @@ async function loadReferralData() {
         }
 
         listContainer.innerHTML = data.friends.map(f => {
-            const isReady = f.tasks_done >= tasksRequired;
+            const isReady = f.active || f.tasks_done >= tasksRequired;
             const progress = Math.min((f.tasks_done / tasksRequired) * 100, 100);
             const displayName = f.first_name || f.username || "Anonymous User";
             const initial = displayName.charAt(0).toUpperCase();
