@@ -3,7 +3,7 @@ function openHistoryDrawer() { document.getElementById('modal-history').classLis
 function closeHistoryDrawer() { document.getElementById('modal-history').classList.remove('active'); }
 // Example Support Ticket Function
 async function submitSupportTicket() {
-    const msg = document.getElementById('support-msg').value;
+    const msg = (document.getElementById('support-msg-drawer')?.value || '').trim();
     if(!msg) return showAppAlert("Please enter a message.", 'warning')
     
     const res = await secureFetch('/api/support/create', {
