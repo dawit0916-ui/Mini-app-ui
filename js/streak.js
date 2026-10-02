@@ -44,7 +44,7 @@ async function claimStreakReward() {
             showNotificationToast(data.error || 'Could not claim reward');
             return;
         }
-        showNotificationToast(`+${data.reward} DASH claimed! 🔥 ${data.currentStreak}-day streak`);
+        showNotificationToast(`+${data.reward} DASH claimed! 🔥 ${data.currentStreak}-day streak`, 'success');
         document.getElementById('profile-dash').textContent = data.newBalance;
         closeStreakModal();
     } catch (err) {
