@@ -109,9 +109,8 @@ async function syncWalletBalances() {
             
         // Sync header pills with new currency mapping
 updateHeaderBalances(
-    extractedFiatCashUSDT,   // DASH  (balance field)
-    extractedYieldPoints,    // USDT  (points field)
-    extractedTokensCoins     // TICKET (coins field)
+    extractedFiatCashUSDT   // DASH  (balance field)
+    
 );
         // Extract invite stats and update corresponding unlock milestones
         const activeTeamInvitesCount = parseInt(targetDatasetProfileNode.total_invited || 0);
