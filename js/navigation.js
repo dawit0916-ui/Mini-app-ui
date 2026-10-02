@@ -77,7 +77,7 @@ function switchAdminPanel(panelId) {
                     el.classList.remove('hidden');
                     // Add this hook right here:
                     if (panelId === 'panel-users') loadUserDirectory();
-                    if (panelId === 'panel-payouts') loadPendingWithdrawals();
+                    if (panelId === 'panel-payouts');
                     if (panelId === 'panel-proofs') loadPendingProofs();       
                     if (panelId === 'panel-task-manager') loadAdminTaskList();
                     if (panelId === 'panel-settings') { loadAdminData(); loadAdminSettings(); }
