@@ -51,7 +51,7 @@ async function playAdAndTrack(adId, adNetwork, blockId) {
                     if (claimRes && claimRes.success) {
                         tg.HapticFeedback.notificationOccurred('success');
                         showNotificationToast(`+${claimRes.reward} DASH earned! 🎉`, 'success');
-                        updateHeaderBalances(claimRes.newBalance, claimRes.newPoints, claimRes.newCoins);
+                        updateHeaderBalances(claimRes.newBalance);
                         loadAdsWatchList();
                     } else {
                         showAppAlert(claimRes?.error || 'Claim failed.', 'error');
