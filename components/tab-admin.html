@@ -169,30 +169,22 @@
             <p class="text-[9px] text-slate-500 uppercase font-bold mb-2">Task Type</p>
             <div class="grid grid-cols-2 gap-2">
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="auto" checked onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-blue-500">
+                    <input type="radio" name="task-add-verify-type" value="auto" checked onchange="updateTaskTypeFields('add')" class="accent-blue-500">
                     <span class="text-[10px] font-bold">Auto (Telegram)</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="manual" onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-indigo-500">
+                    <input type="radio" name="task-add-verify-type" value="manual" onchange="updateTaskTypeFields('add')" class="accent-indigo-500">
                     <span class="text-[10px] font-bold">Manual (Proof)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="daily" onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-orange-500">
-                    <span class="text-[10px] font-bold">Daily (Resets)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="task-add-verify-type" value="custom" onchange="updateTaskAddDurationVisibility(); updateTaskIconVisibility('add')" class="accent-purple-500">
-                    <span class="text-[10px] font-bold">Custom (Level-gated)</span>
                 </label>
             </div>
         </div>
 
-        <div id="task-add-duration-wrap" class="hidden">
-            <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Duration</p>            <select id="task-add-duration" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
-                <option value="">None</option>
-                <option value="weekly">Weekly — Level 3+</option>
-                <option value="monthly">Monthly — Level 4+</option>
-                <option value="three_month">3-Month — Level 5+</option>
+        <div id="task-add-proof-wrap" class="hidden">
+            <p class="text-[8px] text-slate-500 uppercase font-black mb-1 ml-1">Proof Required</p>
+            <select id="task-add-proof-type" class="w-full p-3 rounded-xl text-xs glass text-slate-400">
+                <option value="either">Text or Screenshot</option>
+                <option value="text">Text only</option>
+                <option value="screenshot">Screenshot only</option>
             </select>
         </div>
 
