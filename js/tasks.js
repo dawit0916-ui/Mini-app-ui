@@ -227,7 +227,21 @@ function updateCategoryDropdown(categoryName) {
     option.text = categoryName;
     dropdown.add(option);
 }
+function updateTaskIconVisibility(prefix) {
+    const type = document.querySelector(`input[name="${prefix === 'add' ? 'task-add-verify-type' : 'edit-task-type'}"]:checked`)?.value;
+    const autoNote = document.getElementById(`${prefix}-task-icon-auto-note`);
+    const picker = document.getElementById(`${prefix}-task-icon-picker`);
+    if (!autoNote || !picker) return;
 
+    if (type === 'auto') {
+        autoNote.classList.remove('hidden');
+        picker.classList.add('hidden');
+        document.getElementById(`${prefix}-task-icon-value`).value = TASK_ICON_PATHS.telegram;
+    } else {
+        autoNote.classList.add('hidden');
+        picker.classList.remove('hidden');
+    }
+}
 function filterTasks(category, btn) {
     currentFilter = category;
     
