@@ -363,13 +363,10 @@ mainEl.addEventListener('touchend', async (e) => {
         const profile = (typeof data.balance === 'number') ? data : (data.profile || null);
         if (profile) {
             cachedUserProfile = profile;
-            updateHeaderBalances(profile.balance, profile.points, profile.coins);
+            updateHeaderBalances(profile.balance);
 
             const balMain = document.getElementById('balance-main');
-            if (balMain) balMain.innerText = parseInt(profile.balance || 0).toLocaleString();
-
-            const homeDash = document.getElementById('home-usdt-val');
-            if (homeDash) homeDash.innerText = parseFloat(profile.points || 0).toFixed(2);
+            if (balMain) balMain.innerText = parseInt(profile.balance || 0).toLocaleString();            
         }
     } catch (e) {
         console.error('Pull refresh error:', e);
