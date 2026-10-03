@@ -87,25 +87,32 @@ async function loadReferralData() {
         const tasksRequired = settings?.ref_tasks_required ?? 3; // matches the real admin setting now
         const requiredEl = document.getElementById('ref-tasks-required');
         if (requiredEl) requiredEl.textContent = tasksRequired;
-
+        const requiredEl2 = document.getElementById('ref-tasks-required-2');
+        if (requiredEl2) requiredEl2.textContent = tasksRequired;
         let activeTotal = 0;
         let commTotal = 0;
 
-        if (!data || !data.friends) {
+         if (!data || !data.friends || data.friends.length === 0) {
             listContainer.innerHTML = getEmptyStateHTML('👥', 'No Friends', 'Invite friends to grow your team');
-            return;
+            document.getElementById('total-invited').innerText = 0;
+            document.getElementById('earned-points').innerText = '0.00';
+            const subEl0 = document.getElementById('total-invited-sub');
+            if (subEl0) subEl0.innerText = 'of 0 invited';
+             return;
         }
 
-        listContainer.innerHTML = data.friends.map(f => {
-            const isReady = f.active || f.tasks_done >= tasksRequired;
-            const progress = Math.min((f.tasks_done / tasksRequired) * 100, 100);
+        const friendsSorted = [...data.friends].sort((a, b) =>
+            (Number(b.active) - Number(a.active)) || ((b.tasks_done || 0) - (a.tasks_done || 0))
+        );
+
+        listContainer.innerHTML = friendsSorted.map(f => {
+            const isReady = !!f.active;
+            const earned = f.commission_earned || 0;            const progress = Math.min((f.tasks_done / tasksRequired) * 100, 100);
             const displayName = f.first_name || f.username || "Anonymous User";
             const initial = displayName.charAt(0).toUpperCase();
             
-            if(isReady) {
-                activeTotal++;
-                commTotal += (f.commission_earned || 0);
-            }
+            if (isReady) activeTotal++;
+            commTotal += earned;
 
             return `
     <div class="relative overflow-hidden rounded-2xl p-4 mb-3"
@@ -136,8 +143,8 @@ async function loadReferralData() {
                     <p class="text-sm font-black text-white truncate">${displayName}</p>
                     <div class="flex items-center gap-1 flex-shrink-0 ml-2">
                         <img src="/assets/images/dash-coin.png" class="w-3.5 h-3.5 object-contain">
-                        <span class="text-xs font-black ${isReady ? 'text-orange-300' : 'text-slate-600'}">
-                            ${isReady ? '+' + Math.floor(f.commission_earned || 0) : '🔒'}
+                        <span class="text-xs font-black ${earned > 0 ? 'text-orange-300' : 'text-slate-600'}">
+                            ${earned > 0 ? '+' + earned.toFixed(2) : (isReady ? '+0' : '🔒')}
                         </span>
                     </div>
                 </div>
@@ -169,6 +176,8 @@ async function loadReferralData() {
         }).join('');
 
         document.getElementById('total-invited').innerText = activeTotal;
+        const subEl = document.getElementById('total-invited-sub');
+        if (subEl) subEl.innerText = `of ${data.friends.length} invited`;
         document.getElementById('earned-points').innerText = commTotal.toFixed(2);
 
     } catch (e) {
