@@ -32,11 +32,10 @@ async function loadLeaderboardData(type) {
         }
 
         const board = data.leaderboard || [];
-        const unit = type === 'points' ? 'DASH' : 'invites';
+        const unit = type === 'points' ? 'DASH' : 'active';
         rankBadge.innerText = type === 'points'
-    ? `Your Rank #${data.myRank.rank} · ${parseInt(data.myRank.score || 0).toLocaleString()} DASH`
-    : `Your Rank #${data.myRank.rank} · ${data.myRank.score || 0} Invites`;
-
+            ? `Your Rank #${data.myRank.rank} · ${parseInt(data.myRank.score || 0).toLocaleString()} DASH`
+            : `Your Rank #${data.myRank.rank} · ${data.myRank.score || 0} Active Friends`;
         // --- Podium (top 3) ---
         const top3 = board.slice(0, 3);
         const order = [1, 0, 2]; // visual order: 2nd, 1st, 3rd
@@ -75,7 +74,7 @@ async function loadLeaderboardData(type) {
                 </div>
             `).join('');
 
-        // Pin "you" if outside top 50
+        // Pin "you" if outside top 25
         if (data.myRank.outsideTop) {
             listEl.insertAdjacentHTML('beforeend', `
                 <div class="glass p-3 flex justify-between items-center mt-3 border-blue-500/50 bg-blue-500/5">
