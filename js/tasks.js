@@ -1,3 +1,4 @@
+const activeTasks = {};
 function startTask(url, taskId, reward, duration) {
     tg.openLink(url);
     
