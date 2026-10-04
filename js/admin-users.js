@@ -88,8 +88,7 @@ async function saveUserEdit() {
             tg.HapticFeedback.notificationOccurred('success');
             showAppAlert("User updated successfully.", 'success');
             closeUserEditDrawer();
-            loadUserReferralMap(u.user_id);
-            loadUserAuditHistory(u.user_id);
+           
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
         } else {
             showAppAlert("Failed to update some values.", 'error');
