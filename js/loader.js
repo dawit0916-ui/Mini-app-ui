@@ -53,6 +53,7 @@ const SCRIPTS = [
     'js/video-player.js',
     'js/support.js',
     'js/admin-users.js',
+    'js/admin-referral-audit.js',
     'js/admin-settings.js',
     'js/admin-tickets.js',
     'js/admin-console.js',
