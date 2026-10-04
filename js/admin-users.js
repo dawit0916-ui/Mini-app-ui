@@ -35,12 +35,12 @@ function openUserEditDrawer(u) {
     document.getElementById('edit-user-referrals').innerText = u.referralCount || 0;
     document.getElementById('edit-user-total-earned').innerText = (u.total_earned || 0).toLocaleString() + ' DASH';
     document.getElementById('edit-user-tasks-done').innerText = u.tasksCompleted || 0;
-
     document.getElementById('edit-user-balance-input').value = u.balance || 0;
     
     document.getElementById('edit-user-banned-input').checked = !!u.is_banned;
     document.getElementById('edit-user-redflag-input').checked = !!u.red_flag;
-
+    loadUserReferralMap(u.user_id);
+    loadUserAuditHistory(u.user_id);
     document.getElementById('admin-user-edit-drawer').classList.add('active');
 }
 
@@ -88,6 +88,8 @@ async function saveUserEdit() {
             tg.HapticFeedback.notificationOccurred('success');
             showAppAlert("User updated successfully.", 'success');
             closeUserEditDrawer();
+            loadUserReferralMap(u.user_id);
+            loadUserAuditHistory(u.user_id);
             if (typeof loadUserDirectory === 'function') loadUserDirectory();
         } else {
             showAppAlert("Failed to update some values.", 'error');
