@@ -1,5 +1,15 @@
 <!-- REMINDERS TAB -->
 <div id="tab-reminders" class="tab-content">
+
+    <!-- Header with Back button -->
+    <div class="flex items-center gap-3 mb-6">
+        <button onclick="goBackFromReminders()" class="w-10 h-10 glass flex items-center justify-center text-sm font-black active:scale-90 transition-all">←</button>
+        <div>
+            <h3 class="text-sm font-black uppercase tracking-widest text-yellow-300">Reminders</h3>
+            <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Welcome message re-send system</p>
+        </div>
+    </div>
+
     <!-- Reminder System Toggle -->
     <div class="glass p-6 mb-6 rounded-3xl border border-white/10">
         <div class="flex items-center justify-between gap-4">
@@ -20,33 +30,49 @@
         <h3 class="text-sm font-black uppercase tracking-widest text-white mb-1">📸 Upload Reminder Image</h3>
         <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider mb-6">Sent when user deletes welcome message</p>
 
-        <div class="image-upload relative border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:border-white/40 transition-all cursor-pointer mb-6" 
-     id="imageUpload" 
-     ondrop="handleDrop(event)" 
-     ondragover="handleDragOver(event)" 
-     ondragleave="handleDragLeave(event)"
-     onclick="document.getElementById('imageInput').click()">
+        <!-- Drop zone -->
+        <div id="rmDropZone"
+             class="relative border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:border-white/40 transition-all cursor-pointer mb-4"
+             ondrop="rmHandleDrop(event)"
+             ondragover="rmHandleDragOver(event)"
+             ondragleave="rmHandleDragLeave(event)"
+             onclick="document.getElementById('rmImageInput').click()">
             <div class="text-4xl mb-3">📷</div>
             <p class="text-[12px] font-black text-purple-400 uppercase tracking-widest mb-2">Drop image or click</p>
             <p class="text-[10px] text-slate-500 uppercase font-bold">PNG, JPG (Max 5MB)</p>
-            <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect(event)" class="hidden">
+            <input type="file" id="rmImageInput" accept="image/*" onclick="event.stopPropagation()" onchange="rmHandleImageSelect(event)" class="hidden">
         </div>
 
-        <div class="image-preview hidden mb-6" id="imagePreview">
-            <img id="previewImg" src="" alt="Preview" class="w-full max-h-48 object-cover rounded-2xl border border-white/10">
-            <p class="mt-3 text-[10px] text-slate-400 font-bold" id="previewText"></p>
+        <!-- Preview -->
+        <div id="rmPreviewBox" class="hidden mb-4">
+            <div class="relative">
+                <img id="rmPreviewImg" src="" alt="Preview" class="w-full max-h-56 object-cover rounded-2xl border border-white/10">
+                <button onclick="rmClearImage()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white text-xs font-black active:scale-90 transition-all">✕</button>
+            </div>
+            <p id="rmPreviewText" class="mt-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider"></p>
         </div>
 
-        <button class="w-full btn-premium py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest" onclick="uploadReminderImage()">
-            <span id="uploadBtnText">⬆️ Upload Image</span>
-            <span id="uploadBtnLoader" class="loading hidden ml-2"></span>
+        <!-- Upload progress -->
+        <div id="rmProgressBox" class="hidden mb-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-cyan-400">Uploading...</span>
+                <span id="rmProgressPct" class="text-[10px] font-black text-cyan-400">0%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                <div id="rmProgressBar" class="h-full w-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <button id="rmUploadBtn" class="w-full btn-premium py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50" onclick="uploadReminderImage()">
+            <span id="rmUploadSpinner" class="hidden w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+            <span id="rmUploadBtnText">⬆️ Upload Image</span>
         </button>
     </div>
 
     <!-- Reminder Statistics -->
     <div class="glass p-6 mb-6 rounded-3xl border border-white/10">
         <h3 class="text-sm font-black uppercase tracking-widest text-white mb-5">📊 Statistics</h3>
-        
+
         <div class="grid grid-cols-3 gap-3 mb-6">
             <div class="glass-inner p-4 rounded-2xl border border-white/5 text-center">
                 <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-2">Awaiting</p>
@@ -69,7 +95,7 @@
     </div>
 
     <!-- Recent Reminder Activity -->
-    <div class="glass p-6 rounded-3xl border border-white/10">
+    <div class="glass p-6 mb-10 rounded-3xl border border-white/10">
         <h3 class="text-sm font-black uppercase tracking-widest text-white mb-4">📜 Recent Activity</h3>
         <div id="recentRemindersContainer" class="space-y-3">
             <p class="text-[10px] text-slate-500 text-center py-6 uppercase font-bold">Loading activity...</p>
