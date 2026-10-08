@@ -23,10 +23,43 @@ function loadAdminSettings() {
             document.getElementById('set-ref-bonus').value = data.settings?.ref_bonus_amount || 0.5;
             document.getElementById('set-ref-percent').value = data.settings?.ref_commission_percent || 10;
             document.getElementById('set-ref-threshold').value = data.settings?.ref_tasks_required || 3;
-            
+            document.getElementById('set-wk-enabled').checked = !!data.settings?.weekly_rewards_enabled;
+            document.getElementById('set-wk-earners').value = (data.settings?.weekly_earner_prizes || []).join(', ');
+            document.getElementById('set-wk-inviters').value = (data.settings?.weekly_inviter_prizes || []).join(', ');
+            document.getElementById('set-wk-min-earned').value = data.settings?.weekly_min_earned ?? 0;
+            document.getElementById('set-wk-min-invites').value = data.settings?.weekly_min_invites ?? 1;
         }
     }).catch(err => console.error('Failed to load settings:', err));
 }
+function parsePrizeList(str) {
+    const arr = String(str || '').split(',')
+        .map(s => parseFloat(s.trim()))
+        .filter(n => !isNaN(n) && n >= 0)
+        .slice(0, 5);
+    while (arr.length < 5) arr.push(0);
+    return arr;
+}
+
+async function saveWeeklyRewardSettings() {
+    try {
+        const res = await secureFetch('/api/admin/settings', {
+            method: 'POST',
+            body: JSON.stringify({
+                weekly_rewards_enabled: document.getElementById('set-wk-enabled').checked,
+                weekly_earner_prizes: parsePrizeList(document.getElementById('set-wk-earners').value),
+                weekly_inviter_prizes: parsePrizeList(document.getElementById('set-wk-inviters').value),
+                weekly_min_earned: parseFloat(document.getElementById('set-wk-min-earned').value) || 0,
+                weekly_min_invites: parseInt(document.getElementById('set-wk-min-invites').value) || 0
+            })
+        });
+        if (res.success) {
+            tg.HapticFeedback.notificationOccurred('success');
+            showAppAlert("Weekly rewards updated!", 'success');
+        }
+    } catch (e) {
+        showAppAlert("Failed to update weekly rewards.", 'error');
+    }
+            }
             // --- ADMIN: LOAD DASHBOARD ---
 async function loadAdminData() {
     try {
