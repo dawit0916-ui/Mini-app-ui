@@ -25,6 +25,11 @@
             </div>
             <button class="sheet-close" onclick="closeLeaderboardDrawer()">✕</button>
         </div>
+        <div class="flex gap-2 mb-3 bg-black/20 p-1 rounded-xl border border-white/5">
+          <button id="lb-period-all" onclick="switchLeaderboardPeriod('all')" class="lb-tab-btn flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all">All-time</button>
+          <button id="lb-period-week" onclick="switchLeaderboardPeriod('week')" class="lb-tab-btn flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all">📅 This week</button>
+        </div>
+        <div id="lb-week-banner" class="hidden glass p-3 mb-4 border-yellow-500/20"></div>
 
         <div class="flex gap-2 mb-5 bg-black/20 p-1 rounded-xl border border-white/5">
           <button id="lb-tab-points" onclick="switchLeaderboardTab('points')" class="lb-tab-btn flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all">⚡ DASH</button>
