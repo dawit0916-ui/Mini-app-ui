@@ -28,94 +28,130 @@ async function toggleReminders() {
     }
 }
 
-function handleDragOver(e) {
-    e.preventDefault();
-    document.getElementById('imageUpload').classList.add('dragover');
+// ============ REMINDER IMAGE UPLOAD ============
+const RM_MAX_BYTES = 5 * 1024 * 1024;
+let rmSelectedFile = null;
+
+function goBackFromReminders() {
+    switchTab('admin');
+    // Reminders button lives in the Settings panel, so reopen it
+    if (typeof switchAdminPanel === 'function') switchAdminPanel('panel-settings');
 }
 
-function handleDragLeave(e) {
+function rmHandleDragOver(e) {
     e.preventDefault();
-    document.getElementById('imageUpload').classList.remove('dragover');
+    document.getElementById('rmDropZone').classList.add('border-purple-400', 'bg-white/5');
 }
 
-function handleDrop(e) {
+function rmHandleDragLeave(e) {
     e.preventDefault();
-    document.getElementById('imageUpload').classList.remove('dragover');
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        document.getElementById('imageInput').files = files;
-        handleImageSelect({ target: { files } });
+    document.getElementById('rmDropZone').classList.remove('border-purple-400', 'bg-white/5');
+}
+
+function rmHandleDrop(e) {
+    e.preventDefault();
+    rmHandleDragLeave(e);
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) rmSetFile(file);
+}
+
+function rmHandleImageSelect(e) {
+    const file = e.target.files && e.target.files[0];
+    if (file) rmSetFile(file);
+}
+
+function rmSetFile(file) {
+    if (!file.type.startsWith('image/')) {
+        showAppAlert('Please choose an image file.', 'error', '❌ Invalid File');
+        return;
     }
-}
-
-function handleImageSelect(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > RM_MAX_BYTES) {
         showAppAlert('Image too large. Maximum 5MB allowed.', 'error', '❌ File Too Large');
         return;
     }
 
+    rmSelectedFile = file;
+
     const reader = new FileReader();
-    reader.onload = (event) => {
-        const preview = document.getElementById('imagePreview');
-        const img = document.getElementById('previewImg');
-        
-        img.src = event.target.result;
-        preview.classList.remove('hidden');
+    reader.onload = (ev) => {
+        document.getElementById('rmPreviewImg').src = ev.target.result;
+        document.getElementById('rmPreviewText').textContent =
+            `${file.name} • ${(file.size / 1024).toFixed(0)} KB`;
+        document.getElementById('rmPreviewBox').classList.remove('hidden');
     };
+    reader.onerror = () => showAppAlert('Could not read this image.', 'error');
     reader.readAsDataURL(file);
 }
+
+function rmClearImage() {
+    rmSelectedFile = null;
+    document.getElementById('rmImageInput').value = '';
+    document.getElementById('rmPreviewImg').src = '';
+    document.getElementById('rmPreviewText').textContent = '';
+    document.getElementById('rmPreviewBox').classList.add('hidden');
+}
+
+function rmSetUploading(isUploading, pct) {
+    const btn = document.getElementById('rmUploadBtn');
+    const spinner = document.getElementById('rmUploadSpinner');
+    const text = document.getElementById('rmUploadBtnText');
+    const box = document.getElementById('rmProgressBox');
+    const bar = document.getElementById('rmProgressBar');
+    const pctEl = document.getElementById('rmProgressPct');
+
+    btn.disabled = isUploading;
+    spinner.classList.toggle('hidden', !isUploading);
+    text.textContent = isUploading ? 'Uploading...' : '⬆️ Upload Image';
+    box.classList.toggle('hidden', !isUploading);
+
+    if (typeof pct === 'number') {
+        bar.style.width = pct + '%';
+        pctEl.textContent = pct + '%';
+    }
+}
+
 async function uploadReminderImage() {
-    const file = document.getElementById('imageInput').files[0];
+    const file = rmSelectedFile;
     if (!file) {
         showAppAlert('❌ Please select an image', 'error');
         return;
     }
-
-    // ✅ FIX 1: Validate file size before reading
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > RM_MAX_BYTES) {
         showAppAlert('❌ Image too large. Maximum 5MB allowed.', 'error');
         return;
     }
 
-    const btnText = document.getElementById('uploadBtnText');
-    const btnLoader = document.getElementById('uploadBtnLoader');
-    btnText.style.display = 'none';
-    btnLoader.style.display = 'inline-block';
+    rmSetUploading(true, 10);
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        try {
-            // ✅ FIX 2: Use secureFetch() instead of fetch()
-            const response = await secureFetch('/api/admin/reminder-config', {
-                method: 'POST',
-                body: JSON.stringify({ imageBase64: e.target.result })
-            });
+    try {
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => reject(new Error('Could not read file'));
+            reader.readAsDataURL(file);
+        });
 
-            // ✅ FIX 3: Add response validation
-            if (!response) {
-                throw new Error('No response from server');
-            }
+        rmSetUploading(true, 40);
 
-            if (response.success) {
-                showAppAlert('✅ Reminder image uploaded successfully!', 'success');
-                document.getElementById('imageInput').value = '';
-                document.getElementById('imagePreview').style.display = 'none';
-                // ✅ FIX 4: Reload stats to show new image
-                loadReminderConfig();
-            } else {
-                throw new Error(response.error || 'Failed to upload image');
-            }
-        } catch (err) {
-            showAppAlert('❌ Upload error: ' + err.message, 'error');
-} finally {
-            btnText.style.display = 'inline';
-            btnLoader.style.display = 'none';
-        }
-    };
-    reader.readAsDataURL(file);
+        const response = await secureFetch('/api/admin/reminder-config', {
+            method: 'POST',
+            body: JSON.stringify({ imageBase64: base64 })
+        });
+
+        rmSetUploading(true, 90);
+
+        if (!response) throw new Error('No response from server');
+        if (!response.success) throw new Error(response.error || 'Failed to upload image');
+
+        rmSetUploading(true, 100);
+        showAppAlert('✅ Reminder image uploaded successfully!', 'success');
+        rmClearImage();
+        loadReminderConfig();
+    } catch (err) {
+        showAppAlert('❌ Upload error: ' + err.message, 'error');
+    } finally {
+        rmSetUploading(false, 0);
+    }
 }
 async function loadReminderStats() {
     try {
