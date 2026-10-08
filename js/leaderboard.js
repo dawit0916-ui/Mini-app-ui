@@ -1,3 +1,5 @@
+let currentLeaderboardPeriod = 'all';
+let lbCountdownTimer = null;
 
 function openLeaderboardDrawer(defaultType = 'points') {
     document.getElementById('modal-leaderboard').classList.add('active');
@@ -7,13 +9,43 @@ function openLeaderboardDrawer(defaultType = 'points') {
 
 function closeLeaderboardDrawer() {
     document.getElementById('modal-leaderboard').classList.remove('active');
+    if (lbCountdownTimer) { clearInterval(lbCountdownTimer); lbCountdownTimer = null; }
+}
+
+function switchLeaderboardPeriod(period) {
+    currentLeaderboardPeriod = period;
+    switchLeaderboardTab(currentLeaderboardType);
 }
 
 function switchLeaderboardTab(type) {
     currentLeaderboardType = type;
     document.getElementById('lb-tab-points').classList.toggle('active', type === 'points');
     document.getElementById('lb-tab-invites').classList.toggle('active', type === 'invites');
+    document.getElementById('lb-period-all').classList.toggle('active', currentLeaderboardPeriod === 'all');
+    document.getElementById('lb-period-week').classList.toggle('active', currentLeaderboardPeriod === 'week');
     loadLeaderboardData(type);
+}
+
+function renderWeekBanner(data) {
+    const el = document.getElementById('lb-week-banner');
+    if (lbCountdownTimer) { clearInterval(lbCountdownTimer); lbCountdownTimer = null; }
+    if (data.period !== 'week' || !data.week) { el.classList.add('hidden'); return; }
+
+    const { endsAt, enabled, prizes } = data.week;
+    const prizeText = (prizes || []).map((p, i) => p > 0 ? `#${i + 1}: ${p}` : null).filter(Boolean).join(' · ');
+    el.classList.remove('hidden');
+
+    const paint = () => {
+        const ms = Math.max(0, new Date(endsAt) - Date.now());
+        const d = Math.floor(ms / 86400000);
+        const h = Math.floor((ms % 86400000) / 3600000);
+        const m = Math.floor((ms % 3600000) / 60000);
+        el.innerHTML = `
+            <p class="text-[10px] font-black text-yellow-400 uppercase">🎁 Weekly prizes · resets in ${d}d ${h}h ${m}m</p>
+            <p class="text-[9px] text-slate-400 mt-1">${enabled && prizeText ? prizeText + ' DASH' : 'Prizes coming soon'}</p>`;
+    };
+    paint();
+    lbCountdownTimer = setInterval(paint, 30000);
 }
 
 async function loadLeaderboardData(type) {
@@ -25,13 +57,14 @@ async function loadLeaderboardData(type) {
     podiumEl.innerHTML = '';
 
     try {
-        const data = await secureFetch(`/api/secure/leaderboard?type=${type}`);
+        const data = await secureFetch(`/api/secure/leaderboard?type=${type}&period=${currentLeaderboardPeriod}`);
         if (!data || !data.success) {
             listEl.innerHTML = '<p class="text-center text-xs text-red-400 py-6">Failed to load leaderboard.</p>';
             return;
         }
 
         const board = data.leaderboard || [];
+        renderWeekBanner(data);
         const unit = type === 'points' ? 'DASH' : 'active';
         rankBadge.innerText = type === 'points'
             ? `Your Rank #${data.myRank.rank} · ${parseInt(data.myRank.score || 0).toLocaleString()} DASH`
