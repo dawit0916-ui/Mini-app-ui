@@ -80,7 +80,13 @@ function updateLoadingUI(percent, text) {
     if (fill) fill.style.width = percent + '%';
     if (status && text) status.innerText = text;
 }
-
+// Lets the browser actually paint before we continue. The 50ms timeout is a
+// safety net: requestAnimationFrame never fires if the WebView is hidden,
+// which would otherwise hang boot().
+const nextFrame = () => new Promise(resolve => {
+    requestAnimationFrame(() => setTimeout(resolve, 0));
+    setTimeout(resolve, 50);
+});
 async function injectComponent({ url, mount }) {
     const target = document.getElementById(mount);
     if (!target) {
@@ -115,30 +121,39 @@ function runScript(src, code) {
 }
 
 async function boot() {
-    // Step 1 — inject all HTML partials in parallel. This also brings the
-    // loading-screen markup (progress bar, status text) into the DOM, so
-    // it's the earliest point we can actually move the bar.
+    // Step 1 — inject all HTML partials in parallel.
     await Promise.all(COMPONENTS.map(injectComponent));
     updateLoadingUI(10, 'Loading interface...');
+    await nextFrame();
 
-    // Step 2 — fetch every feature script's SOURCE TEXT in parallel. This
-    // used to be 27 sequential network round-trips (each one waiting for
-    // the last to finish loading before starting the next) — now it's a
-    // single parallel batch, which is the main speed win on slow connections.
+    // Step 2 — fetch every script's source in parallel, moving the bar
+    // 20% → 25% as each one arrives.
     updateLoadingUI(20, BOOT_MESSAGES[0]);
-    const fetched = await Promise.all(SCRIPTS.map(fetchScriptText));
+    await nextFrame();
+    let downloaded = 0;
+    const fetched = await Promise.all(
+        SCRIPTS.map(async (src) => {
+            const result = await fetchScriptText(src);
+            downloaded++;
+            updateLoadingUI(20 + Math.round((downloaded / SCRIPTS.length) * 5));
+            return result;
+        })
+    );
 
-    // Step 3 — run them in the original order, synchronously, with no
-    // per-file network wait. Order is preserved because Promise.all keeps
-    // the SCRIPTS array order in its results.
+    // Step 3 — run in original order, yielding a frame after each script
+    // so the 25% → 50% progress is actually drawn.
     let i = 0;
     for (const { src, code } of fetched) {
-        runScript(src, code);
+        try {
+            runScript(src, code);
+        } catch (err) {
+            console.error(`Loader: ${src} threw while running`, err);
+        }
         i++;
         const pct = 25 + Math.round((i / fetched.length) * 25); // 25% → 50%
         updateLoadingUI(pct, BOOT_MESSAGES[i % BOOT_MESSAGES.length]);
+        await nextFrame();
     }
-
     // Step 4 — DOM is complete and every function is defined. Boot the app.
     // initApp() takes over progress reporting from here (50% → 100%).
     if (typeof initApp === 'function') {
