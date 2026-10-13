@@ -123,25 +123,25 @@ function runScript(src, code) {
 async function boot() {
     // Step 1 — inject all HTML partials in parallel.
     await Promise.all(COMPONENTS.map(injectComponent));
-    updateLoadingUI(10, 'Loading interface...');
+    updateLoadingUI(5, 'Loading interface...');
     await nextFrame();
 
     // Step 2 — fetch every script's source in parallel, moving the bar
-    // 20% → 25% as each one arrives.
-    updateLoadingUI(20, BOOT_MESSAGES[0]);
+    // 10% → 15% as each one arrives.
+    updateLoadingUI(10, BOOT_MESSAGES[0]);
     await nextFrame();
     let downloaded = 0;
     const fetched = await Promise.all(
         SCRIPTS.map(async (src) => {
             const result = await fetchScriptText(src);
             downloaded++;
-            updateLoadingUI(20 + Math.round((downloaded / SCRIPTS.length) * 5));
+            updateLoadingUI(10 + Math.round((downloaded / SCRIPTS.length) * 5));
             return result;
         })
     );
 
     // Step 3 — run in original order, yielding a frame after each script
-    // so the 25% → 50% progress is actually drawn.
+    // so the 15% → 50% progress is actually drawn.
     let i = 0;
     for (const { src, code } of fetched) {
         try {
@@ -150,7 +150,7 @@ async function boot() {
             console.error(`Loader: ${src} threw while running`, err);
         }
         i++;
-        const pct = 25 + Math.round((i / fetched.length) * 25); // 25% → 50%
+        const pct = 15 + Math.round((i / fetched.length) * 25); // 25% → 50%
         updateLoadingUI(pct, BOOT_MESSAGES[i % BOOT_MESSAGES.length]);
         await nextFrame();
     }
