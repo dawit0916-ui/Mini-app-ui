@@ -83,7 +83,7 @@ async function loadMyPurchases() {
             return;
         }
 
-        shopState.myPurchases = res.purchases || [];
+        shopState.myPurchases = (res.purchases || []).filter(p => p && p.productId);
         renderMyPurchases();
     } catch (err) {
         console.error('Load purchases error:', err);
@@ -190,8 +190,8 @@ async function openAPKDetail(productId) {
         document.getElementById('course-detail-title').textContent = product.title;
         document.getElementById('course-detail-price').textContent = `${product.price} DASH`;
 
-        const purchased = shopState.myPurchases.some(p => p.productId._id === productId);
-
+        const purchased = shopState.myPurchases.some(p => p.productId && p.productId._id === productId);
+        
         let contentHTML = `
             <div class="glass p-3 rounded-xl border border-white/5">
                 <p class="text-[9px] text-slate-500 uppercase font-black mb-3">${product.description}</p>
@@ -217,7 +217,7 @@ function renderMyPurchases() {
     list.innerHTML = getEmptyStateHTML('🛒', 'No purchases yet', "You haven't purchased anything yet!");
     return;
 }
-    list.innerHTML = shopState.myPurchases.map(purchase => {
+    list.innerHTML = shopState.myPurchases.filter(p => p && p.productId).map(purchase => {
         const thumbnail = purchase.productId.thumbnail
             ? `assets/thumbnails/${purchase.productId.thumbnail}`
             : "assets/thumbnails/default.png";
@@ -318,8 +318,8 @@ async function openCourseDetail(productId) {
         `;
 
         // Check if already purchased
-        const purchased = shopState.myPurchases.some(p => p.productId._id === productId);
-
+        const purchased = shopState.myPurchases.some(p => p.productId && p.productId._id === productId);
+        
         if (purchased) {
             lessonsHTML += `
                 <button onclick="openCoursePlayer('${productId}')" class="w-full py-3 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all">
