@@ -54,7 +54,7 @@
 .banner-text p { margin: 0; font-size: 12.5px; color: var(--text-secondary); line-height: 1.4; }
 .banner-text em { color: var(--text-primary); font-style: normal; font-weight: 600; }
 
-.task-card, .mypost-card, .post-form-card, .task-detail-modal, .instructions-box, .proof-box {
+.task-card, .mypost-card, .post-form-card {
   background: var(--card-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -89,15 +89,33 @@
 }
 .btn-start-earning:hover, .btn-primary:hover { box-shadow: 0 4px 20px rgba(244, 81, 30, 0.5); }
 
-.task-detail-modal { position: fixed; inset: 0; padding: 20px; overflow-y: auto; z-index: 10000; border-radius: 0; background: linear-gradient(to bottom, #0d093c 0%, #070b21 50%, #100640 100%); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.task-detail-modal { position: fixed; inset: 0; padding: 0 16px 28px; overflow-y: auto; z-index: 10000; background: linear-gradient(rgba(20,18,60,0.62), rgba(10,8,34,0.82)), url('/assets/images/bg.png') center / cover no-repeat; }
 .task-detail-modal.hidden { display: none; }
-.btn-close { background: none; border: none; color: var(--text-primary); font-size: 20px; }
-.task-detail-thumb { width: 100%; border-radius: 8px; margin: 12px 0; }
-.video-id-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.video-id-row code { background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 6px; color: var(--text-secondary); }
-.btn-copy { padding: 6px 10px; background: rgba(255,255,255,0.08); color: var(--text-primary); border: 1px solid var(--card-border); border-radius: 6px; }
-.instructions-box, .proof-box { padding: 14px; margin-top: 16px; }
-.proof-box input[type="file"] { display: block; margin: 10px 0; color: var(--text-secondary); }
+
+.task-detail-topbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 14px 0 10px; background: linear-gradient(to bottom, rgba(10,8,34,0.9), rgba(10,8,34,0)); }
+.task-detail-topbar-title { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+.btn-close { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(249,115,22,0.25); border-radius: 50%; color: var(--text-primary); font-size: 15px; }
+
+.task-detail-card, .video-id-card, .instructions-box, .proof-box { background: rgba(0,0,0,0.35); border: 1px solid rgba(249,115,22,0.2); border-radius: 16px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.task-detail-card { padding: 12px; }
+.task-detail-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; display: block; }
+.task-detail-title { font-size: 16px; font-weight: 800; line-height: 1.35; margin: 12px 2px 10px; color: var(--text-primary); }
+.detail-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.badge-dash { display: inline-flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.4); color: #fdba74; border: 1px solid rgba(249,115,22,0.25); font-weight: 900; }
+.dash-coin-sm { width: 16px; height: 16px; object-fit: contain; }
+
+.video-id-card { margin-top: 12px; padding: 12px 14px; }
+.video-id-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 8px; }
+.video-id-row { display: flex; align-items: center; gap: 8px; }
+.video-id-row code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(0,0,0,0.4); padding: 9px 12px; border-radius: 8px; color: var(--text-primary); }
+.btn-copy { flex-shrink: 0; padding: 9px 16px; background: rgba(249,115,22,0.15); color: #fdba74; border: 1px solid rgba(249,115,22,0.3); border-radius: 8px; font-weight: 700; }
+
+.instructions-box, .proof-box { padding: 14px; margin-top: 12px; }
+.instructions-box h4, .proof-box h4 { margin: 0 0 6px; font-size: 14px; font-weight: 800; color: #fdba74; }
+.instructions-box p, .proof-box p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+.proof-box input[type="file"] { display: block; width: 100%; box-sizing: border-box; margin: 12px 0; padding: 10px; background: rgba(0,0,0,0.4); border: 1px dashed rgba(249,115,22,0.35); border-radius: 10px; color: var(--text-secondary); font-size: 13px; }
+.proof-box input[type="file"]::file-selector-button { margin-right: 10px; padding: 7px 12px; background: rgba(249,115,22,0.15); color: #fdba74; border: 1px solid rgba(249,115,22,0.3); border-radius: 8px; font-weight: 700; }
 
 .btn-watch-youtube {
   display: block;
