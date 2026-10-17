@@ -1,16 +1,13 @@
 
-
-
-
-        /* ==========================================================================
+  /* ==========================================================================
    CUSTOM IN-APP POPUP SYSTEM
    ========================================================================== */
 #app-popup-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(4, 2, 14, 0.88);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(4, 2, 14, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 9000;
     display: none;
     align-items: center;
@@ -22,7 +19,9 @@
     display: flex;
 }
 #app-popup-card {
-    background: rgba(20, 18, 60, 0.97);
+    background:
+    linear-gradient(rgba(20, 18, 60, 0.62), rgba(10, 8, 34, 0.78)),
+    url('/assets/images/bg.png') center / cover no-repeat;
     border: 1px solid rgba(59, 130, 246, 0.25);
     border-radius: 28px;
     padding: 28px 24px 24px;
