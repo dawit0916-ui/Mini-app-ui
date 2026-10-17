@@ -586,21 +586,36 @@ Enhanced with touch barrier, custom controls, and anti-download measures
 
   <!-- TASK DETAIL MODAL (shared, opens over any tab) -->
   <div id="taskDetailModal" class="task-detail-modal hidden">
-    <button class="btn-close" id="closeDetailBtn">❌ Close</button>
 
-    <img class="task-detail-thumb" id="detailThumb" src="" alt="">
-    <h2 class="task-detail-title" id="detailTitle"></h2>
-
-    <div class="video-id-row">
-      <code id="detailVideoId"></code>
-      <button class="btn-copy" id="copyVideoIdBtn">Copy video ID</button>
-      <span class="badge badge-points" id="detailPoints"></span>
+    <div class="task-detail-topbar">
+      <button class="btn-close" id="closeDetailBtn" aria-label="Close">✕</button>
+      <span class="task-detail-topbar-title">Watch &amp; Earn</span>
     </div>
 
-    <div class="country-badges" id="detailCountries"></div>
+    <div class="task-detail-card">
+      <img class="task-detail-thumb" id="detailThumb" src="" alt="">
+      <h2 class="task-detail-title" id="detailTitle"></h2>
+
+      <div class="detail-meta-row">
+        <span class="badge badge-dash">
+          <img src="/assets/images/dash-coin.webp" alt="DASH" class="dash-coin-sm">
+          <span id="detailPoints"></span>
+        </span>
+        <span class="badge badge-time" id="detailDuration"></span>
+      </div>
+
+      <div class="country-badges" id="detailCountries"></div>
+    </div>
+
+    <div class="video-id-card">
+      <div class="video-id-label">Video ID</div>
+      <div class="video-id-row">
+        <code id="detailVideoId"></code>
+        <button class="btn-copy" id="copyVideoIdBtn">Copy</button>
+      </div>
+    </div>
 
     <a href="#" id="watchOnYoutubeBtn" class="btn-watch-youtube" target="_blank" rel="noopener">▶ Watch on YouTube</a>
-    <span class="badge badge-time" id="detailDuration"></span>
 
     <div class="instructions-box">
       <h4>Instructions</h4>
@@ -608,19 +623,18 @@ Enhanced with touch barrier, custom controls, and anti-download measures
     </div>
 
     <div class="proof-box">
-  <h4>Submit your proof</h4>
-  <p>Upload a screenshot showing the YouTube "Stats for Nerds" overlay open while the video plays.</p>
-  <input type="file" id="proofScreenshot" accept="image/*">
-  <button class="btn-primary" id="submitProofBtn">Submit proof</button>
+      <h4>Submit your proof</h4>
+      <p>Upload a screenshot showing the YouTube "Stats for Nerds" overlay open while the video plays.</p>
+      <input type="file" id="proofScreenshot" accept="image/*">
+      <button class="btn-primary" id="submitProofBtn">Submit proof</button>
 
-  <ul class="review-checklist hidden" id="reviewChecklist">
-    <li id="check-screenshot" data-state="pending"><span class="check-icon"></span> Verifying screenshot</li>
-    <li id="check-vpn" data-state="pending"><span class="check-icon"></span> Checking network</li>
-    <li id="check-country" data-state="pending"><span class="check-icon"></span> Checking region</li>
-    <li id="check-time" data-state="pending"><span class="check-icon"></span> Checking watch time</li>
-  </ul>
+      <ul class="review-checklist hidden" id="reviewChecklist">
+        <li id="check-screenshot" data-state="pending"><span class="check-icon"></span> Verifying screenshot</li>
+        <li id="check-vpn" data-state="pending"><span class="check-icon"></span> Checking network</li>
+        <li id="check-country" data-state="pending"><span class="check-icon"></span> Checking region</li>
+        <li id="check-time" data-state="pending"><span class="check-icon"></span> Checking watch time</li>
+      </ul>
 
-  <p class="proof-status hidden" id="proofStatus"></p>
-</div>
-      <button class="" id="closeDetailBtn">❌ Close</button>
+      <p class="proof-status hidden" id="proofStatus"></p>
+    </div>
   </div>
