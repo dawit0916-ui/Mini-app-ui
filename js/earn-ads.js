@@ -401,7 +401,7 @@ async function loadAdsWatchList() {
 
             return `
             <div class="glass p-4 flex items-center gap-4 border border-orange-500/15 rounded-2xl">
-                <img src="/assets/images/icon-ads.png" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
+                <img src="/assets/images/icon-ads.webp" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
                 <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-center mb-1">
                         <p class="text-sm font-black text-white">+${ad.reward} DASH</p>
