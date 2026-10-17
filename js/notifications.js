@@ -169,7 +169,7 @@ function showAppReward(type, amount) {
     };
 
     const iconWrap = document.getElementById('app-popup-icon-wrap');
-    iconWrap.innerHTML = `<img src="/assets/images/dash-coin.png" style="width:32px;height:32px;object-fit:contain;">`;
+    iconWrap.innerHTML = `<img src="/assets/images/dash-coin.webp" style="width:32px;height:32px;object-fit:contain;">`;
     iconWrap.style.cssText = `width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:${cfg.bg};border:1px solid ${cfg.border};`;
 
     document.getElementById('app-popup-title').innerText = 'Reward Earned!';
