@@ -142,7 +142,7 @@ async function loadReferralData() {
                 <div class="flex items-center justify-between mb-1">
                     <p class="text-sm font-black text-white truncate">${displayName}</p>
                     <div class="flex items-center gap-1 flex-shrink-0 ml-2">
-                        <img src="/assets/images/dash-coin.png" class="w-3.5 h-3.5 object-contain">
+                        <img src="/assets/images/dash-coin.webp" class="w-3.5 h-3.5 object-contain">
                         <span class="text-xs font-black ${earned > 0 ? 'text-orange-300' : 'text-slate-600'}">
                             ${earned > 0 ? '+' + earned.toFixed(2) : (isReady ? '+0' : '🔒')}
                         </span>
