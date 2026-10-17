@@ -77,7 +77,7 @@ function renderTaskCard(task) {
         <h3 class="task-title">${task.title}</h3>
         <div class="task-badges">
           ${task.promoted ? '<span class="badge badge-promoted">Promoted</span>' : ''}
-          <span class="badge badge-points">${task.pointCost} DASH</span>
+          <span class="badge badge-dash"><img src="/assets/images/dash-coin.webp" alt="" class="dash-coin-sm">${task.pointCost} DASH</span>
           <span class="badge badge-time">${task.watchDurationSeconds / 60} minutes</span>
         </div>
         <button class="btn-start-earning" data-task-id="${task._id}">Start earning</button>
@@ -105,7 +105,7 @@ function openTaskDetail(task) {
   document.getElementById('detailThumb').src = task.thumbnailUrl;
   document.getElementById('detailTitle').textContent = task.title;
   document.getElementById('detailVideoId').textContent = task.videoId;
-  document.getElementById('detailPoints').textContent = `${task.pointCost} Points`;
+  document.getElementById('detailPoints').textContent = `${task.pointCost} DASH`;
   document.getElementById('detailDuration').textContent = `${task.watchDurationSeconds / 60} minutes`;
   document.getElementById('watchOnYoutubeBtn').href = `https://www.youtube.com/watch?v=${task.videoId}`;
 
