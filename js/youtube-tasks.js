@@ -37,7 +37,7 @@ async function loadYoutubeTasks() {
                     ${t.thumbnail ? `
                         <img src="${t.thumbnail}" class="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0">
                     ` : `
-                        <img src="/assets/images/icon-youtube.png" class="w-12 h-12 object-contain drop-shadow-lg shrink-0">
+                        <img src="/assets/images/icon-youtube.webp" class="w-12 h-12 object-contain drop-shadow-lg shrink-0">
                     `}
                     <div class="min-w-0">
                         <h4 class="text-sm font-bold text-white truncate">${t.title}</h4>
