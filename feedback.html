@@ -8,6 +8,59 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
+    <style>
+        /* Type chips */
+        .fb-chip {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 12px 8px; border-radius: 14px;
+            font-size: 11px; font-weight: 800; letter-spacing: .04em;
+            color: #94a3b8;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all .18s ease;
+        }
+        .fb-chip:active { transform: scale(.94); }
+        .fb-chip.active {
+            color: #fde047;
+            background: rgba(234,179,8,0.14);
+            border-color: rgba(250,204,21,0.65);
+            box-shadow: 0 0 16px rgba(250,204,21,0.22), inset 0 0 10px rgba(250,204,21,0.08);
+        }
+
+        /* Message box */
+        .fb-textarea {
+            width: 100%; padding: 14px; border-radius: 16px;
+            font-size: 13px; line-height: 1.5; color: #e2e8f0;
+            background: rgba(0,0,0,0.30);
+            border: 1px solid rgba(255,255,255,0.10);
+            outline: none; resize: none;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        .fb-textarea::placeholder { color: #64748b; }
+        .fb-textarea:focus {
+            border-color: rgba(250,204,21,0.65);
+            box-shadow: 0 0 0 3px rgba(250,204,21,0.12), 0 0 18px rgba(250,204,21,0.15);
+        }
+
+        /* Submit button */
+        .fb-submit {
+            position: relative; overflow: hidden;
+            width: 100%; padding: 15px; border-radius: 16px;
+            font-size: 12px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase;
+            color: #1a1200;
+            background: linear-gradient(135deg, #fde047 0%, #eab308 55%, #ca8a04 100%);
+            box-shadow: 0 8px 24px rgba(234,179,8,0.35), inset 0 1px 0 rgba(255,255,255,0.45);
+            transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+        }
+        .fb-submit:active { transform: scale(.96); box-shadow: 0 4px 12px rgba(234,179,8,0.3); }
+        .fb-submit:disabled { opacity: .5; cursor: not-allowed; }
+        .fb-submit::after {
+            content: ""; position: absolute; top: 0; left: -120%; width: 60%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.45), transparent);
+            animation: fbShine 3.2s ease-in-out infinite;
+        }
+        @keyframes fbShine { 0%, 60% { left: -120%; } 100% { left: 160%; } }
+    </style>
 </head>
 <body class="p-6">
     <div class="max-w-md mx-auto pt-10">
@@ -19,27 +72,53 @@
             </div>
         </div>
 
-        <div class="glass p-5 space-y-4">
+        <div class="glass p-5 space-y-5">
+            <!-- Type -->
             <div>
-                <label class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-1 block">Type</label>
-                <select id="fbType" class="w-full p-3 rounded-xl text-xs bg-black/20 border border-white/10 text-slate-200">
-                    <option value="bug">🐞 Bug Report</option>
-                    <option value="suggestion">💡 Suggestion</option>
-                    <option value="complaint">😠 Complaint</option>
-                    <option value="other">Other</option>
-                </select>
+                <label class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-2 block">Type</label>
+                <input type="hidden" id="fbType" value="bug">
+                <div class="grid grid-cols-2 gap-2" id="fbChips">
+                    <button type="button" class="fb-chip active" data-type="bug">🐞 Bug</button>
+                    <button type="button" class="fb-chip" data-type="suggestion">💡 Idea</button>
+                    <button type="button" class="fb-chip" data-type="complaint">😠 Complaint</button>
+                    <button type="button" class="fb-chip" data-type="other">💬 Other</button>
+                </div>
             </div>
+
+            <!-- Message -->
             <div>
-                <label class="text-[9px] text-slate-500 uppercase font-black tracking-wider mb-1 block">Message</label>
-                <textarea id="fbMessage" rows="6" placeholder="Tell us what's on your mind..." class="w-full p-3 rounded-xl text-xs bg-black/20 border border-white/10 text-slate-200 resize-none"></textarea>
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-[9px] text-slate-500 uppercase font-black tracking-wider">Message</label>
+                    <span id="fbCount" class="text-[9px] text-slate-600 font-bold">0</span>
+                </div>
+                <textarea id="fbMessage" rows="6" placeholder="Tell us what's on your mind..." class="fb-textarea"></textarea>
             </div>
-            <button id="fbSubmit" class="w-full py-3 bg-yellow-500 text-black rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-all">
-                Submit Feedback
-            </button>
+
+            <!-- Submit -->
+            <button id="fbSubmit" class="fb-submit">Submit Feedback</button>
             <p id="fbStatus" class="text-center text-[10px] font-bold"></p>
         </div>
     </div>
 
     <script src="js/feedback.js"></script>
+    <script>
+        // Type chips -> keep hidden #fbType in sync (feedback.js reads its .value)
+        document.getElementById('fbChips').addEventListener('click', (e) => {
+            const chip = e.target.closest('.fb-chip');
+            if (!chip) return;
+            document.querySelectorAll('.fb-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            document.getElementById('fbType').value = chip.dataset.type;
+            window.Telegram?.WebApp?.HapticFeedback?.selectionChanged();
+        });
+
+        // Live character counter
+        const fbMsg = document.getElementById('fbMessage');
+        const fbCount = document.getElementById('fbCount');
+        fbMsg.addEventListener('input', () => { fbCount.textContent = fbMsg.value.length; });
+        // Reset counter after a successful send (feedback.js clears the textarea programmatically)
+        new MutationObserver(() => { fbCount.textContent = fbMsg.value.length; })
+            .observe(document.getElementById('fbStatus'), { childList: true, characterData: true, subtree: true });
+    </script>
 </body>
 </html>
