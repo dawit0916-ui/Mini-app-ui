@@ -2,9 +2,10 @@
 #streak-modal-overlay {
     z-index: 200; /* above header + bottom nav (both z-100) */
     padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
-    background: radial-gradient(circle at 50% 35%, rgba(88,28,135,0.35), rgba(4,2,14,0.90) 70%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background:
+        radial-gradient(circle at 50% 35%, rgba(88,28,135,0.25), rgba(4,2,14,0.55) 75%),
+        linear-gradient(rgba(8,4,28,0.45), rgba(4,2,14,0.65)),
+        url('/assets/images/bg.png') center / cover no-repeat;
     animation: streakFade .25s ease;
 }
 
@@ -15,7 +16,9 @@
     padding: 28px 20px 20px;
     border-radius: 28px;
     overflow: hidden;
-    background: linear-gradient(160deg, rgba(30,27,75,0.88), rgba(10,8,30,0.94));
+        background: linear-gradient(160deg, rgba(30,27,75,0.62), rgba(10,8,30,0.78));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255,255,255,0.09);
     box-shadow: 0 24px 70px rgba(0,0,0,0.65), 0 0 50px rgba(99,102,241,0.18);
     animation: streakPop .35s cubic-bezier(.2,.9,.3,1.2);
