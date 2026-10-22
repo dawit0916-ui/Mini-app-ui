@@ -72,15 +72,15 @@ document.getElementById('gotoPostBtn')?.addEventListener('click', () => {
 function renderTaskCard(task) {
   return `
     <div class="task-card">
-      <img class="task-thumbnail" src="${task.thumbnailUrl}" alt="">
+      <img class="task-thumbnail" src="${escapeHtml(safeYtThumb(task.thumbnailUrl))}" alt="">
       <div class="task-body">
-        <h3 class="task-title">${task.title}</h3>
+        <h3 class="task-title">${escapeHtml(task.title || task.videoId)}</h3>
         <div class="task-badges">
           ${task.promoted ? '<span class="badge badge-promoted">Promoted</span>' : ''}
-          <span class="badge badge-dash"><img src="/assets/images/dash-coin.webp" alt="" class="dash-coin-sm">${task.pointCost} DASH</span>
-          <span class="badge badge-time">${task.watchDurationSeconds / 60} minutes</span>
+          <span class="badge badge-dash"><img src="/assets/images/dash-coin.webp" alt="" class="dash-coin-sm">${Number(task.pointCost)} DASH</span>
+          <span class="badge badge-time">${Number(task.watchDurationSeconds) / 60} minutes</span>
         </div>
-        <button class="btn-start-earning" data-task-id="${task._id}">Start earning</button>
+        <button class="btn-start-earning" data-task-id="${escapeHtml(task._id)}">Start earning</button>
       </div>
     </div>`;
 }
@@ -99,29 +99,37 @@ document.getElementById('taskFeed').addEventListener('click', (e) => {
 })
 
 // ---- task detail modal ----
-function openTaskDetail(task) {
+async function openTaskDetail(task) {
   currentTaskId = task._id;
-  currentTaskStartedAt = new Date().toISOString();
-  document.getElementById('detailThumb').src = task.thumbnailUrl;
-  document.getElementById('detailTitle').textContent = task.title;
+
+  try {
+    const started = await secureFetch('/api/marketplace/start', {
+      method: 'POST',
+      body: JSON.stringify({ taskId: task._id }),
+    });
+    if (started.error) {
+      showNotificationToast(started.error, 'error');
+      return;
+    }
+  } catch (err) {
+    showNotificationToast('Could not start task — try again.', 'error');
+    return;
+  }
+
+  document.getElementById('detailThumb').src = safeYtThumb(task.thumbnailUrl);
+  document.getElementById('detailTitle').textContent = task.title || task.videoId;
   document.getElementById('detailVideoId').textContent = task.videoId;
   document.getElementById('detailPoints').textContent = `${task.pointCost} DASH`;
   document.getElementById('detailDuration').textContent = `${task.watchDurationSeconds / 60} minutes`;
-  document.getElementById('watchOnYoutubeBtn').href = `https://www.youtube.com/watch?v=${task.videoId}`;
+  document.getElementById('watchOnYoutubeBtn').href = `https://www.youtube.com/watch?v=${encodeURIComponent(task.videoId)}`;
 
   const countriesEl = document.getElementById('detailCountries');
   countriesEl.innerHTML = (!task.allowedCountries || task.allowedCountries.length === 0)
     ? `<span class="badge badge-country">🌍 All countries</span>`
-    : task.allowedCountries.map(c => `<span class="badge badge-country">${countryNames[c] || c}</span>`).join('');
+    : task.allowedCountries.map(c => `<span class="badge badge-country">${escapeHtml(countryNames[c] || c)}</span>`).join('');
 
   document.getElementById('taskDetailModal').classList.remove('hidden');
 }
-document.getElementById('closeDetailBtn').addEventListener('click', () => {
-  document.getElementById('taskDetailModal').classList.add('hidden');
-});
-document.getElementById('copyVideoIdBtn').addEventListener('click', () => {
-  navigator.clipboard.writeText(document.getElementById('detailVideoId').textContent);
-});
 
 // ---- post form: country chip toggles ----
 const selectedCountries = new Set();
@@ -177,21 +185,22 @@ document.getElementById('youtubeLink').addEventListener('input', (e) => {
 // My Posts: creator needs to see paused tasks clearly, with a way to fix it
 function renderMyPostCard(task) {
   const isPaused = task.status === 'paused';
+  const tid = escapeHtml(task._id);
   return `
     <div class="mypost-card">
-      <img class="mypost-thumb" src="${task.thumbnailUrl}" alt="">
+      <img class="mypost-thumb" src="${escapeHtml(safeYtThumb(task.thumbnailUrl))}" alt="">
       <div class="mypost-body">
-        <h3>${task.title}</h3>
+        <h3>${escapeHtml(task.title || task.videoId)}</h3>
         <span class="badge ${isPaused ? 'badge-paused' : 'badge-active'}">
           ${isPaused ? 'Paused — insufficient balance' : 'Active'}
         </span>
-        <p class="mypost-stats">DASH spent: ${task.dashSpent || 0} · Approved: ${task.viewsApproved || 0}</p>
-        ${isPaused ? `<button class="btn-primary btn-topup" data-task-id="${task._id}">Earn more</button>` : ''}
-        <button class="btn-delete" data-task-id="${task._id}">Delete</button>
+        <p class="mypost-stats">DASH spent: ${Number(task.dashSpent) || 0} · Approved: ${Number(task.viewsApproved) || 0}</p>
+        ${isPaused ? `<button class="btn-primary btn-topup" data-task-id="${tid}">Earn more</button>
+                      <button class="btn-primary btn-resume" data-task-id="${tid}">Resume</button>` : ''}
+        <button class="btn-delete" data-task-id="${tid}">Delete</button>
       </div>
     </div>`;
 }
-
 function renderMyPosts(tasks) {
   currentMyPosts = tasks;
   document.getElementById('myPostsList').innerHTML = tasks.length
@@ -205,6 +214,17 @@ document.getElementById('myPostsList').addEventListener('click', async (e) => {
     switchTab('earn', earnBtn);
     return;
   }
+     if (e.target.matches('.btn-resume')) {
+    try {
+      const result = await secureFetch(`/api/marketplace/task/${e.target.dataset.taskId}/resume`, { method: 'POST' });
+      if (result.error) { showNotificationToast(result.error, 'error'); return; }
+      showNotificationToast('Task resumed.', 'success');
+      loadMarketplaceTasks();
+    } catch (err) {
+      showNotificationToast('Could not resume task — try again.', 'error');
+    }
+    return;
+     }
 
   if (e.target.matches('.btn-delete')) {
     const taskId = e.target.dataset.taskId;
@@ -231,15 +251,15 @@ function renderSubmissionCard(sub) {
 
   return `
     <div class="submission-card">
-      <img class="submission-thumb" src="${task?.thumbnailUrl || ''}" alt="">
+      <img class="submission-thumb" src="${escapeHtml(safeYtThumb(task?.thumbnailUrl))}" alt="">
       <div class="submission-body">
-        <h3>${task?.title || task?.videoId || 'Unknown task'}</h3>
+        <h3>${escapeHtml(task?.title || task?.videoId || 'Unknown task')}</h3>
         <span class="badge ${status.cls}">${status.label}</span>
         ${sub.status === 'rejected' && sub.rejectionReason
-          ? `<p class="submission-reason">Reason: ${sub.rejectionReason.replace(/_/g, ' ')}</p>`
+          ? `<p class="submission-reason">Reason: ${escapeHtml(sub.rejectionReason.replace(/_/g, ' '))}</p>`
           : ''}
         ${sub.status === 'approved'
-          ? `<p class="submission-reason">+${task?.pointCost ?? ''} DASH earned</p>`
+          ? `<p class="submission-reason">+${Number(task?.pointCost) || ''} DASH earned</p>`
           : ''}
       </div>
     </div>`;
@@ -363,17 +383,8 @@ async function animateChecklist() {
 }
 
 function applyChecklistResult(result) {
-  // screenshot: fingerprint + OCR video ID match
-  const screenshotOk = !result.duplicateFlag && result.ocrVideoId === result.expectedVideoId;
-  setCheckState('check-screenshot', screenshotOk ? 'pass' : 'fail');
-
-  // vpn/network: based on fraud action
-  setCheckState('check-vpn', result.vpnAction === 'block' ? 'fail' : 'pass');
-
-  // country
+  setCheckState('check-screenshot', result.screenshotOk && !result.duplicateFlag ? 'pass' : 'fail');
+  setCheckState('check-vpn', result.vpnBlocked ? 'fail' : 'pass');
   setCheckState('check-country', result.countryBlocked ? 'fail' : 'pass');
-
-  // watch time
-  const timeOk = result.ocrElapsedSeconds !== null && result.ocrElapsedSeconds >= result.requiredSeconds;
-  setCheckState('check-time', timeOk ? 'pass' : 'fail');
+  setCheckState('check-time', result.timeOk ? 'pass' : 'fail');
 }
