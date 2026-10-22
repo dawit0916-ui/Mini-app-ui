@@ -625,6 +625,10 @@ return count;"></textarea>
     ▶ Execute on Server
 </button>
 
+                <div class="flex items-center justify-between px-1">
+            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Output</span>
+            <button onclick="conCopyBackend(this)" id="con-backend-copy-btn" class="px-2 py-1 border border-white/20 rounded text-[9px] font-black text-slate-400 active:scale-95 transition-all">⧉ Copy</button>
+        </div>
         <div id="con-backend-output" class="glass border-white/5 rounded-2xl p-3" style="max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;">
             <p class="text-slate-600 text-[10px]">Output will appear here...</p>
         </div>
