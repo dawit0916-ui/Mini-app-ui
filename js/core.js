@@ -413,3 +413,14 @@ document.addEventListener('touchmove', () => clearTimeout(longPressTimer));
             
 let currentEditingUserData = null; // Cache active user model locally
 let userDirectoryFilter = 'all';
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+// only allow real YouTube thumbnail URLs
+function safeYtThumb(url) {
+  return /^https:\/\/i\.ytimg\.com\/vi\/[A-Za-z0-9_-]{11}\//.test(String(url || '')) ? url : '';
+}
