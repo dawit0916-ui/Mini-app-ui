@@ -1,4 +1,5 @@
 let _conEntriesView = [];
+
 function conRender() {
     const container = document.getElementById('con-entries');
     const stats = document.getElementById('con-stats');
@@ -120,7 +121,14 @@ function conSwitchMainTab(which) {
         ? 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white transition-all'
         : 'flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-slate-400 transition-all';
 }
+let _conBackendLastText = '';
 
+function conCopyBackend(btn) {
+    if (!_conBackendLastText) {
+        return showAppAlert('Nothing to copy yet. Run some code first.', 'warning');
+    }
+    conCopyText(_conBackendLastText, btn);
+}
 async function conRunBackend() {
     const codeInput = document.getElementById('con-backend-code');
     const outputEl = document.getElementById('con-backend-output');
@@ -135,12 +143,19 @@ async function conRunBackend() {
         runBtn.disabled = true;
         runBtn.innerText = "⌛ Running...";
         outputEl.innerHTML = '<p class="text-slate-500 text-[10px]">Executing...</p>';
+         _conBackendLastText = '';
 
         try {
             const res = await secureFetch('/api/admin/console/eval', {
                 method: 'POST',
                 body: JSON.stringify({ code })
             });
+                        // Plain-text version for the Copy button
+            const textParts = [];
+            if (res.logs && res.logs.length) textParts.push(res.logs.join('\n'));
+            if (res.result !== undefined) textParts.push('Return: ' + res.result);
+            if (res.error) textParts.push('Error: ' + res.error);
+            _conBackendLastText = textParts.join('\n\n');
 
             let html = '';
 
@@ -168,6 +183,7 @@ async function conRunBackend() {
 
         } catch (e) {
             outputEl.innerHTML = `<div style="color:#f38ba8;">Network error: ${e.message}</div>`;
+               _conBackendLastText = 'Network error: ' + e.message;
         } finally {
             runBtn.disabled = false;
             runBtn.innerText = "▶ Execute on Server";
