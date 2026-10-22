@@ -1,70 +1,109 @@
 async function loadMarketplaceReviewQueue() {
   const container = document.getElementById('reviewQueue');
+  if (!container) return;
   container.innerHTML = '<p class="form-hint">Loading...</p>';
 
-  const data = await secureFetch('/api/admin/marketplace/pending');
-  if (data.error) {
-       container.innerHTML = getErrorStateHTML('⚠️', 'Failed to load', data.error);
-    return;
+  try {
+    const data = await secureFetch('/api/admin/marketplace/pending');
+    if (data.error) {
+      container.innerHTML = getErrorStateHTML('⚠️', 'Failed to load', escapeHtml(data.error));
+      return;
+    }
+    container.innerHTML = data.submissions.length
+      ? data.submissions.map(renderReviewCard).join('')
+      : getEmptyStateHTML('📭', 'No pending submissions', 'You\'re all caught up.');
+  } catch (err) {
+    container.innerHTML = getErrorStateHTML('🛰️', 'Server unreachable', 'Please try again in a moment.');
   }
-
-  container.innerHTML = data.submissions.length
-    ? data.submissions.map(renderReviewCard).join('')
-     : getEmptyStateHTML('📭', 'No pending submissions', 'You\'re all caught up.');
 }
 
 function renderReviewCard(sub) {
   const task = sub.taskId;
+  const shot = sub.screenshotViewUrl ? `${RENDER_URL}${sub.screenshotViewUrl}` : '';
+  const id = escapeHtml(sub._id);
   return `
-    <div class="review-card" data-submission-id="${sub._id}">
-      <img class="review-screenshot" src="${sub.screenshotViewUrl || ''}" alt="proof screenshot" loading="lazy">
-
+    <div class="review-card" data-submission-id="${id}">
+      <img class="review-screenshot" src="${escapeHtml(shot)}" alt="proof screenshot" loading="lazy">
       <dl class="review-details">
-        <div class="review-row"><dt>Task</dt><dd>${task?.title || task?.videoId || 'Unknown'}</dd></div>
-        <div class="review-row"><dt>Viewer</dt><dd>${sub.viewerUserId}</dd></div>
-        <div class="review-row"><dt>Country</dt><dd>${sub.country || 'Unknown'}</dd></div>
-        <div class="review-row"><dt>Fraud score</dt><dd>${sub.fraudScore}</dd></div>
-        <div class="review-row"><dt>OCR video ID</dt><dd>${sub.ocrVideoId || '—'} <span class="review-expected">(expected: ${task?.videoId || '—'})</span></dd></div>
-        <div class="review-row"><dt>OCR elapsed</dt><dd>${sub.ocrElapsedSeconds ?? '—'}s <span class="review-expected">(required: ${task?.watchDurationSeconds ?? '—'}s)</span></dd></div>
-        <div class="review-row"><dt>Reason flagged</dt><dd>${sub.rejectionReason || 'review threshold'}</dd></div>
-        <div class="review-row"><dt>Filename timestamp</dt><dd>${sub.filenameTimestampMatch}</dd></div>
-        <div class="review-row"><dt>Filename app</dt><dd>${sub.filenameAppMatch}${sub.filenameAppRaw ? ` (${sub.filenameAppRaw})` : ''}</dd></div>
+        <div class="review-row"><dt>Task</dt><dd>${escapeHtml(task?.title || task?.videoId || 'Unknown')}</dd></div>
+        <div class="review-row"><dt>Viewer</dt><dd>${escapeHtml(sub.viewerUserId)}</dd></div>
+        <div class="review-row"><dt>Country</dt><dd>${escapeHtml(sub.country || 'Unknown')}</dd></div>
+        <div class="review-row"><dt>Fraud score</dt><dd>${escapeHtml(sub.fraudScore)}</dd></div>
+        <div class="review-row"><dt>OCR video ID</dt><dd>${escapeHtml(sub.ocrVideoId || '—')} <span class="review-expected">(expected: ${escapeHtml(task?.videoId || '—')})</span></dd></div>
+        <div class="review-row"><dt>OCR elapsed</dt><dd>${escapeHtml(sub.ocrElapsedSeconds ?? '—')}s <span class="review-expected">(required: ${escapeHtml(task?.watchDurationSeconds ?? '—')}s)</span></dd></div>
+        <div class="review-row"><dt>Why flagged</dt><dd>${escapeHtml((sub.flagReason || 'review threshold').replace(/,/g, ', ').replace(/_/g, ' '))}</dd></div>
+        <div class="review-row"><dt>Filename time</dt><dd>${escapeHtml(sub.filenameTimestampMatch)} (info only)</dd></div>
+        <div class="review-row"><dt>Filename app</dt><dd>${escapeHtml(sub.filenameAppMatch)}${sub.filenameAppRaw ? ` (${escapeHtml(sub.filenameAppRaw)})` : ''}</dd></div>
       </dl>
-
       <div class="review-actions">
-        <button class="btn-approve" data-id="${sub._id}">Approve</button>
-        <button class="btn-reject" data-id="${sub._id}">Reject</button>
+        <button class="btn-approve" data-id="${id}">Approve</button>
+        <button class="btn-reject" data-id="${id}">Reject</button>
       </div>
     </div>`;
 }
 
-document.getElementById('reviewQueue').addEventListener('click', async (e) => {
-  const id = e.target.dataset.id;
-  if (!id) return;
+// Tap-friendly reason picker (window.prompt is unreliable in Telegram WebViews)
+function pickRejectReason() {
+  return new Promise((resolve) => {
+    const reasons = [
+      ['wrong_video', 'Wrong video'],
+      ['not_enough_watch_time', 'Not enough watch time'],
+      ['edited_or_fake_proof', 'Edited / fake proof'],
+      ['unreadable_screenshot', 'Unreadable screenshot'],
+    ];
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:24px;';
+    overlay.innerHTML = `
+      <div style="background:#0f172a;border-radius:16px;padding:16px;width:100%;max-width:320px;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-weight:800;font-size:12px;text-transform:uppercase;color:#fb923c;">Reject reason</div>
+        ${reasons.map(([id, label]) => `<button data-reason="${id}" style="padding:10px;border-radius:10px;background:#1e293b;color:#e2e8f0;font-size:12px;font-weight:700;">${label}</button>`).join('')}
+        <button data-reason="" style="padding:10px;color:#94a3b8;font-size:12px;">Cancel</button>
+      </div>`;
+    overlay.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button');
+      if (!btn && ev.target !== overlay) return;
+      overlay.remove();
+      resolve(btn ? (btn.dataset.reason || null) : null);
+    });
+    document.body.appendChild(overlay);
+  });
+}
 
-  if (e.target.matches('.btn-approve')) {
-    e.target.disabled = true;
-    try {
-      await secureFetch(`/api/admin/marketplace/${id}/approve`, { method: 'POST' });
-      e.target.closest('.review-card').remove();
-    } catch (err) {
-      showNotificationToast('Approve failed — try again.', 'error');
-      e.target.disabled = false;
-    }
+// Delegated on document so it works no matter when the admin component is injected
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('#reviewQueue .btn-approve, #reviewQueue .btn-reject');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  if (!id) return;
+  const card = btn.closest('.review-card');
+  const isApprove = btn.classList.contains('btn-approve');
+
+  let body;
+  if (!isApprove) {
+    const reason = await pickRejectReason();
+    if (!reason) return; // cancelled
+    body = JSON.stringify({ reason });
   }
 
-  if (e.target.matches('.btn-reject')) {
-    const reason = prompt('Rejection reason (optional):') || 'manual_admin_reject';
-    e.target.disabled = true;
-    try {
-      await secureFetch(`/api/admin/marketplace/${id}/reject`, {
-        method: 'POST',
-        body: JSON.stringify({ reason }),
-      });
-      e.target.closest('.review-card').remove();
-    } catch (err) {
-      showNotificationToast('Reject failed — try again.','error');
-      e.target.disabled = false;
+  btn.disabled = true;
+  try {
+    const res = await secureFetch(
+      `/api/admin/marketplace/${encodeURIComponent(id)}/${isApprove ? 'approve' : 'reject'}`,
+      { method: 'POST', ...(body ? { body } : {}) }
+    );
+
+    if (res.error) {
+      showNotificationToast(res.error, 'error');
+      // already resolved elsewhere → just drop the card; otherwise keep it for retry
+      if (res.reason === 'not_pending' || res.reason === 'task_missing') card?.remove();
+      else btn.disabled = false;
+      return;
     }
+
+    showNotificationToast(isApprove ? 'Approved and paid.' : 'Rejected.', 'success');
+    card?.remove();
+  } catch (err) {
+    showNotificationToast(`${isApprove ? 'Approve' : 'Reject'} failed — try again.`, 'error');
+    btn.disabled = false;
   }
 });
