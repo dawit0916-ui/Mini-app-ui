@@ -344,7 +344,6 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
   const formData = new FormData();
   formData.append('screenshot', file);
   formData.append('taskId', currentTaskId);
-  formData.append('taskStartedAt', currentTaskStartedAt);
 
   const [result] = await Promise.all([
     secureFetch('/api/marketplace/submit', { method: 'POST', body: formData }),
