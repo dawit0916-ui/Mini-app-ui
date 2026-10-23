@@ -127,7 +127,7 @@ async function openTaskDetail(task) {
   countriesEl.innerHTML = (!task.allowedCountries || task.allowedCountries.length === 0)
     ? `<span class="badge badge-country">🌍 All countries</span>`
     : task.allowedCountries.map(c => `<span class="badge badge-country">${escapeHtml(countryNames[c] || c)}</span>`).join('');
-
+  resetProofForm();
   document.getElementById('taskDetailModal').classList.remove('hidden');
 }
 
@@ -387,3 +387,45 @@ function applyChecklistResult(result) {
   setCheckState('check-country', result.countryBlocked ? 'fail' : 'pass');
   setCheckState('check-time', result.timeOk ? 'pass' : 'fail');
 }
+
+// ---- task detail modal: close + copy ----
+function resetProofForm() {
+  const file = document.getElementById('proofScreenshot');
+  if (file) file.value = '';
+  const list = document.getElementById('reviewChecklist');
+  if (list) list.classList.add('hidden');
+  ['check-screenshot', 'check-vpn', 'check-country', 'check-time'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.dataset.state = 'pending';
+  });
+  const status = document.getElementById('proofStatus');
+  if (status) { status.textContent = ''; status.classList.add('hidden'); }
+}
+
+function closeTaskDetail() {
+  document.getElementById('taskDetailModal').classList.add('hidden');
+  resetProofForm();
+}
+
+document.addEventListener('click', async (e) => {
+  if (e.target.closest('#closeDetailBtn')) {
+    closeTaskDetail();
+    return;
+  }
+
+  if (e.target.closest('#copyVideoIdBtn')) {
+    const id = document.getElementById('detailVideoId').textContent.trim();
+    try {
+      await navigator.clipboard.writeText(id);
+    } catch (_) {
+      const ta = document.createElement('textarea'); // fallback for Telegram WebViews
+      ta.value = id;
+      ta.style.cssText = 'position:fixed;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    showNotificationToast('Video ID copied', 'success');
+  }
+});
