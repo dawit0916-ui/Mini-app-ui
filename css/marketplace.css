@@ -94,6 +94,7 @@
 
 .task-detail-topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: max(14px, env(safe-area-inset-top)) 0 10px; background: linear-gradient(to bottom, rgba(10,8,34,0.95), rgba(10,8,34,0)); }
 .task-detail-topbar-title { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+.btn-close { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(249,115,22,0.25); border-radius: 50%; color: var(--text-primary); font-size: 15px; }
 .task-detail-close { width: 42px; height: 42px; font-size: 18px; flex-shrink: 0; cursor: pointer; position: relative; z-index: 6; -webkit-tap-highlight-color: transparent; }
 
 .task-detail-card, .video-id-card, .instructions-box, .proof-box { background: rgba(0,0,0,0.35); border: 1px solid rgba(249,115,22,0.2); border-radius: 16px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
