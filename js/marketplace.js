@@ -1,7 +1,6 @@
 let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
 let fetchDebounce;
 let currentTaskId = null; // set this in openTaskDetail()
-let currentTaskStartedAt = null;
 let currentTaskList = [];   // populated by loadMarketplaceTasks()
 let currentMyPosts = [];    // same, for My Posts
 
