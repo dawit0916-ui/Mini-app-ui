@@ -1,25 +1,8 @@
-async function saveSystemSettings() {
-    const isMaint = document.getElementById('set-maintenance').checked;
-    try {
-        const res = await secureFetch('/api/admin/settings', {
-            method: 'POST',
-            body: JSON.stringify({ maintenance_mode: isMaint })
-        });
-        
-        if(res.success) {
-            tg.HapticFeedback.impactOccurred('medium');
-            showAppAlert(`Maintenance mode ${isMaint ? 'enabled 🔴' : 'disabled 🟢'}.`, isMaint ? 'warning' : 'success');
-        }
-    } catch (e) {
-        showAppAlert("Failed to update settings.", 'error');
-    }
-}
 
 // Load initial settings on panel open (add to switchAdminPanel function)
 function loadAdminSettings() {
     secureFetch('/api/admin/settings/all').then(data => {
         if (data && data.success) {
-            document.getElementById('set-maintenance').checked = data.settings?.maintenance_mode || false;
             document.getElementById('set-ref-bonus').value = data.settings?.ref_bonus_amount || 0.5;
             document.getElementById('set-ref-percent').value = data.settings?.ref_commission_percent || 10;
             document.getElementById('set-ref-threshold').value = data.settings?.ref_tasks_required || 3;
@@ -68,7 +51,7 @@ async function loadAdminData() {
 
         document.getElementById('stat-users').innerText = stats.users;
         document.getElementById('stat-tasks').innerText = stats.tasks || 0;
-        document.getElementById('set-maintenance').checked = stats.maintenance;
+        
         document.getElementById('set-ref-bonus').value = stats.ref_bonus || 0.5;
         document.getElementById('set-ref-percent').value = stats.ref_percent || 10;
 
