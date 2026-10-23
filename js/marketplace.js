@@ -90,12 +90,25 @@ function renderTaskFeed(tasks) {
     ? tasks.map(renderTaskCard).join('')
     : getEmptyStateHTML('📭', 'No Tasks', 'Check back soon for new tasks');
 }
-document.getElementById('taskFeed').addEventListener('click', (e) => {
-  if (e.target.matches('.btn-start-earning')) {
-    const task = currentTaskList.find(t => t._id === e.target.dataset.taskId);
-    if (task) openTaskDetail(task);
+document.getElementById('taskFeed').addEventListener('click', async (e) => {
+  if (!e.target.matches('.btn-start-earning')) return;
+
+  const btn = e.target;
+  if (btn.disabled) return; // already checking, ignore extra taps
+
+  const task = currentTaskList.find(t => t._id === btn.dataset.taskId);
+  if (!task) return;
+
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+  try {
+    await openTaskDetail(task);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
   }
-})
+});
 
 // ---- task detail modal ----
 async function openTaskDetail(task) {
