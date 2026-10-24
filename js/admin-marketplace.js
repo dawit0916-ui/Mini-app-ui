@@ -63,6 +63,7 @@ function pickRejectReason() {
       ['not_enough_watch_time', 'Not enough watch time'],
       ['edited_or_fake_proof', 'Edited / fake proof'],
       ['unreadable_screenshot', 'Unreadable screenshot'],
+      ['task_problem', "Task problem (not the viewer's fault)"],
     ];
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:24px;';
