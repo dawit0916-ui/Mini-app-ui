@@ -21,18 +21,20 @@ function renderReviewCard(sub) {
   const task = sub.taskId;
   const shot = sub.screenshotViewUrl ? `${RENDER_URL}${sub.screenshotViewUrl}` : '';
   const id = escapeHtml(sub._id);
+  const hist = sub.viewerHistory || { approved: 0, rejected: 0 };
+  const required = task?.watchDurationSeconds ?? '—';
   return `
     <div class="review-card" data-submission-id="${id}">
-      <img class="review-screenshot" src="${escapeHtml(shot)}" alt="proof screenshot" loading="lazy">
+      <img class="review-screenshot" src="${escapeHtml(shot)}" alt="proof screenshot (tap to enlarge)" loading="lazy">
       <dl class="review-details">
         <div class="review-row"><dt>Task</dt><dd>${escapeHtml(task?.title || task?.videoId || 'Unknown')}</dd></div>
         <div class="review-row"><dt>Viewer</dt><dd>${escapeHtml(sub.viewerUserId)}</dd></div>
+        <div class="review-row"><dt>Viewer history</dt><dd>${escapeHtml(hist.approved)} approved · ${escapeHtml(hist.rejected)} rejected</dd></div>
         <div class="review-row"><dt>Country</dt><dd>${escapeHtml(sub.country || 'Unknown')}</dd></div>
-        <div class="review-row"><dt>Fraud score</dt><dd>${escapeHtml(sub.fraudScore)}</dd></div>
         <div class="review-row"><dt>OCR video ID</dt><dd>${escapeHtml(sub.ocrVideoId || '—')} <span class="review-expected">(expected: ${escapeHtml(task?.videoId || '—')})</span></dd></div>
-        <div class="review-row"><dt>OCR elapsed</dt><dd>${escapeHtml(sub.ocrElapsedSeconds ?? '—')}s <span class="review-expected">(required: ${escapeHtml(task?.watchDurationSeconds ?? '—')}s)</span></dd></div>
-        <div class="review-row"><dt>Why flagged</dt><dd>${escapeHtml((sub.flagReason || 'review threshold').replace(/,/g, ', ').replace(/_/g, ' '))}</dd></div>
-        <div class="review-row"><dt>Filename time</dt><dd>${escapeHtml(sub.filenameTimestampMatch)} (info only)</dd></div>
+        <div class="review-row"><dt>OCR time</dt><dd>${escapeHtml(sub.ocrElapsedSeconds ?? '—')}s <span class="review-expected">(required: ${escapeHtml(required)}s)</span></dd></div>
+        <div class="review-row"><dt>Start → submit</dt><dd>${escapeHtml(sub.secondsSinceStart ?? '—')}s <span class="review-expected">(min: ${escapeHtml(required)}s)</span></dd></div>
+        <div class="review-row"><dt>Why flagged</dt><dd>${escapeHtml((sub.flagReason || 'manual check').replace(/,/g, ', ').replace(/_/g, ' '))}</dd></div>
         <div class="review-row"><dt>Filename app</dt><dd>${escapeHtml(sub.filenameAppMatch)}${sub.filenameAppRaw ? ` (${escapeHtml(sub.filenameAppRaw)})` : ''}</dd></div>
       </dl>
       <div class="review-actions">
@@ -41,6 +43,17 @@ function renderReviewCard(sub) {
       </div>
     </div>`;
 }
+
+// Tap a proof screenshot to view it full size
+document.addEventListener('click', (e) => {
+  const img = e.target.closest('#reviewQueue .review-screenshot');
+  if (!img || !img.src) return;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:12px;';
+  overlay.innerHTML = `<img src="${escapeHtml(img.src)}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;">`;
+  overlay.addEventListener('click', () => overlay.remove());
+  document.body.appendChild(overlay);
+});
 
 // Tap-friendly reason picker (window.prompt is unreliable in Telegram WebViews)
 function pickRejectReason() {
