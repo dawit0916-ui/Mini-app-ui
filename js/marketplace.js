@@ -366,6 +366,11 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     ['check-screenshot', 'check-vpn', 'check-country', 'check-time'].forEach(id => setCheckState(id, 'fail'));
     statusEl.textContent = result.error;
     statusEl.classList.remove('hidden');
+  } else if (result.status === 'rejected') {
+    applyChecklistResult(result);
+    statusEl.textContent = result.message || 'Your proof was rejected. Please try again.';
+    statusEl.classList.remove('hidden');
+    fileInput.value = ''; // force a fresh screenshot
   } else {
     applyChecklistResult(result);
     document.getElementById('taskDetailModal').classList.add('hidden');
@@ -394,8 +399,8 @@ async function animateChecklist() {
 }
 
 function applyChecklistResult(result) {
-  setCheckState('check-screenshot', result.screenshotOk && !result.duplicateFlag ? 'pass' : 'fail');
-  setCheckState('check-vpn', result.vpnBlocked ? 'fail' : 'pass');
+  setCheckState('check-screenshot', result.screenshotOk ? 'pass' : 'fail');
+  setCheckState('check-vpn', result.duplicateFlag ? 'fail' : 'pass');
   setCheckState('check-country', result.countryBlocked ? 'fail' : 'pass');
   setCheckState('check-time', result.timeOk ? 'pass' : 'fail');
 }
