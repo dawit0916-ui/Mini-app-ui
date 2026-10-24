@@ -197,17 +197,21 @@ document.getElementById('youtubeLink').addEventListener('input', (e) => {
 // My Posts: creator needs to see paused tasks clearly, with a way to fix it
 function renderMyPostCard(task) {
   const isPaused = task.status === 'paused';
+  const tooShort = isPaused && task.pauseReason === 'video_too_short';
   const tid = escapeHtml(task._id);
+  const pausedText = tooShort
+    ? 'Paused — video is shorter than the watch time'
+    : 'Paused — insufficient balance';
   return `
     <div class="mypost-card">
       <img class="mypost-thumb" src="${escapeHtml(safeYtThumb(task.thumbnailUrl))}" alt="">
       <div class="mypost-body">
         <h3>${escapeHtml(task.title || task.videoId)}</h3>
         <span class="badge ${isPaused ? 'badge-paused' : 'badge-active'}">
-          ${isPaused ? 'Paused — insufficient balance' : 'Active'}
+          ${isPaused ? pausedText : 'Active'}
         </span>
         <p class="mypost-stats">DASH spent: ${Number(task.dashSpent) || 0} · Approved: ${Number(task.viewsApproved) || 0}</p>
-        ${isPaused ? `<button class="btn-primary btn-topup" data-task-id="${tid}">Earn more</button>
+        ${isPaused && !tooShort ? `<button class="btn-primary btn-topup" data-task-id="${tid}">Earn more</button>
                       <button class="btn-primary btn-resume" data-task-id="${tid}">Resume</button>` : ''}
         <button class="btn-delete" data-task-id="${tid}">Delete</button>
       </div>
@@ -362,8 +366,9 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     animateChecklist(), // run the visual pacing alongside the real request
   ]);
 
-  if (result.error) {
-    ['check-screenshot', 'check-vpn', 'check-country', 'check-time'].forEach(id => setCheckState(id, 'fail'));
+    if (result.error) {
+    // a message (too early, region, duplicate...) is not a failed check: hide the checklist
+    document.getElementById('reviewChecklist').classList.add('hidden');
     statusEl.textContent = result.error;
     statusEl.classList.remove('hidden');
   } else if (result.status === 'rejected') {
