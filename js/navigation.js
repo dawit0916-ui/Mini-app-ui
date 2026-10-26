@@ -1,27 +1,49 @@
+let navObserved = false;
+
+function moveNavIndicator(animate = true) {
+    const nav = document.getElementById('bottomNav');
+    const bar = document.getElementById('navIndicator');
+    const active = nav && nav.querySelector('.nav-btn[aria-current="page"]');
+    if (!nav || !bar || !active || active.offsetWidth === 0) return;
+
+    // Re-align automatically on resize and when core.js unhides the admin tab
+    if (!navObserved) {
+        navObserved = true;
+        new ResizeObserver(() => moveNavIndicator(false)).observe(nav);
+        new MutationObserver(() => moveNavIndicator(false))
+            .observe(nav, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+
+    const barW = 28;
+    const left = active.offsetLeft + (active.offsetWidth - barW) / 2;
+    const right = nav.clientWidth - left - barW;
+    const first = !bar.dataset.ready;
+    const movingRight = left > (parseFloat(bar.style.left) || 0);
+
+    // Leading edge is fast, trailing edge is slow, so the bar stretches in transit
+    bar.style.transitionDuration = (!animate || first)
+        ? '0s, 0s'
+        : (movingRight ? '0.38s, 0.18s' : '0.18s, 0.38s');
+    bar.style.left = left + 'px';
+    bar.style.right = right + 'px';
+    bar.dataset.ready = '1';
+}
+
+// Position it once the nav is on screen
+requestAnimationFrame(() => moveNavIndicator(false));
+
 function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     const targetTab = document.getElementById('tab-' + tabId);
     if(targetTab) targetTab.classList.add('active');
     window.scrollTo(0,0);
 
- // Reset all nav buttons
-document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.remove('nav-active');
-    const img = b.querySelector('img');
-    if (img) { img.classList.add('opacity-40'); img.classList.remove('opacity-100'); }
-    const span = b.querySelector('span');
-    if (span) span.className = 'text-[8px] font-black uppercase tracking-wider text-slate-600';
-});
+    // Reset all nav buttons
+    document.querySelectorAll('.nav-btn').forEach(b => b.removeAttribute('aria-current'));
 
-// Activate selected
-if (btn) {
-    btn.classList.add('nav-active');
-    const img = btn.querySelector('img');
-    if (img) { img.classList.remove('opacity-40'); }
-    const span = btn.querySelector('span');
-    if (span) span.className = 'text-[8px] font-black uppercase tracking-wider text-yellow-300/80';
-}
-
+    // Activate selected
+    if (btn) btn.setAttribute('aria-current', 'page');
+    moveNavIndicator();
     tg.HapticFeedback.selectionChanged();
     
     if(tabId === 'home') { loadAvailableTasks(); initBannerCarousel(); }
