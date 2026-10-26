@@ -1,36 +1,38 @@
-<nav class="fixed bottom-4 left-4 right-4 h-24 glass flex justify-around items-center px-2 z-[100] border border-white/10 glow-blue rounded-3xl">
-    
-    <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn nav-active flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="/assets/images/nav-home.webp" class="w-14 h-14 object-contain drop-shadow-lg">
-        <span class="text-[8px] font-black uppercase tracking-wider text-yellow-300/80">Home</span>
+<nav class="bottom-nav" id="bottomNav">
+    <span class="nav-indicator" id="navIndicator" aria-hidden="true"></span>
+
+    <button id="nav-home" onclick="switchTab('home', this)" class="nav-btn" aria-current="page">
+        <img src="/assets/images/nav-home.webp" alt="">
+        <span>Home</span>
     </button>
 
-    <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="/assets/images/nav-friends.webp" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
-        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Friends</span>
-    </button>
-    
-    <button id="nav-earn" onclick="switchTab('earn', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="/assets/images/nav-earn.webp" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
-        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Earn</span>
-    </button>
-    <button id="nav-marketplace" onclick="switchTab('marketplace', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-200">
-        <img src="/assets/images/nav-marketplace.webp" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
-        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">YT VIEW</span>
+    <button id="nav-friends" onclick="switchTab('friends', this)" class="nav-btn">
+        <img src="/assets/images/nav-friends.webp" alt="">
+        <span>Friends</span>
     </button>
 
-    <button  id="nav-shop" onclick="switchTab('shop', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="/assets/images/nav-shop.webp" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
-        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Shop</span>
-    </button>
-    <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="/assets/images/nav-profile.webp" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
-        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">profile</span>
+    <button id="nav-earn" onclick="switchTab('earn', this)" class="nav-btn">
+        <img src="/assets/images/nav-earn.webp" alt="">
+        <span>Earn</span>
     </button>
 
-    <button id="nav-admin" onclick="switchTab('admin', this)" class="hidden nav-btn flex flex-col items-center gap-0 transition-all duration-300">
-        <img src="/assets/images/nav-admin.webp" class="w-14 h-14 object-contain drop-shadow-lg opacity-40">
-        <span class="text-[8px] font-black uppercase tracking-wider text-slate-600">Admin</span>
+    <button id="nav-marketplace" onclick="switchTab('marketplace', this)" class="nav-btn">
+        <img src="/assets/images/nav-marketplace.webp" alt="">
+        <span>YT View</span>
     </button>
 
+    <button id="nav-shop" onclick="switchTab('shop', this)" class="nav-btn">
+        <img src="/assets/images/nav-shop.webp" alt="">
+        <span>Shop</span>
+    </button>
+
+    <button id="nav-profile" onclick="switchTab('profile', this)" class="nav-btn">
+        <img src="/assets/images/nav-profile.webp" alt="">
+        <span>Profile</span>
+    </button>
+
+    <button id="nav-admin" onclick="switchTab('admin', this)" class="nav-btn hidden">
+        <img src="/assets/images/nav-admin.webp" alt="">
+        <span>Admin</span>
+    </button>
 </nav>
