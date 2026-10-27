@@ -601,8 +601,13 @@ async function onFastTaskReward() {
     _fastTaskClaimInFlight = true;
 
     try {
-        const res = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
+         let res = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
 
+        // AdsGram's server confirmation can land a moment after the widget event
+        for (let i = 0; i < 6 && !res.success && /not confirmed/i.test(res.error || ''); i++) {
+            await new Promise(r => setTimeout(r, 1500));
+            res = await secureFetch('/api/secure/fast-task-claim', { method: 'POST' });
+        }
         if (res.success) {
             tg.HapticFeedback.notificationOccurred('success');
             showNotificationToast(`🎯 Fast Task Claimed! +${res.reward} DASH added.`, 'success');
