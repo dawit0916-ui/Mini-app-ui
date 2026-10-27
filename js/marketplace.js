@@ -366,28 +366,34 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     animateChecklist(), // run the visual pacing alongside the real request
   ]);
 
-    if (result.error) {
-    // a message (too early, region, duplicate...) is not a failed check: hide the checklist
-    document.getElementById('reviewChecklist').classList.add('hidden');
-    statusEl.textContent = result.error;
-    statusEl.classList.remove('hidden');
-  } else if (result.status === 'rejected') {
-    applyChecklistResult(result);
-    statusEl.textContent = result.message || 'Your proof was rejected. Please try again.';
-    statusEl.classList.remove('hidden');
-    fileInput.value = ''; // force a fresh screenshot
-        // Redirect to the YouTube video if the proof was rejected by time
-    if (result.timeOk === false && task?.videoId) {
+
+if (result.error) {
+  document.getElementById('reviewChecklist').classList.add('hidden');
+
+  statusEl.textContent = result.error;
+  statusEl.classList.remove('hidden');
+
+  // Redirect to YouTube only when the watch time is incomplete.
+  if (result.error.startsWith('Keep watching:')) {
+    const videoId = currentVideoMeta?.videoId;
+
+    if (videoId) {
       window.location.href =
-        `https://www.youtube.com/watch?v=${encodeURIComponent(task.videoId)}`;
+        `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
       return;
     }
-  } else {
-    applyChecklistResult(result);
-    document.getElementById('taskDetailModal').classList.add('hidden');
-    document.querySelector('[data-tab="mysubmissions"]').click();
-    await loadMarketplaceTasks();
   }
+} else if (result.status === 'rejected') {
+  applyChecklistResult(result);
+  statusEl.textContent = result.message || 'Your proof was rejected. Please try again.';
+  statusEl.classList.remove('hidden');
+  fileInput.value = '';
+} else {
+  applyChecklistResult(result);
+  document.getElementById('taskDetailModal').classList.add('hidden');
+  document.querySelector('[data-tab="mysubmissions"]').click();
+  await loadMarketplaceTasks();
+}
 
   submitBtn.disabled = false;
 });
