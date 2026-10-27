@@ -376,6 +376,12 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
     statusEl.textContent = result.message || 'Your proof was rejected. Please try again.';
     statusEl.classList.remove('hidden');
     fileInput.value = ''; // force a fresh screenshot
+        // Redirect to the YouTube video if the proof was rejected by time
+    if (result.timeOk === false && task?.videoId) {
+      window.location.href =
+        `https://www.youtube.com/watch?v=${encodeURIComponent(task.videoId)}`;
+      return;
+    }
   } else {
     applyChecklistResult(result);
     document.getElementById('taskDetailModal').classList.add('hidden');
