@@ -1,5 +1,6 @@
 let currentVideoMeta = { videoId: null, title: null, thumbnailUrl: null };
 let fetchDebounce;
+let currentTaskVideoId = null;
 let currentTaskId = null; // set this in openTaskDetail()
 let currentTaskList = [];   // populated by loadMarketplaceTasks()
 let currentMyPosts = [];    // same, for My Posts
@@ -113,6 +114,7 @@ document.getElementById('taskFeed').addEventListener('click', async (e) => {
 // ---- task detail modal ----
 async function openTaskDetail(task) {
   currentTaskId = task._id;
+  currentTaskVideoId = task.videoId;
 
   try {
     const started = await secureFetch('/api/marketplace/start', {
@@ -410,7 +412,7 @@ if (result.error) {
   const m = result.error.match(/^Keep watching: about (\d+) seconds/);
   if (m) {
     startWaitCountdown(Number(m[1]), statusEl, submitBtn);
-    const videoId = currentVideoMeta?.videoId;
+    const videoId = currentTaskVideoId;
     if (videoId) openVideo(videoId);
     return; // countdown controls the button, so don't re-enable it below
   }
