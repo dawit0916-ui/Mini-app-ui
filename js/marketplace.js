@@ -139,6 +139,7 @@ async function openTaskDetail(task) {
   countriesEl.innerHTML = (!task.allowedCountries || task.allowedCountries.length === 0)
     ? `<span class="badge badge-country">🌍 All countries</span>`
     : task.allowedCountries.map(c => `<span class="badge badge-country">${escapeHtml(countryNames[c] || c)}</span>`).join('');
+    clearInterval(waitTimer);
   resetProofForm();
   document.getElementById('taskDetailModal').classList.remove('hidden');
 }
@@ -329,6 +330,38 @@ if (result.error) throw new Error(result.error);
     submitBtn.textContent = 'Post task';
   }
 });
+let waitTimer = null;
+
+function openVideo(videoId) {
+  const url = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+  if (window.Telegram?.WebApp?.openLink) {
+    Telegram.WebApp.openLink(url); // opens outside, mini app stays alive so the countdown keeps running
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+function startWaitCountdown(seconds, statusEl, submitBtn) {
+  clearInterval(waitTimer);
+  if (!submitBtn.dataset.label) submitBtn.dataset.label = submitBtn.textContent;
+  let left = Math.max(1, Number(seconds) || 1);
+  submitBtn.disabled = true;
+
+  const tick = () => {
+    if (left <= 0) {
+      clearInterval(waitTimer);
+      statusEl.textContent = 'Watch time reached. Upload your screenshot now.';
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitBtn.dataset.label;
+      return;
+    }
+    statusEl.textContent = `Keep watching: ${left}s left before you can submit proof.`;
+    submitBtn.textContent = `Wait ${left}s`;
+    left--;
+  };
+  tick();
+  waitTimer = setInterval(tick, 1000);
+}
 // ---- submit proof (placeholder — wire to your API next) ----
  
 document.getElementById('submitProofBtn').addEventListener('click', async () => {
@@ -373,15 +406,13 @@ if (result.error) {
   statusEl.textContent = result.error;
   statusEl.classList.remove('hidden');
 
-  // Redirect to YouTube only when the watch time is incomplete.
-  if (result.error.startsWith('Keep watching:')) {
+  // Watch time not reached: wait the remaining seconds AND send them to the video
+  const m = result.error.match(/^Keep watching: about (\d+) seconds/);
+  if (m) {
+    startWaitCountdown(Number(m[1]), statusEl, submitBtn);
     const videoId = currentVideoMeta?.videoId;
-
-    if (videoId) {
-      window.location.href =
-        `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
-      return;
-    }
+    if (videoId) openVideo(videoId);
+    return; // countdown controls the button, so don't re-enable it below
   }
 } else if (result.status === 'rejected') {
   applyChecklistResult(result);
