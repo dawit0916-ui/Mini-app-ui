@@ -40,6 +40,7 @@ function renderReviewCard(sub) {
       <div class="review-actions">
         <button class="btn-approve" data-id="${id}">Approve</button>
         <button class="btn-reject" data-id="${id}">Reject</button>
+        ${hist.rejected > 0 ? `<button class="btn-clear-rej" data-user="${escapeHtml(sub.viewerUserId)}">Clear ${escapeHtml(hist.rejected)} rejected</button>` : ''}
       </div>
     </div>`;
 }
@@ -118,6 +119,27 @@ document.addEventListener('click', async (e) => {
     card?.remove();
   } catch (err) {
     showNotificationToast(`${isApprove ? 'Approve' : 'Reject'} failed — try again.`, 'error');
+    btn.disabled = false;
+  }
+});
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('#reviewQueue .btn-clear-rej');
+  if (!btn) return;
+  btn.disabled = true;
+  try {
+    const res = await secureFetch(
+      `/api/admin/marketplace/viewer/${encodeURIComponent(btn.dataset.user)}/clear-rejections`,
+      { method: 'POST' }
+    );
+    if (res.error) {
+      showNotificationToast(res.error, 'error');
+      btn.disabled = false;
+      return;
+    }
+    showNotificationToast(`Cleared ${res.deleted} rejected`, 'success');
+    loadMarketplaceReviewQueue();
+  } catch (err) {
+    showNotificationToast('Server unreachable', 'error');
     btn.disabled = false;
   }
 });
