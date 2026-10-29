@@ -342,6 +342,10 @@ function openVideo(videoId) {
     window.open(url, '_blank');
   }
 }
+document.getElementById('watchOnYoutubeBtn').addEventListener('click', (e) => {
+  e.preventDefault(); // a real tap, so Telegram allows it
+  if (currentTaskVideoId) openVideo(currentTaskVideoId);
+});
 
 function startWaitCountdown(seconds, statusEl, submitBtn) {
   clearInterval(waitTimer);
@@ -357,7 +361,7 @@ function startWaitCountdown(seconds, statusEl, submitBtn) {
       submitBtn.textContent = submitBtn.dataset.label;
       return;
     }
-    statusEl.textContent = `Keep watching: ${left}s left before you can submit proof.`;
+    statusEl.textContent = `Keep watching: ${left}s left. Tap "Watch on YouTube" to continue.`;
     submitBtn.textContent = `Wait ${left}s`;
     left--;
   };
@@ -410,12 +414,19 @@ if (result.error) {
 
   // Watch time not reached: wait the remaining seconds AND send them to the video
   const m = result.error.match(/^Keep watching: about (\d+) seconds/);
-  if (m) {
-    startWaitCountdown(Number(m[1]), statusEl, submitBtn);
-    const videoId = currentTaskVideoId;
-    if (videoId) openVideo(videoId);
-    return; // countdown controls the button, so don't re-enable it below
-  }
+if (m) {
+  startWaitCountdown(Number(m[1]), statusEl, submitBtn);
+
+  // guide them to the tap-able button
+  const watchBtn = document.getElementById('watchOnYoutubeBtn');
+  watchBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  watchBtn.classList.add('pulse');
+  setTimeout(() => watchBtn.classList.remove('pulse'), 4000);
+
+  // best effort only, may be blocked outside a tap
+  try { if (currentTaskVideoId) openVideo(currentTaskVideoId); } catch (e) {}
+  return;
+}
 } else if (result.status === 'rejected') {
   applyChecklistResult(result);
   statusEl.textContent = result.message || 'Your proof was rejected. Please try again.';
