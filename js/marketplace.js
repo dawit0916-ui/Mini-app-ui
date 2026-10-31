@@ -400,10 +400,35 @@ document.getElementById('submitProofBtn').addEventListener('click', async () => 
   formData.append('screenshot', file);
   formData.append('taskId', currentTaskId);
 
-  const [result] = await Promise.all([
-    secureFetch('/api/marketplace/submit', { method: 'POST', body: formData }),
-    animateChecklist(), // run the visual pacing alongside the real request
-  ]);
+    // live hint so the user can see it is still working
+  const startedAt = Date.now();
+  statusEl.textContent = 'Checking your proof…';
+  statusEl.classList.remove('hidden');
+  const hintTimer = setInterval(() => {
+    const s = Math.round((Date.now() - startedAt) / 1000);
+    statusEl.textContent = s < 8 ? 'Checking your proof…' : `Still checking… ${s}s (can take up to 10-20s)`;
+  }, 1000);
+
+  let result;
+  try {
+    [result] = await Promise.all([
+      secureFetch('/api/marketplace/submit', { method: 'POST', body: formData, timeoutMs: 60000 }),
+      animateChecklist(), // run the visual pacing alongside the real request
+    ]);
+  } catch (err) {
+    clearInterval(hintTimer);
+    document.getElementById('reviewChecklist').classList.add('hidden');
+    if (!String(err.message).startsWith('Account banned')) {
+      statusEl.textContent = err.name === 'AbortError'
+        ? 'This is taking too long. Your proof may still have been received, so check My Submissions before trying again.'
+        : 'Network problem. Check your connection and try again.';
+      statusEl.classList.remove('hidden');
+    }
+    submitBtn.disabled = false;
+    return;
+  }
+  clearInterval(hintTimer);
+  statusEl.classList.add('hidden');
 
 
 if (result.error) {
