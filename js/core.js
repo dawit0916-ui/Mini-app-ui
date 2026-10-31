@@ -69,35 +69,38 @@ let tasksRequired = 5;
 // UPGRADED REWORKED ECOSYSTEM SECURE FETCH ROUTER WITH MAINTENANCE CODES DETECT
 // ==========================================================================
 async function secureFetch(url, options = {}) {
-    // 1. Automatically inject authorization header configurations natively
     const absoluteUrl = url.startsWith('http') ? url : `${RENDER_URL}${url}`;
-    const isFormData = options.body instanceof FormData;
+    const { timeoutMs, ...fetchOptions } = options;
+    const isFormData = fetchOptions.body instanceof FormData;
     const headers = {
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || ''
     };
 
+    const ctrl = timeoutMs ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
+
     const config = {
-        ...options,
+        ...fetchOptions,
+        ...(ctrl ? { signal: ctrl.signal } : {}),
         headers: {
             ...headers,
-            ...options.headers
+            ...fetchOptions.headers
         }
     };
 
     try {
         const response = await fetch(absoluteUrl, config);
         if (response.status === 403) {
-    const errData = await response.json().catch(() => ({}));
-    if (errData.banned) {
-        const reason = errData.message || 'Your account has been suspended by an administrator.';
-        showBanOverlay(reason);
-        throw new Error('Account banned: ' + reason);
-    }
-    return { ...errData, error: errData.error || 'Access denied' };
+            const errData = await response.json().catch(() => ({}));
+            if (errData.banned) {
+                const reason = errData.message || 'Your account has been suspended by an administrator.';
+                showBanOverlay(reason);
+                throw new Error('Account banned: ' + reason);
+            }
+            return { ...errData, error: errData.error || 'Access denied' };
         }
 
-        // Return standard raw object maps out to calling layers if structural clearance passes
         if (!response.ok) {
             const errorPayload = await response.json().catch(() => ({}));
             return { ...errorPayload, error: errorPayload.error || `HTTP Error: ${response.status}` };
@@ -108,6 +111,8 @@ async function secureFetch(url, options = {}) {
     } catch (networkException) {
         console.error(`[Gateway Network Fault] Path: ${absoluteUrl} Trace:`, networkException.message);
         throw networkException;
+    } finally {
+        if (timer) clearTimeout(timer);
     }
 }
         
