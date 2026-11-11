@@ -20,7 +20,7 @@ function hideLoadingScreen() {
         setTimeout(() => {
             loader.classList.add('hidden');
             setTimeout(() => loader.remove(), 500);
-        }, 300);
+        }, 0);
     }
         }
 // 🛑 IMPORTANT: REPLACE THIS WITH YOUR RENDER URL
@@ -188,22 +188,22 @@ async function initApp() {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
         
+        // Profile is in: show the app now, the rest loads behind it
+        // (each loader draws its own skeleton)
+        setLoadingProgress(100, 'Ready!');
+        hideLoadingScreen();
 
-        setLoadingProgress(80, 'Loading...');
-        await Promise.all([
+        Promise.allSettled([
             initBannerCarousel(),
             loadAvailableTasks(),
             loadReferralData(),
             loadUserProfileMetrics(),
-        ]);
-
-        // Admin-only data — only fetched if the user is actually an admin
-        if (isCurrentUserAdmin) {
-            setLoadingProgress(96, 'Loading Ad...');
-            await loadAdminData().catch(e => console.warn('Admin data load failed:', e.message));
-        }
-
-        setLoadingProgress(100, 'Ready!');
+            isCurrentUserAdmin ? loadAdminData() : Promise.resolve(),
+        ]).then(results => {
+            results.forEach(r => {
+                if (r.status === 'rejected') console.warn('Background load failed:', r.reason);
+            });
+        });
 
     } catch (err) {
         console.error("Initialization pipeline caught an execution error:", err.message);
