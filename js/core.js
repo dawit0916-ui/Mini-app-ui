@@ -120,6 +120,7 @@ async function initApp() {
     try {
         if (window.__NOT_TMA) return;
         setLoadingProgress(50, 'Connecting...');
+        const profilePromise = secureFetch('/api/secure/profile').catch(() => null);
         await fetchAdminStatus();
 
         setLoadingProgress(55, 'Verifying account...');
@@ -160,7 +161,7 @@ async function initApp() {
 
         // 3. Fetch profile
         setLoadingProgress(60, 'Loading profile...');
-        const data = await secureFetch('/api/secure/profile');
+        const data = await profilePromise;
 
         if (data && !data.error) {
             let activeProfile = null;
@@ -188,17 +189,13 @@ async function initApp() {
         }
         
 
-        setLoadingProgress(70, 'Loading YT view...');
-        await initBannerCarousel();
-        // 4. Load everything the app needs, in parallel where safe
-        setLoadingProgress(75, 'Loading tasks...');
-        await loadAvailableTasks();
-
-        setLoadingProgress(80, 'Loading team...');
-        await loadReferralData();
-
-        setLoadingProgress(88, 'Loading stats...');
-        await loadUserProfileMetrics();
+        setLoadingProgress(80, 'Loading...');
+        await Promise.all([
+            initBannerCarousel(),
+            loadAvailableTasks(),
+            loadReferralData(),
+            loadUserProfileMetrics(),
+        ]);
 
         // Admin-only data — only fetched if the user is actually an admin
         if (isCurrentUserAdmin) {
