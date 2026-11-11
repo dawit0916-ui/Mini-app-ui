@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/(js|css|components)/(.*)",
+      "source": "/(js|components)/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
