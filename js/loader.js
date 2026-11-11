@@ -154,7 +154,6 @@ async function boot() {
         i++;
         const pct = 15 + Math.round((i / fetched.length) * 25); // 25% → 50%
         updateLoadingUI(pct, BOOT_MESSAGES[i % BOOT_MESSAGES.length]);
-        await nextFrame();
     }
     // Step 4 — DOM is complete and every function is defined. Boot the app.
     // initApp() takes over progress reporting from here (50% → 100%).
