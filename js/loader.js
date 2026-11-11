@@ -10,6 +10,8 @@
    3) Once the last JS file has run, calls initApp() — same as before.
    ========================================================================== */
 
+const BUILD = '20261111'; // change this number on every deploy
+
 const COMPONENTS = [
     { url: 'components/loading-screen.html', mount: 'mount-loading-screen' },
     { url: 'components/verify-gate.html',    mount: 'mount-verify-gate' },
@@ -94,7 +96,7 @@ async function injectComponent({ url, mount }) {
         return;
     }
     try {
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch(`${url}?v=${BUILD}`);
         if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         target.innerHTML = await res.text();
     } catch (err) {
@@ -104,7 +106,7 @@ async function injectComponent({ url, mount }) {
 }
 
 async function fetchScriptText(src) {
-    const res = await fetch(src, { cache: 'no-store' });
+    const res = await fetch(`${src}?v=${BUILD}`);
     if (!res.ok) throw new Error(`Loader: failed to fetch ${src} (${res.status})`);
     return { src, code: await res.text() };
 }
