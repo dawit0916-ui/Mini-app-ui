@@ -9,8 +9,7 @@
       wait).
    3) Once the last JS file has run, calls initApp() — same as before.
    ========================================================================== */
-
-const BUILD = '20261112'; // change this number on every deploy
+const BUILD = new URL(document.currentScript.src).searchParams.get('v') || 'dev';
 
 const COMPONENTS = [
     { url: 'components/loading-screen.html', mount: 'mount-loading-screen' },
