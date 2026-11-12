@@ -1,4 +1,4 @@
-name: Build Tailwind CSS and bump version
+name: Build assets and bump version
 on:
   push:
     branches: [main]
@@ -19,17 +19,26 @@ jobs:
         with:
           node-version: 20
       - run: npx --yes tailwindcss@3 -i tw-in.css -o css/tailwind.css --minify --content "./index.html,./components/**/*.html,./js/**/*.js"
+      - name: Shrink background image (1.9 MB PNG -> ~75 KB WebP)
+        run: |
+          if [ -f assets/images/bg.png ] && [ ! -f assets/images/bg.webp ]; then
+            sudo apt-get install -y webp
+            cwebp -q 70 -m 6 assets/images/bg.png -o assets/images/bg.webp
+          fi
+          if [ -f assets/images/bg.webp ]; then
+            sed -i "s#/assets/images/bg\.png#/assets/images/bg.webp#g" css/*.css
+          fi
       - name: Bump loader version
         run: |
           V=$(date -u +%Y%m%d%H%M%S)
           sed -i -E "s#js/loader\.js\?v=[A-Za-z0-9]+#js/loader.js?v=${V}#" index.html
       - name: Commit if changed
         run: |
-          if [ -n "$(git status --porcelain css/tailwind.css index.html)" ]; then
+          git add -A css assets index.html
+          if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add css/tailwind.css index.html
-            git commit -m "build: tailwind.css + version"
+            git commit -m "build: tailwind, images, version"
             git pull --rebase
             git push
           fi
