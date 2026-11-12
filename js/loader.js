@@ -138,6 +138,7 @@ function runScript(src, code) {
 }
 
 async function boot() {
+       window.__m = { start: Math.round(performance.now()) };
     // Start downloading every script right away, in parallel with the components.
     const scriptsPromise = Promise.all(SCRIPTS.map(fetchScriptText));
     scriptsPromise.catch(() => {}); // awaited below; avoids an unhandled-rejection warning
@@ -165,6 +166,7 @@ async function boot() {
         const pct = 15 + Math.round((i / fetched.length) * 25); // 25% → 50%
         updateLoadingUI(pct, BOOT_MESSAGES[i % BOOT_MESSAGES.length]);
     }
+       window.__m.ran = Math.round(performance.now());
     // Step 4 — DOM is complete and every function is defined. Boot the app.
     // initApp() takes over progress reporting from here (50% → 100%).
     if (typeof initApp === 'function') {
