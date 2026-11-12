@@ -1,4 +1,4 @@
-name: Build Tailwind CSS
+name: Build Tailwind CSS and bump version
 on:
   push:
     branches: [main]
@@ -19,12 +19,17 @@ jobs:
         with:
           node-version: 20
       - run: npx --yes tailwindcss@3 -i tw-in.css -o css/tailwind.css --minify --content "./index.html,./components/**/*.html,./js/**/*.js"
+      - name: Bump loader version
+        run: |
+          V=$(date -u +%Y%m%d%H%M%S)
+          sed -i -E "s#js/loader\.js\?v=[A-Za-z0-9]+#js/loader.js?v=${V}#" index.html
       - name: Commit if changed
         run: |
-          if [ -n "$(git status --porcelain css/tailwind.css)" ]; then
+          if [ -n "$(git status --porcelain css/tailwind.css index.html)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add css/tailwind.css
-            git commit -m "build: tailwind.css"
+            git add css/tailwind.css index.html
+            git commit -m "build: tailwind.css + version"
+            git pull --rebase
             git push
           fi
