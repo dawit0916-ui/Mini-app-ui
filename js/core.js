@@ -142,6 +142,7 @@ async function initApp() {
                 // One request for startup data. If it fails, every loader uses its own call.
         const boot = (window.__bootPromise && await window.__bootPromise)
             || await secureFetch('/api/secure/bootstrap').catch(() => null);
+                window.__m.boot = Math.round(performance.now());
         
         if (boot && boot.success) {
             seedBootCache({
@@ -236,6 +237,7 @@ async function initApp() {
                     'scripts: ' + end(scripts) + 'ms',
                     'bootstrap: ' + (bs ? Math.round(bs.startTime) + ' to ' + Math.round(bs.responseEnd) + 'ms' : 'none'),
                     'app visible: ' + Math.round(performance.now()) + 'ms',
+                    'marks: ' + JSON.stringify(window.__m),
                     'requests: ' + res.length + ', from cache: ' + cached
                 ].join('\n'));
             } catch (e) {}
