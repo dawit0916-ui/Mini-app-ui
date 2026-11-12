@@ -140,7 +140,9 @@ async function initApp() {
         if (window.__NOT_TMA) return;
         setLoadingProgress(50, 'Connecting...');
                 // One request for startup data. If it fails, every loader uses its own call.
-        const boot = await secureFetch('/api/secure/bootstrap').catch(() => null);
+        const boot = (window.__bootPromise && await window.__bootPromise)
+            || await secureFetch('/api/secure/bootstrap').catch(() => null);
+        
         if (boot && boot.success) {
             seedBootCache({
                 '/api/admin/check': boot.admin,
