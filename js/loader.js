@@ -28,7 +28,7 @@ window.__bootPromise = (async () => {
 })();
 
 const COMPONENTS = [
-    { url: 'components/loading-screen.html', mount: 'mount-loading-screen' },
+    
     { url: 'components/verify-gate.html',    mount: 'mount-verify-gate' },
     { url: 'components/streak.html',         mount: 'mount-streak' },
     { url: 'components/header.html',         mount: 'mount-header' },
