@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DASH | Premium</title>
+    <link rel="preconnect" href="https://embt-gateway.onrender.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="image" href="/assets/images/dash-coin.webp">
+    <!-- Loading screen styles are inline so it paints on the very first frame -->
+    <style>.loading-screen-overlay{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:linear-gradient(to bottom,#0d093c 0%,#070b21 50%,#100640 100%);transition:opacity 0.5s ease,visibility 0.5s ease;}.loading-screen-overlay::before{content:'';position:absolute;inset:0;background:transparent;}.loading-screen-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}.loading-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:0 40px;width:100%;max-width:360px;}.loading-logo-ring{width:130px;height:130px;border-radius:50%;border:2px solid rgba(59,130,246,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 0 50px rgba(59,130,246,0.3),inset 0 0 30px rgba(59,130,246,0.1);animation:loadingPulse 2.5s ease-in-out infinite;background:radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%);}.loading-logo-img{width:130px;height:130px;object-fit:contain;filter:drop-shadow(0 4px 20px rgba(59,130,246,0.5));}@keyframes loadingPulse{0%,100%{box-shadow:0 0 50px rgba(59,130,246,0.3),inset 0 0 30px rgba(59,130,246,0.1);}50%{box-shadow:0 0 70px rgba(59,130,246,0.5),inset 0 0 40px rgba(59,130,246,0.2);}}.loading-title{font-size:26px;font-weight:900;letter-spacing:0.08em;color:#f8fafc;text-shadow:0 0 20px rgba(59,130,246,0.5);margin-bottom:12px;}.loading-divider{display:flex;align-items:center;gap:8px;margin-bottom:12px;}.loading-dot-deco{width:4px;height:4px;border-radius:50%;background:#3b82f6;}.loading-line-deco{width:80px;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.5),transparent);}.loading-tagline{font-size:10px;font-weight:800;letter-spacing:0.25em;color:#64748b;text-transform:uppercase;margin-bottom:36px;}.loading-progress-track{width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:12px;}.loading-progress-fill{height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);box-shadow:0 0 12px rgba(59,130,246,0.6);transition:width 0.4s ease;}.loading-status-text{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;}.loading-tip-card{--tip-bg:#1a0e3f;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);width:calc(100% - 80px);max-width:300px;z-index:2;}.loading-tip-loader{display:flex;align-items:center;gap:8px;height:20px;overflow:hidden;}.loading-tip-label{font-size:9px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;color:#3b82f6;flex-shrink:0;}.loading-tip-words{position:relative;overflow:hidden;flex:1;height:100%;}.loading-tip-words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--tip-bg) 5%,transparent 25%,transparent 75%,var(--tip-bg) 95% );z-index:2;pointer-events:none;}.loading-tip-word{display:block;height:100%;line-height:20px;font-size:10px;font-weight:600;letter-spacing:0.03em;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:tipSpin 12s infinite;}@keyframes tipSpin{10%{transform:translateY(-102%);}25%{transform:translateY(-100%);}35%{transform:translateY(-202%);}50%{transform:translateY(-200%);}60%{transform:translateY(-302%);}75%{transform:translateY(-300%);}85%{transform:translateY(-402%);}100%{transform:translateY(-400%);}}</style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <!-- AdGrams SDK -->
+    <script defer src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script defer src='//libtl.com/sdk.js' data-zone='11246134' data-sdk='show_11246134'></script>
+</head>
+<body style="background:#0d093c">
+
+    <!-- Loading screen lives right here (not in a component) so it shows instantly -->
+    <div id="loading-screen" class="loading-screen-overlay"><div class="loading-content"><div class="loading-logo-ring"><img src="/assets/images/dash-coin.webp" alt="DASH" class="loading-logo-img"></div><h1 class="loading-title">DASH EARN</h1><div class="loading-divider"><span class="loading-dot-deco"></span><span class="loading-line-deco"></span><span class="loading-dot-deco"></span></div><p class="loading-tagline">EARN · WATCH · GROW</p><div class="loading-progress-track"><div id="loading-progress-fill" class="loading-progress-fill"></div></div><p id="loading-status-text" class="loading-status-text">Initializing...</p></div><div class="loading-tip-card"><div class="loading-tip-loader"><span class="loading-tip-label">tip</span><div class="loading-tip-words"><span class="loading-tip-word">Complete tasks to earn DASH</span><span class="loading-tip-word">Refer friends and earn 10% forever</span><span class="loading-tip-word">Watch ads to boost your balance fast</span><span class="loading-tip-word">Increase Your YOUTUBE view by YT view</span><span class="loading-tip-word">Complete tasks to earn DASH</span></div></div></div></div>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
     (function () {
@@ -32,44 +48,28 @@
         }
     })();
 </script>
-    <link rel="preconnect" href="https://embt-gateway.onrender.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <!-- AdGrams SDK -->
-    <script defer src="https://sad.adsgram.ai/js/sad.min.js"></script>
-    <script defer src='//libtl.com/sdk.js' data-zone='11246134' data-sdk='show_11246134'></script>
 
-   <link rel="stylesheet" href="css/base.css">
-   <link rel="stylesheet" href="css/loading.css">
-   <link rel="stylesheet" href="css/verify-gate.css">
-   <link rel="stylesheet" href="css/streak.css">
-   <link rel="stylesheet" href="css/banner.css">
-   <link rel="stylesheet" href="css/refresh.css">
-   <link rel="stylesheet" href="css/nav.css">
-   <link rel="stylesheet" href="css/marketplace.css">
-   <link rel="stylesheet" href="css/sheets.css">
-   <link rel="stylesheet" href="css/toast.css">
-   <link rel="stylesheet" href="css/popup.css">
-   <link rel="stylesheet" href="css/tasks.css">
-   <link rel="stylesheet" href="css/admin.css">
-   <link rel="stylesheet" href="css/misc.css">
-   <link rel="stylesheet" href="css/imagegen.css">
-   <link rel="stylesheet" href="css/video-player.css">  
-   <link rel="stylesheet" href="css/tailwind.css">
-</head>
-<body style="background:#0d093c">
+    <!-- Stylesheets are added by script so they never block the first paint.
+         The order below is the cascade order. -->
+    <script>
+    (function () {
+        var files = ['base', 'verify-gate', 'streak', 'banner', 'refresh', 'nav', 'marketplace', 'sheets', 'toast', 'popup', 'tasks', 'admin', 'misc', 'imagegen', 'video-player', 'tailwind'];
+        files.forEach(function (n) {
+            var l = document.createElement('link');
+            l.rel = 'stylesheet';
+            l.href = 'css/' + n + '.css';
+            document.head.appendChild(l);
+        });
+    })();
+    </script>
 
     <!-- ============================================================
          MOUNT POINTS
          loader.js fetches each components/*.html partial and injects
          it here, IN ORDER, before any feature JS or initApp() runs.
-         Do not add markup directly in this file — edit the matching
-         partial in /components instead, so the split stays in sync.
+         The loading screen is the one exception: it is written above.
          ============================================================ -->
 
-    <div id="mount-loading-screen"></div>
     <div id="mount-verify-gate"></div>
     <div id="mount-header"></div>
 
@@ -90,7 +90,7 @@
     <div id="mount-bottom-nav"></div>
 
     <!-- loader.js fetches components, injects them, then loads every
-         feature JS file below in strict order, then calls initApp(). -->
-    <script src="js/loader.js?v=20261112190728"></script>
+         feature JS file in strict order, then calls initApp(). -->
+    <script src="js/loader.js?v=20261112082131"></script>
 </body>
 </html>
