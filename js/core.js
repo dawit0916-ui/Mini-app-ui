@@ -68,7 +68,26 @@ let tasksRequired = 5;
 // ==========================================================================
 // UPGRADED REWORKED ECOSYSTEM SECURE FETCH ROUTER WITH MAINTENANCE CODES DETECT
 // ==========================================================================
+// Startup seed: /api/secure/bootstrap answers several endpoints at once.
+// Each seeded answer is handed out once (profile twice) within 20 seconds,
+// so the normal loaders get instant data and later refreshes stay fresh.
+const _bootSeed = {};
+function seedBootCache(map) {
+    const exp = Date.now() + 20000;
+    for (const url in map) {
+        if (map[url]) {
+            _bootSeed[url] = { v: map[url], exp, left: url === '/api/secure/profile' ? 2 : 1 };
+        }
+    }
+}
 async function secureFetch(url, options = {}) {
+    if (!options.method || options.method === 'GET') {
+        const hit = _bootSeed[url];
+        if (hit && hit.left > 0 && hit.exp > Date.now()) {
+            hit.left--;
+            return hit.v;
+        }
+    }
     const absoluteUrl = url.startsWith('http') ? url : `${RENDER_URL}${url}`;
     const { timeoutMs, ...fetchOptions } = options;
     const isFormData = fetchOptions.body instanceof FormData;
@@ -120,6 +139,18 @@ async function initApp() {
     try {
         if (window.__NOT_TMA) return;
         setLoadingProgress(50, 'Connecting...');
+                // One request for startup data. If it fails, every loader uses its own call.
+        const boot = await secureFetch('/api/secure/bootstrap').catch(() => null);
+        if (boot && boot.success) {
+            seedBootCache({
+                '/api/admin/check': boot.admin,
+                '/api/secure/profile': boot.profile,
+                '/api/secure/tasks-with-progress': boot.tasks,
+                '/api/secure/referrals': boot.referrals,
+                '/api/banners': boot.banners,
+                '/api/settings': boot.settings
+            });
+        }
         const profilePromise = secureFetch('/api/secure/profile').catch(() => null);
         await fetchAdminStatus();
 
