@@ -10,6 +10,22 @@
    3) Once the last JS file has run, calls initApp() — same as before.
    ========================================================================== */
 const BUILD = new URL(document.currentScript.src).searchParams.get('v') || 'dev';
+// Ask the server for the startup data right now, in parallel with everything
+// below. core.js picks the result up in initApp(). (The Render URL is repeated
+// here because core.js is not loaded yet.)
+window.__bootPromise = (async () => {
+    try {
+        const initData = window.Telegram?.WebApp?.initData || '';
+        if (!initData) return null;
+        const res = await fetch('https://embt-gateway.onrender.com/api/secure/bootstrap', {
+            headers: { 'X-Telegram-Init-Data': initData }
+        });
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (e) {
+        return null;
+    }
+})();
 
 const COMPONENTS = [
     { url: 'components/loading-screen.html', mount: 'mount-loading-screen' },
@@ -122,24 +138,19 @@ function runScript(src, code) {
 }
 
 async function boot() {
+    // Start downloading every script right away, in parallel with the components.
+    const scriptsPromise = Promise.all(SCRIPTS.map(fetchScriptText));
+    scriptsPromise.catch(() => {}); // awaited below; avoids an unhandled-rejection warning
+
     // Step 1 — inject all HTML partials in parallel.
     await Promise.all(COMPONENTS.map(injectComponent));
     updateLoadingUI(5, 'Loading interface...');
     await nextFrame();
 
-    // Step 2 — fetch every script's source in parallel, moving the bar
-    // 10% → 15% as each one arrives.
+    // Step 2 — wait for the scripts (already downloading).
     updateLoadingUI(10, BOOT_MESSAGES[0]);
-    await nextFrame();
-    let downloaded = 0;
-    const fetched = await Promise.all(
-        SCRIPTS.map(async (src) => {
-            const result = await fetchScriptText(src);
-            downloaded++;
-            updateLoadingUI(10 + Math.round((downloaded / SCRIPTS.length) * 5));
-            return result;
-        })
-    );
+    const fetched = await scriptsPromise;
+    updateLoadingUI(15);
 
     // Step 3 — run in original order, yielding a frame after each script
     // so the 15% → 50% progress is actually drawn.
