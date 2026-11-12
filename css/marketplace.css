@@ -89,7 +89,7 @@
 }
 .btn-start-earning:hover, .btn-primary:hover { box-shadow: 0 4px 20px rgba(244, 81, 30, 0.5); }
 
-.task-detail-modal { position: fixed; inset: 0; padding: 0 16px 28px; overflow-y: auto; z-index: 10000; background: linear-gradient(rgba(20,18,60,0.62), rgba(10,8,34,0.82)), url('/assets/images/bg.png') center / cover no-repeat; }
+.task-detail-modal { position: fixed; inset: 0; padding: 0 16px 28px; overflow-y: auto; z-index: 10000; background: linear-gradient(rgba(20,18,60,0.62), rgba(10,8,34,0.82)), url('/assets/images/bg.webp') center / cover no-repeat; }
 .task-detail-modal.hidden { display: none; }
 
 .task-detail-topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 -16px; padding: max(14px, env(safe-area-inset-top)) 16px 12px; background: #0a0822; border-bottom: 1px solid rgba(249,115,22,0.18); box-shadow: 0 8px 14px -8px rgba(0,0,0,0.8); }
