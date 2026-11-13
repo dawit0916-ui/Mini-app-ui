@@ -134,30 +134,27 @@ async function secureFetch(url, options = {}) {
         if (timer) clearTimeout(timer);
     }
 }
-        
+// ---- Instant open for returning users (last balance kept on this phone) ----
+function readSavedProfile() {
+    try {
+        const uid = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        const raw = JSON.parse(localStorage.getItem('dash_saved_profile') || 'null');
+        return (raw && uid && raw.uid === uid && !raw.is_banned) ? raw : null;
+    } catch (e) { return null; }
+}
+function saveProfileForNextOpen(p) {
+    try {
+        const uid = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (!uid || !p) return;
+        localStorage.setItem('dash_saved_profile', JSON.stringify({
+            uid, balance: p.balance || 0, is_banned: !!p.is_banned
+        }));
+    } catch (e) {}
+}
 async function initApp() {
     try {
         if (window.__NOT_TMA) return;
         setLoadingProgress(50, 'Connecting...');
-                // One request for startup data. If it fails, every loader uses its own call.
-        const boot = (window.__bootPromise && await window.__bootPromise)
-            || await secureFetch('/api/secure/bootstrap').catch(() => null);
-                window.__m.boot = Math.round(performance.now());
-        
-        if (boot && boot.success) {
-            seedBootCache({
-                '/api/admin/check': boot.admin,
-                '/api/secure/profile': boot.profile,
-                '/api/secure/tasks-with-progress': boot.tasks,
-                '/api/secure/referrals': boot.referrals,
-                '/api/banners': boot.banners,
-                '/api/settings': boot.settings
-            });
-        }
-        const profilePromise = secureFetch('/api/secure/profile').catch(() => null);
-        await fetchAdminStatus();
-
-        setLoadingProgress(55, 'Verifying account...');
         cachedUserProfile = null;
 
         const user = window.Telegram?.WebApp?.initDataUnsafe?.user || {
@@ -186,6 +183,38 @@ async function initApp() {
             }
         }
 
+        // Returning user: open the app now using the last saved balance,
+        // while fresh data loads behind it. First-time users keep the loading screen.
+        const saved = readSavedProfile();
+        if (saved) {
+            try {
+                const balanceMain = document.getElementById('balance-main');
+                if (balanceMain) balanceMain.innerText = parseInt(saved.balance || 0).toLocaleString();
+                updateHeaderBalances(saved.balance);
+                renderBannerSkeleton();
+                setLoadingProgress(100, 'Ready!');
+                hideLoadingScreen();
+            } catch (e) { /* fall back to the normal path */ }
+        }
+
+        // One request for startup data. If it fails, every loader uses its own call.
+        const boot = (window.__bootPromise && await window.__bootPromise)
+            || await secureFetch('/api/secure/bootstrap').catch(() => null);
+
+        if (boot && boot.success) {
+            seedBootCache({
+                '/api/admin/check': boot.admin,
+                '/api/secure/profile': boot.profile,
+                '/api/secure/tasks-with-progress': boot.tasks,
+                '/api/secure/referrals': boot.referrals,
+                '/api/banners': boot.banners,
+                '/api/settings': boot.settings
+            });
+        }
+        const profilePromise = secureFetch('/api/secure/profile').catch(() => null);
+        await fetchAdminStatus();
+
+        setLoadingProgress(55, 'Verifying account...');
         if (isCurrentUserAdmin) {
             document.getElementById('admin-badge')?.classList.remove('hidden');
             document.getElementById('nav-admin')?.classList.remove('hidden');
@@ -212,6 +241,7 @@ async function initApp() {
                 }
 
                 cachedUserProfile = activeProfile;
+                saveProfileForNextOpen(activeProfile);
 
                 const balanceMainEl = document.getElementById('balance-main');
                 if (balanceMainEl) balanceMainEl.innerText = parseInt(activeProfile.balance || 0).toLocaleString();
