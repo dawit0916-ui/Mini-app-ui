@@ -221,31 +221,12 @@ async function initApp() {
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
-                // TEMP DEBUG: remove after testing (shows only to admin)
-        if (isCurrentUserAdmin) {
-            try {
-                const nav = performance.getEntriesByType('navigation')[0];
-                const res = performance.getEntriesByType('resource');
-                const comps = res.filter(r => /\/components\//.test(r.name));
-                const scripts = res.filter(r => /\/js\//.test(r.name));
-                const bs = res.find(r => /\/api\/secure\/bootstrap/.test(r.name));
-                const cached = res.filter(r => r.transferSize === 0 && r.decodedBodySize > 0).length;
-                const end = a => a.length ? Math.round(Math.max(...a.map(r => r.responseEnd))) : 0;
-                tg.showAlert([
-                    'html: ' + Math.round(nav.responseEnd) + 'ms',
-                    'components: ' + end(comps) + 'ms',
-                    'scripts: ' + end(scripts) + 'ms',
-                    'bootstrap: ' + (bs ? Math.round(bs.startTime) + ' to ' + Math.round(bs.responseEnd) + 'ms' : 'none'),
-                    'app visible: ' + Math.round(performance.now()) + 'ms',
-                    'marks: ' + JSON.stringify(window.__m),
-                    'requests: ' + res.length + ', from cache: ' + cached
-                ].join('\n'));
-            } catch (e) {}
                                                                       }
         // Profile is in: show the app now, the rest loads behind it
         // (each loader draws its own skeleton)
         setLoadingProgress(100, 'Ready!');
         hideLoadingScreen();
+        setTimeout(function () { if (window.__loadAds) window.__loadAds(); }, 500);
 
         Promise.allSettled([
             initBannerCarousel(),
