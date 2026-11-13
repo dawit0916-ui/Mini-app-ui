@@ -28,6 +28,33 @@ jobs:
           if [ -f assets/images/bg.webp ]; then
             sed -i "s#/assets/images/bg\.png#/assets/images/bg.webp#g" css/*.css
           fi
+      - name: Shrink icons (about 50 KB -> 8 KB each, only if wider than 128 px)
+        run: |
+          pip install pillow
+          python3 - <<'PY'
+          import glob
+          from PIL import Image
+          for f in glob.glob('assets/images/nav-*.webp') + glob.glob('assets/images/icon-*.webp'):
+              im = Image.open(f)
+              if im.width > 128:
+                  h = int(im.height * 128 / im.width)
+                  im = im.convert('RGBA').resize((128, h), Image.LANCZOS)
+                  im.save(f, 'WEBP', quality=70, method=6)
+          PY
+      - name: Inline the loading-screen logo (200 px, about 27 KB, saves a 150 KB request)
+        run: |
+          python3 - <<'PY'
+          import base64, io
+          from PIL import Image
+          src = 'src="/assets/images/dash-coin.webp"'
+          h = open('index.html').read()
+          if src in h:
+              im = Image.open('assets/images/dash-coin.webp').convert('RGBA').resize((200, 200), Image.LANCZOS)
+              b = io.BytesIO(); im.save(b, 'WEBP', quality=60, method=6)
+              uri = 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode()
+              h = h.replace(src, 'src="' + uri + '"')
+              open('index.html', 'w').write(h)
+          PY
       - name: Bump loader version
         run: |
           V=$(date -u +%Y%m%d%H%M%S)
