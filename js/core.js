@@ -221,7 +221,7 @@ async function initApp() {
         } else {
             console.warn("Profile structure unexpected or unauthenticated:", data);
         }
-                                                                      }
+                                                                      
         // Profile is in: show the app now, the rest loads behind it
         // (each loader draws its own skeleton)
         setLoadingProgress(100, 'Ready!');
