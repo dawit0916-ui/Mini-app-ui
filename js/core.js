@@ -134,6 +134,13 @@ async function secureFetch(url, options = {}) {
         if (timer) clearTimeout(timer);
     }
 }
+// Wait (max 4 s) until every stylesheet has loaded, so the app is never shown unstyled.
+function waitForStyles() {
+    return Promise.race([
+        window.__cssReady || Promise.resolve(),
+        new Promise(function (r) { setTimeout(r, 4000); })
+    ]);
+    }
 // ---- Instant open for returning users (last balance kept on this phone) ----
 function readSavedProfile() {
     try {
@@ -192,6 +199,7 @@ async function initApp() {
                 if (balanceMain) balanceMain.innerText = parseInt(saved.balance || 0).toLocaleString();
                 updateHeaderBalances(saved.balance);
                 renderBannerSkeleton();
+                await waitForStyles();
                 setLoadingProgress(100, 'Ready!');
                 hideLoadingScreen();
             } catch (e) { /* fall back to the normal path */ }
@@ -254,6 +262,7 @@ async function initApp() {
                                                                       
         // Profile is in: show the app now, the rest loads behind it
         // (each loader draws its own skeleton)
+        await waitForStyles();
         setLoadingProgress(100, 'Ready!');
         hideLoadingScreen();
         setTimeout(function () { if (window.__loadAds) window.__loadAds(); }, 500);
