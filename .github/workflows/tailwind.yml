@@ -1,3 +1,5 @@
+
+
 name: Build assets and bump version
 on:
   push:
@@ -6,6 +8,7 @@ on:
       - 'index.html'
       - 'components/**'
       - 'js/**'
+      - 'css/**'
       - 'tw-in.css'
   workflow_dispatch:
 permissions:
@@ -59,6 +62,7 @@ jobs:
         run: |
           V=$(date -u +%Y%m%d%H%M%S)
           sed -i -E "s#js/loader\.js\?v=[A-Za-z0-9]+#js/loader.js?v=${V}#" index.html
+          sed -i -E "s#(var V = ')[A-Za-z0-9]+(')#\1${V}\2#" index.html
       - name: Commit if changed
         run: |
           git add -A css assets index.html
