@@ -136,11 +136,14 @@ async function secureFetch(url, options = {}) {
 }
 // Wait (max 4 s) until every stylesheet has loaded, so the app is never shown unstyled.
 function waitForStyles() {
+    var t0 = performance.now();
     return Promise.race([
         window.__cssReady || Promise.resolve(),
-        new Promise(function (r) { setTimeout(r, 4000); })
-    ]);
-    }
+        new Promise(function (r) { setTimeout(r, 2000); })
+    ]).then(function () {
+        window.__css = { waited: Math.round(performance.now() - t0), at: Math.round(performance.now()) };
+    });
+}
 // ---- Instant open for returning users (last balance kept on this phone) ----
 function readSavedProfile() {
     try {
@@ -200,6 +203,7 @@ async function initApp() {
                 updateHeaderBalances(saved.balance);
                 renderBannerSkeleton();
                 await waitForStyles();
+                window.__early = Math.round(performance.now());
                 setLoadingProgress(100, 'Ready!');
                 hideLoadingScreen();
             } catch (e) { /* fall back to the normal path */ }
@@ -265,6 +269,10 @@ async function initApp() {
         await waitForStyles();
         setLoadingProgress(100, 'Ready!');
         hideLoadingScreen();
+              // TEMP TIMING (admin only): remove after testing
+        if (isCurrentUserAdmin) {
+            tg.showAlert('css ready at ' + (window.__css ? window.__css.at : '?') + 'ms (waited ' + (window.__css ? window.__css.waited : '?') + 'ms)\nshown early at ' + (window.__early || 'no') + 'ms\ndata ready at ' + Math.round(performance.now()) + 'ms');
+        }
         setTimeout(function () { if (window.__loadAds) window.__loadAds(); }, 500);
 
         Promise.allSettled([
