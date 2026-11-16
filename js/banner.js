@@ -32,6 +32,7 @@ async function initBannerCarousel() {
 function renderBannerSkeleton() {
   const track = document.getElementById('bannerTrack');
   if (!track) return;
+  if (track.firstElementChild && track.firstElementChild.classList.contains('banner-skeleton')) return;
   track.innerHTML = `<div class="banner-skeleton"></div>`;
   const dots = document.getElementById('bannerDots');
   if (dots) dots.innerHTML = '';
