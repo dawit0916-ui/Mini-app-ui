@@ -65,7 +65,6 @@ const SCRIPTS = [
     'js/profile.js',
     'js/reminders.js',
     'js/shop.js',
-    'js/imagegen.js',
     'js/shop-admin.js',
     'js/video-player.js',
     'js/support.js',
