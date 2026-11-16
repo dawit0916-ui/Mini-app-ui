@@ -67,12 +67,17 @@
          The order below is the cascade order. -->
     <script>
     (function () {
+        var V = '20261113093847'; // updated automatically by the build
         var files = ['base', 'verify-gate', 'streak', 'banner', 'refresh', 'nav', 'marketplace', 'sheets', 'toast', 'popup', 'tasks', 'admin', 'misc', 'imagegen', 'video-player', 'tailwind'];
-        files.forEach(function (n) {
-            var l = document.createElement('link');
-            l.rel = 'stylesheet';
-            l.href = 'css/' + n + '.css';
-            document.head.appendChild(l);
+        var pending = files.length;
+        window.__cssReady = new Promise(function (resolve) {
+            files.forEach(function (n) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = 'css/' + n + '.css?v=' + V;
+                l.onload = l.onerror = function () { if (--pending === 0) resolve(); };
+                document.head.appendChild(l);
+            });
         });
     })();
     </script>
