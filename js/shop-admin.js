@@ -8,7 +8,7 @@ function switchShopAdminTab(tab) {
         el.classList.remove('bg-purple-600', 'text-white');
         el.classList.add('text-slate-400');
     });
-    ['courses', 'apk', 'imagegen', 'stats'].forEach(t => {
+    ['courses', 'apk', 'stats'].forEach(t => {
         document.getElementById(`admin-shop-${t}`).classList.add('hidden');
     });
 
