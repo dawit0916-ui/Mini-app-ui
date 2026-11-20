@@ -135,22 +135,52 @@ function runScript(src, code) {
     s.textContent = `//# sourceURL=${src}\n${code}`;
     document.body.appendChild(s);
 }
+// One request that carries every component and script (built by the GitHub Action).
+// Returns null if it is missing or broken, and boot() then loads files one by one as before.
+async function fetchBundle() {
+    try {
+        const res = await fetch(`js/app.bundle.json?v=${BUILD}`);
+        if (!res.ok) return null;
+        const b = await res.json();
+        return (b && Array.isArray(b.components) && Array.isArray(b.scripts) && b.scripts.length) ? b : null;
+    } catch (e) {
+        return null;
+    }
+}
 
 async function boot() {
        
-    // Start downloading every script right away, in parallel with the components.
-    const scriptsPromise = Promise.all(SCRIPTS.map(fetchScriptText));
-    scriptsPromise.catch(() => {}); // awaited below; avoids an unhandled-rejection warning
+    const bundle = await fetchBundle();
+    let fetched;
 
-    // Step 1 — inject all HTML partials in parallel.
-    await Promise.all(COMPONENTS.map(injectComponent));
-    updateLoadingUI(5, 'Loading interface...');
-    await nextFrame();
+    if (bundle) {
+        // Fast path: everything arrived in ONE request.
+        for (const c of bundle.components) {
+            const target = document.getElementById(c.mount);
+            if (target) target.innerHTML = c.html;
+            else console.error(`Loader: mount point #${c.mount} not found in index.html`);
+        }
+        updateLoadingUI(5, 'Loading interface...');
+        await nextFrame();
+        updateLoadingUI(10, BOOT_MESSAGES[0]);
+        fetched = bundle.scripts;
+        updateLoadingUI(15);
+    } else {
+        // Fallback: load every file separately (the previous behaviour).
+        // Start downloading every script right away, in parallel with the components.
+        const scriptsPromise = Promise.all(SCRIPTS.map(fetchScriptText));
+        scriptsPromise.catch(() => {}); // awaited below; avoids an unhandled-rejection warning
 
-    // Step 2 — wait for the scripts (already downloading).
-    updateLoadingUI(10, BOOT_MESSAGES[0]);
-    const fetched = await scriptsPromise;
-    updateLoadingUI(15);
+        // Step 1 — inject all HTML partials in parallel.
+        await Promise.all(COMPONENTS.map(injectComponent));
+        updateLoadingUI(5, 'Loading interface...');
+        await nextFrame();
+
+        // Step 2 — wait for the scripts (already downloading).
+        updateLoadingUI(10, BOOT_MESSAGES[0]);
+        fetched = await scriptsPromise;
+        updateLoadingUI(15);
+    }
 
     // Step 3 — run in original order, yielding a frame after each script
     // so the 15% → 50% progress is actually drawn.
