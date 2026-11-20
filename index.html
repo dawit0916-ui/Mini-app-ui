@@ -69,15 +69,25 @@
     (function () {
         var V = '20261116191502'; // updated automatically by the build
         var files = ['base', 'verify-gate', 'streak', 'banner', 'refresh', 'nav', 'marketplace', 'sheets', 'toast', 'popup', 'tasks', 'admin', 'misc', 'video-player', 'tailwind'];
-        var pending = files.length;
         window.__cssReady = new Promise(function (resolve) {
-            files.forEach(function (n) {
-                var l = document.createElement('link');
-                l.rel = 'stylesheet';
-                l.href = 'css/' + n + '.css?v=' + V;
-                l.onload = l.onerror = function () { if (--pending === 0) resolve(); };
-                document.head.appendChild(l);
-            });
+            // Fallback: one file at a time (the previous behaviour)
+            function loadSeparately() {
+                var pending = files.length;
+                files.forEach(function (n) {
+                    var l = document.createElement('link');
+                    l.rel = 'stylesheet';
+                    l.href = 'css/' + n + '.css?v=' + V;
+                    l.onload = l.onerror = function () { if (--pending === 0) resolve(); };
+                    document.head.appendChild(l);
+                });
+            }
+            // Fast path: ONE stylesheet that contains all of them
+            var b = document.createElement('link');
+            b.rel = 'stylesheet';
+            b.href = 'css/app.bundle.css?v=' + V;
+            b.onload = resolve;
+            b.onerror = function () { if (b.parentNode) b.parentNode.removeChild(b); loadSeparately(); };
+            document.head.appendChild(b);
         });
     })();
     </script>
