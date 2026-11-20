@@ -202,8 +202,7 @@ async function initApp() {
                 if (balanceMain) balanceMain.innerText = parseInt(saved.balance || 0).toLocaleString();
                 updateHeaderBalances(saved.balance);
                 renderBannerSkeleton();
-                await waitForStyles();
-                window.__early = Math.round(performance.now());                
+                await waitForStyles();                      
                 setLoadingProgress(100, 'Ready!');
                 hideLoadingScreen();
             } catch (e) { /* fall back to the normal path */ }
@@ -266,7 +265,7 @@ async function initApp() {
                                                                       
         // Profile is in: show the app now, the rest loads behind it
         // (each loader draws its own skeleton)
-                await waitForStyles();
+        await waitForStyles();
         setLoadingProgress(100, 'Ready!');
         hideLoadingScreen();
         setTimeout(function () { if (window.__loadAds) window.__loadAds(); }, 500);
@@ -285,24 +284,13 @@ async function initApp() {
 
     } catch (err) {
         console.error("Initialization pipeline caught an execution error:", err.message);
-    } finally {
+        } finally {
         hideLoadingScreen();
-                // TEMP TIMING (admin only): remove after testing
-        if (isCurrentUserAdmin) {
-            try {
-                const nav = performance.getEntriesByType('navigation')[0];
-                const res = performance.getEntriesByType('resource');
-                const bundle = res.find(r => /app\.bundle\.json/.test(r.name));
-                const css = res.find(r => /app\.bundle\.css/.test(r.name));
-                const bs = res.find(r => /\/api\/secure\/bootstrap/.test(r.name));
-                const t = x => x ? Math.round(x.responseEnd) : '-';
-                tg.showAlert('page: ' + Math.round(nav.responseEnd) + 'ms\nbundle: ' + t(bundle) + 'ms' + (bundle && bundle.transferSize === 0 ? ' (cache)' : '') + '\ncss: ' + t(css) + 'ms\nbootstrap: ' + t(bs) + 'ms\nshown early: ' + (window.__early || 'no') + 'ms\ndata ready: ' + Math.round(performance.now()) + 'ms');
-            } catch (e) {}
-        }
         checkStreakOnAppStart();
         handleDeepLinkSection();
     }
-        }
+       
+}
     // pull-to-refresh setup continues below, unchanged
 let _pullStartY = 0;
 let _pullRefreshing = false;
