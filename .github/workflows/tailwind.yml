@@ -10,6 +10,7 @@ on:
       - 'js/**'
       - 'css/**'
       - 'tw-in.css'
+      - 'tools/**'
   workflow_dispatch:
 permissions:
   contents: write
@@ -58,6 +59,8 @@ jobs:
               h = h.replace(src, 'src="' + uri + '"')
               open('index.html', 'w').write(h)
           PY
+      - name: Validate and bundle (1 request instead of ~45)
+        run: node tools/bundle.js          
       - name: Bump loader version
         run: |
           V=$(date -u +%Y%m%d%H%M%S)
@@ -65,7 +68,7 @@ jobs:
           sed -i -E "s#(var V = ')[A-Za-z0-9]+(')#\1${V}\2#" index.html
       - name: Commit if changed
         run: |
-          git add -A css assets index.html
+          git add -A css assets js index.html
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
