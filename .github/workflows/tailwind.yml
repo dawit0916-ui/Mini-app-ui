@@ -59,6 +59,14 @@ jobs:
               h = h.replace(src, 'src="' + uri + '"')
               open('index.html', 'w').write(h)
           PY
+      - name: Self-host the Inter font (one time)
+        run: |
+          if [ ! -f assets/fonts/inter-latin.woff2 ]; then
+            mkdir -p /tmp/fontpkg && cd /tmp/fontpkg && npm init -y >/dev/null && npm i @fontsource-variable/inter@5 --silent
+            cd "$GITHUB_WORKSPACE"
+            mkdir -p assets/fonts
+            cp /tmp/fontpkg/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2 assets/fonts/inter-latin.woff2
+          fi
       - name: Validate and bundle (1 request instead of ~45)
         run: node tools/bundle.js          
       - name: Bump loader version
