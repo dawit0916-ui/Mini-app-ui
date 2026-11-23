@@ -7,6 +7,7 @@ on:
     paths:
       - 'index.html'
       - 'components/**'
+      - 'assets/**'
       - 'js/**'
       - 'css/**'
       - 'tw-in.css'
@@ -58,6 +59,20 @@ jobs:
               uri = 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode()
               h = h.replace(src, 'src="' + uri + '"')
               open('index.html', 'w').write(h)
+          PY
+      - name: Make light WebP copies of big banner and thumbnail PNGs
+        run: |
+          python3 - <<'PY'
+          import glob, os
+          from PIL import Image
+          for f in glob.glob('assets/banners/*.png') + glob.glob('assets/thumbnails/*.png'):
+              out = f[:-4] + '.webp'
+              if os.path.getsize(f) > 100 * 1024 and not os.path.exists(out):
+                  im = Image.open(f)
+                  im = im.convert('RGBA' if im.mode in ('RGBA', 'LA', 'P') else 'RGB')
+                  if im.width > 1000:
+                      im = im.resize((1000, int(im.height * 1000 / im.width)), Image.LANCZOS)
+                  im.save(out, 'WEBP', quality=75, method=6)
           PY
       - name: Self-host the Inter font (one time)
         run: |
