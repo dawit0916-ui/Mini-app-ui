@@ -29,6 +29,13 @@ async function initBannerCarousel() {
   startAutoAdvance();
 }
 
+// Use the light WebP copy of a banner PNG when it exists (the GitHub Action makes them);
+// if it is missing the <img> falls back to the original file.
+function lightBanner(url) {
+  return (typeof url === 'string' && /^\/?assets\/banners\/[^?#]+\.png$/i.test(url))
+    ? url.replace(/\.png$/i, '.webp')
+    : url;
+}
 function renderBannerSkeleton() {
   const track = document.getElementById('bannerTrack');
   if (!track) return;
@@ -45,7 +52,7 @@ function renderBannerSlides() {
 
   track.innerHTML = bannerSlides.map((s, i) => `
     <div class="banner-slide" data-index="${i}" data-slide-id="${s._id || ''}" data-action-type="${s.actionType}" data-action-target="${s.actionTarget}">
-      <img src="${s.imageUrl}" alt="${s.title || ''}" draggable="false" ${i === 0 ? '' : 'loading="lazy"'}>
+      <img src="${lightBanner(s.imageUrl)}" data-orig="${s.imageUrl}" onerror="if(this.dataset.orig&&this.src.indexOf(this.dataset.orig)===-1){this.src=this.dataset.orig}" alt="${s.title || ''}" draggable="false" ${i === 0 ? '' : 'loading="lazy"'}>
       ${(s.title || s.subtitle) ? `
         <div class="banner-slide-text">
           ${s.title ? `<p class="banner-slide-title">${s.title}</p>` : ''}
